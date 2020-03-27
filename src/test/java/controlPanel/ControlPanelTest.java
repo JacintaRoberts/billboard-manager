@@ -4,11 +4,17 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 class ControlPanelTest {
-    /* Test 0: Declaring ControlPanel object
+    /* Test 0: Declaring ControlPanel object.
+     * Description: ControlPanel Object is created upon application start.
+     * Input: Nil
+     * Output: ControlPanel Object is created
      */
     ControlPanel controlpanel;
 
     /* Test 1: Constructing a ControlPanel object
+     * Description: ControlPanel Object is created upon application start.
+     * Input: Nil
+     * Output: ControlPanel Object is created
      */
     @BeforeEach
     @Test
