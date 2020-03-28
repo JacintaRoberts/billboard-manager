@@ -1,0 +1,5 @@
+// Server to DB Properties
+jdbc.url=jdbc:mysql://localhost:3306
+jdbc.schema=cab302
+jdbc.username=root
+jdbc.password=

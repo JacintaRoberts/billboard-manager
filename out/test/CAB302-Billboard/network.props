@@ -1,0 +1,3 @@
+// ControlPanel/Viewer to Server Properties
+port = 4444
+ip = 127.0.0.1
