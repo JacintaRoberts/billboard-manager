@@ -7,14 +7,14 @@ class ControlPanelTest {
     /* Test 0: Declaring ControlPanel object.
      * Description: ControlPanel Object is created upon application start.
      * Input: Nil
-     * Output: ControlPanel Object is created
+     * Output: ControlPanel Object is declared
      */
     ControlPanel controlpanel;
 
     /* Test 1: Constructing a ControlPanel object
      * Description: ControlPanel Object is created upon application start.
      * Input: Nil
-     * Output: ControlPanel Object is created
+     * Output: ControlPanel Object is instantiated from ControlPanel class
      */
     @BeforeEach
     @Test
