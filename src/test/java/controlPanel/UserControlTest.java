@@ -21,22 +21,59 @@ class UserControlTest {
 //      userControl = new UserControl();
 //    }
 
-    public void createUsers(){
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void listUsers(String sessionToken){
 
     }
 
-    public void listUsers(){
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void createUserRequest(String currentUser, String newUsername, String sessionToken) {
 
     }
 
-    public void getUserPermission(){
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void setUserPasswordRequest(String sessionToken, String newPassword) {
 
     }
 
 
-    public void sendUserCommand(){
-        // sends a string to server with commadn
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void createUsers(String sessionToken, String newUsername, String newPassword){
+
     }
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void getUserPermission(String sessionToken, String currentUser){
+
+    }
+
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void setUserPermission(String sessionToken, String currentUser, String targetUser, boolean[] permissions) {
+
+    }
+
 
 
 }

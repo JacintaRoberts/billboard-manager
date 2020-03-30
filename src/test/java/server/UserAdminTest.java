@@ -2,8 +2,6 @@ package server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.IOException;
-import static org.junit.jupiter.api.Assertions.*;
 
 class UserAdminTest{
     /* Test 0: Declaring UserAdmin object
@@ -22,6 +20,17 @@ class UserAdminTest{
         String userName = "root";
         userAdmin = new UserAdmin(userName);
     }
+
+
+    /* Test 2: Validate SessionToken
+     * Description: Check that User is still logged in and can do actions
+     * Expected Output: A boolean where True is given if session is active and false if session is inactive
+     * TODO: outComes is a array consist of 0/1, outPut is the return of the check for sessionToken
+     */
+//    @Test
+//    public void verifySession(String sessionToken) {
+//      assertTrue(outComes.contains(outPut));
+//    }
 
     /* Test 2: Get Own Users Permissions
      * Description: Check that any user can see their own user permissions (int[4])
@@ -271,8 +280,10 @@ class UserAdminTest{
 //    public void setUserPermissions() {
 //      int[] requestedPermissions = {1,1,0,0};
 //      bool success = userAdmin.setUserPermissions("Jenny", requestedPermissions, sessionToken);
-//      assertEquals(requestedPermissions, userAdmin.getUserPermissions("Jenny"));
-//      assertTrue(success);
+//      assertAll("Check for Delete Users",
+//        ()-> assertEquals(requestedPermissions, userAdmin.getUserPermissions("Jenny")),
+//        ()-> assertTrue(success)
+//      )
 //    }
 
     /* Test 18: Delete User (exception handling)

@@ -66,6 +66,7 @@ class ControlPanelTest {
     * Input: Username and password
     * Output: Receives sessionToken from Server.
     * // TODO: May want to edit the input name variable - which is the input buffer read from the client
+    *          Also check if we want to use session token to verify or a loginStatus
      */
 //    @Test
 //    public void loginRequest(String username, String Password) {
@@ -85,6 +86,17 @@ class ControlPanelTest {
 //      assertFalse(input);
 //    }
 
+
+    /* Test 8: ControlPanel - Logout (Success)
+     * Description: Login Request sent to Server. Server will acknowledge request once the local memory in server
+     *              Deletes the sessionToken. The User is brought back to the login Screen
+     * Output: The user will receive logout confirmation and be sent back to the login screen
+     * // TODO: Check if the assert will be an eventCheck to the login screen Also check if calling other packages are g
+     */
+//    @Test
+//    public void logoutRequest() {
+//      assertFalse(userControl.sessionToken.length() > 1);
+//    }
 
 
 
