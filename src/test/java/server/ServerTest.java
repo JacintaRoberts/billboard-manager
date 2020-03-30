@@ -16,9 +16,9 @@ class ServerTest {
      */
     @BeforeEach
     @Test
-    public void setUpServer() {
-        server = new Server();
-    }
+//    public void setUpServer() {
+//        server = new Server();
+//    }
 
 
     /* Test 8: Listen for Connection with Default IP (success)
