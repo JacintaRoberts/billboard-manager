@@ -22,10 +22,13 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test x: Request to server to
-     * Description:
+    /* Test 2: Request to server to create Billboard
+     * Description: Method to request server to create a new billboard
      * Expected Output:
      */
+    public void createABillboardRequest(){
+
+    }
     public void createBillboardRequest(String sessionToken, String billboardName, String xmlCode){
 
     }

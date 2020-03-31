@@ -3,8 +3,6 @@ package controlPanel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 class ScheduleControlTest {
 
     /* Test 0: Declaring ScheduleControl object
@@ -22,4 +20,45 @@ class ScheduleControlTest {
 //    public void setUpScheduleControl() {
 //      scheduleControl = new ScheduleControl();
 //    }
+
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void viewScheduleRequest(String sessionToken){
+
+    }
+
+
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void viewBillboardScheduleRequest(String sessionToken, String billboard){
+
+    }
+
+
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void scheduleBillboardRequest(String sessionToken, String billboard, String time, String duration){
+
+    }
+
+
+
+    /* Test x: Request to server to
+     * Description:
+     * Expected Output:
+     */
+    public void removeFromScheduleRequest(String sessionToken, String billboard){
+
+    }
+
+
 }
