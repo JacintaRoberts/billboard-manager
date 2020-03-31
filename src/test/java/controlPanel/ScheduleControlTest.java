@@ -22,19 +22,21 @@ class ScheduleControlTest {
 //    }
 
 
-    /* Test x: Request to server to
-     * Description:
-     * Expected Output:
+    /* Test 2: Request to server to view billboard Schedules
+     * Description: Method to request to server to view billboard schedules. Assume sessionToken is valid.
+     * Expected Output: Server will return a string of schedules
+     * // TODO: *****ASK*****double check how schedules are stored for returns
      */
-    public void viewScheduleRequest(String sessionToken){
+//    public void viewScheduleRequest(String sessionToken){
+//
+//    }
 
-    }
 
 
-
-    /* Test x: Request to server to
-     * Description:
-     * Expected Output:
+    /* Test x: Request to server to View specific billboard information
+     * Description: Method to request to server for specific billboard information
+     * Expected Output: Server will retrun ____ ?
+     * // TODO: *****ASK***** Check the return
      */
     public void viewBillboardScheduleRequest(String sessionToken, String billboard){
 
