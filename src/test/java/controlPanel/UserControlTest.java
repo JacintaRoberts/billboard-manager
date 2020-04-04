@@ -21,14 +21,14 @@ class UserControlTest {
 //      userControl = new UserControl();
 //    }
 
-    /* Test 2: Log out (success)
-     * Description: Check that the user is able to log out and the session token is destroyed.
-     * Expected Output: Successful log out of the user and the session token is no longer available.
+    /* Test 2: Log out Request (success)
+     * Description: User's request to log out is sent to the server and an acknowledgement is received
+     * Expected Output: Successful log out of the user, acknowledgement received and the session token is expired.
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void logOut() {
-//      bool success = userAdmin.logout()
-//      assertTrue(success);
+//      bool acknowledgement = userControl.logout(sessionToken)
+//      assertTrue(acknowledgment);
 //    }
 
     /* Test 3: Request to server to Create New Users (Success)

@@ -56,4 +56,33 @@ class ServerTest {
 //        });
 //    }
 
+    /* Test 5: Login Response (success)
+     * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
+     *              an error or a valid session token. (Permissions required: none.)
+     * Expected Output: Return a valid session token.
+     */
+//    @Test(expected = Test.None.class /* no exception expected */)
+//    public void loginResponse() {
+//          // Ensure this test user exists with this password in the fake DB where this method is implemented
+//            sessionToken response = server.loginResponse("test0", "pass")
+//        });
+//    }
+
+    /* Test 6: Login Response (error handling)
+     * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
+     *              an error or a valid session token. (Permissions required: none.)
+     * Expected Output: Return an invalid session token and throw incorrectPasswordException
+     */
+//    @Test
+//    public void loginResponse() {
+//      userAdmin = new UserAdmin("root");
+//      bool userExists = userAdmin.userExists("testUser");
+//      assertTrue(userExists);
+//      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
+//      assertThrows(incorrectPasswordException.class, () -> {
+//          sessionToken response = server.loginResponse("test1", "wrongPass")
+//       });
+//    }
+
+
 }

@@ -27,8 +27,8 @@ class UserAdminTest{
      * TODO: outComes is a array consist of 0/1, outPut is the return of the check for sessionToken
      */
 //    @Test
-//    public void verifySession(String sessionToken) {
-//      assertTrue(outComes.contains(outPut));
+//    public void verifySession() {
+//      assertTrue(outComes.contains(sessionToken));
 //    }
 
     /* Test 3: Check User Exists (Helper)
@@ -432,6 +432,19 @@ class UserAdminTest{
 //      // Check return value
 //      assertTrue(success1);
 //      assertFalse(success2);
+//    }
+
+    /* Test 28: Log out Response (success)
+     * Description: The Control Panel will send the Server a valid session token and the Server will expire that
+     *              session token and send back a boolean acknowledgement for success/failure.
+     * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
+     */
+//    @Test(expected = Test.None.class /* no exception expected */)
+//    public void logOut() {
+//      bool success = userAdmin.logout(sessionToken)
+//      assertTrue(success);
+//      // Valid session token holder should not hold the sessionToken anymore
+//      assertFalse(outComes.contains(sessionToken));
 //    }
 
 }
