@@ -108,13 +108,38 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test x: Request to server to
-     * Description:
-     * Expected Output:
+    /* Test 9: Request to server to get billboard information (Success)
+     * Description: A method to request billboard information of a given billboard - Information provided will include
+     *              informations such as billboardName, Creator, start date, duration.
+     * Expected Output: Return of billboard information such as billboardName, Creator, start date, duration
+     * // TODO: *******ASK********** CHECK RETURN STATUS VARIABLE AND METHODS
      */
-    public void getBillboardInformationRequest(String sessionToken, String billboardName){
+//    public void getABillboardInformationRequest(){
+//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        scheduleControl.schedulBillboardRequest("sampleToken", "Billboard1", "03/04/2020","01:00");
+//        BillboardInformation billboardInformation = getBillboardInformationRequest("sessionToken","Billboard1");
+//        assertAll("Should return details of Given Billboard",
+//                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
+//                () -> assertEquals("CAB302", billboardInformation.getBillboardCreator()),
+//                () -> assertEquals("03/04/2020", billboardInformation.getBillboardStartDate()),
+//                () -> assertEquals("01:00", billboardInformation.getBillboardDuration())
+//        );
+//    }
 
-    }
+
+    /* Test 9: Request to server to get billboard information (Fail)
+     * Description: A method to request billboard information of a given billboard - Information provided will include
+     *              informations such as billboardName, Creator, start date, duration. The method will fail because
+     *              billboard does not exist
+     * Expected Output: Return failure of return
+     *  // TODO: ********ASK********* Perhaps better for exception.
+     */
+//    public void getABillboardInformationRequest(){
+//        BillboardInformation billboardInformation = getBillboardInformationRequest("sessionToken","Billboard500");
+//        if (billboardInformation == 0){
+//          throw new EmptyValueException();
+//        }
+//    }
 
 
 
