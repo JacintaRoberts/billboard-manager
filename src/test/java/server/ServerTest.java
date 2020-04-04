@@ -14,14 +14,13 @@ class ServerTest {
      * Description: Server Object should be running in background on application start.
      * Expected Output: Server object is instantiated from Server class
      */
-    @BeforeEach
-    @Test
+//    @BeforeEach
+//    @Test
 //    public void setUpServer() {
 //        server = new Server();
 //    }
 
-
-    /* Test 8: Listen for Connection with Default IP (success)
+    /* Test 2: Listen for Connection with Default IP (success)
      * Description: Server listens for connections on specified port number and defaulted local host
      * listenForConnections(portNumber, *optional* ip); -> default ip is localhost if not specified.
      * Expected Output: Server successfully listens for connections on localhost at port 4444
@@ -32,7 +31,7 @@ class ServerTest {
 //    }
 //
 
-    /* Test 9: Listen for Connection with a Specific IP (success)
+    /* Test 3: Listen for Connection with a Specific IP (success)
      * Description: Check that the server is able to listen for connections on a specific IP address
      * listenForConnections(port, *optional* addr); -> default addr is localhost if not specified
      * Suggested implementation: InetAddress.getByAddress(byte[]) returns InetAddress which is passed into ->
@@ -47,7 +46,7 @@ class ServerTest {
 //        server.listenForConnections(4444, addr);
 //    }
 
-    /* Test 10: Send acknowledgement to client
+    /* Test 4: Send acknowledgement to client
      * Description: Send appropriate acknowledgements made to client based on commandType received
      * Expected Output: Assert true as sendAcknowledgment should return a string containing message to send to client
      */
@@ -56,6 +55,5 @@ class ServerTest {
 //        assertTrue(server.sendAcknowledgement(String[] commandType) instanceof String[]);
 //        });
 //    }
-
 
 }
