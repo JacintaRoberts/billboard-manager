@@ -24,8 +24,8 @@ class UserControlTest {
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void logOut() {
-//      bool acknowledgement = userControl.logout(sessionToken)
-//      assertTrue(acknowledgment);
+//      String serverResponse = userControl.logout(sessionToken)
+//      assertEquals(serverResponse, "Logout Successful");
 //    }
 
     /* Test 3: Request to server to Create New Users (Success)
@@ -33,9 +33,10 @@ class UserControlTest {
      *              a password string and a valid sessionToken to create a new user.
      * Expected Output: A success feedback from the server
      */
+//    @Test
 //    public void createUserRequestTest(){
-//        userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
-//        assertTrue(serverResponse,"User Created!");
+//        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
+//        assertEquals(serverResponse,"User Created!");
 //    }
 
 
@@ -45,10 +46,12 @@ class UserControlTest {
      *              provided is not unique.
      * Expected Output: An error from server
      */
+//    @Test
 //    public void createUserRequestTest(){
 //        userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
-//        userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
-//        assertTrue(serverResponse,"Username Already Taken");
+//        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
+//        assertEquals(serverResponse,"Username Already Taken");
+//        assertThrows(DuplicateUserException);
 //    }
 
     /* Test 5: Request to server to Create New Users (Fail)
@@ -57,9 +60,11 @@ class UserControlTest {
      * permissions on the calling user.
      * Expected Output: An error from server
      */
+//    @Test
 //    public void createUserRequestTest(){
-//        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
-//        assertTrue(serverResponse,"Insuffice User Permission");
+//        String serverResponse = userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
+//        assertEquals(serverResponse,"Insuffice User Permission");
+//        assertThrows(NoUserPermissionException);
 //    }
 
     /* Test 6: Request to server to list Current Users
@@ -67,6 +72,7 @@ class UserControlTest {
      *              sessionToken.
      * Expected Output: A list of users
      */
+//    @Test
 //    public void listUsersTest(){
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
 //        userControl.createUserRequest("sessionToken", "NewUser2", "Pass2");
@@ -83,11 +89,12 @@ class UserControlTest {
      *              running, and that user has permission. This test tests for themself.
      * Expected Output: Success response from the server
      */
+//    @Test
 //    public void setUserPasswordRequestTest() {
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
 //        userControl.createUserRequest("sessionToken", "NewUser2", "Pass2");
-//        userControl.setUserPasswordRequest("sessionToken", "CAB302", "NewPassword");
-//        assertTrue(serverResponse, "Password Change Successfully");
+//        String serverResponse = userControl.setUserPasswordRequest("sessionToken", "CAB302", "NewPassword");
+//        assertEquals(serverResponse, "Password Change Successfully");
 //    }
 
 
@@ -96,11 +103,12 @@ class UserControlTest {
      *              running, and that user has permission. This test tests for otherUsers.
      * Expected Output: Success response from the server
      */
+//    @Test
 //    public void setUserPasswordRequestTest() {
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
 //        userControl.createUserRequest("sessionToken", "NewUser2", "Pass2");
-//        userControl.setUserPasswordRequest("sessionToken", "NewUser2", "NewPassword");
-//        assertTrue(serverResponse, "Password Change Successfully");
+//        String serverResponse = userControl.setUserPasswordRequest("sessionToken", "NewUser2", "NewPassword");
+//        assertEquals(serverResponse, "Password Change Successfully");
 //    }
 
 
@@ -109,13 +117,13 @@ class UserControlTest {
      *              running, and that user has permission. This test tests for insuffice permission
      * Expected Output: Success response from the server
      */
+//    @Test
 //    public void setUserPasswordRequestTest() {
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
 //        userControl.createUserRequest("sessionToken", "NewUser2", "Pass2");
-//        userControl.setUserPasswordRequest("sessionToken", "NewUser2", "NewPassword");
-//        if (serverResponse == "No Permission"){
-//          throw new UserValueException();
-//        }
+//        String serverResponse = userControl.setUserPasswordRequest("sessionToken", "NewUser2", "NewPassword");
+//        assertEquals(serverResponse,"No Such User");
+//        assertThrows(NoUserPermissionException);
 //   }
 
 
@@ -124,11 +132,11 @@ class UserControlTest {
      *              running, and that user has permission. This test tests for nonexistent Users.
      * Expected Output: Success response from the server
      */
+//    @Test
 //    public void setUserPasswordRequestTest() {
-//        userControl.setUserPasswordRequest("sessionToken", "NewUser3", "NewPassword");
-//        if (serverResponse == "No such User"){
-//          throw new NoUserValueException();
-//        }
+//        String serverResponse = userControl.setUserPasswordRequest("sessionToken", "NewUser3", "NewPassword");
+//        assertEqual(serverResponse, "User does not Exist");
+//        assertThrows(NoUserValueException);
 //    }
 
 
@@ -136,6 +144,7 @@ class UserControlTest {
      * Description: Method to request userpermissions.
      * Expected Output: Return of UserPermission in an array
      */
+//    @Test
 //    public void getUserPermissionTest(){
 //      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
 //      int[] basicUserPermissionsExpected = {0,0,0,0};
@@ -164,39 +173,38 @@ class UserControlTest {
      * Description: Method to set a user permission for another person
      * Expected Output: Success Message
      */
+//    @Test
 //    public void setUserPermissionTest() {
 //      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
-//      userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
-//      assertTrue(serverResponse, "Permission Changed");
+//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
+//      assertEqual(serverResponse, "Permission Changed");
 //    }
 
 
-//////////////////////////////////////////////////////
     /* Test 14: Request to server to set user permissions of a user (Fail)
      * Description: Method to set a user permission for another person. Such Person does not exists. The database does
      *              not have newUser1
      * Expected Output: Exception error
      */
+//    @Test
 //    public void setUserPermissionTest() {
 //      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
 //      assertEquals(serverResponse,"No Such User");
-//      assertThrows(NoUserValueException);
+//      assertThrows(NoUserPermissionException);
 //    }
-//////////////////////////////////////////////////////
-
 
 
     /* Test 15: Request to server to set user permissions of a user (Fail)
      * Description: Method to set a user permission for another person. No permission to do so.
      * Expected Output: Exception error
      */
+//    @Test
 //    public void setUserPermissionTest() {
 //      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
 //      userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1})
-//      if (serverResponse == "No Permission"){
-//        throw new UserValueException();
-//      }
+//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
+//      assertEquals(serverResponse,"No User Permssion");
+//      assertThrows(NoUserPermissionException);
 //    }
-
 
 }
