@@ -1,8 +1,5 @@
 package server;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 class ServerTest {
     /* Test 0: Declaring Server object
      * Description: Server object should be running in background on application start.
