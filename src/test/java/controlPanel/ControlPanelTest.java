@@ -102,6 +102,4 @@ class ControlPanelTest {
 //      assertFalse(userControl.sessionToken.length() > 1);
 //    }
 
-
-
 }

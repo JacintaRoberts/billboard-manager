@@ -60,7 +60,7 @@ class ScheduleControlTest {
      *              This tests when the billboard does not exists and will raise an exception.
      * Expected Output: An exception
      */
-//    public void scheduleBillboardRequestTest(){
+//    public void scheduleBillboardequestTest(){
 //        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
 //                "03/04/2020", "01:00");
@@ -68,6 +68,8 @@ class ScheduleControlTest {
 //          throw new EmptyValueException();
 //        }
 //    }
+
+
 
 
     /* Test 5: Request to server to Remove Billboard Schedule (Fail)
