@@ -15,7 +15,8 @@ public class Main {
         HomeView homeView = new HomeView();
         BillboardsView billboardsView = new BillboardsView();
         UsersView usersView = new UsersView();
+        CreateBillboardView createBillboardView = new CreateBillboardView();
         // set up the controller
-        Controller controller = new Controller(model, login, homeView, billboardsView, usersView);
+        Controller controller = new Controller(model, login, homeView, billboardsView, usersView, createBillboardView);
     }
 }

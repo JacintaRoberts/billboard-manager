@@ -4,6 +4,7 @@ import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 
 
 public class BillboardsView extends ControlPanelView
@@ -14,6 +15,8 @@ public class BillboardsView extends ControlPanelView
     // --- Buttons ---
     private JButton billboardsButton;
     private JButton createBillboardButton;
+    // -- Colour Panel --
+    private JColorChooser colorChooser;
 
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
@@ -32,12 +35,19 @@ public class BillboardsView extends ControlPanelView
         createBillboardButton = new JButton("Create Billboard");
         optionsPanel.add(billboardsButton);
         optionsPanel.add(createBillboardButton);
+        colorChooser = new JColorChooser();
+        optionsPanel.add(colorChooser);
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
 
         // add profile and home panel
         addProfilePanel();
         addHomePanel();
     }
+
+//    public void colourSelectorPopup()
+//    {
+//        colorChooser = new JColorChooser();
+//    }
 
     /**
      * Update is used when model is updated and view needs to change accordingly!
@@ -47,5 +57,10 @@ public class BillboardsView extends ControlPanelView
     public void update(Subject s)
     {
 
+    }
+
+    public void addCreateButtonListener(MouseListener listener)
+    {
+        createBillboardButton.addMouseListener(listener);
     }
 }

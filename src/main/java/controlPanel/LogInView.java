@@ -51,7 +51,6 @@ public class LogInView extends ControlPanelView
 
         errorText.setVisible(false);
         getContentPane().add(loginPanel, BorderLayout.CENTER);
-
     }
 
     /**
@@ -81,10 +80,6 @@ public class LogInView extends ControlPanelView
         errorText.setVisible(visible);
     }
 
-    /**
-     * Update is used when model is updated and view needs to change accordingly!
-     * @param s The subject that has been updated.
-     */
     @Override
     public void update(Subject s)
     {
@@ -96,7 +91,7 @@ public class LogInView extends ControlPanelView
      * Add listener to handle mouse click of submit button.
      * @param listener mouse click listener
      */
-    public void addSubmitListener(MouseListener listener)
+    public void addSubmitButtonListener(MouseListener listener)
     {
         submitButton.addMouseListener(listener);
     }

@@ -85,7 +85,7 @@ public abstract class ControlPanelView extends JFrame implements Observer
      * Add listener to Home button. This listener will navigate user back to Home frame.
      * @param listener Mouse Click listener
      */
-    protected void addHomeListener(MouseListener listener)
+    protected void addHomeButtonListener(MouseListener listener)
     {
         homeButton.addMouseListener(listener);
     }

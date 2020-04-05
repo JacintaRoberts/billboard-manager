@@ -13,7 +13,7 @@ public class HomeView extends ControlPanelView
     // --- Panels ---
     private JPanel optionsPanel;
     // --- Buttons ---
-    private JButton usersButton;
+    protected JButton usersButton;
     private JButton scheduleButton;
     private JButton billboardButton;
 
@@ -54,7 +54,7 @@ public class HomeView extends ControlPanelView
      * Add listener to handle navigation to billboards screen.
      * @param listener mouse click listener
      */
-    protected void addBillboardsListener(MouseListener listener)
+    protected void addBillboardsButtonListener(MouseListener listener)
     {
         billboardButton.addMouseListener(listener);
     }
@@ -63,7 +63,7 @@ public class HomeView extends ControlPanelView
      * Add listener to handle navigation to users screen.
      * @param listener mouse click listener
      */
-    protected void addUsersListener(MouseListener listener)
+    protected void addUsersButtonListener(MouseListener listener)
     {
         usersButton.addMouseListener(listener);
     }

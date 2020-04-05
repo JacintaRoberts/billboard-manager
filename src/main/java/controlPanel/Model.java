@@ -40,7 +40,7 @@ public class Model extends Subject
         this.sessionToken = sessionToken;
     }
 
-    public String getSessionToken(String sessionToken)
+    public String getSessionToken()
     {
         return sessionToken;
     }

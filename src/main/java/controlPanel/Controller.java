@@ -1,19 +1,19 @@
 package controlPanel;
 
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
-// views, buttons,
 public class Controller
 {
     private Model model;
     private ControlPanelView currentView;
     private LogInView logInView;
-    private HomeView homeView;
+    public HomeView homeView;
     private BillboardsView billboardsView;
     private UsersView usersView;
+    private CreateBillboardView createBillboardView;
 
     /**
      * Controller Constructor stores instances of Views, adds listeners to Views and sets up Log In View allowing users
@@ -22,7 +22,7 @@ public class Controller
      * @param logInView application's log in screen
      * @param homeView application's homeView screen
      */
-    public Controller(Model model, LogInView logInView, HomeView homeView, BillboardsView billboardsView, UsersView usersView)
+    public Controller(Model model, LogInView logInView, HomeView homeView, BillboardsView billboardsView, UsersView usersView, CreateBillboardView createBillboardView)
     {
         // store instances of views
         this.model = model;
@@ -30,18 +30,40 @@ public class Controller
         this.homeView = homeView;
         this.billboardsView = billboardsView;
         this.usersView = usersView;
+        this.createBillboardView = createBillboardView;
 
         // adds listeners to views
-        logInView.addSubmitListener(new SubmitListener());
-        homeView.addBillboardsListener(new BillboardsListener());
-        homeView.addUsersListener(new UsersListener());
-        billboardsView.addHomeListener(new HomeListener());
-        usersView.addHomeListener(new HomeListener());
+        addHomeListener();
+        addUsersListener();
+        addBillboardListener();
+        addLogInListener();
 
         // set up log in frame
         model.attachObserver(logInView);
         logInView.setVisible(true);
         this.currentView = logInView;
+    }
+
+    private void addHomeListener()
+    {
+        homeView.addBillboardsButtonListener(new BillboardsButtonListener());
+        homeView.addUsersButtonListener(new UsersButtonListener());
+    }
+
+    private void addUsersListener()
+    {
+        usersView.addHomeButtonListener(new HomeButtonListener());
+    }
+
+    private void addBillboardListener()
+    {
+        billboardsView.addHomeButtonListener(new HomeButtonListener());
+        billboardsView.addCreateButtonListener(new CreateButtonListener());
+    }
+
+    private void addLogInListener()
+    {
+        logInView.addSubmitButtonListener(new SubmitButtonListener());
     }
 
     /**
@@ -77,7 +99,7 @@ public class Controller
      * request is sent to server to check validity of user. If response is true, username is stored in model and user
      * is navigated to home screen. If invalid credentials, error is displayed.
      */
-    private class SubmitListener extends MouseAdapter
+    private class SubmitButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
@@ -87,22 +109,51 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-            // TODO: userControl.
+            // TODO: String[] response = userControl.loginRequest(username, Password)
+            // String valid = response[0];
+            // String responseMessage = response[1]; This could either be error message or session token
             boolean response = false;
             String sessionToken = "SessionToken";
-            // USER CONTROL REQUEST - move this code into user control req.
-//            request()
-            // TODO: send log in request to server and get boolean response and session token
-            if (username.equals("User") && password.equals("Password"))
+            if ((username.equals("User") && password.equals("Password")) || (username.equals("Team60") && password.equals("Password")))
             {
                 response = true;
             }
+
             // if successful
             if (response)
             {
                 // store username and session token in model
                 model.storeUsername(username);
                 model.storeSessionToken(sessionToken);
+
+                // **************************************
+                // ** CHECK PERMISSIONS **
+                // check permissions
+                // TODO: implement this is Control
+                boolean editUsersPermission;
+//            boolean editUsersPermission = checkPermission(model.getUsername(), 2, model.getSessionToken());
+                if(model.getUsername().equals("Team60"))
+                {
+                    editUsersPermission = true;
+                }
+                else
+                {
+                    editUsersPermission = false;
+                }
+
+                // set visibility of users button
+                if (editUsersPermission)
+                {
+                    homeView.usersButton.setVisible(true);
+                    System.out.println("SHOW");
+                }
+                else
+                {
+                    homeView.usersButton.setVisible(false);
+                    System.out.println("HIDE");
+                }
+                // **************************************
+
                 // nav user to home screen
                 updateView(homeView);
                 // hide error string
@@ -119,7 +170,7 @@ public class Controller
     /**
      * Listener to handle Home Button mouse clicks. If user clicks the Home button, user is navigated to Home Screen.
      */
-    private class HomeListener extends MouseAdapter
+    private class HomeButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
@@ -134,7 +185,7 @@ public class Controller
      * Listener to handle Billboard button on Home Screen. If user clicks Billboards button, user is navigated to
      * Billboards Screen.
      */
-    private class BillboardsListener extends MouseAdapter
+    private class BillboardsButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
@@ -149,7 +200,7 @@ public class Controller
      * Listener to handle Users button on Home Screen. If user clicks Users button, user is navigated to
      * Users Screen.
      */
-    private class UsersListener extends MouseAdapter
+    private class UsersButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
@@ -157,6 +208,17 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Users button clicked");
             // navigate to billboard view
             updateView(usersView);
+        }
+    }
+
+    private class CreateButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Create button clicked");
+            // navigate to billboard view
+            updateView(createBillboardView);
         }
     }
 }
