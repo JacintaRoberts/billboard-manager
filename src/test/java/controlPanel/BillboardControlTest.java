@@ -126,62 +126,61 @@ class BillboardControlTest {
      *              list of billboards
      * Expected Output: A server response with the list of billboard as an array containing billboard names.
      */
+//    @Test
 //    public void listAllBillboardRequest(){
 //        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        billboardControl.createBillboardRequest("sampleToken", "Billboard2", xmlCode);
 //        billboardControl.createBillboardRequest("sampleToken", "Billboard3", xmlCode);
-//        assertEquals(serverResponse, billboardControl.listBillboardRequest(),
-//                "Listing not alphabetical");
+//        List<String> testBillboardList = new ArrayList<String>();
+//        testBillboardList.add("Billboard1");
+//        testBillboardList.add("Billboard2");
+//        testBillboardList.add("Billboard3");
+//        billboardList billboardList = billboardControl.listBillboardRequest("sessionToken");
+//        assertArrayEquals(testBillboardList ,billboardList);
 //    }
 
 
-    /* Test 10: Request to server to list billboards (Fail)
+    /* Test 11: Request to server to list billboards (Fail)
      * Description: Method to request to server to list all billboards. Assume sessionToken is valid. Fails because
      *              there is no billboard to return
      * Expected Output: Fail message and raise exception.
      */
+//    @Test
 //    public void listAllBillboardRequest(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard2", xmlCode);
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard3", xmlCode);
-//        assertEquals(serverResponse, billboardControl.listBillboardRequest(),
-//                "Listing not alphabetical");
+//        billboardList billboardList = billboardControl.listBillboardRequest("sessionToken");
+//        assertTrue(billboardList.length == 0);
+//        assertThrows(EmptyBillboardListException);
 //    }
 
 
-    /* Test 9: Request to server to get billboard information (Success)
+    /* Test 12: Request to server to get billboard information (Success)
      * Description: A method to request billboard information of a given billboard - Information provided will include
-     *              informations such as billboardName, Creator, start date, duration.
-     * Expected Output: Return of billboard information such as billboardName, Creator, start date, duration
-     * // TODO: *******ASK********** CHECK RETURN STATUS VARIABLE AND METHODS
+     *              informations such as billboardName, Creator, xmlCode.
+     * Expected Output: Return of billboard information such as billboardName, Creator, xmlCode
      */
+//    @Test
 //    public void getABillboardInformationRequest(){
 //        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "03/04/2020","01:00");
 //        BillboardInformation billboardInformation = getBillboardInformationRequest("sessionToken","Billboard1");
 //        assertAll("Should return details of Given Billboard",
 //                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
 //                () -> assertEquals("CAB302", billboardInformation.getBillboardCreator()),
-//                () -> assertEquals("03/04/2020", billboardInformation.getBillboardStartDate()),
-//                () -> assertEquals("01:00", billboardInformation.getBillboardDuration())
+//                () -> assertEquals(xmlCode, billboardInformation.getBillboardXML())
 //        );
 //    }
 
 
-    /* Test 9: Request to server to get billboard information (Fail)
+    /* Test 13: Request to server to get billboard information (Fail)
      * Description: A method to request billboard information of a given billboard - Information provided will include
-     *              informations such as billboardName, Creator, start date, duration. The method will fail because
+     *              informations such as billboardName, Creator, xmlCode. The method will fail because
      *              billboard does not exist
      * Expected Output: Return failure of return
-     *  // TODO: ********ASK********* Perhaps better for exception.
      */
+//    @Test
 //    public void getABillboardInformationRequest(){
 //        BillboardInformation billboardInformation = getBillboardInformationRequest("sessionToken","Billboard500");
-//        if (billboardInformation == 0){
-//          throw new EmptyValueException();
-//        }
+//        assertTrue(billboardInformation.length == 0);
+//        assertThrows(NoBillboardException);
 //    }
-
-
 
 }

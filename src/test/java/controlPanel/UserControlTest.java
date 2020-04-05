@@ -185,13 +185,6 @@ class UserControlTest {
 //////////////////////////////////////////////////////
 
 
-//    ServerResponse serverResponse =
-//
-//              login
-//            serverResponse
-//                 Fail
-//                 IncorrectPassword
-
 
     /* Test 15: Request to server to set user permissions of a user (Fail)
      * Description: Method to set a user permission for another person. No permission to do so.

@@ -1,8 +1,5 @@
 package controlPanel;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 class ScheduleControlTest {
 
     /* Test 0: Declaring ScheduleControl object
@@ -15,8 +12,8 @@ class ScheduleControlTest {
      * Description: ScheduleControl Object should be able to be created on logged in user request from control panel
      * Expected Output: ScheduleControl object is instantiated from ScheduleControl class
      */
-    @BeforeEach
-    @Test
+//    @BeforeEach
+//    @Test
 //    public void setUpScheduleControl() {
 //      scheduleControl = new ScheduleControl();
 //    }
@@ -26,9 +23,9 @@ class ScheduleControlTest {
      * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billbaord
      *              name, the starting date of the method and also the duration (this is currently just in hrs format).
      *              This tests when the billboard does not exists and will raise an exception.
-     * // Todo: **********ASK******** Check try catch block
      * Expected Output: An exception
      */
+//    @Test
 //    public void scheduleBillboardRequestTest(){
 //        try{
 //            scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "03/04/2020", "01:00");
