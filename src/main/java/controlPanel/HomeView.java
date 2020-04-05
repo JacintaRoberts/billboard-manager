@@ -58,4 +58,13 @@ public class HomeView extends ControlPanelView
     {
         billboardButton.addMouseListener(listener);
     }
+
+    /**
+     * Add listener to handle navigation to users screen.
+     * @param listener mouse click listener
+     */
+    protected void addUsersListener(MouseListener listener)
+    {
+        usersButton.addMouseListener(listener);
+    }
 }

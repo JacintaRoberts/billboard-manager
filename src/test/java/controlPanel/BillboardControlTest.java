@@ -15,8 +15,8 @@ class BillboardControlTest {
      * Description: BillboardControl Object should be able to be created on logged in user request from control panel
      * Expected Output: BillboardControl object is instantiated from BillboardControl class
      */
-    @BeforeEach
-    @Test
+//    @BeforeEach
+//    @Test
 //    public void setUpBillboardControl() {
 //      billboardControl = new BillboardControl();
 //    }

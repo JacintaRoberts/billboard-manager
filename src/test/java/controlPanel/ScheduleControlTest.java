@@ -15,8 +15,8 @@ class ScheduleControlTest {
      * Description: ScheduleControl Object should be able to be created on logged in user request from control panel
      * Expected Output: ScheduleControl object is instantiated from ScheduleControl class
      */
-    @BeforeEach
-    @Test
+//    @BeforeEach
+//    @Test
 //    public void setUpScheduleControl() {
 //      scheduleControl = new ScheduleControl();
 //    }

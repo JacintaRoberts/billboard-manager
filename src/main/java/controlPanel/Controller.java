@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 
+// views, buttons,
 public class Controller
 {
     private Model model;
@@ -12,6 +13,7 @@ public class Controller
     private LogInView logInView;
     private HomeView homeView;
     private BillboardsView billboardsView;
+    private UsersView usersView;
 
     /**
      * Controller Constructor stores instances of Views, adds listeners to Views and sets up Log In View allowing users
@@ -20,18 +22,21 @@ public class Controller
      * @param logInView application's log in screen
      * @param homeView application's homeView screen
      */
-    public Controller(Model model, LogInView logInView, HomeView homeView, BillboardsView billboardsView)
+    public Controller(Model model, LogInView logInView, HomeView homeView, BillboardsView billboardsView, UsersView usersView)
     {
         // store instances of views
         this.model = model;
         this.logInView = logInView;
         this.homeView = homeView;
         this.billboardsView = billboardsView;
+        this.usersView = usersView;
 
         // adds listeners to views
         logInView.addSubmitListener(new SubmitListener());
         homeView.addBillboardsListener(new BillboardsListener());
+        homeView.addUsersListener(new UsersListener());
         billboardsView.addHomeListener(new HomeListener());
+        usersView.addHomeListener(new HomeListener());
 
         // set up log in frame
         model.attachObserver(logInView);
@@ -78,11 +83,15 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Submit button clicked");
+
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
+            // TODO: userControl.
             boolean response = false;
             String sessionToken = "SessionToken";
+            // USER CONTROL REQUEST - move this code into user control req.
+//            request()
             // TODO: send log in request to server and get boolean response and session token
             if (username.equals("User") && password.equals("Password"))
             {
@@ -133,6 +142,21 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Billboards button clicked");
             // navigate to billboard view
             updateView(billboardsView);
+        }
+    }
+
+    /**
+     * Listener to handle Users button on Home Screen. If user clicks Users button, user is navigated to
+     * Users Screen.
+     */
+    private class UsersListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Users button clicked");
+            // navigate to billboard view
+            updateView(usersView);
         }
     }
 }

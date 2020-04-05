@@ -17,8 +17,8 @@ class ControlPanelTest {
      * Description: ControlPanel Object is created upon application start.
      * Output: ControlPanel Object is instantiated from ControlPanel class
      */
-    @BeforeEach
-    @Test
+//    @BeforeEach
+//    @Test
 //    public void setControlPanel() {
 //        controlPanel = new ControlPanel();
 //    }
