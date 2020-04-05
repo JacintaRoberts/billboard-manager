@@ -73,7 +73,7 @@ class BillboardControlTest {
     /* Test 6: Request to server to edit a billboard (Fail)
      * Description: Method to request server to edit a billboard. Need to have suffice userpermission to edit said
      *              board and user needs to provide a new xmlCode. Assume sessionToken is valid. Fail due to insuffice
-     *              permission or board cannot be edited (does not exists).
+     *              permission
      * Expected Output: A negative reply from Server noting the failure of request
      */
 //    @Test
@@ -84,7 +84,21 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 7: Request to server to delete a billboard (Success)
+    /* Test 7: Request to server to edit a billboard (Fail)
+     * Description: Method to request server to edit a billboard. Need to have suffice userpermission to edit said
+     *              board and user needs to provide a new xmlCode. Assume sessionToken is valid. Fail due to insuffice
+     *              board cannot be edited (does not exists).
+     * Expected Output: A negative reply from Server noting the failure of request
+     */
+//    @Test
+//    public void editABillboardRequest(){
+//        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        assertEquals(serverResponse, "Billboard Does not Exist");
+//        assertThrows(NoBillboardException);
+//    }
+
+
+    /* Test 8: Request to server to delete a billboard (Success)
      * Description: Method to request a server to delete a billboard. Assume sessionToken is valid, and target exists.
      * Expected Output: A positive reply from server of successful deletion .
      */
@@ -95,7 +109,7 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 8: Request to server to delete a billboard (Fail)
+    /* Test 9: Request to server to delete a billboard (Fail)
      * Description: Method to request a server to delete a billboard. Assume sessionToken is valid. The method will
      *              Fail due to  billboard does not exists
      * Expected Output: A negative reply from server of failure to delete.
@@ -108,7 +122,7 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 9: Request to server to delete a billboard (Fail)
+    /* Test 10: Request to server to delete a billboard (Fail)
      * Description: Method to request a server to delete a billboard. Assume sessionToken is valid. The method will
      *              Fail due to insuffice permission
      * Expected Output: A negative reply from server of failure to delete.
@@ -121,7 +135,7 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 10: Request to server to list billboards (Success)
+    /* Test 11: Request to server to list billboards (Success)
      * Description: Method to request to server to list all billboards. Assume sessionToken is valid. Returns an array
      *              list of billboards
      * Expected Output: A server response with the list of billboard as an array containing billboard names.
@@ -140,7 +154,7 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 11: Request to server to list billboards (Fail)
+    /* Test 12: Request to server to list billboards (Fail)
      * Description: Method to request to server to list all billboards. Assume sessionToken is valid. Fails because
      *              there is no billboard to return
      * Expected Output: Fail message and raise exception.
@@ -153,7 +167,7 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 12: Request to server to get billboard information (Success)
+    /* Test 13: Request to server to get billboard information (Success)
      * Description: A method to request billboard information of a given billboard - Information provided will include
      *              informations such as billboardName, Creator, xmlCode.
      * Expected Output: Return of billboard information such as billboardName, Creator, xmlCode
@@ -170,7 +184,7 @@ class BillboardControlTest {
 //    }
 
 
-    /* Test 13: Request to server to get billboard information (Fail)
+    /* Test 14: Request to server to get billboard information (Fail)
      * Description: A method to request billboard information of a given billboard - Information provided will include
      *              informations such as billboardName, Creator, xmlCode. The method will fail because
      *              billboard does not exist
