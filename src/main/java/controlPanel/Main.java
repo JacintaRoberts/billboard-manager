@@ -13,7 +13,8 @@ public class Main {
         // create an instance of the Viewers
         LogInView login = new LogInView();
         HomeView homeView = new HomeView();
+        BillboardsView billboardsView = new BillboardsView();
         // set up the controller
-        Controller controller = new Controller(model, login, homeView);
+        Controller controller = new Controller(model, login, homeView, billboardsView);
     }
 }

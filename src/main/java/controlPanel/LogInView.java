@@ -6,6 +6,7 @@ import observer.Subject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseListener;
 
 public class LogInView extends ControlPanelView
 {
@@ -22,23 +23,17 @@ public class LogInView extends ControlPanelView
     private JTextField usernameField;
     private JTextField passwordField;
 
-    // *** CONSTRUCTOR ***
+    /**
+     * Constructor for LogIn View - set frame name
+     */
     public LogInView()
     {
-        // set JFrame name
         super("LogInView Panel");
-        createComponents();
     }
 
-    private void createComponents()
+    @Override
+    void createComponents()
     {
-        // *** LOGIN PANEL ***
-        // Purpose:
-        // 1. Create Panel
-        // 2. Add Labels (username and password)
-        // 3. Add 2 Text Fields to enter info
-        // 4. Add submit button
-        // 5. Add Panel to Frame
         loginPanel = new JPanel();
         loginPanel.setLayout(new GridLayout(3,2));
         usernameText = new JLabel("Username");
@@ -56,28 +51,40 @@ public class LogInView extends ControlPanelView
 
         errorText.setVisible(false);
         getContentPane().add(loginPanel, BorderLayout.CENTER);
+
     }
 
+    /**
+     * Get username text field from frame
+     * @return username string
+     */
     public String getUsername()
     {
         return usernameField.getText();
     }
 
+    /**
+     * Get password text field from frame
+     * @return password string
+     */
     public String getPassword()
     {
         return passwordField.getText();
     }
 
-    public boolean getVisibilityError()
-    {
-        return passwordField.isVisible();
-    }
-
+    /**
+     * Set error message visibility
+     * @param visible true = visible, false = hidden
+     */
     public void setErrorVisibility(boolean visible)
     {
         errorText.setVisible(visible);
     }
 
+    /**
+     * Update is used when model is updated and view needs to change accordingly!
+     * @param s The subject that has been updated.
+     */
     @Override
     public void update(Subject s)
     {
@@ -85,8 +92,12 @@ public class LogInView extends ControlPanelView
         System.out.println("Update - submit pushed");
     }
 
-    public void addSubmitListener(ActionListener listener)
+    /**
+     * Add listener to handle mouse click of submit button.
+     * @param listener mouse click listener
+     */
+    public void addSubmitListener(MouseListener listener)
     {
-        submitButton.addActionListener(listener);
+        submitButton.addMouseListener(listener);
     }
 }
