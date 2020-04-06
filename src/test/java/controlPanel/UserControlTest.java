@@ -29,11 +29,11 @@ class UserControlTest {
 //    }
 
     //TODO: WRITE TESTS FOR EXCEPTION HANDLING OF LIST CURRENT USERS
-    //      test 1: list users success (already done below)
-    //      test 2: list users exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test 3: list users exception handling assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
+    //      test 3: list users success (already done below)
+    //      test 4: list users exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test 5: list users exception handling assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
 
-    /* Test 7: Request to server to list Current Users
+    /* Test 3: Request to server to list Current Users
      * Description: Method to request to server to send a list of active users in the database. Requires a valid
      *              sessionToken.
      * Expected Output: A list of users
@@ -50,20 +50,20 @@ class UserControlTest {
 //    }
 
     //TODO: NEED TO WRITE TEST/FIX SET PASSWORD HERE PLEASE (CORRESPOND WITH USERADMINTEST) keep notes for server resp.
-    //      test1: set own success           server resp "Success: Own Password Updated"
-    //      test2: set own exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test3: set other success         server resp "Success: Other User Password Updated"
-    //      test4: set other exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test5: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
-    //      test6: set other exception handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+    //      test6: set own success           server resp "Success: Own Password Updated"
+    //      test7: set own exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test8: set other success         server resp "Success: Other User Password Updated"
+    //      test9: set other exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test10: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
+    //      test11: set other exception handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
 
 
-    /* Test 7: Request to server to change password (Success)
+    /* Test 6: Request to server to change password (Success)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
      *              running, and that user has permission. This test tests for themself.
      * Expected Output: Success response from the server
      */
-    //TODO: MAKE NAMING OF ALL TESTS UNIQUE - "setUserPasswordRequestTest" -> "setOwnUserPasswordRequest" etc.
+    //TODO: MAKE NAMES OF ALL TESTS UNIQUE + DESCRIPTIVE, "setUserPasswordRequestTest" -> "setOwnUserPasswordRequest" etc.
 //    @Test
 //    public void setUserPasswordRequestTest() {
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
@@ -87,10 +87,10 @@ class UserControlTest {
 //    }
 
 
-    /* Test 9: Request to server to change password (Exception Handling)
+    /* Test 10: Request to server to change password (Exception Handling)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
-     *              running, and that user has permission. This test tests for insuffice permission
-     * Expected Output: Success response from the server
+     *              running, and that user has permission. This test tests for insufficent permission
+     * Expected Output: Throws InsufficientPermissionsException
      */
 //    @Test
 //    public void setUserPasswordRequestTest() {
@@ -102,10 +102,10 @@ class UserControlTest {
 //   }
 
 
-    /* Test 10: Request to server to change password (Exception Handling)
+    /* Test 11: Request to server to change password (Exception Handling)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
      *              running, and that user has permission. This test tests for nonexistent Users.
-     * Expected Output: Success response from the server
+     * Expected Output: Throws UsernameNotFoundException
      */
 //    @Test
 //    public void setUserPasswordRequestTest() {
@@ -115,16 +115,61 @@ class UserControlTest {
 //    }
 
     //TODO: NEED TO WRITE TEST/FIX SET PERMISSIONS HERE PLEASE (CORRESPOND WITH USERADMINTEST) keep notes for server resp.
-    //      test1: set own success           server resp "Success: Own Permissions Updated"
-    //      test2: set own exception handling assertThrows(RemoveOwnEditUsersException.class, () -> { server resp "Error: Cannot Remove Own Edit Users Permission"
-    //      test3: set own exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test4: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
-    //      test5: set other success           server resp "Success: Other User Permissions Updated"
-    //      test6: set other exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test7: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
-    //      test8: set other exception handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+    //      test12: set own success           server resp "Success: Own Permissions Updated"
+    //      test13: set own exception handling assertThrows(RemoveOwnEditUsersException.class, () -> { server resp "Error: Cannot Remove Own Edit Users Permission"
+    //      test14: set own exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test15: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
+    //      test16: set other success           server resp "Success: Other User Permissions Updated"
+    //      test17: set other exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test18: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
+    //      test19: set other exception handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
 
-    /* Test 11: Request to server to get User Permission from a user (Success)
+
+    /* Test 16: Request to server to set user permissions of a user (Success)
+     * Description: Method to set a user permission for another person
+     * Expected Output: Success Message
+     */
+//    @Test
+//    public void setUserPermissionTest() {
+//      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
+//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
+//      assertEqual(serverResponse, "Permission Changed");
+//    }
+
+
+    /* Test 18: Request to server to set user permissions of a user (Exception Handling)
+     * Description: Method to set a user permission for another person. No permission to do so.
+     * Expected Output: Exception error
+     */
+//    @Test
+//    public void setUserPermissionTest() {
+//      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
+//      userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1})
+//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
+//      assertEquals(serverResponse,"No User Permssion");
+//      assertThrows(NoUserPermissionException);
+//    }
+
+
+    /* Test 19: Request to server to set user permissions of a user (Exception Handling)
+     * Description: Method to set a user permission for another person. Such Person does not exists. The database does
+     *              not have newUser1
+     * Expected Output: Exception error
+     */
+//    @Test
+//    public void setUserPermissionTest() {
+//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
+//      assertEquals(serverResponse,"No Such User");
+//      assertThrows(NoUserPermissionException);
+//    }
+
+
+    //TODO: FOR GET USER PERMISSIONS IMPLEMENT TEST FOR EXCEPTION HANDLING
+    // test 20: handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    // test 21: handling assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
+    // test 22: handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+
+    /* Test 20: Request to server to get User Permission from a user (Success)
      * Description: Method to request userpermissions.
      * Expected Output: Return of UserPermission in an array
      */
@@ -136,12 +181,7 @@ class UserControlTest {
 //      assertTrue(basicUserPermissionsExpected, basicUserPermissions);
 //    }
 
-    //TODO: FOR GET USER PERMISSIONS IMPLEMENT TEST FOR EXCEPTION HANDLING
-    // handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    // handling assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
-    // handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
-
-    /* Test 12: Request to server to get User Permission from a user (Exception Handling)
+    /* Test 21: Request to server to get User Permission from a user (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to insufficient calling permissions
      * Require "EditUsers" permission which is the 4th element in UserPermissions object
      * e.g. [1,1,1,0] can't call the method.
@@ -157,52 +197,15 @@ class UserControlTest {
 //    }
 
 
-    /* Test 13: Request to server to set user permissions of a user (Success)
-     * Description: Method to set a user permission for another person
-     * Expected Output: Success Message
-     */
-//    @Test
-//    public void setUserPermissionTest() {
-//      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
-//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
-//      assertEqual(serverResponse, "Permission Changed");
-//    }
-
-    /* Test 14: Request to server to set user permissions of a user (Exception Handling)
-     * Description: Method to set a user permission for another person. Such Person does not exists. The database does
-     *              not have newUser1
-     * Expected Output: Exception error
-     */
-//    @Test
-//    public void setUserPermissionTest() {
-//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
-//      assertEquals(serverResponse,"No Such User");
-//      assertThrows(NoUserPermissionException);
-//    }
+    //TODO: NEED TO WRITE DELETE USERS TESTS HERE (CORRESPOND WITH USERADMINTEST) keep notes for server resp. like create user below
+    //      test23: success                                                     server resp "Success: User Deleted"
+    //      test24: assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test25: assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
+    //      test26: assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+    //      test27: asserthrows(CannotDeleteOwnUserException.class, () -> {     server resp "Error: Cannot Delete Yourself"
 
 
-    /* Test 15: Request to server to set user permissions of a user (Exception Handling)
-     * Description: Method to set a user permission for another person. No permission to do so.
-     * Expected Output: Exception error
-     */
-//    @Test
-//    public void setUserPermissionTest() {
-//      userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
-//      userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1})
-//      String serverResponse = userControl.setUserPermission("sessionToken", "NewUser1", boolean[] {1,1,1,1});
-//      assertEquals(serverResponse,"No User Permssion");
-//      assertThrows(NoUserPermissionException);
-//    }
-
-    //TODO: NEED TO WRITE DELETE USERS TESTS HERE PLEASE (CORRESPOND WITH USERADMINTEST) keep notes for server resp. like create user below
-    //      test 1: success                                                     server resp "Success: User Deleted"
-    //      test2: assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test3: assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
-    //      test4: assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
-    //      test5: asserthrows(CannotDeleteOwnUserException.class, () -> {     server resp "Error: Cannot Delete Yourself"
-
-
-    /* Test 3: Request to server to Create New Users (Success)
+    /* Test 28: Request to server to Create New Users (Success)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user.
      * Expected Output: Server will return "Error: Calling Username Deleted" and an CallingUsernameDeletedException
@@ -213,7 +216,7 @@ class UserControlTest {
 //        assertEquals("Success: User Created", serverResponse);
 //    }
 
-    /* Test 4: Request to server to Create New Users (Exception Handling)
+    /* Test 29: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user. This test checks for sufficient
      *              permissions on the calling user.
@@ -230,7 +233,7 @@ class UserControlTest {
 //      assertEquals("Error: Calling Username Deleted", serverResponse);
 //    }
 
-    /* Test 5: Request to server to Create New Users (Exception Handling)
+    /* Test 30: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user. This test checks for sufficient
      * permissions on the calling user.
@@ -246,7 +249,7 @@ class UserControlTest {
 //    }
 
 
-    /* Test 6: Request to server to Create New Users (Exception Handling)
+    /* Test 31: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user. This will test if the username
      *              provided is not unique.
