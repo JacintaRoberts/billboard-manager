@@ -28,6 +28,10 @@ class UserControlTest {
 //      assertEquals(serverResponse, "Logout Successful");
 //    }
 
+    //TODO: WRITE TESTS FOR EXCEPTION HANDLING OF LIST CURRENT USERS
+    //      test 1: list users success (already done below)
+    //      test 2: list users exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test 3: list users exception handling assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
 
     /* Test 7: Request to server to list Current Users
      * Description: Method to request to server to send a list of active users in the database. Requires a valid
@@ -42,16 +46,16 @@ class UserControlTest {
 //        testUserList.add("NewUser1");
 //        testUserList.add("NewUser2");
 //        UserList userList = userControl.listUsers("sessionToken");
-//        assertArrayEquals(testUserList ,userList);
+//        assertArrayEquals(testUserList, userList);
 //    }
 
     //TODO: NEED TO WRITE TEST/FIX SET PASSWORD HERE PLEASE (CORRESPOND WITH USERADMINTEST) keep notes for server resp.
     //      test1: set own success           server resp "Success: Own Password Updated"
-    //      test2: set own error handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test2: set own exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
     //      test3: set other success         server resp "Success: Other User Password Updated"
-    //      test4: set other error handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
-    //      test5: set other error handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
-    //      test6: set other error handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+    //      test4: set other exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test5: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
+    //      test6: set other exception handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
 
 
     /* Test 7: Request to server to change password (Success)
@@ -59,6 +63,7 @@ class UserControlTest {
      *              running, and that user has permission. This test tests for themself.
      * Expected Output: Success response from the server
      */
+    //TODO: MAKE NAMING OF ALL TESTS UNIQUE - "setUserPasswordRequestTest" -> "setOwnUserPasswordRequest" etc.
 //    @Test
 //    public void setUserPasswordRequestTest() {
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1");
@@ -109,6 +114,16 @@ class UserControlTest {
 //        assertThrows(NoUserValueException);
 //    }
 
+    //TODO: NEED TO WRITE TEST/FIX SET PERMISSIONS HERE PLEASE (CORRESPOND WITH USERADMINTEST) keep notes for server resp.
+    //      test1: set own success           server resp "Success: Own Permissions Updated"
+    //      test2: set own exception handling assertThrows(RemoveOwnEditUsersException.class, () -> { server resp "Error: Cannot Remove Own Edit Users Permission"
+    //      test3: set own exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test4: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
+    //      test5: set other success           server resp "Success: Other User Permissions Updated"
+    //      test6: set other exception handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    //      test7: set other exception handling assertThrows(InsufficientPermissionsException.class, () -> {          server resp "Error: Insufficient User Permissions"
+    //      test8: set other exception handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+
     /* Test 11: Request to server to get User Permission from a user (Success)
      * Description: Method to request userpermissions.
      * Expected Output: Return of UserPermission in an array
@@ -121,6 +136,10 @@ class UserControlTest {
 //      assertTrue(basicUserPermissionsExpected, basicUserPermissions);
 //    }
 
+    //TODO: FOR GET USER PERMISSIONS IMPLEMENT TEST FOR EXCEPTION HANDLING
+    // handling assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
+    // handling assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
+    // handling assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
 
     /* Test 12: Request to server to get User Permission from a user (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to insufficient calling permissions
@@ -180,6 +199,7 @@ class UserControlTest {
     //      test2: assertThrows(CallingUsernameDeletedException.class, () -> { server resp "Error: Calling Username Deleted"
     //      test3: assertThrows(InsufficientPermissionsException.class, () -> { server resp "Error: Insufficient User Permissions"
     //      test4: assertThrows(UsernameNotFoundException.class, () -> {           server resp "Error: Username Does Not Exist"
+    //      test5: asserthrows(CannotDeleteOwnUserException.class, () -> {     server resp "Error: Cannot Delete Yourself"
 
 
     /* Test 3: Request to server to Create New Users (Success)
