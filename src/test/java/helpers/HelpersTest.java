@@ -2,8 +2,7 @@ package helpers;
 
 class HelpersTest {
 
-
-    /* Test 1: Shared Helper function - Read from network properties files (success)
+    /* Test 1: Shared Helper function - Read from network properties files (Success)
      * Description: Takes the file name to be read and returns the port number (Integer) and ip (string) in a HashMap
      * Expected Output: Successfully return the port number and ip from the network.props file as a HashMap<String, Object>
      * Suggested Implementation provided - wanted to figure out how the links worked for file paths for db.props
@@ -18,7 +17,7 @@ class HelpersTest {
 //                );
 //    }
 
-    /* Test 2: Shared Helper function - Validate port from string (success)
+    /* Test 2: Shared Helper function - Validate port from string (Success)
      * Description: Method takes the string to be validated and returns the port number parsed as an int or an exception
      * Expected Output: Successfully validate and return the port number from the network.props file as an int
      */
@@ -27,8 +26,8 @@ class HelpersTest {
 //        assertEquals(4444, validatePort(4444));
 //    }
 
-    /* Test 3: Shared Helper function - Bad port numbers (error handling)
-     * Description: Implement appropriate error handling for bad port number read from file (only 0 to 65535 is ok)
+    /* Test 3: Shared Helper function - Bad port numbers (Exception Handling)
+     * Description: Implement appropriate Exception Handling for bad port number read from file (only 0 to 65535 is ok)
      * Expected Output: Throws BadPortNumberException (need to create this specific Exception!)
      */
 //    @Test
@@ -43,8 +42,8 @@ class HelpersTest {
 //        });
 //    }
 
-    /* Test 4: Shared Helper function - Read port/IP from network properties files (error handling)
-     * Description: Implement appropriate error handling for bad file name. This could also pick up:
+    /* Test 4: Shared Helper function - Read port/IP from network properties files (Exception Handling)
+     * Description: Implement appropriate Exception Handling for bad file name. This could also pick up:
      * reading a local file that was no longer available or trying to read file but don't have permission.
      * Expected Output: IOException from non-existent file name
      */
@@ -76,5 +75,27 @@ class HelpersTest {
 //        assertTrue(InetAddress.getByAddress(addr) instanceof InetAddress);
 //    }
 
+    /* Test 7: Validate SessionToken (Success)
+     * Description: Check that the Session token is still valid.
+     * Expected Output: Returns true as the given session should be active
+     * TODO: implement validSessionTokens is an array of strings (include "sessionToken" and exclude "failToken")
+     */
+//    @Test
+//    public void verifySession() {
+//      assertTrue(validSessionTokens.contains("sessionToken"));
+//    }
+
+    /* Test 8: Validate SessionToken (Exception Handling)
+     * Description: Check that the Session token is still valid.
+     * Expected Output: Returns false as the given session should be inactive, throws invalidSessionTokenException
+     */
+//    @Test
+//    public void verifySession() {
+//      // Check Invalid
+//      assertFalse(validSessionTokens.contains("failToken"));
+//      // Check Empty
+//      assertFalse(validSessionTokens.contains(""));
+//      assertThrows(invalidSessionTokenException);
+//    }
 
 }

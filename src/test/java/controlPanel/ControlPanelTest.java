@@ -5,7 +5,7 @@ class ControlPanelTest {
      * Description: ControlPanel Object is created upon application start.
      * Output: ControlPanel Object is declared
      */
-    ControlPanel controlpanel;
+    ControlPanel controlPanel;
 
     /* Test 1: Constructing a ControlPanel object
      * Description: ControlPanel Object is created upon application start.
@@ -27,7 +27,6 @@ class ControlPanelTest {
 //    public void listenForConnection() {
 //        controlPanel.listenForConnections(4444);
 //    }
-//
 
     /* Test 3: Listen for Connection with a Specific IP (success)
      * Description: Check that the ControlPanel is able to listen for connections on a specific IP address
@@ -65,9 +64,9 @@ class ControlPanelTest {
 //    }
 
 
-    /* Test 6: ControlPanel - Login (Fail)
+    /* Test 6: ControlPanel - Login (Exception Handling)
      * Description: Login Request sent with the username and hashed password to authenticate user into session.
-     *              Implement appropriate error handling when user details are incorrect.
+     *              Implement appropriate exception handling when user details are incorrect.
      * Input: Username and password
      * Output: Receives error message from server.
      */
@@ -86,6 +85,8 @@ class ControlPanelTest {
      */
 //    @Test
 //    public void logoutRequestTest() {
+//      userControl.logoutRequest("sessionLogoutTestToken");
+//      assertFalse(validSessionTokens.contains("sessionLogoutTestToken));
 //      String serverResponse = logoutRequest();
 //      assertAll("Assertion for successful logouts",
 //          () -> assertFalse(userControl.sessionToken.length() > 1),

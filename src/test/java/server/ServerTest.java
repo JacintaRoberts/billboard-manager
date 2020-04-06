@@ -17,7 +17,7 @@ class ServerTest {
 //        server = new Server();
 //    }
 
-    /* Test 2: Listen for Connection with Default IP (success)
+    /* Test 2: Listen for Connection with Default IP (Success)
      * Description: Server listens for connections on specified port number and defaulted local host
      * listenForConnections(portNumber, *optional* ip); -> default ip is localhost if not specified.
      * Expected Output: Server successfully listens for connections on localhost at port 4444
@@ -28,7 +28,7 @@ class ServerTest {
 //    }
 //
 
-    /* Test 3: Listen for Connection with a Specific IP (success)
+    /* Test 3: Listen for Connection with a Specific IP (Success)
      * Description: Check that the server is able to listen for connections on a specific IP address
      * listenForConnections(port, *optional* addr); -> default addr is localhost if not specified
      * Suggested implementation: InetAddress.getByAddress(byte[]) returns InetAddress which is passed into ->
@@ -53,7 +53,7 @@ class ServerTest {
 //        });
 //    }
 
-    /* Test 5: Login Response (success)
+    /* Test 5: Login Response (Success)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return a valid session token.
@@ -81,5 +81,18 @@ class ServerTest {
 //       });
 //    }
 
+    /* Test 7: Log out Response (Success)
+     * Description: The Control Panel will send the Server a valid session token and the Server will expire that
+     *              session token and send back a boolean acknowledgement for success/failure.
+     * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
+     */
+//    @Test(expected = Test.None.class /* no exception expected */)
+//    public void logOut() {
+//      String testToken = "test-remove";
+//      bool success = userAdmin.logout(testToken)
+//      assertTrue(success);
+//      // Valid session token holder should not hold the sessionToken anymore
+//      assertFalse(sessionTokens.contains(testToken));
+//    }
 
 }
