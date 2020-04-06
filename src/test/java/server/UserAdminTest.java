@@ -441,7 +441,7 @@ class UserAdminTest {
 
     /* Test 23: Set Other User Password (Success)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
-     * (if it exists) and then modify to the hashed password and return acknowledgement (boolean) to Control Panel.
+     * (if it exists) and then modify to the hashed password and return acknowledgement (String) to Control Panel.
      * Expected Output: Hashed password updated in the DB and returns string "Success: Other User Password Updated"
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
