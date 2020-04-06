@@ -15,7 +15,7 @@ class DbConnectionTest {
      */
     DbConnection instance;
 
-    /* Test 1: Constructing a DbConnection Object to initialise the connection (success)
+    /* Test 1: Constructing a DbConnection Object to initialise the connection (Success)
      * Description: DBConnection Object should be instantiated to facilitate connection to MariaDb
      * Expected Output: DBConnection object is instantiated from DBConnection class
      * NOTE: Good example on Blackboard as to how to do this :)
@@ -28,7 +28,7 @@ class DbConnectionTest {
         instance = new DbConnection(props);
     }
 
-    /* Test 2: Helper function - Read from database properties files (success)
+    /* Test 2: Helper function - Read from database properties files (Success)
      * Description: Takes the file name to be read and returns the jdbcUrl, jdbcSchema, jdbcUsername and jdbcPassword
      * in an HashMap<String, String> to facilitate the connection to MariaDB.
      * Expected Output: Successfully return the url, schema, username and password from the database.props file
@@ -62,7 +62,7 @@ class DbConnectionTest {
 //        });
 //    }
 
-    /* Test 4: Check for creation of tables (success)
+    /* Test 4: Check for creation of tables (Success)
      * Description: DBConnection Object should create new tables in DB if they do not already exist
      * Expected Output: If db initially empty, should create 3 tables
      */
@@ -80,7 +80,7 @@ class DbConnectionTest {
 //        assertEquals(3,instance.executeQuery(GET_TABLE_COUNT));
 //    }
 
-    /* Test 5: Check that the Users table exists with correct columns (success)
+    /* Test 5: Check that the Users table exists with correct columns (Success)
      * Description: Users table should have 4 columns: Username (PK), HashedPassword, Salt, Permissions
      * Expected Output: The Users table exists and has the columns specified
      */
@@ -97,7 +97,7 @@ class DbConnectionTest {
 //        assertTrue(usersColumns.contains("Permissions"));
 //    }
 
-    /* Test 6: Check that the Billboards table exists with correct columns (success)
+    /* Test 6: Check that the Billboards table exists with correct columns (Success)
      * Description: Billboards table should have 3 columns: BillboardName (PK), Creator, BillboardXML
      * Expected Output: The Billboards table exists and has the columns specified
      */
@@ -113,7 +113,7 @@ class DbConnectionTest {
 //        assertTrue(billboardsColumns.contains("BillboardXML"));
 //    }
 
-    /* Test 7: Check that the Schedules table exists with correct columns (success)
+    /* Test 7: Check that the Schedules table exists with correct columns (Success)
      * Description: Schedules table should have 4 columns: DateTime (PK), BillboardName, DurationOfDisplay, Repeats
      * Expected Output: The Schedules table exists and has the columns specified
      */
@@ -130,7 +130,7 @@ class DbConnectionTest {
 //        assertTrue(usersColumns.contains("Repeats"));
 //    }
 
-    /* Test 8: Check for creation of initial user (success)
+    /* Test 8: Check for creation of initial user (Success)
      * Description: DBConnection Object should create initial user if there are none
      * Expected Output: If Users table initially empty should create initial user -> table should not be empty after
      */
@@ -148,7 +148,7 @@ class DbConnectionTest {
 //        assertTrue(rowCount >= 1);
 //    }
 
-    /* Test 9: Deletion of DB connection (success)
+    /* Test 9: Deletion of DB connection (Success)
      * Description: DBConnection Object should be able to be closed
      * Expected Output: Close db connection
      */
