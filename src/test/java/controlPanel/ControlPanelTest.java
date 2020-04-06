@@ -1,11 +1,5 @@
 package controlPanel;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import java.io.IOException;
-import static org.junit.jupiter.api.Assertions.*;
-
-
 class ControlPanelTest {
     /* Test 0: Declaring ControlPanel object.
      * Description: ControlPanel Object is created upon application start.
@@ -34,7 +28,6 @@ class ControlPanelTest {
 //        controlPanel.listenForConnections(4444);
 //    }
 
-
     /* Test 3: Listen for Connection with a Specific IP (success)
      * Description: Check that the ControlPanel is able to listen for connections on a specific IP address
      * listenForConnections(port, *optional* addr); -> default addr is localhost if not specified
@@ -56,7 +49,6 @@ class ControlPanelTest {
 //    @Test
 //    public void sendAcknowledgement() {
 //        assertTrue(controlPanel.sendAcknowledgement(String[] commandType) instanceof String[]);
-//        });
 //    }
 
 
@@ -64,12 +56,10 @@ class ControlPanelTest {
     * Description: Login Request sent with the username and hashed password to authenticate user into session.
     * Input: Username and password
     * Output: Receives sessionToken from Server.
-    * // TODO: May want to edit the input name variable - which is the input buffer read from the client
-    *          Also check if we want to use session token to verify or a loginStatus
      */
 //    @Test
 //    public void loginRequestTest(){
-//      loginRequest(username, Password) {
+//      String serverResponse = loginRequest(username, Password)
 //      assertTrue(serverResponse.length() > 1);
 //    }
 
@@ -79,12 +69,12 @@ class ControlPanelTest {
      *              Implement appropriate exception handling when user details are incorrect.
      * Input: Username and password
      * Output: Receives error message from server.
-     * // TODO: May want to edit the input name variable - which is the input buffer read from the client
      */
 //    @Test
 //    public void loginRequestTest(){
-//      loginRequest(username, Password) {
-//      assertFalse(serverResponse);
+//      String serverResponse = loginRequest("username", "Password");
+//      assertEquals(serverResponse, "Incorrect Details");
+//      assertThrows(IncorrectDetailsException);
 //    }
 
 
@@ -92,15 +82,16 @@ class ControlPanelTest {
      * Description: Login Request sent to Server. Server will acknowledge request once the local memory in server
      *              Deletes the sessionToken. The User is brought back to the login Screen
      * Output: The user will receive logout confirmation and be sent back to the login screen
-     * // TODO: Check if the assert will be an eventCheck to the login screen Also check if calling other packages are g
-     *     *****ASK***** CHECK IF WE CAN CALL OTHER PACKAGES AND HOW LOGIN WORKS
      */
 //    @Test
 //    public void logoutRequestTest() {
 //      userControl.logoutRequest("sessionLogoutTestToken");
 //      assertFalse(validSessionTokens.contains("sessionLogoutTestToken));
+//      String serverResponse = logoutRequest();
+//      assertAll("Assertion for successful logouts",
+//          () -> assertFalse(userControl.sessionToken.length() > 1),
+//          () -> assertEquals(serverResponse, "User Logged Out")
+//      );
 //    }
-
-
 
 }
