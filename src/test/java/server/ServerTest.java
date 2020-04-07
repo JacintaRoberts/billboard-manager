@@ -37,7 +37,7 @@ class ServerTest {
      * Expected Output: Server successfully listens for connection on specified IP address at port 4444
      */
 //    @Test
-//    public void listenForConnection() {
+//    public void listenForConnectionSpecificIP() {
 //        // Specific IP to be used
 //        byte[] addr = server.getIp(""src\\test\\resources\\network.props"");
 //        server.listenForConnections(4444, addr);
@@ -50,7 +50,6 @@ class ServerTest {
 //    @Test
 //    public void sendAcknowledgement() {
 //        assertTrue(server.sendAcknowledgement(String[] commandType) instanceof String[]);
-//        });
 //    }
 
     /* Test 5: Login Response (Success)
@@ -68,7 +67,7 @@ class ServerTest {
     /* Test 6: Login Response (error handling)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
-     * Expected Output: Return an invalid session token and throw incorrectPasswordException
+     * Expected Output: Return an invalid session token and throw IncorrectPasswordException
      */
 //    @Test
 //    public void loginResponse() {
@@ -76,12 +75,28 @@ class ServerTest {
 //      bool userExists = userAdmin.userExists("testUser");
 //      assertTrue(userExists);
 //      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
-//      assertThrows(incorrectPasswordException.class, () -> {
+//      assertThrows(IncorrectPasswordException.class, () -> {
 //          sessionToken response = server.loginResponse("test1", "wrongPass")
 //       });
 //    }
 
-    /* Test 7: Log out Response (Success)
+    /* Test 6: Login Response (error handling)
+     * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
+     *              an error or a valid session token. (Permissions required: none.)
+     * Expected Output: Return an invalid session token and throw UserNotExistException
+     */
+//    @Test
+//    public void loginResponse() {
+//      userAdmin = new UserAdmin("root");
+//      bool userExists = userAdmin.userExists("testUser");
+//      assertTrue(userExists);
+//      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
+//      assertThrows(UserNotExistException.class, () -> {
+//          sessionToken response = server.loginResponse("WrongUsername", "Whatever")
+//       });
+//    }
+
+    /* Test 8: Log out Response (Success)
      * Description: The Control Panel will send the Server a valid session token and the Server will expire that
      *              session token and send back a boolean acknowledgement for success/failure.
      * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
@@ -89,7 +104,7 @@ class ServerTest {
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void logOut() {
 //      String testToken = "test-remove";
-//      bool success = userAdmin.logout(testToken)
+//      bool success = userAdmin.logout(testToken);
 //      assertTrue(success);
 //      // Valid session token holder should not hold the sessionToken anymore
 //      assertFalse(sessionTokens.contains(testToken));
