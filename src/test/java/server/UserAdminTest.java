@@ -3,12 +3,16 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 class UserAdminTest {
     /* Test 0: Declaring UserAdmin object
      * Description: UserAdmin object should be running in background on application start.
      * Expected Output: UserAdmin object is declared
      */
     UserAdmin userAdmin;
+    DatabaseMock<String, ArrayList<String>> userTableMock;
 
     /* Test 1: Constructing a UserAdmin object
      * Description: UserAdmin Object should be able to be created on logged in user request from control panel
@@ -21,10 +25,20 @@ class UserAdminTest {
         userAdmin = new UserAdmin(userName);
     }
 
+    /* Test 1: Constructing a DatabaseMock object
+     * Description: DatabaseMock should be used to verify unit tests and setup of the DB
+     * Expected Output: DatabaseMock object is instantiated
+     */
+    @BeforeEach
+    @Test
+    public void setUpUserTableMock() {
+        userTableMock = new DatabaseMock<>();
+        userTableMock.addValue("root", new ArrayList<String>( Arrays.asList("pass", "{1,1,1,1}")));
+    }
+
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
      * Expected Output: A boolean where true is returned if the user is found in the DB and false otherwise
-     * // TODO: Implement Fake db through HashMap in the UserAdmin source code
      */
 //    @Test
 //    public void userExists() {
