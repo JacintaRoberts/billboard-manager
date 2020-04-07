@@ -36,7 +36,7 @@ class ControlPanelTest {
      * Expected Output: Server successfully listens for connection on specified IP address at port 4444
      */
 //    @Test
-//    public void listenForConnection() {
+//    public void listenForConnectionSpecificIP() {
 //        // Specific IP to be used
 //        byte[] addr = controlPanel.getIp(""src\\test\\resources\\network.props"");
 //        controlPanel.listenForConnections(4444, addr);
@@ -73,12 +73,26 @@ class ControlPanelTest {
 //    @Test
 //    public void loginRequestTest(){
 //      String serverResponse = loginRequest("username", "Password");
-//      assertEquals(serverResponse, "Incorrect Details");
-//      assertThrows(IncorrectDetailsException);
+//      assertEquals(serverResponse, "Fail: Incorrect Password");
+//      assertThrows(IncorrectPasswordException);
 //    }
 
 
-    /* Test 7: ControlPanel - Logout (Success)
+    /* Test 7: ControlPanel - Login (Exception Handling)
+     * Description: Login Request sent with the username and hashed password to authenticate user into session.
+     *              Implement appropriate exception handling when user details are incorrect.
+     * Input: Username and password
+     * Output: Receives error message from server Fail: UserNotExistException. 
+     */
+//    @Test
+//    public void loginRequestTest(){
+//      String serverResponse = loginRequest("username", "Password");
+//      assertEquals(serverResponse, "Fail: User Does Not Exist");
+//      assertThrows(UserNotExistException);
+//    }
+
+
+    /* Test 8: ControlPanel - Logout (Success)
      * Description: Login Request sent to Server. Server will acknowledge request once the local memory in server
      *              Deletes the sessionToken. The User is brought back to the login Screen
      * Output: The user will receive logout confirmation and be sent back to the login screen
@@ -87,10 +101,10 @@ class ControlPanelTest {
 //    public void logoutRequestTest() {
 //      userControl.logoutRequest("sessionLogoutTestToken");
 //      assertFalse(validSessionTokens.contains("sessionLogoutTestToken));
-//      String serverResponse = logoutRequest();
+//      String serverResponse = logoutRequest("sessionToken");
 //      assertAll("Assertion for successful logouts",
 //          () -> assertFalse(userControl.sessionToken.length() > 1),
-//          () -> assertEquals(serverResponse, "User Logged Out")
+//          () -> assertEquals(serverResponse, "Pass: User Logged Out")
 //      );
 //    }
 
