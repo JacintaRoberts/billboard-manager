@@ -1,8 +1,5 @@
 package controlPanel;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 class ScheduleControlTest {
 
     /* Test 0: Declaring ScheduleControl object
@@ -22,155 +19,188 @@ class ScheduleControlTest {
 //    }
 
 
-    /* Test 2: Request to server to Update Billboard Schedule (Fail)
+    /* Test 2: Request to server to Update Billboard Schedule (Success)
      * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billbaord
      *              name, the starting date of the method and also the duration (this is currently just in hrs format).
-     *              This tests when the billboard does not exists and will raise an exception.
-     * // Todo: **********ASK******** Check try catch block
      * Expected Output: An exception
      */
+//    @Test
 //    public void scheduleBillboardRequestTest(){
-//        try{
-//            scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "03/04/2020", "01:00");
-//        } catch (MissingBillboard e){
-//            e.printStackTrace();
-//        }
+//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//      String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
+//                                                                       "03/04/2020", "01:00");
+//      assertEquals(serverResponse, "Pass: Billboard Scheduled");
 //    }
 
 
     /* Test 3: Request to server to Update Billboard Schedule (Fail)
      * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billbaord
      *              name, the starting date of the method and also the duration (this is currently just in hrs format).
+     *              This test when the billboard does not exists
+     * Expected Output: An exception
+     */
+//    @Test
+//    public void scheduleBillboardRequestTestNoPermission(){
+//      String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
+//                                                                       "03/04/2020", "01:00");
+//      assertEquals(serverResponse, "Fail: Billboard does not Exist");
+//      assertThrows(NoBillboardException);
+//    }
+
+
+    /* Test 4: Request to server to Update Billboard Schedule (Fail)
+     * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billbaord
+     *              name, the starting date of the method and also the duration (this is currently just in hrs format).
      *              This tests when the billboard  exists but input time is incorrect and will raise an exception.
      * Expected Output: An exception
      */
-//    public void scheduleBillboardRequestTest(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        try {
-//            scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "AprilFools", "01/00");
-//        } catch (IncorrectInput e) {
-//            e.printStackTrace();
-//        }
+//    @Test
+//    public void scheduleBillboardRequestTestIncorrectTime(){
+//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//      String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
+//                                                                       "03/02-2020", "0100");
+//      assertEquals(serverResponse, "Fail: Invalid Date Time");
+//      assertThrows(DateTimeFormatException);
 //    }
 
 
-    /* Test 4: Request to server to Update Billboard Schedule (Success)
+    /* Test 5: Request to server to Update Billboard Schedule (Fail)
      * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billbaord
      *              name, the starting date of the method and also the duration (this is currently just in hrs format).
-     *              This tests when the billboard does not exists and will raise an exception.
+     *              This tests when the user does not have permission.
      * Expected Output: An exception
      */
-//    public void scheduleBillboardRequestTest(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
-//                "03/04/2020", "01:00");
-//        if (serverResponse == "No Billboard"){
-//          throw new EmptyValueException();
-//        }
+//    @Test
+//    public void scheduleBillboardRequestTestNoPermission(){
+//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//      String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
+//                                                                       "03/02-2020", "0100");
+//      assertEquals(serverResponse, "Fail: Insufficient User Permission");
+//      assertThrows(DateTimeFormatException);
 //    }
 
 
-    /* Test 5: Request to server to Remove Billboard Schedule (Fail)
+    /* Test 6: Request to server to Remove Billboard Schedule (Success)
      * Description: Method to remove Billboard. Will require a valid sessiontoken, and name of billboard to remove.
-     *              This test is to check if billboard does not exisits, and if the method can raise exception.
-     * Expected Output: An exception
+     * Expected Output: An success message from the server
      */
-//    public void scheduleBillboardRequestTest(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
+//    @Test
+//    public void removeFromScheduleRequestTest(){
+//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//      scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
 //                "03/04/2020", "01:00");
-//        if (serverResponse == "No Permission"){
-//          throw new UserValueException();
-//        }
+//      String serverResponse = scheduleControl.removeFromScheduleRequest("sessionToken", "Billboard1");
+//      assertEquals(serverResponse, "Pass: Billboard Schedule Removed");
 //    }
 
 
-    /* Test 6: Request to server to Remove Billboard Schedule (Fail)
+    /* Test 7: Request to server to Remove Billboard Schedule (Fail)
      * Description: Method to remove Billboard. Will require a valid sessiontoken, and name of billboard to remove.
      *              This test is to check if billboard exisits, but user does not have suffice user permission.
      * Expected Output: An exception
      */
-//    public void removeFromScheduleRequestTest(){
+//    @Test
+//    public void removeFromScheduleRequestTestNoPermission(){
 //        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
 //                "03/04/2020", "01:00");
-//        scheduleControl.removeFromScheduleRequest("sessionToken", "Billboard1");
-//        assertTrue(serverResponse == "Success");
+//      String serverResponse = scheduleControl.removeFromScheduleRequest("sessionToken", "Billboard1");
+//      assertEquals(serverResponse, "Fail: Insufficient User Permission");
+//      assertThrows(NoUserPermissionException);
 //    }
 
 
-    /* Test 7: Request to server to Remove Billboard Schedule (Success)
+    /* Test 8: Request to server to Remove Billboard Schedule (Fail)
      * Description: Method to remove Billboard. Will require a valid sessiontoken, and name of billboard to remove.
-     * Expected Output: An success message from the server
+     *              This test is to check if billboard does not exisits, and if the method can raise exception.
+     * Expected Output: An exception
      */
-//    public void removeFromScheduleRequestTest(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
+//    @Test
+//    public void scheduleBillboardRequestTestNoBillboard(){
+//        String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
 //                "03/04/2020", "01:00");
-//        scheduleControl.removeFromScheduleRequest("sessionToken", "Billboard1");
-//        assertTrue(serverResponse == "Success");
+//      assertEquals(serverResponse, "Fail: Billboard Does Not Exist");
+//      assertThrows(NoBillboardException);
 //    }
 
-
-    /* Test 8: Request to server to view billboard Schedules (Nothing)
-     * Description: Method to request to server to view billboard schedules. Assume sessionToken is valid.
-     * Expected Output: Server will return nothing / raise exception
-     * // TODO: *****ASK*****double check how schedules are stored for returns (arrays etc)
-     */
-//    public void viewScheduleRequestTest(){
-//      BillboardSchedules billboardSchedules = viewScheduleRequest("sessionToken");
-//        if (billboardSchedules == 0){
-//          throw new EmptyValueException();
-//        }
-//    }
 
     /* Test 9: Request to server to view billboard Schedules (Success)
      * Description: Method to request to server to view billboard schedules. Assume sessionToken is valid.
      * Expected Output: Server will return a string of schedules
-     * // TODO: *****ASK*****double check how schedules are stored for returns (arrays etc)
      */
+//    @Test
 //    public void viewScheduleRequestTest(){
 //      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//      scheduleControl.schedulBillboardRequest("sampleToken", "Billboard1", "03/04/2020","01:00");
+//      scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "03/04/2020","01:00");
 //      billboardControl.createBillboardRequest("sampleToken", "Billboard2", xmlCode);
-//      scheduleControl.schedulBillboardRequest("sampleToken", "Billboard2", "04/04/2020","02:00");
+//      scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard2", "04/04/2020","02:00");
 //      BillboardSchedules billboardSchedules = viewScheduleRequest("sessionToken");
 //      assertAll("Should return details of Given Billboard",
-//                () -> assertArrayEquals(["Billboard1","Billboard2"], billboardSchedules.getBillboardName()),
-//                () -> assertArrayEquals(["03/04/2020","04/04/2020"], billboardSchedules.getBillboardStartDate()),
-//                () -> assertArrayEquals(["01:00","02:00"], billboardSchedules.getBillboardDuration()),
+//                () -> assertEquals("Pass: Billboard List Returned", billboardSchedules.getServerResponse()),
+//                () -> assertArrayEquals(String[] {"Billboard1","Billboard2"}, billboardSchedules.getBillboardName()),
+//                () -> assertArrayEquals(String[] {"03/04/2020","04/04/2020"}, billboardSchedules.getBillboardStartDate()),
+//                () -> assertArrayEquals(String[] {"01:00","02:00"}, billboardSchedules.getBillboardDuration()),
 //    }
 
 
-    /* Test 10: Request to server to View specific billboard information (Nothing)
-     * Description: Method to request to server for specific billboard information
-     * Expected Output: Server will raise exception
-     * // TODO: *****ASK***** Check the return - and also is it similiar to the billboardcontrol
+    /* Test 10: Request to server to view billboard Schedules (Nothing)
+     * Description: Method to request to server to view billboard schedules. Assume sessionToken is valid.
+     * Expected Output: Server will return nothing / raise exception
      */
-//    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
-//        BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
-//                "Billboard1");
-//        if (billboardScheduleInformation == 0){
-//          throw new EmptyValueException();
-//        }
+//    @Test
+//    public void viewScheduleRequestTestNoBillboard(){
+//      BillboardSchedules billboardSchedules = viewScheduleRequest("sessionToken");
+//      assertEquals("Fail: No Schedule Exists", billboardSchedules.getServerResponse())
+//      assertTrue(billboardSchedules.getBillboardName().length == 0);
+//      assertThrows(NoBillboardScheduleException);
 //    }
 
 
     /* Test 11: Request to server to View specific billboard information (Success)
      * Description: Method to request to server for specific billboard information
      * Expected Output: Server will return Start Date, Duration and End Date
-     * // TODO: *****ASK***** Check the return - and also is it similiar to the billboardcontrol
      */
+//    @Test
 //    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
 //      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //      scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "03/04/2020","01:00");
 //      BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
 //              "Billboard1");
 //      assertAll("Should return details of Given Billboard",
+//                () -> assertEquals("Pass: Billboard Schedule Returned", billboardScheduleInformation.getServerResponse()),
 //                () -> assertEquals("03/04/2020", billboardScheduleInformation.getBillboardStartDate()),
 //                () -> assertEquals("01:00", billboardScheduleInformation.getBillboardDuration())
 //                () -> assertEquals("03/04/2020", billboardScheduleInformation.getBillboardEndDate())
 //        );
 //    }
+
+
+    /* Test 12: Request to server to View specific billboard information (Nothing)
+     * Description: Method to request to server for specific billboard information. No Schedule found
+     * Expected Output: Server will raise exception
+     */
+//    @Test
+//    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
+//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//      BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
+//                "Billboard1");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: No Schedule Exists");
+//      assertThrows(NoBillboardScheduleException);
+//    }
+
+
+    /* Test 13: Request to server to View specific billboard information (Fail)
+     * Description: Method to request to server for specific billboard information. Billboard Not Found
+     * Expected Output: Server will raise exception
+     */
+//    @Test
+//    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
+//      BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
+//                "Billboard1");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exists");
+//      assertThrows(NoBillboardException);
+//    }
+
+
 
 }

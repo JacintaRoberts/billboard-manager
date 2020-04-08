@@ -1,8 +1,5 @@
 package server;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-
 class ServerTest {
     /* Test 0: Declaring Server object
      * Description: Server object should be running in background on application start.
@@ -20,7 +17,7 @@ class ServerTest {
 //        server = new Server();
 //    }
 
-    /* Test 2: Listen for Connection with Default IP (success)
+    /* Test 2: Listen for Connection with Default IP (Success)
      * Description: Server listens for connections on specified port number and defaulted local host
      * listenForConnections(portNumber, *optional* ip); -> default ip is localhost if not specified.
      * Expected Output: Server successfully listens for connections on localhost at port 4444
@@ -31,7 +28,7 @@ class ServerTest {
 //    }
 //
 
-    /* Test 3: Listen for Connection with a Specific IP (success)
+    /* Test 3: Listen for Connection with a Specific IP (Success)
      * Description: Check that the server is able to listen for connections on a specific IP address
      * listenForConnections(port, *optional* addr); -> default addr is localhost if not specified
      * Suggested implementation: InetAddress.getByAddress(byte[]) returns InetAddress which is passed into ->
@@ -40,7 +37,7 @@ class ServerTest {
      * Expected Output: Server successfully listens for connection on specified IP address at port 4444
      */
 //    @Test
-//    public void listenForConnection() {
+//    public void listenForConnectionSpecificIP() {
 //        // Specific IP to be used
 //        byte[] addr = server.getIp(""src\\test\\resources\\network.props"");
 //        server.listenForConnections(4444, addr);
@@ -53,10 +50,9 @@ class ServerTest {
 //    @Test
 //    public void sendAcknowledgement() {
 //        assertTrue(server.sendAcknowledgement(String[] commandType) instanceof String[]);
-//        });
 //    }
 
-    /* Test 5: Login Response (success)
+    /* Test 5: Login Response (Success)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return a valid session token.
@@ -71,7 +67,7 @@ class ServerTest {
     /* Test 6: Login Response (error handling)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
-     * Expected Output: Return an invalid session token and throw incorrectPasswordException
+     * Expected Output: Return an invalid session token and throw IncorrectPasswordException
      */
 //    @Test
 //    public void loginResponse() {
@@ -79,10 +75,39 @@ class ServerTest {
 //      bool userExists = userAdmin.userExists("testUser");
 //      assertTrue(userExists);
 //      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
-//      assertThrows(incorrectPasswordException.class, () -> {
+//      assertThrows(IncorrectPasswordException.class, () -> {
 //          sessionToken response = server.loginResponse("test1", "wrongPass")
 //       });
 //    }
 
+    /* Test 6: Login Response (error handling)
+     * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
+     *              an error or a valid session token. (Permissions required: none.)
+     * Expected Output: Return an invalid session token and throw UserNotExistException
+     */
+//    @Test
+//    public void loginResponse() {
+//      userAdmin = new UserAdmin("root");
+//      bool userExists = userAdmin.userExists("testUser");
+//      assertTrue(userExists);
+//      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
+//      assertThrows(UserNotExistException.class, () -> {
+//          sessionToken response = server.loginResponse("WrongUsername", "Whatever")
+//       });
+//    }
+
+    /* Test 8: Log out Response (Success)
+     * Description: The Control Panel will send the Server a valid session token and the Server will expire that
+     *              session token and send back a boolean acknowledgement for success/failure.
+     * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
+     */
+//    @Test(expected = Test.None.class /* no exception expected */)
+//    public void logOut() {
+//      String testToken = "test-remove";
+//      bool success = userAdmin.logout(testToken);
+//      assertTrue(success);
+//      // Valid session token holder should not hold the sessionToken anymore
+//      assertFalse(sessionTokens.contains(testToken));
+//    }
 
 }
