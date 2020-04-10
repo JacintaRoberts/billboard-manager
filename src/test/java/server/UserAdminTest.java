@@ -126,14 +126,14 @@ class UserAdminTest {
      * Description: Get other User's Permissions from db - throw exception due to insufficient calling permissions
      * Require "EditUsers" permission which is the 4th element in UserPermissions object
      * e.g. [1,1,1,0] can't call the method.
-     * Expected Output: User's Permissions unable to be retrieved and returns "Error: Insufficient User Permissions"
+     * Expected Output: User's Permissions unable to be retrieved and returns "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void getOtherUserPermissionsInsufficientPermissions() {
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
 //      Object[] dbResponse =  basicUserAdmin.getUserPermissions("sessionToken", "root");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permissions", dbResponse[0]);
+//      assertEquals("Error: Insufficient User Permission", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
 //    }
 
@@ -187,7 +187,7 @@ class UserAdminTest {
      * Description: List all of the users in the database - throw exception due to insufficient permissions
      * Require "EditUsers" permission which is the 4th element in UserPermissions object
      * e.g. [1,1,1,0] can't call the method.
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Error: Insufficient User Permissions"
+     * Expected Output: List of Users unable to be retrieved from DB and returns "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void listUsersInsufficientPermissions() {
@@ -195,7 +195,7 @@ class UserAdminTest {
 //      // Joe tries to list users but does not have necessary permissions to call method
 //      basicUserAdmin.listUsers("sessionToken");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permissions", dbResponse.get(0));
+//      assertEquals("Error: Insufficient User Permission", dbResponse.get(0));
 //      assertEquals(1, dbResponse.size());
 //    }
 
@@ -261,7 +261,7 @@ class UserAdminTest {
 
     /* Test 14: Set Own User Permissions (Exception Handling)
      * Description: Attempt to set user permissions however calling user does not "EditUser" Permission
-     * Expected Output: User permissions not updated in DB and returns "Error: Insufficient User Permissions"
+     * Expected Output: User permissions not updated in DB and returns "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void setOwnUserPermissionsInsufficientPermissions() {
@@ -273,7 +273,7 @@ class UserAdminTest {
 //      // Joe tries to give himself edit users but does not have necessary permissions to call method
 //      String dbResponse = basicUserAdmin.setUserPermissions("sessionToken", "Joe", {0,0,0,1});
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permissions", dbResponse);
+//      assertEquals("Error: Insufficient User Permission", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({0,0,0,0}, userAdmin.getUserPermissions("Joe"));
 //    }
@@ -329,7 +329,7 @@ class UserAdminTest {
 
     /* Test 17: Set Other User Permissions (Exception Handling)
      * Description: Attempt to set user permissions however calling user does not "EditUser" Permission
-     * Expected Output: User permissions not updated in DB and returns "Error: Insufficient User Permissions"
+     * Expected Output: User permissions not updated in DB and returns "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void setOtherUserPermissionsInsufficientPermissions() {
@@ -341,7 +341,7 @@ class UserAdminTest {
 //      // Joe tries to set Jenny's permissions but does not have necessary permissions to call method
 //      String dbResponse = basicUserAdmin.setUserPermissions("sessionToken", "Jenny", {0,0,0,0});
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permissions", dbResponse);
+//      assertEquals("Error: Insufficient User Permission", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({1,1,1,0}, userAdmin.getUserPermissions("Jenny"));
 //    }
@@ -483,7 +483,7 @@ class UserAdminTest {
     /* Test 25: Set Other User Password (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * modify password of other users.
-     * Expected Output: Hashed password not updated in the DB and returns string "Error: Insufficient User Permissions"
+     * Expected Output: Hashed password not updated in the DB and returns string "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void setOtherPasswordInsufficientPermissions() {
@@ -497,7 +497,7 @@ class UserAdminTest {
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
 //      String dbResponse = basicUserAdmin.setPassword("sessionToken", "Jenny", "changedPass");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permissions", dbResponse);
+//      assertEquals("Error: Insufficient User Permission", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
 //      assertEquals("pass",userAdmin.getPassword("Jenny"));
 //    }
@@ -564,7 +564,7 @@ class UserAdminTest {
     /* Test 29: Delete User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * delete other users.
-     * Expected Output: Username is not deleted in DB and returns string "Error: Insufficient User Permissions"
+     * Expected Output: Username is not deleted in DB and returns string "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void deleteUserInsufficientPermissions() {
@@ -575,7 +575,7 @@ class UserAdminTest {
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
 //      // Check return value
 //      string dbResponse = basicUserAdmin.deleteUser("sessionToken", "Jenny");
-//      assertEquals("Error: Insufficient User Permissions", dbResponse);
+//      assertEquals("Error: Insufficient User Permission", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
 //    }
@@ -658,14 +658,14 @@ class UserAdminTest {
     /* Test 34: Create User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * create other users.
-     * Expected Output: Username is not created in DB and returns string "Error: Insufficient User Permissions"
+     * Expected Output: Username is not created in DB and returns string "Error: Insufficient User Permission"
      */
 //    @Test
 //    public void createUserInsufficientPermissions() {
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
 //      String dbResponse = basicUserAdmin.createUser("sessionToken", "DuplicateUser", {0,0,0,0}, "pass");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permissions", dbResponse);
+//      assertEquals("Error: Insufficient User Permission", dbResponse);
 //      // Check that the user is not added to the DB anyway
 //      assertFalse(basicUserAdmin.userExists("Ra"));
 //    }
