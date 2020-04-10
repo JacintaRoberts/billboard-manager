@@ -50,22 +50,22 @@ class UserAdminTest {
 //      // "sessionToken" should be sent from ControlPanel
 //      // TODO: Add these usernames with the corresponding permissions in the Fake DB in UserAdmin
 //      assertAll("Check for All Possible User Permission Combinations",
-//        ()-> assertEquals({0,0,0,0}, userAdmin.getUserPermissions("test0", "sessionToken")),
-//        ()-> assertEquals({1,0,0,0}, userAdmin.getUserPermissions("test1", "sessionToken")),
-//        ()-> assertEquals({0,1,0,0}, userAdmin.getUserPermissions("test2", "sessionToken")),
-//        ()-> assertEquals({0,0,1,0}, userAdmin.getUserPermissions("test3", "sessionToken")),
-//        ()-> assertEquals({0,0,0,1}, userAdmin.getUserPermissions("test4", "sessionToken")),
-//        ()-> assertEquals({1,1,0,0}, userAdmin.getUserPermissions("test5", "sessionToken")),
-//        ()-> assertEquals({1,0,1,0}, userAdmin.getUserPermissions("test6", "sessionToken")),
-//        ()-> assertEquals({1,0,0,1}, userAdmin.getUserPermissions("test7", "sessionToken")),
-//        ()-> assertEquals({0,1,1,0}, userAdmin.getUserPermissions("test8", "sessionToken")),
-//        ()-> assertEquals({0,1,0,1}, userAdmin.getUserPermissions("test9", "sessionToken")),
-//        ()-> assertEquals({0,0,1,1}, userAdmin.getUserPermissions("test10", "sessionToken")),
-//        ()-> assertEquals({1,1,1,0}, userAdmin.getUserPermissions("test11", "sessionToken")),
-//        ()-> assertEquals({1,1,0,1}, userAdmin.getUserPermissions("test12", "sessionToken")),
-//        ()-> assertEquals({1,0,1,1}, userAdmin.getUserPermissions("test13", "sessionToken")),
-//        ()-> assertEquals({0,1,1,1}, userAdmin.getUserPermissions("test14", "sessionToken")),
-//        ()-> assertEquals({1,1,1,1}, userAdmin.getUserPermissions("root", "sessionToken"))
+//        ()-> assertEquals({0,0,0,0}, userAdmin.getUserPermissions("sessionToken", "test0")),
+//        ()-> assertEquals({1,0,0,0}, userAdmin.getUserPermissions("sessionToken", "test1")),
+//        ()-> assertEquals({0,1,0,0}, userAdmin.getUserPermissions("sessionToken", "test2")),
+//        ()-> assertEquals({0,0,1,0}, userAdmin.getUserPermissions("sessionToken", "test3")),
+//        ()-> assertEquals({0,0,0,1}, userAdmin.getUserPermissions("sessionToken", "test4")),
+//        ()-> assertEquals({1,1,0,0}, userAdmin.getUserPermissions("sessionToken", "test5")),
+//        ()-> assertEquals({1,0,1,0}, userAdmin.getUserPermissions("sessionToken", "test6")),
+//        ()-> assertEquals({1,0,0,1}, userAdmin.getUserPermissions("sessionToken", "test7")),
+//        ()-> assertEquals({0,1,1,0}, userAdmin.getUserPermissions("sessionToken", "test8")),
+//        ()-> assertEquals({0,1,0,1}, userAdmin.getUserPermissions("sessionToken", "test9")),
+//        ()-> assertEquals({0,0,1,1}, userAdmin.getUserPermissions("sessionToken", "test10)),
+//        ()-> assertEquals({1,1,1,0}, userAdmin.getUserPermissions("sessionToken", "test11)),
+//        ()-> assertEquals({1,1,0,1}, userAdmin.getUserPermissions("sessionToken", "test12)),
+//        ()-> assertEquals({1,0,1,1}, userAdmin.getUserPermissions("sessionToken", "test13)),
+//        ()-> assertEquals({0,1,1,1}, userAdmin.getUserPermissions("sessionToken", "test14)),
+//        ()-> assertEquals({1,1,1,1}, userAdmin.getUserPermissions("sessionToken", "root"))
 //      )
 //    }
 
@@ -82,27 +82,27 @@ class UserAdminTest {
 //      assertAll("Check for Retrieving Most Own User Permission Combinations",
 //        ()-> {
 //          testUserAdmin = new UserAdmin("test0");
-//          assertEquals({0,0,0,0}, testUserAdmin.getUserPermissions("test0", "sessionToken"))
+//          assertEquals({0,0,0,0}, testUserAdmin.getUserPermissions("sessionToken", "test0"))
 //        },
 //        ()-> {
 //          testUserAdmin = new UserAdmin("test1");
-//          assertEquals({1,0,0,0}, testUserAdmin.getUserPermissions("test1", "sessionToken"))
+//          assertEquals({1,0,0,0}, testUserAdmin.getUserPermissions("sessionToken", "test1"))
 //        },
 //        ()-> {
 //          testUserAdmin = new UserAdmin("test2");
-//          assertEquals({0,1,0,0}, testUserAdmin.getUserPermissions("test2", "sessionToken"))
+//          assertEquals({0,1,0,0}, testUserAdmin.getUserPermissions("sessionToken", "test2"))
 //        },
 //        ()-> {
 //          testUserAdmin = new UserAdmin("test3");
-//          assertEquals({0,0,1,0}, testUserAdmin.getUserPermissions("test3", "sessionToken"))
+//          assertEquals({0,0,1,0}, testUserAdmin.getUserPermissions("sessionToken", "test3"))
 //        },
 //        ()-> {
 //          testUserAdmin = new UserAdmin("test4");
-//          assertEquals({0,0,0,1}, testUserAdmin.getUserPermissions("test4", "sessionToken"))
+//          assertEquals({0,0,0,1}, testUserAdmin.getUserPermissions("sessionToken", "test4"))
 //        },
 //        ()-> {
 //          testUserAdmin = new UserAdmin("root");
-//          assertEquals({1,1,1,1}, testUserAdmin.getUserPermissions("root", "sessionToken"))
+//          assertEquals({1,1,1,1}, testUserAdmin.getUserPermissions("sessionToken", "root"))
 //        }
 //      )
 //    }
@@ -115,7 +115,7 @@ class UserAdminTest {
 //    @Test
 //    public void getOtherUserPermissionsCallingUsernameDeleted() {
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username to something unknown
-//      Object[] dbResponse = unknownUserAdmin.getUserPermissions("non-existent", "sessionToken");
+//      Object[] dbResponse = unknownUserAdmin.getUserPermissions("sessionToken", "non-existent");
 //      // Check return value
 //      assertEquals("Error: Calling Username Deleted", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
@@ -131,7 +131,7 @@ class UserAdminTest {
 //    @Test
 //    public void getOtherUserPermissionsInsufficientPermissions() {
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
-//      Object[] dbResponse =  basicUserAdmin.getUserPermissions("root", "sessionToken");
+//      Object[] dbResponse =  basicUserAdmin.getUserPermissions("sessionToken", "root");
 //      // Check return value
 //      assertEquals("Error: Insufficient User Permissions", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
@@ -144,7 +144,7 @@ class UserAdminTest {
      */
 //    @Test
 //    public void getOtherUserPermissionsNoUsernameInDb() {
-//      Object[] dbResponse = userAdmin.getUserPermissions("non-existent", "sessionToken");
+//      Object[] dbResponse = userAdmin.getUserPermissions("sessionToken", "non-existent");
 //      // Check return value
 //      assertEquals("Error: Username Does Not Exist", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
@@ -224,11 +224,11 @@ class UserAdminTest {
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOwnUserEditUsersPermission() {
 //      // Test setup - Ensure that the user starts with all permissions
-//      if (userAdmin.getUserPermissions("root", "sessionToken") !== {1,1,1,1} ) {
-//          userAdmin.setUserPermissions("root", {1,1,1,1}, "sessionToken");
+//      if (userAdmin.getUserPermissions("sessionToken", "root") !== {1,1,1,1} ) {
+//          userAdmin.setUserPermissions("sessionToken", "root", {1,1,1,1});
 //      }
 //      // Attempt to remove own EditUsersPermission (last element in array)
-//      String dbResponse = userAdmin.setUserPermissions("root", {0,1,1,0}, "sessionToken");
+//      String dbResponse = userAdmin.setUserPermissions("sessionToken", "root", {0,1,1,0});
 //      // Check return value
 //      assertEquals("Error: Cannot Remove Own Edit Users Permission", dbResponse);
 //      // Check that the user permissions are not updated in the DB
@@ -245,11 +245,11 @@ class UserAdminTest {
 //    @Test
 //    public void setOwnUserPermissionsCallingUsernameDeleted() {
 //      // Test setup - Ensure that the calling user does not exist
-//      if (userAdmin.userExists("non-existent", "sessionToken")) {
-//          userAdmin.deleteUser("non-existent", "sessionToken");
+//      if (userAdmin.userExists("sessionToken", "non-existent")) {
+//          userAdmin.deleteUser("sessionToken", "non-existent");
 //      }
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username to something unknown
-//      String dbResponse = unknownUserAdmin.setUserPermissions("non-existent", {0,1,1,1}, "sessionToken");
+//      String dbResponse = unknownUserAdmin.setUserPermissions("sessionToken", "non-existent", {0,1,1,1});
 //      // Check return value
 //      assertEquals("Error: Calling Username Deleted", dbResponse);
 //      // Check that the user permissions are still unobtainable
@@ -266,12 +266,12 @@ class UserAdminTest {
 //    @Test
 //    public void setOwnUserPermissionsInsufficientPermissions() {
 //      // Test setup - Ensure that the user starts with different permissions
-//      if (userAdmin.getUserPermissions("Joe", "sessionToken") !== {0,0,0,0} ) {
-//          userAdmin.setUserPermissions("Joe", {0,0,0,0}, "sessionToken");
+//      if (userAdmin.getUserPermissions("sessionToken", "Joe") !== {0,0,0,0} ) {
+//          userAdmin.setUserPermissions("sessionToken", "Joe", {0,0,0,0});
 //      }
 //      basicUserAdmin = new UserAdmin("Joe");
 //      // Joe tries to give himself edit users but does not have necessary permissions to call method
-//      String dbResponse = basicUserAdmin.setUserPermissions("Joe", {0,0,0,1}, "sessionToken");
+//      String dbResponse = basicUserAdmin.setUserPermissions("sessionToken", "Joe", {0,0,0,1});
 //      // Check return value
 //      assertEquals("Error: Insufficient User Permissions", dbResponse);
 //      // Check that the user permissions are not updated in the DB
@@ -288,14 +288,14 @@ class UserAdminTest {
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOtherUserPermissions() {
 //      // Test Setup - Ensure that the user exists and has different permissions to start
-//      if ( !userAdmin.userExists("Jenny", "sessionToken") ) {
-//          userAdmin.createUser("Jenny", "pass", {0,1,1,1}, "sessionToken");
+//      if ( !userAdmin.userExists("sessionToken", "Jenny") ) {
+//          userAdmin.createUser("sessionToken", "Jenny", "pass", {0,1,1,1});
 //      }
 //      elseif ( userAdmin.getUserPermissions("Jenny") !== {0,1,1,1} ) {
-//          userAdmin.setUserPermissions("Jenny", {0,1,1,1}, "sessionToken");
+//          userAdmin.setUserPermissions("sessionToken", "Jenny", {0,1,1,1});
 //      }
 //      // Attempt to give CreateBillboards Permission and Remove Edit Users
-//      String dbResponse = userAdmin.setUserPermissions("Jenny", {1,1,1,0}, "sessionToken");
+//      String dbResponse = userAdmin.setUserPermissions("sessionToken", "Jenny", {1,1,1,0});
 //      // Check return value
 //      assertEquals("Success: Other User Permissions Updated", dbResponse);
 //      // Check that the user permissions are actually updated in the DB
@@ -312,14 +312,14 @@ class UserAdminTest {
 //    @Test
 //    public void setOtherUserPermissionsCallingUsernameDeleted() {
 //      // Test setup - Ensure that the user starts with different permissions and that the calling user does not exist
-//      if (userAdmin.getUserPermissions("root", "sessionToken") !== {1,1,1,1} ) {
-//          userAdmin.setUserPermissions("root", {1,1,1,1}, "sessionToken");
+//      if (userAdmin.getUserPermissions("sessionToken", "root") !== {1,1,1,1} ) {
+//          userAdmin.setUserPermissions("sessionToken", "root", {1,1,1,1});
 //      }
-//      if (userAdmin.userExists("non-existent", "sessionToken")) {
-//          userAdmin.deleteUser("non-existent", "sessionToken");
+//      if (userAdmin.userExists("sessionToken", "non-existent")) {
+//          userAdmin.deleteUser("sessionToken", "non-existent");
 //      }
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username to something unknown
-//      String dbResponse = unknownUserAdmin.setUserPermissions("root", {0,1,1,1}, "sessionToken");
+//      String dbResponse = unknownUserAdmin.setUserPermissions("sessionToken", "root", {0,1,1,1});
 //      // Check return value
 //      assertEquals("Error: Calling Username Deleted", dbResponse);
 //      // Check that the user permissions are not updated in the DB
@@ -334,12 +334,12 @@ class UserAdminTest {
 //    @Test
 //    public void setOtherUserPermissionsInsufficientPermissions() {
 //      // Test setup - Ensure that the user starts with different permissions
-//      if (userAdmin.getUserPermissions("Jenny", "sessionToken") !== {1,1,1,0} ) {
-//          userAdmin.setUserPermissions("Jenny", {1,1,1,0}, "sessionToken");
+//      if (userAdmin.getUserPermissions("sessionToken", "Jenny") !== {1,1,1,0} ) {
+//          userAdmin.setUserPermissions("sessionToken", "Jenny", {1,1,1,0});
 //      }
 //      basicUserAdmin = new UserAdmin("Joe");
 //      // Joe tries to set Jenny's permissions but does not have necessary permissions to call method
-//      String dbResponse = basicUserAdmin.setUserPermissions("Jenny", {0,0,0,0}, "sessionToken");
+//      String dbResponse = basicUserAdmin.setUserPermissions("sessionToken", "Jenny", {0,0,0,0});
 //      // Check return value
 //      assertEquals("Error: Insufficient User Permissions", dbResponse);
 //      // Check that the user permissions are not updated in the DB
@@ -355,9 +355,9 @@ class UserAdminTest {
 //    @Test
 //    public void setOtherUserPermissionsNoUsernameInDb() {
 //      // Test setup - Ensure that the username does not exist
-//      if (userAdmin.userExists("non-existent", "sessionToken")) {
-//          userAdmin.deleteUser("non-existent", "sessionToken");
-//      String dbResponse = userAdmin.setUserPermissions("non-existent", {0,1,1,1}, "sessionToken");
+//      if (userAdmin.userExists("sessionToken", "non-existent")) {
+//          userAdmin.deleteUser("sessionToken", "non-existent");
+//      String dbResponse = userAdmin.setUserPermissions("sessionToken", "non-existent", {0,1,1,1});
 //      // Check return value
 //      assertEquals("Error: Username Does Not Exist", dbResponse);
 //      // Check that the user permissions are still unobtainable
@@ -374,7 +374,7 @@ class UserAdminTest {
 //    @Test
 //    public void getPassword() {
 //      //TODO: Ensure testUser in fake db with "test" as password
-//      string dbResponse = userAdmin.getPassword("testUser", "sessionToken");
+//      string dbResponse = userAdmin.getPassword("sessionToken", "testUser");
 //      // Check return value
 //      assertEquals("test", dbResponse);
 //    }
@@ -388,11 +388,11 @@ class UserAdminTest {
 //    public void getPassword() {
 //      // Test setup - Ensure the username does not exist in DB
 //      if (userAdmin.userExists("non-existent")) {
-//          userAdmin.deleteUser("non-existent", "sessionToken");
+//          userAdmin.deleteUser("sessionToken", "non-existent");
 //      }
 //      // Check that exception is thrown
 //      assertThrows(UsernameNotFoundException.class, () -> {
-//          string dbResponse = userAdmin.getPassword("non-existent", "sessionToken");
+//          string dbResponse = userAdmin.getPassword("sessionToken", "non-existent");
 //      });
 //    }
 
@@ -405,11 +405,11 @@ class UserAdminTest {
 //    @Test
 //    public void setOwnPassword() {
 //     // Test setup - Ensure the user's original password is different
-//     if (userAdmin.getPassword("newUser", "sessionToken") == "changedPass") {
-//          userAdmin.setPassword("newUser", "pass", "sessionToken");
+//     if (userAdmin.getPassword("sessionToken", "newUser") == "changedPass") {
+//          userAdmin.setPassword("sessionToken", "newUser", "pass");
 //      }
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username to a basic user
-//      string dbResponse = basicUserAdmin.setPassword("Joe", "changedPass", "sessionToken");
+//      string dbResponse = basicUserAdmin.setPassword("sessionToken", "Joe", "changedPass");
 //      // Check return value
 //      assertEquals("Success: Own Password Updated", dbResponse);
 //      // Check that the user pass is actually updated in the DB
@@ -426,15 +426,15 @@ class UserAdminTest {
 //    public void setOwnPasswordCallingUsernameDeleted() {
 //      // Test setup - Ensure the user exists with the expected password in the DB
 //      if (userAdmin.userExists("non-existent")) {
-//          userAdmin.deleteUser("non-existent", "sessionToken");
+//          userAdmin.deleteUser("sessionToken", "non-existent");
 //      }
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username to something unknown
-//      string dbResponse = unknownUserAdmin.setPassword("non-existent", "changedPass", "sessionToken");
+//      string dbResponse = unknownUserAdmin.setPassword("sessionToken", "non-existent", "changedPass");
 //      // Check return value
 //      assertEquals("Error: Calling Username Deleted", dbResponse);
 //      // Check for Exception that the password cannot be obtained for user that does not exist in DB
 //      assertThrows(UsernameNotFoundException.class, () -> {
-//          string dbResponse = userAdmin.getPassword("non-existent", "sessionToken");
+//          string dbResponse = userAdmin.getPassword("sessionToken", "non-existent");
 //      });
 //    }
 
@@ -447,10 +447,10 @@ class UserAdminTest {
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOtherPassword() {
 //     // Test setup - Ensure the user's original password is different
-//     if (userAdmin.getPassword("newUser", "sessionToken") == "changedPass") {
-//          userAdmin.setPassword("newUser", "pass", "sessionToken");
+//     if (userAdmin.getPassword("sessionToken", "newUser") == "changedPass") {
+//          userAdmin.setPassword("sessionToken", "newUser", "pass");
 //      }
-//      String dbResponse = userAdmin.setPassword("newUser", "changedPass", "sessionToken");
+//      String dbResponse = userAdmin.setPassword("sessionToken", "newUser", "changedPass");
 //      // Check return value
 //      assertEquals("Success: Other User Password Updated", dbResponse);
 //      // Check that the user pass is actually updated in the DB
@@ -466,13 +466,13 @@ class UserAdminTest {
 //    public void setOtherPasswordCallingUsernameDeleted() {
 //      // Test setup - Ensure the user exists with the expected password in the DB
 //      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser("Jenny", {0,0,0,0}, "pass", "sessionToken");
+//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
 //      }
-//      if (userAdmin.getPassword("Jenny", "sessionToken") !== "pass") {
-//          userAdmin.setPassword("Jenny", "pass", "sessionToken");
+//      if (userAdmin.getPassword("sessionToken", "Jenny") !== "pass") {
+//          userAdmin.setPassword("sessionToken", "Jenny", "pass");
 //      }
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username to something unknown
-//      String dbResponse = unknownUserAdmin.setPassword("Jenny", "changedPass", "sessionToken");
+//      String dbResponse = unknownUserAdmin.setPassword("sessionToken", "Jenny", "changedPass");
 //      // Check return value
 //      assertEquals("Error: Calling Username Deleted", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
@@ -489,13 +489,13 @@ class UserAdminTest {
 //    public void setOtherPasswordInsufficientPermissions() {
 //      // Test setup - Ensure the user exists with the expected password in the DB
 //      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser(Jenny", {0,0,0,0}, "pass", "sessionToken");
+//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
 //      }
-//      if (userAdmin.getPassword("Jenny", "sessionToken") !== "pass") {
-//          userAdmin.setPassword("Jenny", "pass", "sessionToken");
+//      if (userAdmin.getPassword("sessionToken", "Jenny") !== "pass") {
+//          userAdmin.setPassword("sessionToken", "Jenny", "pass");
 //      }
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
-//      String dbResponse = basicUserAdmin.setPassword("Jenny", "changedPass", "sessionToken");
+//      String dbResponse = basicUserAdmin.setPassword("sessionToken", "Jenny", "changedPass");
 //      // Check return value
 //      assertEquals("Error: Insufficient User Permissions", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
@@ -512,14 +512,14 @@ class UserAdminTest {
 //    public void setOtherPasswordNoUsernameInDb() {
 //      // Test setup - Ensure the user to have password updated does not exist in DB
 //      if (userAdmin.userExists("unknownUser")) {
-//          userAdmin.deleteUser("unknownUser", "sessionToken");
+//          userAdmin.deleteUser("sessionToken", "unknownUser");
 //      }
-//      String dbResponse = userAdmin.setPassword("unknownUser", "changedPass", "sessionToken");
+//      String dbResponse = userAdmin.setPassword("sessionToken", "unknownUser", "changedPass");
 //      // Check return value
 //      assertEquals("Error: Username Does Not Exist", dbResponse);
 //      // Check for Exception that the password cannot be obtained for user that does not exist in DB
 //      assertThrows(UsernameNotFoundException.class, () -> {
-//          string dbResponse = userAdmin.getPassword("unknownUser", "sessionToken");
+//          string dbResponse = userAdmin.getPassword("sessionToken", "unknownUser");
 //      });//    }
 
 
@@ -533,10 +533,10 @@ class UserAdminTest {
 //    public void deleteUser() {
 //      // Test setup - Ensure the user to be deleted exists in DB
 //      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser("Jenny", {0,0,0,0}, "pass", "sessionToken");
+//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
 //      }
 //      // Check return value
-//      string dbResponse = userAdmin.deleteUser("Jenny", "sessionToken");
+//      string dbResponse = userAdmin.deleteUser("sessionToken", "Jenny");
 //      assertEquals("Success: User Deleted", dbResponse);
 //      // Check that the user is actually removed from DB
 //      assertFalse(userAdmin.userExists("Jenny"));
@@ -550,11 +550,11 @@ class UserAdminTest {
 //    public void deleteUserCallingUsernameDeleted()() {
 //      // Test setup - Ensure the user to be deleted exists in DB
 //      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser("Jenny", {0,0,0,0}, "pass", "sessionToken");
+//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
 //      }
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username
 //      // Check return value
-//      string dbResponse = unknownUserAdmin.deleteUser("Jenny", "sessionToken");
+//      string dbResponse = unknownUserAdmin.deleteUser("sessionToken", "Jenny");
 //      assertEquals("Error: Calling Username Deleted", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
@@ -570,11 +570,11 @@ class UserAdminTest {
 //    public void deleteUserInsufficientPermissions() {
 //      // Test setup - Ensure the user to be deleted exists in DB
 //      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser("Jenny", {0,0,0,0}, "pass", "sessionToken");
+//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
 //      }
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
 //      // Check return value
-//      string dbResponse = basicUserAdmin.deleteUser("Jenny", "sessionToken");
+//      string dbResponse = basicUserAdmin.deleteUser("sessionToken", "Jenny");
 //      assertEquals("Error: Insufficient User Permissions", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
@@ -589,10 +589,10 @@ class UserAdminTest {
 //    public void deleteUserNoUsernameInDb() {
 //      // Test setup - Ensure the user to be deleted does not exist in DB
 //      if (userAdmin.userExists("unknownUser")) {
-//          userAdmin.deleteUser("unknownUser", "sessionToken");
+//          userAdmin.deleteUser("sessionToken", "unknownUser");
 //      }
 //      // Check return value
-//      string dbResponse = userAdmin.deleteUser("unknownUser", "sessionToken");
+//      string dbResponse = userAdmin.deleteUser("sessionToken", "unknownUser");
 //      assertEquals("Error: Username Does Not Exist", dbResponse);
 //      // Check that the user to be deleted still doesn't exist
 //      assertFalse(userAdmin.userExists("unknownUser"));
@@ -608,10 +608,10 @@ class UserAdminTest {
 //    public void deleteUserNoUsernameInDb() {
 //      // Test setup - Ensure the user to be deleted exists in DB
 //      if (!userAdmin.userExists("root")) {
-//          userAdmin.createUser("root", "sessionToken");
+//          userAdmin.createUser("sessionToken", "root");
 //      }
 //      // Check return value
-//      string dbResponse = userAdmin.deleteUser("root", "sessionToken");
+//      string dbResponse = userAdmin.deleteUser("sessionToken", "root");
 //      assertEquals("Error: Cannot Delete Yourself", dbResponse);
 //      // Check that the user to be deleted still exists
 //      assertTrue(userAdmin.userExists("root"));
@@ -627,10 +627,10 @@ class UserAdminTest {
 //    public void createUser() {
 //      // Test setup - Ensure the user to be created does not already exist
 //      if (userAdmin.userExists("Jacinta")) {
-//          userAdmin.deleteUser("Jacinta", "sessionToken");
+//          userAdmin.deleteUser("sessionToken", "Jacinta");
 //      }
 //      // Check return value
-//      String dbResponse = userAdmin.createUser("Jacinta", {0,0,0,0}, "pass", "sessionToken");
+//      String dbResponse = userAdmin.createUser("sessionToken", "Jacinta", {0,0,0,0}, "pass");
 //      assertEquals("Success: User Created", dbResponse);
 //      // Check that the user is actually added to the DB
 //      assertTrue(userAdmin.userExists("Jacinta"));
@@ -645,10 +645,10 @@ class UserAdminTest {
 //      //TODO: ASK ABOUT BEST WAY WE CAN PASS IN THE "CALLING USERNAME"
 //      // Test setup - Ensure the user to be created does not already exist
 //      if (userAdmin.userExists("Ra")) {
-//          userAdmin.deleteUser("Ra", "sessionToken");
+//          userAdmin.deleteUser("sessionToken", "Ra");
 //      }
 //      unknownUserAdmin = new UserAdmin("non-existent"); // temporarily change calling username to something unknown
-//      String dbResponse = unknownUserAdmin.createUser("Ra", {0,0,0,0}, "pass", "sessionToken");
+//      String dbResponse = unknownUserAdmin.createUser("sessionToken", "Ra", {0,0,0,0}, "pass");
 //      // Check return value
 //      assertEquals("Error: Calling Username Deleted", dbResponse);
 //      // Check that the user to be created is not added to the DB anyway
@@ -663,7 +663,7 @@ class UserAdminTest {
 //    @Test
 //    public void createUserInsufficientPermissions() {
 //      basicUserAdmin = new UserAdmin("Joe"); // temporarily change calling username
-//      String dbResponse = basicUserAdmin.createUser("DuplicateUser", {0,0,0,0}, "pass", "sessionToken");
+//      String dbResponse = basicUserAdmin.createUser("sessionToken", "DuplicateUser", {0,0,0,0}, "pass");
 //      // Check return value
 //      assertEquals("Error: Insufficient User Permissions", dbResponse);
 //      // Check that the user is not added to the DB anyway
@@ -679,10 +679,10 @@ class UserAdminTest {
 //    public void createUserDuplicateUsername() {
 //      // Test Setup - Add the user to the DB if not already in existence
 //      if (!userAdmin.userExists("DuplicateUser")) {
-//          userAdmin.createUser("DuplicateUser", {0,0,0,0}, "pass", "sessionToken");
+//          userAdmin.createUser("sessionToken", "DuplicateUser", {0,0,0,0}, "pass");
 //      }
 //      // Attempt to add duplicate username
-//      String dbResponse = userAdmin.createUser("DuplicateUser", {0,0,0,0}, "pass", "sessionToken");
+//      String dbResponse = userAdmin.createUser("sessionToken", "DuplicateUser", {0,0,0,0}, "pass");
 //      // Check return value
 //      assertEquals("Error: Username Already Taken", dbResponse);
 //    }
