@@ -41,7 +41,6 @@ class BillboardControlTest {
 //    public void createSameNameBillboardRequest(){
 //        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        assertEquals(serverResponse, "Fail: Billboard Name Already Exists");
-//        assertThrows(SameBillboardNameException);
 //    }
 
 
@@ -54,7 +53,6 @@ class BillboardControlTest {
 //    public void createIllegalNameBillboardRequest(){
 //        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        assertEquals(serverResponse, "Fail: Billboard Contains Illegal Character");
-//        assertThrows(IllegalBillboardNameException);
 //    }
 
 
@@ -80,7 +78,6 @@ class BillboardControlTest {
 //    public void editABillboardRequestNoPermission(){
 //        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        assertEquals(serverResponse, "Fail: Insufficient User Permission");
-//        assertThrows(NoUserPermissionException);
 //    }
 
 
@@ -94,13 +91,12 @@ class BillboardControlTest {
 //    public void editABillboardRequestNoBillboard(){
 //        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        assertEquals(serverResponse, "Fail: Billboard Does not Exist");
-//        assertThrows(NoBillboardException);
 //    }
 
 
     /* Test 8: Request to server to delete a billboard (Success)
      * Description: Method to request a server to delete a billboard. Assume sessionToken is valid, and target exists.
-     * Expected Output: A positive reply from server of successful deletion .
+     * Expected Output: A positive reply from server of successful deletion.
      */
 //    @Test
 //    public void deleteABillboardRequest(){
@@ -118,20 +114,18 @@ class BillboardControlTest {
 //    public void deleteABillboardRequestNoBillboard(){
 //        String serverResponse = billboardControl.deleteBillboardRequest("sampleSessionToken","Billboard1");
 //        assertEquals(serverResponse, "Fail: Billboard Does Not Exist");
-//        assertThrows(NoBillboardException);
 //    }
 
 
     /* Test 10: Request to server to delete a billboard (Exception Handling)
      * Description: Method to request a server to delete a billboard. Assume sessionToken is valid. The method will
      *              throw an exception due to insufficient permissions
-     * Expected Output: A negative reply from server of failure to delete. Returns "Fail: No Permission"
+     * Expected Output: A negative reply from server of failure to delete. Returns "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void deleteABillboardRequestNoPermission(){
 //        String serverResponse = billboardControl.deleteBillboardRequest("sampleSessionToken","Billboard1");
 //        assertEquals(serverResponse, "Fail: Insufficient User Permission");
-//        assertThrows(NoUserPermissionException);
 //    }
 
 
@@ -158,14 +152,13 @@ class BillboardControlTest {
     /* Test 12: Request to server to list billboards (Exception Handling)
      * Description: Method to request to server to list all billboards. Assume sessionToken is valid. Fails because
      *              there is no billboard to return
-     * Expected Output: Fail message and raise exception.
+     * Expected Output: Fail message.
      */
 //    @Test
 //    public void listAllBillboardRequestNoBillboard(){
 //        BillboardList billboardList = billboardControl.listBillboardRequest("sessionToken");
 //        assertTrue(billboardList.getBillboardList() == 0);
 //        assertEquals(billboardList.getServerResponse(),"Fail: No Billboard Exists");
-//        assertThrows(EmptyBillboardListException);
 //    }
 
 
@@ -197,8 +190,7 @@ class BillboardControlTest {
 //    public void getABillboardInformationRequestNoBillboard(){
 //        BillboardInformation billboardInformation = getBillboardInformationRequest("sessionToken","Billboard500");
 //        assertTrue(billboardInformation.length == 0);
-//        assertEquals(billboardInformation.getserverRespone(), "Fail: Billboard Does Not Exist")
-//        assertThrows(NoBillboardException);
+//        assertEquals(billboardInformation.getServerResponse(), "Fail: Billboard Does Not Exist")
 //    }
 
 
@@ -206,13 +198,12 @@ class BillboardControlTest {
      * Description: A method to request billboard information of a given billboard - Information provided will include
      *              information such as billboardName, Creator, xmlCode. The method will fail because
      *              no permission error
-     * Expected Output: Return failure saying "Fail: No Permission"
+     * Expected Output: Return failure saying "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void getABillboardInformationRequestNoPermission(){
 //        BillboardInformation serverResponse = getBillboardInformationRequest("sessionToken","Billboard500");
-//        assertEquals(billboardInformation.getserverRespone(), "Fail: Insufficient User Permission");
-//        assertThrows(NoBillboardException);
+//        assertEquals(billboardInformation.getServerResponse(), "Fail: Insufficient User Permission");
 //    }
 
 
