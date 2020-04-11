@@ -22,7 +22,7 @@ public class MockBillboardDatabase {
 
         // Import each xml file and add it to the ArrayList
         for (int i = 0; i < numFiles; i++) {
-            File xmlFile = new File("/Users/kanu1/Documents/GitHub/CAB302-Billboard/src/main/billboards/"
+            File xmlFile = new File("/Users/kanu1/Documents/GitHub/CAB302-Billboard/src/main/resources/billboards/"
                     + (i+1) + ".xml");
             xmlFiles.add(i, xmlFile);
         }
