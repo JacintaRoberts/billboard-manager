@@ -8,10 +8,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
-import java.util.Arrays;
-import javax.imageio.ImageIO;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -39,7 +36,7 @@ public class Viewer {
      * @return billboardTags - an ArrayList which stores the background colour, message, message colour, picture,
      *      information, and information colour of the billboard, if there is no content for one or more of these tags,
      *      it stores an empty string
-     * TODO: Change from an ArrayList to a TreeMap? - this will need to change below as well
+     * TODO: Change from an ArrayList to a HashMap?? - this will need to change below as well
      */
     public static ArrayList<String> extractDataFromXML(File xmlFile) {
         // Initiate an ArrayList to return
@@ -268,9 +265,9 @@ public class Viewer {
     public static void displayBillboard() {
         File fileToDisplay = extractXMLFile(11);
         ArrayList<String> billboardTags = extractDataFromXML(fileToDisplay);
-        // MessageOnlyBillboard(billboardTags);
+        MessageOnlyBillboard(billboardTags);
         // formatBillboard(billboardTags);
-        noBillboardToDisplay();
+        // noBillboardToDisplay();
         listenEscapeKey();
         listenMouseClick();
         showViewer();
