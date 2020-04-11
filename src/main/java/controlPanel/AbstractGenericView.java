@@ -1,12 +1,9 @@
 package controlPanel;
-
-import observer.Observer;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
-public abstract class ControlPanelView extends JFrame implements Observer
+public abstract class AbstractGenericView extends AbstractView
 {
     // *** DECLARE VARIABLES**
     private static final int WIDTH = 500;
@@ -15,7 +12,8 @@ public abstract class ControlPanelView extends JFrame implements Observer
     private JPanel homePanel;
     // --- Buttons ---
     private JButton homeButton;
-    private JButton profileButton;
+    protected JButton profileButton;
+    private JButton backButton;
     // --- Labels ---
     private JLabel welcomeText;
 
@@ -25,12 +23,15 @@ public abstract class ControlPanelView extends JFrame implements Observer
      * createComponents() method which is defined in child classes.
      * @param frame_name name of JFrame
      */
-    public ControlPanelView(String frame_name)
+    public AbstractGenericView(String frame_name)
     {
         // assign frame name
         super(frame_name);
         setupFrame();
         createComponents();
+        // add profile and home panel
+        addProfilePanel();
+        addHomePanel();
     }
 
     /**
@@ -77,7 +78,9 @@ public abstract class ControlPanelView extends JFrame implements Observer
     {
         homePanel = new JPanel();
         homeButton = new JButton("Home");
+        backButton = new JButton("Back");
         homePanel.add(homeButton);
+        homePanel.add(backButton);
         getContentPane().add(homePanel, BorderLayout.SOUTH);
     }
 
@@ -91,6 +94,15 @@ public abstract class ControlPanelView extends JFrame implements Observer
     }
 
     /**
+     * Add listener to back button. This listener will navigate user back to previous frame.
+     * @param listener Mouse Click listener
+     */
+    protected void addBackButtonListener(MouseListener listener)
+    {
+        backButton.addMouseListener(listener);
+    }
+
+    /**
      * Set username in Welcome text i.e "Welcome <Name>"
      * @param username username of current user
      */
@@ -98,4 +110,6 @@ public abstract class ControlPanelView extends JFrame implements Observer
     {
         welcomeText.setText("Welcome " + username);
     }
+
+    protected void addViewUserButtonListener(MouseListener listener) {profileButton.addMouseListener(listener);}
 }

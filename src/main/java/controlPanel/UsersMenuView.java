@@ -2,10 +2,12 @@ package controlPanel;
 
 import observer.Subject;
 
+import controlPanel.Main.VIEW_TYPE;
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 
-public class UsersView extends ControlPanelView
+public class UsersMenuView extends AbstractGenericView
 {
     // *** VARIABLES**
     // --- Panels ---
@@ -13,17 +15,21 @@ public class UsersView extends ControlPanelView
     // --- Buttons ---
     private JButton viewUsersButton;
     private JButton createUsersButton;
+    // --- ENUM ---
+    private VIEW_TYPE view_type;
 
     /**
      * Constructor to create home view, use parent constructor.
      */
-    public UsersView()
+    public UsersMenuView()
     {
         super("Users View");
+        view_type = VIEW_TYPE.USERS_MENU;
     }
 
     @Override
-    void createComponents() {
+    void createComponents()
+    {
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new FlowLayout());
         viewUsersButton = new JButton("View Users");
@@ -31,9 +37,6 @@ public class UsersView extends ControlPanelView
         optionsPanel.add(viewUsersButton);
         optionsPanel.add(createUsersButton);
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
-
-        addProfilePanel();
-        addHomePanel();
     }
 
     @Override
@@ -41,4 +44,12 @@ public class UsersView extends ControlPanelView
     {
 
     }
+
+    @Override
+    VIEW_TYPE getEnum()
+    {
+        return view_type;
+    }
+
+    protected void addListUserButtonListener(MouseListener listener) {viewUsersButton.addMouseListener(listener);}
 }

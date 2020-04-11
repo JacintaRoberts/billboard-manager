@@ -1,13 +1,13 @@
 package controlPanel;
 
 import observer.Subject;
-
+import controlPanel.Main.VIEW_TYPE;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
 
-public class BillboardsView extends ControlPanelView
+public class BBMenuView extends AbstractGenericView
 {
     // *** VARIABLES**
     // --- Panels ---
@@ -15,15 +15,16 @@ public class BillboardsView extends ControlPanelView
     // --- Buttons ---
     private JButton billboardsButton;
     private JButton createBillboardButton;
-    // -- Colour Panel --
-    private JColorChooser colorChooser;
+    // --- ENUM ---
+    private VIEW_TYPE view_type;
 
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
      * View by defining Width and Height, default close operation and the Layout.
      */
-    public BillboardsView() {
+    public BBMenuView() {
         super("Billboard View");
+        this.view_type = VIEW_TYPE.BB_MENU;
     }
 
     @Override
@@ -35,19 +36,8 @@ public class BillboardsView extends ControlPanelView
         createBillboardButton = new JButton("Create Billboard");
         optionsPanel.add(billboardsButton);
         optionsPanel.add(createBillboardButton);
-        colorChooser = new JColorChooser();
-        optionsPanel.add(colorChooser);
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
-
-        // add profile and home panel
-        addProfilePanel();
-        addHomePanel();
     }
-
-//    public void colourSelectorPopup()
-//    {
-//        colorChooser = new JColorChooser();
-//    }
 
     /**
      * Update is used when model is updated and view needs to change accordingly!
@@ -59,8 +49,14 @@ public class BillboardsView extends ControlPanelView
 
     }
 
-    public void addCreateButtonListener(MouseListener listener)
+    public void addBBCreateButtonListener(MouseListener listener)
     {
         createBillboardButton.addMouseListener(listener);
+    }
+
+    @Override
+    VIEW_TYPE getEnum()
+    {
+        return view_type;
     }
 }

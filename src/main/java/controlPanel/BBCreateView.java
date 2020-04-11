@@ -4,10 +4,9 @@ import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseListener;
+import controlPanel.Main.VIEW_TYPE;
 
-public class CreateBillboardView  extends ControlPanelView
+public class BBCreateView extends AbstractGenericView
 {
     // *** DECLARE VARIABLES**
     // --- Panels ---
@@ -26,10 +25,13 @@ public class CreateBillboardView  extends ControlPanelView
     private JButton photoButton;
     // --- Fields ---
     private JTextField billboardNameField;
+    // --- ENUM ---
+    private VIEW_TYPE view_type;
 
-    public CreateBillboardView()
+    public BBCreateView()
     {
         super("Create Billboard");
+        view_type = VIEW_TYPE.CREATE_BB;
     }
 
     @Override
@@ -70,12 +72,18 @@ public class CreateBillboardView  extends ControlPanelView
         billboardMenuPanel.add(cancelButton);
         getContentPane().add(billboardMenuPanel, BorderLayout.EAST);
 
-        addHomePanel();
-        addProfilePanel();
+//        colorChooser = new JColorChooser();
+//        optionsPanel.add(colorChooser);
+//        getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
     @Override
     public void update(Subject s) {
 
+    }
+
+    @Override
+    VIEW_TYPE getEnum() {
+        return view_type;
     }
 }

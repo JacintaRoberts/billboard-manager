@@ -4,10 +4,10 @@ import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
+import controlPanel.Main.VIEW_TYPE;
 
-public class HomeView extends ControlPanelView
+public class HomeView extends AbstractGenericView
 {
     // *** VARIABLES**
     // --- Panels ---
@@ -16,6 +16,8 @@ public class HomeView extends ControlPanelView
     protected JButton usersButton;
     private JButton scheduleButton;
     private JButton billboardButton;
+    // --- ENUM ---
+    private VIEW_TYPE view_type;
 
     /**
      * Constructor to create home view, use parent constructor.
@@ -23,6 +25,7 @@ public class HomeView extends ControlPanelView
     public HomeView()
     {
         super("Home View");
+        this.view_type = VIEW_TYPE.HOME;
     }
 
     @Override
@@ -37,8 +40,12 @@ public class HomeView extends ControlPanelView
         optionsPanel.add(scheduleButton);
         optionsPanel.add(billboardButton);
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
+    }
 
-        addProfilePanel();
+    @Override
+    VIEW_TYPE getEnum()
+    {
+        return view_type;
     }
 
     /**
@@ -63,8 +70,11 @@ public class HomeView extends ControlPanelView
      * Add listener to handle navigation to users screen.
      * @param listener mouse click listener
      */
-    protected void addUsersButtonListener(MouseListener listener)
+    protected void addUserMenuListener(MouseListener listener)
     {
         usersButton.addMouseListener(listener);
     }
+
+    protected void addScheduleButtonListener(MouseListener listener) {scheduleButton.addMouseListener(listener);}
+
 }

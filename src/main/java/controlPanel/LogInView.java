@@ -1,14 +1,14 @@
 package controlPanel;
 
 
+import controlPanel.Main.VIEW_TYPE;
 import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 
-public class LogInView extends ControlPanelView
+public class LogInView extends AbstractView
 {
     // *** DECLARE VARIABLES**
     // --- Panels ---
@@ -22,6 +22,8 @@ public class LogInView extends ControlPanelView
     // --- Fields ---
     private JTextField usernameField;
     private JTextField passwordField;
+    // --- ENUM ---
+    private VIEW_TYPE logInType;
 
     /**
      * Constructor for LogIn View - set frame name
@@ -29,9 +31,10 @@ public class LogInView extends ControlPanelView
     public LogInView()
     {
         super("LogInView Panel");
+        createComponents();
+        this.logInType = VIEW_TYPE.LOGIN;
     }
 
-    @Override
     void createComponents()
     {
         loginPanel = new JPanel();
@@ -41,7 +44,7 @@ public class LogInView extends ControlPanelView
         passwordText = new JLabel("Password");
         passwordField = new JTextField();
         submitButton = new JButton("Submit");
-        errorText = new JLabel("Incorrect Credentials");
+        errorText = new JLabel("");
         loginPanel.add(usernameText);
         loginPanel.add(usernameField);
         loginPanel.add(passwordText);
@@ -94,5 +97,10 @@ public class LogInView extends ControlPanelView
     public void addSubmitButtonListener(MouseListener listener)
     {
         submitButton.addMouseListener(listener);
+    }
+
+    public VIEW_TYPE getEnum()
+    {
+        return logInType;
     }
 }

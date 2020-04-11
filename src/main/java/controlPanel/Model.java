@@ -1,18 +1,25 @@
 package controlPanel;
 
 import observer.Subject;
+import controlPanel.Main.VIEW_TYPE;
 
 public class Model extends Subject
 {
     // *** VARIABLES**
     private String username;
     private String sessionToken;
+    private VIEW_TYPE currentView;
+    private VIEW_TYPE previousView;
 
     /**
      * Model Constructor
      */
     public Model()
     {
+        // set the current to LOGIN frame & previous to HOME
+        // FIXME: is there a better way of doing this?
+        currentView = VIEW_TYPE.LOGIN;
+        previousView = VIEW_TYPE.HOME;
     }
 
     /**
@@ -21,7 +28,36 @@ public class Model extends Subject
      */
     public String getUsername()
     {
-        return username;
+        return this.username;
+    }
+
+    /**
+     * Get current View
+     * @return user's current view
+     */
+    public VIEW_TYPE getCurrentView()
+    {
+        return this.currentView;
+    }
+
+    /**
+     * Set user's current View
+     * @param newView
+     */
+    public void setCurrentView(VIEW_TYPE newView)
+    {
+        // redefine previous and current view
+        this.previousView = this.currentView;
+        this.currentView = newView;
+    }
+
+    /**
+     * Get User's previous view
+     * @return previous view
+     */
+    public VIEW_TYPE getPreviousView()
+    {
+        return this.previousView;
     }
 
     /**
