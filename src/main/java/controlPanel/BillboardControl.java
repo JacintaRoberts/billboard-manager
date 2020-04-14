@@ -1,4 +1,5 @@
 package controlPanel;
 
-public class BillboardControl {
+public class BillboardControl
+{
 }
