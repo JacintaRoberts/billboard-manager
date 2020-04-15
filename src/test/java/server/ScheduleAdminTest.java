@@ -123,5 +123,63 @@ class ScheduleAdminTest {
 //    }
 
 
+    /* Test 8: Remove Schedule from Schedule Table (Success)
+     * Description: Receive delete schedule request from CP, will require a session token, billboard name
+     *              and start date
+     *              Assume sessionToken is valid.
+     * Expected Output: The schedule is removed to the table and returns "Pass: Billboard Schedule Removed"
+     */
+//    @Test
+//    public void removeFromSchedule(){
+//      String dbResponse = scheduleAdmin.removeFromSchedule("sessionToken", "Billboard1", "2020-04-14 09:30:00");
+//      assertEquals(dbResponse, "Pass: Billboard Schedule Removed");
+//    }
+
+
+    /* Test 9: Remove Schedule - Insufficient Permissions (Exception Handling)
+     * Description: Receive delete schedule request from CP, will require a session token, billboard name
+     *              and start date
+     *              Assume sessionToken is valid.
+     *              This tests when the user has insufficient permissions
+     * Expected Output: The schedule is not removed to the table and returns "Fail: Insufficient User Permission"
+     */
+//    @Test
+//    public void removeFromScheduleNoPermission(){
+//      String dbResponse = scheduleAdmin.removeFromSchedule("basicToken", "Billboard1", "2020-04-14 09:30:00");
+//      assertEquals(dbResponse, "Fail: Insufficient User Permission");
+//    }
+
+
+    /* Test 10: Remove Schedule - Billboard Does Not Exist (Exception Handling)
+     * Description: Receive delete schedule request from CP, will require a session token, billboard name
+     *              and start date
+     *              Assume sessionToken is valid.
+     *              This tests for appropriate handling when the billboard does not exist
+     * Expected Output: The schedule is not removed to the table and returns "Fail: Billboard Does Not Exist"
+     */
+//    @Test
+//    public void removeFromScheduleNoBillboard(){
+//      String dbResponse = scheduleAdmin.removeFromSchedule("sampleToken", "non-existent", "2020-04-14 09:30:00");
+//      assertEquals(dbResponse, "Fail: Billboard Does Not Exist");
+//    }
+
+
+    /* Test 11: Remove Schedule - Schedule Does Not Exist (Exception Handling)
+     * Description: Receive delete schedule request from CP, will require a session token, billboard name
+     *              and start date
+     *              Assume sessionToken is valid.
+     *              This tests for appropriate handling when the schedule does not exist (deleted by someone else)
+     * Expected Output: The schedule is not removed to the table and returns "Fail: Schedule Does Not Exist"
+     */
+//    @Test
+//    public void removeFromScheduleAlreadyDeleted(){
+//      // Ensure that the billboard exists but the scheduled time does not.
+//      String dbResponse = scheduleAdmin.removeFromSchedule("sampleToken", "Billboard1", "1999-04-14 03:00:00");
+//      assertEquals(dbResponse, "Fail: Schedule Does Not Exist");
+//    }
+
+
+
+
 
 }

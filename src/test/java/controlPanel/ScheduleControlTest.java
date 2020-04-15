@@ -137,14 +137,13 @@ class ScheduleControlTest {
      */
 //    @Test
 //    public void removeFromScheduleRequestTestNoBillboard(){
-//        String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
+//        String serverResponse = scheduleControl.removeFromScheduleRequest("sampleToken", "billboard",
 //                "03/04/2020", "01:00");
 //      assertEquals(serverResponse, "Fail: Billboard Does Not Exist");
 //      assertThrows(NoBillboardException);
 //    }
 
 //TODO: WRITE TEST FOR "RemoveScheduleAlreadyDeleted"
-
 
 
     /* Test 9: Request to server to view billboard Schedules (Success)
