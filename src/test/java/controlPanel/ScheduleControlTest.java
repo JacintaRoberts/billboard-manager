@@ -162,6 +162,7 @@ class ScheduleControlTest {
 //                () -> assertArrayEquals(String[] {"Billboard1","Billboard2"}, billboardSchedules.getBillboardName()),
 //                () -> assertArrayEquals(String[] {"03/04/2020","04/04/2020"}, billboardSchedules.getBillboardStartDate()),
 //                () -> assertArrayEquals(String[] {"01:00","02:00"}, billboardSchedules.getBillboardDuration()),
+//      );
 //    }
 
 
@@ -177,7 +178,9 @@ class ScheduleControlTest {
 //      assertThrows(NoBillboardScheduleException);
 //    }
 
+// TODO: Discuss whether "END TIME" is needed to be returned
 
+// TODO: ADD BILLBOARD "REPEATS" FIELD TO TESTS BELOW
     /* Test 11: Request to server to View specific billboard information (Success)
      * Description: Method to request to server for specific billboard information
      * Expected Output: Server will return Start Date, Duration and End Date
@@ -193,9 +196,8 @@ class ScheduleControlTest {
 //                () -> assertEquals("03/04/2020", billboardScheduleInformation.getBillboardStartDate()),
 //                () -> assertEquals("01:00", billboardScheduleInformation.getBillboardDuration())
 //                () -> assertEquals("03/04/2020", billboardScheduleInformation.getBillboardEndDate())
-//        );
+//      );
 //    }
-
 
     /* Test 12: Request to server to View specific billboard information (Exception Handling)
      * Description: Method to request to server for specific billboard information. No Schedule found

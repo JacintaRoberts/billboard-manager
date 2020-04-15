@@ -179,7 +179,47 @@ class ScheduleAdminTest {
 //    }
 
 
+    /* Test 12: View Schedule (All Billboards) (Success)
+     * Description: Receive view schedule request from CP, will require a session token.
+     *              Assume sessionToken is valid.
+     * Expected Output: The schedule is retrieved as a string of schedules (billboard name, start time, duration)
+     *                  and returns "Pass: Billboard List Returned"
+     */
+//    @Test
+//    public void viewSchedule(){
+//      billboardAdmin.createBillboard("sampleToken", "Billboard1", xmlCode);
+//      scheduleAdmin.scheduleBillboard("sampleToken", "Billboard1", "2020-04-03 01:00:00", "01:00:00", "0");
+//      billboardAdmin.createBillboard("sampleToken", "Billboard2", xmlCode);
+//      scheduleAdmin.scheduleBillboard("sampleToken", "Billboard2", "2020-04-04 01:00:00", "01:00:00", "0");
+//      BillboardSchedules billboardSchedules = scheduleAdmin.viewSchedule("sessionToken");
+//      assertAll("Should return details of Given Billboard",
+//                () -> assertEquals("Pass: Billboard List Returned", billboardSchedules.getServerResponse()),
+//                () -> assertArrayEquals(String[] {"Billboard1","Billboard2"}, billboardSchedules.getBillboardName()),
+//                () -> assertArrayEquals(String[] {"2020-04-03 01:00:00","2020-04-04 01:00:00"}, billboardSchedules.getBillboardStartDate()),
+//                () -> assertArrayEquals(String[] {"01:00:00","01:00:00"}, billboardSchedules.getBillboardDuration()),
+//      );
+//    }
 
+
+    /* Test 13: View Schedule (All Billboards) - No Schedule Exists (Exception Handling)
+     * Description: Receive view schedule request from CP, will require a session token.
+     *              Assume sessionToken is valid.
+     * Expected Output: The schedule is not retrieved and returns "Fail: No Schedule Exists"
+     */
+//    @Test
+//    public void viewScheduleNoSchedule(){
+//      // Remove default billboard for test set up
+//      scheduleAdmin.removeFromSchedule("sessionToken", "Billboard1", "2020-04-14 09:30:00");
+//      BillboardSchedules billboardSchedules = viewSchedule("sessionToken");
+//      assertEquals("Fail: No Schedule Exists", billboardSchedules.getServerResponse());
+//      assertTrue(billboardSchedules.getBillboardName().length == 0);
+//    }
+
+    //TODO: PERMISSIONS?
+
+//TODO: Discuss whether "END TIME" is needed to be returned
+//TODO: Implement the tests for calculating which billboard needs to be displayed at a particular time
+// (e.g. need to check every entry in the Schedules table for "repeats" field).
 
 
 }
