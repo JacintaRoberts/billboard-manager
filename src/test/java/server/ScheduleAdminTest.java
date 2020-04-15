@@ -83,7 +83,7 @@ class ScheduleAdminTest {
 //      String dbResponse = scheduleAdmin.scheduleBillboard("sampleToken", "BillboardNOTEXISTS",
 //                                                                       "2020-04-14 05:00:00", "01:00:00", "24:00:00");
 //      assertEquals(dbResponse, "Fail: Billboard does not Exist");
-//      // Check DB throws an SQL Exception for Billboard Name not found in Billboard Table (cross-checks for valid)
+//      // Check DB throws an SQL Exception for Billboard Name not found in Schedule table
 //      assertThrows(SQLException);
 //    }
 
@@ -204,22 +204,102 @@ class ScheduleAdminTest {
     /* Test 13: View Schedule (All Billboards) - No Schedule Exists (Exception Handling)
      * Description: Receive view schedule request from CP, will require a session token.
      *              Assume sessionToken is valid.
+     *              Tests for when no schedule exists
      * Expected Output: The schedule is not retrieved and returns "Fail: No Schedule Exists"
      */
 //    @Test
 //    public void viewScheduleNoSchedule(){
 //      // Remove default billboard for test set up
 //      scheduleAdmin.removeFromSchedule("sessionToken", "Billboard1", "2020-04-14 09:30:00");
-//      BillboardSchedules billboardSchedules = viewSchedule("sessionToken");
+//      BillboardSchedules billboardSchedules = scheduleAdmin.viewSchedule("sessionToken");
 //      assertEquals("Fail: No Schedule Exists", billboardSchedules.getServerResponse());
 //      assertTrue(billboardSchedules.getBillboardName().length == 0);
 //    }
 
-    //TODO: PERMISSIONS?
+
+    /* Test 14: View Schedule (All Billboards) - Insufficient Permissions (Exception Handling)
+     * Description: Receive view schedule request from CP, will require a session token.
+     *              Assume sessionToken is valid.
+     *              Tests for insufficient permissions (req. Schedule Billboards Permission)
+     * Expected Output: The schedule is not retrieved and returns "Fail: Insufficient User Permission"
+     */
+//    @Test
+//    public void viewScheduleNoPermission(){
+//      BillboardSchedules billboardSchedules = scheduleAdmin.viewSchedule("basicToken");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exist");
+//    }
+
 
 //TODO: Discuss whether "END TIME" is needed to be returned
 //TODO: Implement the tests for calculating which billboard needs to be displayed at a particular time
 // (e.g. need to check every entry in the Schedules table for "repeats" field).
 
+    /* Test 15: View Billboard Schedule (1 Specific Billboard) (Success)
+     * Description: Receive view billboard schedule request from CP, will require a session token and returns specific
+     *              billboard information.
+     *              Assume sessionToken is valid.
+     * Expected Output: The specific billboard schedule will be retrieved (Start Date, Duration, End Time, Repeats)
+     *                  and returns "Pass: Billboard Schedule Returned"
+     */
+//    @Test
+//    public void viewABillboardSchedule(String sessionToken, String billboard){
+//      // Get default billboard information (schedule created with each test)
+//      BillboardScheduleInformation billboardScheduleInformation = scheduleAdmin.viewBillboardSchedule("sessionToken",
+//              "Billboard1");
+//      assertAll("Should return details of Given Billboard",
+//                () -> assertEquals("Pass: Billboard Schedule Returned", billboardScheduleInformation.getServerResponse()),
+//                () -> assertEquals("2020-04-14 09:30:00", billboardScheduleInformation.getBillboardStartDate()),
+//                () -> assertEquals("200", billboardScheduleInformation.getBillboardDuration()),
+//                () -> assertEquals("2020-04-14 09:32:00", billboardScheduleInformation.getBillboardEndDate()),
+//                () -> assertEquals("01:00:00", billboardScheduleInformation.getBillboardRepeat())
+//        );
+//    }
+
+
+    /* Test 16: View Billboard Schedule (1 Specific Billboard) - No Schedule (Exception Handling)
+     * Description: Receive view billboard schedule request from CP, will require a session token and returns specific
+     *              billboard information.
+     *              Assume sessionToken is valid.
+     *              This tests for appropriate handling when no schedule is found
+     * Expected Output: The specific billboard schedule will not be retrieved and returns "Fail: No Schedule Exists"
+     */
+//    @Test
+//    public void viewABillboardSchedule(String sessionToken, String billboard){
+//      // Remove default billboard for test set up
+//      scheduleAdmin.removeFromSchedule("sessionToken", "Billboard1", "2020-04-14 09:30:00");
+//      BillboardScheduleInformation billboardScheduleInformation = scheduleAdmin.viewBillboardSchedule("sessionToken",
+//                "Billboard1");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: No Schedule Exists");
+//      assertTrue(billboardScheduleInformation.getBillboardName().length == 0);
+//    }
+
+
+    /* Test 17:  View Billboard Schedule (1 Specific Billboard) - Billboard Does Not Exist (Exception Handling)
+     * Description: Receive view billboard schedule request from CP, will require a session token and returns specific
+     *              billboard information.
+     *              Assume sessionToken is valid.
+     *              This tests for appropriate handling when no billboard requested is not found
+     * Expected Output: The specific billboard schedule will not be retrieved and returns "Fail: Billboard Does Not Exist"
+     */
+//    @Test
+//    public void viewABillboardSchedule(String sessionToken, String billboard){
+//      BillboardScheduleInformation billboardScheduleInformation = scheduleAdmin.viewBillboardSchedule("sessionToken",
+//                "Billboard1");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exist");
+//      assertThrows(NoBillboardException);
+//    }
+
+
+    /* Test 18: View Billboard Schedule (1 Specific Billboard) - Insufficient Permissions (Exception Handling)
+     * Description: Receive view schedule request from CP, will require a session token.
+     *              Assume sessionToken is valid.
+     *              Tests for insufficient permissions (req. Schedule Billboards Permission)
+     * Expected Output: The billboard's schedule is not retrieved and returns "Fail: Insufficient User Permission"
+     */
+//    @Test
+//    public void viewABillboardScheduleNoPermission(){
+//      BillboardSchedules billboardSchedules = scheduleAdmin.viewSchedule("basicToken");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Insufficient User Permission");
+//    }
 
 }

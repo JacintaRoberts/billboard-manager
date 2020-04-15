@@ -178,7 +178,9 @@ class ScheduleControlTest {
 //      assertThrows(NoBillboardScheduleException);
 //    }
 
-// TODO: Discuss whether "END TIME" is needed to be returned
+// TODO: WRITE TEST FOR viewScheduleNoPermission -> "Fail: Insufficient User Permission"
+
+// TODO: Discuss whether "END TIME" is needed to be returned/where to calculate this
 
 // TODO: ADD BILLBOARD "REPEATS" FIELD TO TESTS BELOW
     /* Test 11: Request to server to View specific billboard information (Success)
@@ -221,10 +223,11 @@ class ScheduleControlTest {
 //    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
 //      BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
 //                "Billboard1");
-//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exists");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exist");
 //      assertThrows(NoBillboardException);
 //    }
 
+// TODO: WRITE TEST FOR viewABillboardScheduleNoPermission -> "Fail: Insufficient User Permission"
 
 
 }
