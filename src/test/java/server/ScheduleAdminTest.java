@@ -64,7 +64,6 @@ class ScheduleAdminTest {
      */
 //    @Test
 //    public void scheduleBillboard(){
-//      // Ensure Billboard 1 Exists: billboardAdmin.createBillboard("sampleToken", "Billboard1", "xmlCode");
 //      String dbResponse = scheduleAdmin.scheduleBillboard("sampleToken", "Billboard1",
 //                                                                       "2020-04-14 05:00:00", "01:00:00", "24:00:00");
 //      assertEquals(dbResponse, "Pass: Billboard Scheduled");
@@ -196,7 +195,7 @@ class ScheduleAdminTest {
 //                () -> assertEquals("Pass: Billboard List Returned", billboardSchedules.getServerResponse()),
 //                () -> assertArrayEquals(String[] {"Billboard1","Billboard2"}, billboardSchedules.getBillboardName()),
 //                () -> assertArrayEquals(String[] {"2020-04-03 01:00:00","2020-04-04 01:00:00"}, billboardSchedules.getBillboardStartDate()),
-//                () -> assertArrayEquals(String[] {"01:00:00","01:00:00"}, billboardSchedules.getBillboardDuration()),
+//                () -> assertArrayEquals(String[] {"01:00:00","01:00:00"}, billboardSchedules.getBillboardDuration())
 //      );
 //    }
 

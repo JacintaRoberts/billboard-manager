@@ -65,7 +65,7 @@ class UserAdminTest {
 //        ()-> assertEquals({1,0,1,1}, userAdmin.getUserPermissions("sessionToken", "test13)),
 //        ()-> assertEquals({0,1,1,1}, userAdmin.getUserPermissions("sessionToken", "test14)),
 //        ()-> assertEquals({1,1,1,1}, userAdmin.getUserPermissions("sessionToken", "root"))
-//      )
+//      );
 //    }
 
 
