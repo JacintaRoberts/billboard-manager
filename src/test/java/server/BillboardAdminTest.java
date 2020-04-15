@@ -50,9 +50,9 @@ class BillboardAdminTest {
      * Expected Output: Billboard is added to the table and returns "Pass: Billboard Created"
      */
 //    @Test
-//    public void createABillboardRequest(){
-//        String serverResponse = billboardAdmin.createBillboardRequest("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(serverResponse, "Pass: Billboard Created");
+//    public void createABillboard(){
+//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "Billboard1", xmlCode);
+//        assertEquals(dbResponse, "Pass: Billboard Created");
 //    }
 
 
@@ -63,9 +63,9 @@ class BillboardAdminTest {
      * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
 //    @Test
-//    public void createSameNameBillboardRequest(){
-//        String serverResponse = billboardAdmin.createBillboardRequest("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(serverResponse, "Fail: Billboard Name Already Exists");
+//    public void createSameNameBillboard(){
+//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "Billboard1", xmlCode);
+//        assertEquals(dbResponse, "Fail: Billboard Name Already Exists");
 //        // Assert that the DB throws an SQL Exception for duplicate key
 //        assertThrows(SQLException);
 //    }
@@ -79,9 +79,9 @@ class BillboardAdminTest {
      *     ESCAPE THEM - ALSO WORK OUT WHAT CHARACTERS ARE BAD FOR MARIA DB/JAVA AND REPLACE THE DUMMY ONES I HAVE
      */
 //    @Test
-//    public void createIllegalNameBillboardRequest(){
-//        String serverResponse = billboardAdmin.createBillboardRequest("sessionToken", "!@#$%^&*()~", xmlCode);
-//        assertEquals(serverResponse, "Fail: Billboard Contains Illegal Character");
+//    public void createIllegalNameBillboard(){
+//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "!@#$%^&*()~", xmlCode);
+//        assertEquals(dbResponse, "Fail: Billboard Contains Illegal Character");
 //        // Have to create this exception ourselves - if (name.contains("!@#$%^&*()~)) throw Exception ->
 //        assertThrows(IllegalBillboardNameException);
 //    }
@@ -93,9 +93,9 @@ class BillboardAdminTest {
      * Expected Output: Billboard is edited in the table and returns "Pass: Billboard Edited"
      */
 //    @Test
-//    public void editABillboardRequest(){
-//        String serverResponse = billboardAdmin.editBillboardRequest("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(serverResponse, "Pass: Billboard Edited");
+//    public void editABillboard(){
+//        String dbResponse = billboardAdmin.editBillboard("sessionToken", "Billboard1", xmlCode);
+//        assertEquals(dbResponse, "Pass: Billboard Edited");
 //    }
 
 
@@ -106,9 +106,9 @@ class BillboardAdminTest {
      * Expected Output: Billboard is not edited in the table and returns "Fail: Insufficient User Permission"
      */
 //    @Test
-//    public void editABillboardRequestNoPermission(){
-//        String serverResponse = billboardAdmin.editBillboardRequest("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(serverResponse, "Fail: Insufficient User Permission");
+//    public void editABillboardNoPermission(){
+//        String dbResponse = billboardAdmin.editBillboard("basicToken", "Billboard1", xmlCode);
+//        assertEquals(dbResponse, "Fail: Insufficient User Permission");
 //    }
 
 
@@ -120,9 +120,9 @@ class BillboardAdminTest {
      * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
 //    @Test
-//    public void editABillboardRequestNoBillboard(){
-//        String serverResponse = billboardAdmin.editBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(serverResponse, "Fail: Billboard Does not Exist");
+//    public void editABillboardNoBillboard(){
+//        String dbResponse = billboardAdmin.editBillboard("sessionToken", "Billboard1", xmlCode);
+//        assertEquals(dbResponse, "Fail: Billboard Does not Exist");
 //        // Billboard Name does not exist in DB
 //        assertThrows(SQLException);
 //    }
@@ -134,9 +134,9 @@ class BillboardAdminTest {
      */
 //    @Test
 //    public void deleteABillboard(){
-//        String serverResponse = billboardAdmin.deleteBillboard("sessionToken", "Billboard1");
+//        String dbResponse = billboardAdmin.deleteBillboard("sessionToken", "Billboard1");
 //        // sessionToken required to be passed in to check permissions inside function
-//        assertEquals(serverResponse, "Pass: Billboard Deleted");
+//        assertEquals(dbResponse, "Pass: Billboard Deleted");
 //    }
 
 
@@ -148,8 +148,8 @@ class BillboardAdminTest {
      */
 //    @Test
 //    public void deleteABillboardNoBillboard(){
-//        String serverResponse = billboardAdmin.deleteBillboard("sessionToken","Billboard1");
-//        assertEquals(serverResponse, "Fail: Billboard Does Not Exist");
+//        String dbResponse = billboardAdmin.deleteBillboard("sessionToken","Billboard1");
+//        assertEquals(dbResponse, "Fail: Billboard Does Not Exist");
 //        // Billboard Name does not exist in DB
 //        assertThrows(SQLException);
 //    }
@@ -162,8 +162,8 @@ class BillboardAdminTest {
      */
 //    @Test
 //    public void deleteABillboardNoPermission(){
-//        String serverResponse = billboardAdmin.deleteBillboard("sessionToken","Billboard1");
-//        assertEquals(serverResponse, "Fail: Insufficient User Permission");
+//        String dbResponse = billboardAdmin.deleteBillboard("basicToken","Billboard1");
+//        assertEquals(dbResponse, "Fail: Insufficient User Permission");
 //    }
 
 
@@ -194,7 +194,7 @@ class BillboardAdminTest {
      */
 //    @Test
 //    public void listAllBillboardNoBillboard(){
-//        BillboardList billboardList = billboardAdmin.listBillboardRequest("sessionToken");
+//        BillboardList billboardList = billboardAdmin.listBillboard("sessionToken");
 //        assertTrue(billboardList.getBillboardList() == 0);
 //        assertEquals(billboardList.getServerResponse(),"Fail: No Billboard Exists");
 //        // Billboard Name does not exist in DB
@@ -209,7 +209,7 @@ class BillboardAdminTest {
      */
 //    @Test
 //    public void getABillboardInformationPass(){
-//        billboardAdmin.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        billboardAdmin.createBillboard("sampleToken", "Billboard1", xmlCode);
 //        BillboardInformation billboardInformation = billboardAdmin.getBillboardInformation("sessionToken","Billboard1");
 //        assertAll("Should return details of Given Billboard",
 //                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getServerResponse()),
@@ -245,7 +245,7 @@ class BillboardAdminTest {
      */
 //    @Test
 //    public void getABillboardInformationNoPermission(){
-//        BillboardInformation serverResponse = billboardAdmin.getBillboardInformation("sessionToken","Billboard500");
+//        BillboardInformation dbResponse = billboardAdmin.getBillboardInformation("basicToken","Billboard500");
 //        assertEquals(billboardInformation.getServerResponse(), "Fail: Insufficient User Permission");
 //    }
 
