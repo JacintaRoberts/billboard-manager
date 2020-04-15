@@ -137,14 +137,13 @@ class ScheduleControlTest {
      */
 //    @Test
 //    public void removeFromScheduleRequestTestNoBillboard(){
-//        String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
+//        String serverResponse = scheduleControl.removeFromScheduleRequest("sampleToken", "billboard",
 //                "03/04/2020", "01:00");
 //      assertEquals(serverResponse, "Fail: Billboard Does Not Exist");
 //      assertThrows(NoBillboardException);
 //    }
 
 //TODO: WRITE TEST FOR "RemoveScheduleAlreadyDeleted"
-
 
 
     /* Test 9: Request to server to view billboard Schedules (Success)
@@ -163,6 +162,7 @@ class ScheduleControlTest {
 //                () -> assertArrayEquals(String[] {"Billboard1","Billboard2"}, billboardSchedules.getBillboardName()),
 //                () -> assertArrayEquals(String[] {"03/04/2020","04/04/2020"}, billboardSchedules.getBillboardStartDate()),
 //                () -> assertArrayEquals(String[] {"01:00","02:00"}, billboardSchedules.getBillboardDuration()),
+//      );
 //    }
 
 
@@ -178,7 +178,11 @@ class ScheduleControlTest {
 //      assertThrows(NoBillboardScheduleException);
 //    }
 
+// TODO: WRITE TEST FOR viewScheduleNoPermission -> "Fail: Insufficient User Permission"
 
+// TODO: Discuss whether "END TIME" is needed to be returned/where to calculate this
+
+// TODO: ADD BILLBOARD "REPEATS" FIELD TO TESTS BELOW
     /* Test 11: Request to server to View specific billboard information (Success)
      * Description: Method to request to server for specific billboard information
      * Expected Output: Server will return Start Date, Duration and End Date
@@ -194,9 +198,8 @@ class ScheduleControlTest {
 //                () -> assertEquals("03/04/2020", billboardScheduleInformation.getBillboardStartDate()),
 //                () -> assertEquals("01:00", billboardScheduleInformation.getBillboardDuration())
 //                () -> assertEquals("03/04/2020", billboardScheduleInformation.getBillboardEndDate())
-//        );
+//      );
 //    }
-
 
     /* Test 12: Request to server to View specific billboard information (Exception Handling)
      * Description: Method to request to server for specific billboard information. No Schedule found
@@ -220,10 +223,11 @@ class ScheduleControlTest {
 //    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
 //      BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
 //                "Billboard1");
-//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exists");
+//      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Billboard Does Not Exist");
 //      assertThrows(NoBillboardException);
 //    }
 
+// TODO: WRITE TEST FOR viewABillboardScheduleNoPermission -> "Fail: Insufficient User Permission"
 
 
 }
