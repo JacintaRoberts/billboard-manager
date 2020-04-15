@@ -35,7 +35,7 @@ class ScheduleControlTest {
 
 
     /* Test 3: Request to server to Update Billboard Schedule (Exception Handling)
-     * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billbaord
+     * Description: Method to put in a schedule for billboards. Will require a session token (valid), the billboard
      *              name, the starting date of the method and also the duration (this is currently just in hrs format).
      *              This test when the billboard does not exists
      * Expected Output: An exception
