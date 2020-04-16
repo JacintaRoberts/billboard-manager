@@ -1,16 +1,21 @@
 package viewer;
 
+import helpers.Helpers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+
 import javax.swing.*;
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.Socket;
 import java.util.ArrayList;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 
 
 public class Viewer {
@@ -275,7 +280,24 @@ public class Viewer {
 
 
     public static void main(String[] args ) {
-        displayBillboard();
+        // Read port number and ip address from network.props
+        final String networkPropsFilePath = "src\\main\\resources\\network.props";
+        final int port = Helpers.getPort(networkPropsFilePath);
+        final String ip = Helpers.getIp(networkPropsFilePath);
+
+        // Connect to server
+        try {
+            Socket socket = new Socket(ip, port);
+            // Write to the server
+            OutputStream outputStream = socket.getOutputStream();
+            outputStream.write(42); //0-255
+            socket.close();
+        } catch (IOException e) {
+            //TODO: Billboard show something alternate if cannot connect to server
+            System.err.println("Exception caught: " + e);
+        }
+
+        //displayBillboard();
 
     }
 

@@ -1,39 +1,39 @@
 package server;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import helpers.Helpers;
+
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.Properties;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.Socket;
 
 public class Server {
     public static void main(String[] args) {
         // Clients connect to the server with a port number (server listens) - TCP/IP
-    }
+        // Read port number and ip address from network.props
+        final String networkPropsFilePath = "src\\main\\resources\\network.props";
+        final int port = Helpers.getPort(networkPropsFilePath);
+        final String ip = Helpers.getIp(networkPropsFilePath);
 
-    /**
-     * Retrieves the port and IP address from the specified .props file
-     * @param filePath the location/name of the network.props file
-     * @return ArrayList<Object> - contains Integer port number, String IP address from network.props file
-     */
-    public static HashMap<String, Object> readProps(String filePath) {
-        Properties props = new Properties();
-        FileInputStream in = null;
+        //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
         try {
-            in = new FileInputStream(String.valueOf(filePath));
-            props.load(in);
-            in.close();
-            Integer port = Integer.parseInt(props.getProperty("port"));
-            String ip = props.getProperty("ip");
-            HashMap<String, Object> combined = new HashMap<>();
-            combined.put("port", port);
-            combined.put("ip", ip);
-            return combined;
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
+            // Bind port number and begin listening
+            ServerSocket serverSocket = new ServerSocket(port);
+            // Socket is what will be used to communicate on, loop to keep receiving connections
+            for (;;) {
+                Socket socket = serverSocket.accept();
+
+                // Read a single byte from the stream
+                InputStream inputStream = socket.getInputStream();
+                System.out.println("Read byte: " + inputStream.read());
+
+                socket.close();
+            }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.err.println("Exception caught: " + e);
         }
-        return null;
+
+
     }
 }
+

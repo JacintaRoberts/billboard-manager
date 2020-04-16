@@ -39,6 +39,43 @@ public class Helpers {
         }
     }
 
+    /**
+     * Retrieves the port number from the filePath, validates and parses as int
+     * @param filePath The string file path to be read from
+     * @return port number (integer)
+     */
+    public static int getPort(String filePath) {
+        String stringPort = null;
+        try {
+            stringPort = Helpers.readProps(filePath).getProperty("port");
+        } catch (IOException e) {
+            System.err.println("Exception caught: "+e);
+        }
+
+        int port = -1;
+        try {
+            port = Helpers.validatePort(stringPort);
+        } catch (BadPortNumberException e) {
+            System.err.println("Exception caught: "+e);
+        }
+        return port;
+    }
+
+
+    /**
+     * Retrieves the ip address from the filePath as a string
+     * @param filePath The string file path to be read from
+     * @return ip address string
+     */
+    public static String getIp(String filePath) {
+        String ip = null;
+        try {
+            ip = Helpers.readProps(filePath).getProperty("ip");
+        } catch (IOException e) {
+            System.err.println("Exception caught: "+e);
+        }
+        return ip;
+    }
 
 
 }
