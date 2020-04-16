@@ -1,5 +1,8 @@
 package server;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
 class ServerTest {
     /* Test 0: Declaring Server object
      * Description: Server object should be running in background on application start.
@@ -7,15 +10,17 @@ class ServerTest {
      */
     Server server;
 
+
     /* Test 1: Constructing a Server object
      * Description: Server Object should be running in background on application start.
      * Expected Output: Server object is instantiated from Server class
      */
-//    @BeforeEach
-//    @Test
-//    public void setUpServer() {
-//        server = new Server();
-//    }
+    @BeforeEach
+    @Test
+    public void setUpServer() {
+        server = new Server();
+    }
+
 
     /* Test 2: Listen for Connection with Default IP (Success)
      * Description: Server listens for connections on specified port number and defaulted local host
@@ -109,5 +114,34 @@ class ServerTest {
 //      // Valid session token holder should not hold the sessionToken anymore
 //      assertFalse(sessionTokens.contains(testToken));
 //    }
+
+
+    /* Test 9: Validate SessionToken (Success)
+     * Description: Check that the Session token is still valid - validation needs to happen on the server-side
+     *              according to the specification.
+     * Expected Output: Returns true as the given session should be active
+     * TODO: implement validSessionTokens is an array of strings (include "sessionToken" and exclude "failToken")
+     */
+//    @Test
+//    public void verifySession() {
+//      Server.addToken("sessionToken");
+//      assertTrue(Server.validateToken("sessionToken"));
+//    }
+
+
+    /* Test 10: Validate SessionToken (Exception Handling)
+     * Description: Check that the Session token is still valid.
+     * Expected Output: Returns false as the given session should be inactive, throws invalidSessionTokenException
+     */
+//    @Test
+//    public void verifySession() {
+//      Server.addToken("failToken");
+//      Server.expireToken("failToken");
+//      // Check Expired Token
+//      assertFalse(Server.validateToken("failToken"));
+//      // Also Check Empty
+//      assertFalse(Server.validateToken(""));
+//    }
+
 
 }
