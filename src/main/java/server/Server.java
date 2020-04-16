@@ -7,6 +7,10 @@ import java.util.HashMap;
 import java.util.Properties;
 
 public class Server {
+    public static void main(String[] args) {
+        // Clients connect to the server with a port number (server listens) - TCP/IP
+    }
+
     /**
      * Retrieves the port and IP address from the specified .props file
      * @param filePath the location/name of the network.props file
