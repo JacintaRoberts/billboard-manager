@@ -11,9 +11,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.io.IOException;
-import java.io.OutputStream;
+import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 
@@ -285,14 +283,45 @@ public class Viewer {
         final int port = Helpers.getPort(networkPropsFilePath);
         final String ip = Helpers.getIp(networkPropsFilePath);
 
-        // Connect to server
         try {
+            // Connect to server
             Socket socket = new Socket(ip, port);
+
             // Write to the server
             OutputStream outputStream = socket.getOutputStream();
-            outputStream.write(42); //0-255
+            InputStream inputStream = socket.getInputStream();
+
+            ObjectOutputStream oos = new ObjectOutputStream(outputStream);
+            ObjectInputStream ois = new ObjectInputStream(inputStream);
+
+            int[] ar = {1, 2, 3};
+            oos.writeObject("Hello server");
+            oos.writeObject(ar);
+
+//            oos.writeUTF("Hello server");
+//            oos.writeUTF("1");
+//            oos.flush();
+//            System.out.println("Message from server: " + ois.readUTF());
+//            oos.writeUTF("2");
+//            oos.writeUTF("3");
+            oos.flush();
+
+            ois.close();
+            oos.close();
+
+            // System.out.println("Connected to server");
+            // outputStream.write(42);
+            // System.out.println("Sent byte");
+
+            //System.out.print("Received byte: " + inputStream.read());
+
+            //BufferedOutputStream bos = new BufferedOutputStream(outputStream);
+            //bos.write(42); //0-255
+            //bos.flush();
+            //bos.close();
+
             socket.close();
-        } catch (IOException e) {
+        } catch (IOException e) { // Could not connect to server
             //TODO: Billboard show something alternate if cannot connect to server
             System.err.println("Exception caught: " + e);
         }
