@@ -10,13 +10,10 @@ public abstract class AbstractUserView extends AbstractGenericView
     // *** DECLARE VARIABLES**
     // --- Panels ---
     private JPanel userDetailsPane;
-    // --- Buttons ---
-    private JButton submitButton;
     // --- Labels ---
     private JLabel usernameText;
     private JLabel passwordText;
     private JLabel userPermissions;
-    private JLabel errorText;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
 
@@ -43,17 +40,12 @@ public abstract class AbstractUserView extends AbstractGenericView
         passwordLabel = new JLabel("Password");
         passwordText = new JLabel("");
         userPermissions = new JLabel("User Permissions");
-        submitButton = new JButton("Submit");
-        errorText = new JLabel("Incorrect Credentials");
         userDetailsPane.add(usernameLabel);
         userDetailsPane.add(usernameText);
         userDetailsPane.add(passwordLabel);
         userDetailsPane.add(passwordText);
         userDetailsPane.add(userPermissions);
-        userDetailsPane.add(errorText);
-        userDetailsPane.add(submitButton);
 
-        errorText.setVisible(false);
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
     }
 

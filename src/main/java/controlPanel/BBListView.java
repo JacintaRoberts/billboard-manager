@@ -4,6 +4,8 @@ import observer.Subject;
 
 import controlPanel.Main.VIEW_TYPE;
 
+import java.awt.event.MouseListener;
+
 public class BBListView extends AbstractListView
 {
     // *** VARIABLES**
@@ -31,4 +33,5 @@ public class BBListView extends AbstractListView
     {
         return view_type;
     }
+
 }

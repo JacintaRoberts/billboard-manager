@@ -32,12 +32,19 @@ public class Controller
         // adds listeners to views
         addLogInListener();
         addHomeListener();
-        addUserMenuListener();
-        addBBMenuListener();
+
         addScheduleListener();
+
+        addUserMenuListener();
         addUserViewListener();
+        addUserListListener();
+        addUserEditListener();
+
+        addBBMenuListener();
         addBBCreateListener();
         addBBListListener();
+
+        addEditContentListener();
 
         // set up Log In view
         setUpView(LOGIN);
@@ -70,6 +77,13 @@ public class Controller
         UsersMenuView usersMenuView = (UsersMenuView) views.get(USERS_MENU);
         usersMenuView.addListUserButtonListener(new ListUsersListener());
         views.put(USERS_MENU, usersMenuView);
+    }
+
+    private void addEditContentListener()
+    {
+        addGenericListeners(USER_EDIT);
+        UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+        views.put(USER_EDIT, userEditView);
     }
 
     private void addBBMenuListener()
@@ -108,6 +122,21 @@ public class Controller
         addGenericListeners(BB_LIST);
         BBListView bbListView = (BBListView) views.get(BB_LIST);
         views.put(BB_LIST, bbListView);
+    }
+
+    private void addUserListListener()
+    {
+        addGenericListeners(USER_LIST);
+        UserListView userListView = (UserListView) views.get(USER_LIST);
+        userListView.addEditContentListener(new EditUserButtonListener());
+        views.put(USER_LIST, userListView);
+    }
+
+    private void addUserEditListener()
+    {
+        addGenericListeners(USER_EDIT);
+        UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+        views.put(USER_EDIT, userEditView);
     }
 
     /**
@@ -351,6 +380,23 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: BB Create button clicked");
             // navigate to home screen
             updateView(BB_CREATE);
+        }
+    }
+
+    /**
+     * Listener to handle Edit User Button mouse clicks.
+     */
+    private class EditUserButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Edit User button clicked");
+            System.out.println("Source :" + e.getSource());
+            System.out.println("Button :" + e.getButton());
+            System.out.println("Button :" + e.getID());
+            // navigate to edit user screen
+            updateView(USER_EDIT);
         }
     }
 
