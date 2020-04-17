@@ -16,6 +16,8 @@ public class Server {
         final int port = Helpers.getPort(networkPropsFilePath);
         final String ip = Helpers.getIp(networkPropsFilePath);
 
+
+
         //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
         try {
             // Bind port number and begin listening
