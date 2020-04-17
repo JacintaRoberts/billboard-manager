@@ -3,28 +3,30 @@ package server;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.*;
-import java.util.HashMap;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
 import java.util.Properties;
 
 public class DbConnection {
 
-    // TODO: Alan test for jdbc connection
-     public static void main(String[] args) throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/mydb", "root", "");
-        Statement statement = connection.createStatement();
-        ResultSet resultset = statement.executeQuery("SELECT * from test");
+//    // TODO: Alan test for jdbc connection
+//     public static void main(String[] args) throws SQLException {
+//        Connection connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/mydb", "root", "");
+//        Statement statement = connection.createStatement();
+//        ResultSet resultset = statement.executeQuery("SELECT * from test");
+//
+//        connection.close();
+//    }
 
-        connection.close();
-    }
 
-
-    public DbConnection(HashMap<String, String> props) {
+    public DbConnection(String propString) {
         Properties props = new Properties();
         FileInputStream in = null;
+        Connection connection = null;
         try{
             // set input path and load
-            in new FileInputStream("./db.props");
+            in = new FileInputStream(propString);
             props.load(in);
             in.close();
 
@@ -35,7 +37,7 @@ public class DbConnection {
             String schema = props.getProperty("jdbc.schema");
 
             // get a connection
-            Connection instance = DriverManager.getConnection(url + "/" + schema, username, password);
+            connection = DriverManager.getConnection(url + "/" + schema, username, password);
         } catch (SQLException sqle){
             System.err.println(sqle);
         } catch (FileNotFoundException fnfe){
@@ -45,8 +47,8 @@ public class DbConnection {
         }
     }
 
-    public HashMap<String, String> readProps(String s) {
-        HashMap<String,String> dummy = new HashMap<>();
-        return dummy;
-    }
+//    public HashMap<String, String> readProps(String s) {
+//        HashMap<String,String> dummy = new HashMap<>();
+//        return dummy;
+//    }
 }

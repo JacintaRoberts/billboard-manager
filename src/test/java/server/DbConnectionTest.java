@@ -1,12 +1,6 @@
 package server;
 
-import org.junit.jupiter.api.BeforeAll;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import java.io.IOException;
-import java.util.HashMap;
-
-import static org.junit.jupiter.api.Assertions.*;
 
 class DbConnectionTest {
     /* Test 0: Declaring Connection object
@@ -21,11 +15,11 @@ class DbConnectionTest {
      * NOTE: Good example on Blackboard as to how to do this :)
      * Use: instance = DriverManager.getConnection(url + "/" + schema, username, password);
      */
-    @BeforeAll
+//    @BeforeAll
     @Test
     public void setupDb() {
-        HashMap<String, String> props = instance.readProps("src\\test\\resources\\db.props");
-        instance = new DbConnection(props);
+        String propString = "src\\test\\resources\\db.props";
+        instance = new DbConnection(propString);
     }
 
     /* Test 2: Helper function - Read from database properties files (Success)
