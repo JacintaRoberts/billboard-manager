@@ -2,12 +2,14 @@ package controlPanel;
 
 import java.util.HashMap;
 
+import static controlPanel.Main.VIEW_TYPE.*;
+
 public class Main {
 
     private static HashMap<VIEW_TYPE, AbstractView> app_views = new HashMap<>();
 
     protected enum VIEW_TYPE {
-        LOGIN, HOME, BB_MENU, USERS_MENU, CREATE_BB, USER_VIEW, SCHEDULE, USER_LIST;
+        LOGIN, HOME, BB_MENU, BB_LIST, USERS_MENU, BB_CREATE, USER_VIEW, SCHEDULE, USER_LIST;
     }
 
     /**
@@ -31,14 +33,15 @@ public class Main {
         Model model = new Model();
 
         // create an instance of the Views
-        app_views.put(VIEW_TYPE.LOGIN, new LogInView());
-        app_views.put(VIEW_TYPE.HOME, new HomeView());
-        app_views.put(VIEW_TYPE.BB_MENU, new BBMenuView());
-        app_views.put(VIEW_TYPE.USERS_MENU, new UsersMenuView());
-        app_views.put(VIEW_TYPE.SCHEDULE, new ScheduleView());
-        app_views.put(VIEW_TYPE.USER_VIEW, new UserView());
-        app_views.put(VIEW_TYPE.CREATE_BB, new BBCreateView());
-        app_views.put(VIEW_TYPE.USER_LIST, new UserListView());
+        app_views.put(LOGIN, new LogInView());
+        app_views.put(HOME, new HomeView());
+        app_views.put(BB_MENU, new BBMenuView());
+        app_views.put(USERS_MENU, new UsersMenuView());
+        app_views.put(SCHEDULE, new ScheduleView());
+        app_views.put(USER_VIEW, new UserView());
+        app_views.put(BB_CREATE, new BBCreateView());
+        app_views.put(USER_LIST, new UserListView());
+        app_views.put(BB_LIST, new BBListView());
 
         // set up the controller
         Controller controller = new Controller(model, app_views);

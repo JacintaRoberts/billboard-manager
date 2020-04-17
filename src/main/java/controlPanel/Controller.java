@@ -2,10 +2,10 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 
-import java.awt.desktop.SystemSleepEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
+import static controlPanel.Main.VIEW_TYPE.*;
 
 
 public class Controller
@@ -36,10 +36,11 @@ public class Controller
         addBBMenuListener();
         addScheduleListener();
         addUserViewListener();
-        addCreateBBListener();
+        addBBCreateListener();
+        addBBListListener();
 
         // set up Log In view
-        setUpView(VIEW_TYPE.LOGIN);
+        setUpView(LOGIN);
     }
 
     /**
@@ -47,65 +48,79 @@ public class Controller
      **/
     private void addLogInListener()
     {
-        LogInView logInView = (LogInView) views.get(VIEW_TYPE.LOGIN);
+        LogInView logInView = (LogInView) views.get(LOGIN);
         logInView.addSubmitButtonListener(new SubmitButtonListener());
-        views.put(VIEW_TYPE.LOGIN, logInView);
+        views.put(LOGIN, logInView);
     }
 
     private void addHomeListener()
     {
-        HomeView homeView = (HomeView) views.get(VIEW_TYPE.HOME);
+        HomeView homeView = (HomeView) views.get(HOME);
         homeView.addUserMenuListener(new UserMenuButtonListener());
         homeView.addBillboardsButtonListener(new BBMenuButtonListener());
         homeView.addScheduleButtonListener(new ScheduleButtonListener());
         homeView.addViewUserButtonListener(new ProfileButtonListener());
         homeView.addBackButtonListener(new BackButtonListener());
-        views.put(VIEW_TYPE.HOME, homeView);
+        views.put(HOME, homeView);
     }
 
     private void addUserMenuListener()
     {
-        UsersMenuView usersMenuView = (UsersMenuView) views.get(VIEW_TYPE.USERS_MENU);
-        usersMenuView.addHomeButtonListener(new HomeButtonListener());
-        usersMenuView.addViewUserButtonListener(new ProfileButtonListener());
-        usersMenuView.addBackButtonListener(new BackButtonListener());
+        addGenericListeners(USERS_MENU);
+        UsersMenuView usersMenuView = (UsersMenuView) views.get(USERS_MENU);
         usersMenuView.addListUserButtonListener(new ListUsersListener());
-        views.put(VIEW_TYPE.USERS_MENU, usersMenuView);
+        views.put(USERS_MENU, usersMenuView);
     }
 
     private void addBBMenuListener()
     {
-        BBMenuView bbMenuView = (BBMenuView) views.get(VIEW_TYPE.BB_MENU);
-        bbMenuView.addHomeButtonListener(new HomeButtonListener());
-        bbMenuView.addViewUserButtonListener(new ProfileButtonListener());
+        addGenericListeners(BB_MENU);
+        BBMenuView bbMenuView = (BBMenuView) views.get(BB_MENU);
         bbMenuView.addBBCreateButtonListener(new BBCreateButtonListener());
-        bbMenuView.addBackButtonListener(new BackButtonListener());
-        views.put(VIEW_TYPE.BB_MENU, bbMenuView);
+        bbMenuView.addBBListListener(new ListBBListener());
+        views.put(BB_MENU, bbMenuView);
     }
 
     private void addScheduleListener()
     {
-        ScheduleView scheduleView = (ScheduleView) views.get(VIEW_TYPE.SCHEDULE);
-        scheduleView.addHomeButtonListener(new HomeButtonListener());
-        scheduleView.addViewUserButtonListener(new ProfileButtonListener());
-        scheduleView.addBackButtonListener(new BackButtonListener());
-        views.put(VIEW_TYPE.SCHEDULE, scheduleView);
+        addGenericListeners(SCHEDULE);
+        ScheduleView scheduleView = (ScheduleView) views.get(SCHEDULE);
+        views.put(SCHEDULE, scheduleView);
     }
 
     private void addUserViewListener()
     {
-        UserView userView = (UserView) views.get(VIEW_TYPE.USER_VIEW);
+        UserView userView = (UserView) views.get(USER_VIEW);
         userView.addHomeButtonListener(new HomeButtonListener());
         userView.addBackButtonListener(new BackButtonListener());
-        views.put(VIEW_TYPE.USER_VIEW, userView);
+        views.put(USER_VIEW, userView);
     }
 
-    private void addCreateBBListener()
+    private void addBBCreateListener()
     {
-        BBCreateView bbCreateView = (BBCreateView) views.get(VIEW_TYPE.CREATE_BB);
-        bbCreateView.addHomeButtonListener(new HomeButtonListener());
-        bbCreateView.addBackButtonListener(new BackButtonListener());
-        views.put(VIEW_TYPE.CREATE_BB, bbCreateView);
+        addGenericListeners(BB_CREATE);
+        BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+        views.put(BB_CREATE, bbCreateView);
+    }
+
+    private void addBBListListener()
+    {
+        addGenericListeners(BB_LIST);
+        BBListView bbListView = (BBListView) views.get(BB_LIST);
+        views.put(BB_LIST, bbListView);
+    }
+
+    /**
+     * addGenericListener is designed to add the Home, Back and Profile button to the defined view.
+     * @param view_type GUI view type
+     */
+    private void addGenericListeners(VIEW_TYPE view_type)
+    {
+        AbstractGenericView genericView = (AbstractGenericView) views.get(view_type);
+        genericView.addHomeButtonListener(new HomeButtonListener());
+        genericView.addBackButtonListener(new BackButtonListener());
+        genericView.addViewUserButtonListener(new ProfileButtonListener());
+        views.put(view_type, genericView);
     }
 
     /**
@@ -280,7 +295,7 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: BBMenu button clicked");
             // navigate to home screen
-            updateView(VIEW_TYPE.BB_MENU);
+            updateView(BB_MENU);
         }
     }
 
@@ -295,7 +310,7 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Schedule button clicked");
             // navigate to home screen
-            updateView(VIEW_TYPE.SCHEDULE);
+            updateView(SCHEDULE);
         }
     }
 
@@ -311,17 +326,17 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Profile button clicked");
 
             // get LOGIN GUI
-            UserView userView = (UserView) views.get(VIEW_TYPE.USER_VIEW);
+            UserView userView = (UserView) views.get(USER_VIEW);
 
             // set username and password text on GUI
             // FIXME: get password and user permissions from Control/Server
             userView.setUsername(model.getUsername());
             userView.setPasswordText("Password");
             userView.setUserPermissions("Edit All Users");
-            views.put(VIEW_TYPE.USER_VIEW, userView);
+            views.put(USER_VIEW, userView);
 
             // navigate to home screen
-            updateView(VIEW_TYPE.USER_VIEW);
+            updateView(USER_VIEW);
         }
     }
 
@@ -335,7 +350,7 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: BB Create button clicked");
             // navigate to home screen
-            updateView(VIEW_TYPE.CREATE_BB);
+            updateView(BB_CREATE);
         }
     }
 
@@ -350,13 +365,34 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
 
             // get LIST USER view
-            UserListView userListView = (UserListView) views.get(VIEW_TYPE.USER_LIST);
+            UserListView userListView = (UserListView) views.get(USER_LIST);
             String[] stringArray = {"Alan","Kanu", "Jacinta", "Patrice"};
             userListView.addContent(stringArray);
-            views.put(VIEW_TYPE.USER_LIST, userListView);
+            views.put(USER_LIST, userListView);
 
-            // navigate to home screen
-            updateView(VIEW_TYPE.USER_LIST);
+            // navigate to users list screen
+            updateView(USER_LIST);
+        }
+    }
+
+    /**
+     * Listener to handle List BB mouse clicks.
+     */
+    private class ListBBListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: List BB button clicked");
+
+            // get list BB view
+            BBListView bbListView = (BBListView) views.get(BB_LIST);
+            String[] stringArray = {"Myer's Biggest Sale","Kathmandu Summer Sale", "Quilton's Covid Special", "Macca's New Essentials Range"};
+            bbListView.addContent(stringArray);
+            views.put(BB_LIST, bbListView);
+
+            // navigate to bb list screen
+            updateView(BB_LIST);
         }
     }
 }

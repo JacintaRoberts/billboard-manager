@@ -10,7 +10,6 @@ public class UserListView extends AbstractListView
     // --- ENUM ---
     private Main.VIEW_TYPE view_type;
 
-
     public UserListView()
     {
         super("User List");
@@ -23,7 +22,8 @@ public class UserListView extends AbstractListView
     }
 
     @Override
-    public void update(Subject s) {
+    public void update(Subject s)
+    {
 
     }
 }
