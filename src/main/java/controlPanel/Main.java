@@ -1,6 +1,5 @@
 package controlPanel;
 
-import javax.swing.*;
 import java.util.HashMap;
 
 public class Main {
@@ -42,6 +41,6 @@ public class Main {
         app_views.put(VIEW_TYPE.USER_LIST, new UserListView());
 
         // set up the controller
-        ControllerTest controller = new ControllerTest(model, app_views);
+        Controller controller = new Controller(model, app_views);
     }
 }
