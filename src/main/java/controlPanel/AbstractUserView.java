@@ -13,7 +13,8 @@ public abstract class AbstractUserView extends AbstractGenericView
     // --- Labels ---
     private JLabel usernameText;
     private JLabel passwordText;
-    private JLabel userPermissions;
+    private JPanel userPermissionsPanel;
+    private JLabel userPermissionsLabel;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
 
@@ -39,14 +40,37 @@ public abstract class AbstractUserView extends AbstractGenericView
         usernameText = new JLabel("");
         passwordLabel = new JLabel("Password");
         passwordText = new JLabel("");
-        userPermissions = new JLabel("User Permissions");
+        userPermissionsLabel = new JLabel("User Permissions");
+        userPermissionsPanel = new JPanel();
+
         userDetailsPane.add(usernameLabel);
         userDetailsPane.add(usernameText);
         userDetailsPane.add(passwordLabel);
         userDetailsPane.add(passwordText);
-        userDetailsPane.add(userPermissions);
+        userDetailsPane.add(userPermissionsLabel);
+        userDetailsPane.add(userPermissionsPanel);
 
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
+    }
+
+    protected void setUsername(String username)
+    {
+        usernameText.setText(username);
+    }
+
+    protected void setPassword(String password)
+    {
+        passwordText.setText(password);
+    }
+
+    protected void setPermissions(String[] permissions)
+    {
+        userPermissionsPanel.setLayout(new GridLayout(permissions.length,1));
+        for (String permission: permissions)
+        {
+            JLabel permissionLabel = new JLabel(permission);
+            userPermissionsPanel.add(permissionLabel);
+        }
     }
 
     abstract void addUserPermissions();

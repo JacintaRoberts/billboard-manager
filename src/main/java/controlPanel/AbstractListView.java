@@ -5,6 +5,7 @@ import observer.Subject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public abstract class AbstractListView extends AbstractGenericView
@@ -15,8 +16,8 @@ public abstract class AbstractListView extends AbstractGenericView
     // --- Label ---
     private static JLabel label;
     private static JLabel text;
-    // --- HashMap ---
-    public static HashMap<String, JButton> editButtonsMap = new HashMap<>();
+    // --- Array ---
+    public static ArrayList<JPanel> jPanels = new ArrayList<>();
 
 
     public AbstractListView(String frame_name)
@@ -32,39 +33,58 @@ public abstract class AbstractListView extends AbstractGenericView
         getContentPane().add(listPanel, BorderLayout.CENTER);
     }
 
-    protected void addContent(String[] contentArray)
+    protected void addContent(String[] contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
     {
-        for (String content : contentArray)
+        for (String contentName : contentArray)
         {
+            // create one panel per piece of information (i.e. User or BB)
             JPanel contentPanel = new JPanel();
             contentPanel.setLayout(new GridLayout(1,4));
-            // buttons
+
+            // add Edit, Delete and View Button
             JButton editButton = new JButton("Edit");
-            editButton.setName(content);
-            editButtonsMap.put(content, editButton);
             JButton deleteButton = new JButton("Delete");
-            // labels
+            JButton viewButton = new JButton("View");
+
+            // add content name to buttons
+            editButton.setName(contentName);
+            deleteButton.setName(contentName);
+            viewButton.setName(contentName);
+
+            // TODO: Check that this is OK - I have put listener in here which is referenced in the control panel by
+            // TODO: another listener. This was due to the fact that the panels are created dynamically and hence listeners
+            // TODO: are required to be attached to the buttons dynamically - this is the only solution I found!!
+            // add listener
+            editButton.addMouseListener(editMouseListener);
+            deleteButton.addMouseListener(deleteMouseListener);
+            viewButton.addMouseListener(viewMouseListener);
+
+            // create name and label
             label = new JLabel("Name:");
-            text = new JLabel(content);
+            text = new JLabel(contentName);
+
             // add to content panel
             contentPanel.add(label);
             contentPanel.add(text);
             contentPanel.add(editButton);
             contentPanel.add(deleteButton);
+            contentPanel.add(viewButton);
+
+            jPanels.add(contentPanel);
+
             // add content panel to list panel
             listPanel.add(contentPanel);
         }
     }
 
-//    protected void addEditContentListener(MouseListener listener)
-//    {
-//        System.out.println("editButtonsMap: " + editButtonsMap);
-//        for (HashMap.Entry<String, JButton> entry : editButtonsMap.entrySet())
-//        {
-//            // to navigate to edit user screen
-//            entry.getValue().addMouseListener(listener);
-//            System.out.println("button: " + entry.getValue());
-//        }
-//
-//    }
+    /**
+     * Remove everything in list panel upon re-entering screen. Each time the list of content may be different so this
+     * information should not be persistent whilst hidden.
+     */
+    protected void cleanUp()
+    {
+        listPanel.removeAll();
+        listPanel.revalidate();
+        listPanel.repaint();
+    }
 }

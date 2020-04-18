@@ -9,7 +9,7 @@ public class Main {
     private static HashMap<VIEW_TYPE, AbstractView> app_views = new HashMap<>();
 
     protected enum VIEW_TYPE {
-        LOGIN, HOME, BB_MENU, BB_LIST, USERS_MENU, BB_CREATE, USER_VIEW, SCHEDULE, USER_LIST, USER_EDIT;
+        LOGIN, HOME, BB_MENU, BB_LIST, USERS_MENU, BB_CREATE, BB_PREVIEW, USER_VIEW, SCHEDULE, USER_LIST, USER_EDIT;
     }
 
     /**
@@ -43,6 +43,7 @@ public class Main {
         app_views.put(USER_LIST, new UserListView());
         app_views.put(BB_LIST, new BBListView());
         app_views.put(USER_EDIT, new UserEditView());
+//        app_views.put(BB_PREVIEW, new BBPreviewView());
 
         // set up the controller
         Controller controller = new Controller(model, app_views);

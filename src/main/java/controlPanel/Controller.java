@@ -2,6 +2,7 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 
+import javax.swing.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
@@ -128,7 +129,7 @@ public class Controller
     {
         addGenericListeners(USER_LIST);
         UserListView userListView = (UserListView) views.get(USER_LIST);
-        userListView.addEditContentListener(new EditUserButtonListener());
+//        userListView.addEditContentListener(new EditUserButtonListener());
         views.put(USER_LIST, userListView);
     }
 
@@ -177,6 +178,8 @@ public class Controller
         model.detachObserver(oldView);
         oldView.setVisible(false);
         views.put(oldView.getEnum(), oldView);
+
+        // FIXME: CLEAN UP HERE - remove all information - specific to each frame
 
         // update components based on permissions
         updateComponents(newView);
@@ -392,11 +395,91 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit User button clicked");
-            System.out.println("Source :" + e.getSource());
-            System.out.println("Button :" + e.getButton());
-            System.out.println("Button :" + e.getID());
+            JButton button = (JButton) e.getSource();
+            System.out.println("UserName :" + button.getName());
+            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionTocken, username, userRequest);
+
+            // update information in EDIT USER view
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            userEditView.setUsername(button.getName());
+            userEditView.setPassword("password123");
+            userEditView.setPermissions(new String[]{"Edit All Users", "Edit BB", "Edit Schedule"});
+            views.put(USER_EDIT, userEditView);
+
             // navigate to edit user screen
             updateView(USER_EDIT);
+        }
+    }
+
+    /**
+     * Listener to handle Delete User Button mouse clicks.
+     */
+    private class DeleteUserButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Delete User button clicked");
+            JButton button = (JButton) e.getSource();
+            System.out.println("UserName :" + button.getName());
+            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionTocken, username, userRequest);
+        }
+    }
+
+    /**
+     * Listener to handle View User Button mouse clicks.
+     */
+    private class ViewUserButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: View User button clicked");
+            JButton button = (JButton) e.getSource();
+            System.out.println("UserName :" + button.getName());
+            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionTocken, username, userRequest);
+            updateView(USER_EDIT);
+        }
+    }
+
+    /**
+     * Listener to handle Edit BB Button mouse clicks.
+     */
+    private class EditBBButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Edit BB button clicked");
+            JButton button = (JButton) e.getSource();
+            System.out.println("BB Name: " + button.getName());
+            // navigate to edit BB screen
+            // FIXME: CHANGE TO BB_EDIT!!!
+            updateView(BB_CREATE);
+        }
+    }
+
+    /**
+     * Listener to handle Delete BB Button mouse clicks.
+     */
+    private class DeleteBBButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Delete BB button clicked");
+        }
+    }
+
+    /**
+     * Listener to handle View BB Button mouse clicks.
+     */
+    private class ViewBBButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: View BB button clicked");
         }
     }
 
@@ -412,8 +495,9 @@ public class Controller
 
             // get LIST USER view
             UserListView userListView = (UserListView) views.get(USER_LIST);
+            userListView.cleanUp();
             String[] stringArray = {"Alan","Kanu", "Jacinta", "Patrice"};
-            userListView.addContent(stringArray);
+            userListView.addContent(stringArray, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
             views.put(USER_LIST, userListView);
 
             // navigate to users list screen
@@ -434,7 +518,7 @@ public class Controller
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
             String[] stringArray = {"Myer's Biggest Sale","Kathmandu Summer Sale", "Quilton's Covid Special", "Macca's New Essentials Range"};
-            bbListView.addContent(stringArray);
+            bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
             // navigate to bb list screen
