@@ -33,7 +33,7 @@ public class UsersMenuView extends AbstractGenericView
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new FlowLayout());
         viewUsersButton = new JButton("View Users");
-        createUsersButton = new JButton("Create Users");
+        createUsersButton = new JButton("Create User");
         optionsPanel.add(viewUsersButton);
         optionsPanel.add(createUsersButton);
         getContentPane().add(optionsPanel, BorderLayout.CENTER);

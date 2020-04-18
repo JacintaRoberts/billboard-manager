@@ -54,6 +54,11 @@ public class BBMenuView extends AbstractGenericView
         createBillboardButton.addMouseListener(listener);
     }
 
+    public void addBBListListener(MouseListener listener)
+    {
+        billboardsButton.addMouseListener(listener);
+    }
+
     @Override
     VIEW_TYPE getEnum()
     {
