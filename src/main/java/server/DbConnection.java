@@ -12,9 +12,9 @@ public class DbConnection {
 
 //    // TODO: Alan test for jdbc connection
 //     public static void main(String[] args) throws SQLException {
-//        Connection connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/mydb", "root", "");
-//        Statement statement = connection.createStatement();
-//        ResultSet resultset = statement.executeQuery("SELECT * from test");
+////        Connection connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/mydb", "root", "");
+////        Statement statement = connection.createStatement();
+////        ResultSet resultset = statement.executeQuery("SELECT * from test");
 //
 //        connection.close();
 //    }

@@ -22,16 +22,15 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
 
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
     `BillboardName` varchar(255) NOT NULL default '',
-    `Creator` varchar(255) NOT NULL default '',
-    `XMLCode` TEXT,
-    PRIMARY KEY (`BillboardName`)
-);
+      `Creator` varchar(255) NOT NULL default '',
+      `XMLCode` TEXT,
+      PRIMARY KEY (`BillboardName`)
+  );
 
 
-CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Schedules` (
-    `ScheduleID` int(10) unsigned NOT NULL default 0,
-    `BillboardName` varchar(255) NOT NULL default '',
-    `StartDateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    `Duration` TIME NOT NULL DEFAULT '00:01:00',
-    PRIMARY KEY (`ScheduleID`)
-);
+  CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Schedules` (
+      `StartDateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+      `BillboardName` varchar(255) NOT NULL default '',
+      `Duration` TIME NOT NULL DEFAULT '00:01:00',
+      PRIMARY KEY (`StartDateTime`)
+  );
