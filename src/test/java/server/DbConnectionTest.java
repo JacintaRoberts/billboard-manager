@@ -3,12 +3,15 @@ package server;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
+import java.sql.Connection;
+import java.sql.Statement;
+
 class DbConnectionTest {
     /* Test 0: Declaring Connection object
      * Description: Connection object should be declared to call subsequent tests on.
      * Expected Output: Connection object is declared
      */
-    DbConnection instance;
+//    DbConnection instance;
 
     /* Test 1: Constructing a DbConnection Object to initialise the connection (Success)
      * Description: DBConnection Object should be instantiated to facilitate connection to MariaDb
@@ -18,8 +21,8 @@ class DbConnectionTest {
      */
     @BeforeAll
     @Test
-    public void setupDb() {
-        instance = new DbConnection();
+    public static void setupDb() {
+        Connection connection = DbConnection.getInstance();
     }
 
     /* Test 2: Helper function - Read from database properties files (Success)
@@ -28,19 +31,18 @@ class DbConnectionTest {
      * Expected Output: Successfully return the url, schema, username and password from the database.props file
      * Implementation: very similar to Server.readProps except diff properties/return data structure and PRIVATE!
      */
-    @Test
-    public void readDbProps() {
-        // Set predetermined test cases
-        String jdbcUrl = "jdbc:mysql://localhost:3306";
-        String jdbcSchema = "BillboardDatabase";
-        String jdbcUsername = "root";
-        String jdbcPassword = "";
-
-        // Initiate
-        String propString = "src\\test\\resources\\db.props";
-        DbConnection.connectDataBase(propString);
-
-    }
+    // TODO: When initialising it already reads through so not too sure if this is required
+//    @Test
+//    public void readDbProps() {
+//        // Set predetermined test cases
+//        String jdbcUrl = "jdbc:mysql://localhost:3306";
+//        String jdbcSchema = "BillboardDatabase";
+//        String jdbcUsername = "root";
+//        String jdbcPassword = "";
+//
+//        // Initiate
+//
+//    }
 
     /* Test 3: Helper function - Read properties from database properties files (error handling)
      * Description: Implement appropriate error handling for bad file name. This could also pick up:
@@ -58,19 +60,21 @@ class DbConnectionTest {
      * Description: DBConnection Object should create new tables in DB if they do not already exist
      * Expected Output: If db initially empty, should create 3 tables
      */
-//    @Test
-//    public void createTables() {
-//        final String GET_TABLE_COUNT =
-//        "SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns`"
-//          + "WHERE `table_schema` = 'cab302'";
-//        // TODO: May want to edit this depending on where 'cab302' is actually used from the props
-//        int tableCount = instance.executeQuery(GET_TABLE_COUNT);
+    @Test
+    public void createTables() {
+        Connection connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        final String GET_TABLE_COUNT = "SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns` WHERE `table_schema` = 'BillboardDatabase'";
+        st.execute(GET_TABLE_COUNT);
+        DbConnection.displayContents(st,GET_TABLE_COUNT);
+
+//        int tableCount = connection.executeQuery(GET_TABLE_COUNT);
 //        if (tableCount == 0) {
-//           instance.createTables();
+//            connection.createTables();
 //        }
 //        // Check that the table count now equals 3
 //        assertEquals(3,instance.executeQuery(GET_TABLE_COUNT));
-//    }
+    }
 
     /* Test 5: Check that the Users table exists with correct columns (Success)
      * Description: Users table should have 4 columns: Username (PK), HashedPassword, Salt, Permissions

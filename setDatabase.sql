@@ -1,14 +1,20 @@
+/*
+SQL File to Create Database for Billboard Application
+By Team 60
+*/
+
+/*Create Database if it dosent exsits*/
 CREATE DATABASE IF NOT EXISTS BillboardDatabase;
 
+/*Use the Database as default*/
 USE BillboardDatabase;
 
+/*Drop tables if database exists these tables*/
 DROP TABLE IF EXISTS `BillboardDatabase`.`Users`;
-
 DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`;
-
 DROP TABLE IF EXISTS `BillboardDatabase`.`Schedules`;
 
-
+/*Create new copies of tables*/
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
     `Username` varchar(255) NOT NULL default '',
     `Password` varchar(255) NOT NULL default '',
@@ -34,3 +40,21 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
       `Duration` TIME NOT NULL DEFAULT '00:01:00',
       PRIMARY KEY (`StartDateTime`)
   );
+
+
+/*Create Custom Procedures for Database*/
+DELIMITER $$
+DROP PROCEDURE IF EXISTS `BillboardDatabase`.`displayUserList` $$
+CREATE PROCEDURE `BillboardDatabase`.`displayUserList` ()
+BEGIN
+  SELECT Username FROM Users;
+END $$
+
+DROP PROCEDURE IF EXISTS `BillboardDatabase`.`displayUserList` $$
+CREATE PROCEDURE `BillboardDatabase`.`displayUserList` ()
+BEGIN
+  SELECT Username FROM Users;
+END $$
+
+
+DELIMITER ;

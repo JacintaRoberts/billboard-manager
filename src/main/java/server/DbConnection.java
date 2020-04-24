@@ -3,35 +3,28 @@ package server;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.DriverManager;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.Properties;
 
 public class DbConnection {
 
-//    // TODO: Alan test for jdbc connection
-//     public static void main(String[] args) throws SQLException {
-////        Connection connection = DriverManager.getConnection("jdbc:mariadb://localhost:3306/mydb", "root", "");
-////        Statement statement = connection.createStatement();
-////        ResultSet resultset = statement.executeQuery("SELECT * from test");
-//
-//        connection.close();
-//    }
+        /**
+         * The singleton instance of the database connection.
+         */
+    private static Connection instance = null;
 
 
     /**
      * Constructor intializes the connection.
      */
-
-    public static void connectDataBase(String propString) {
+    private DbConnection() {
         // Set new properties class and initiate File input stream and connection
         Properties props = new Properties();
         FileInputStream in = null;
         Connection connection = null;
         try{
             // set input path and load
-            in = new FileInputStream(propString);
+            in = new FileInputStream("src\\test\\resources\\db.props");
             props.load(in);
             in.close();
 
@@ -51,5 +44,45 @@ public class DbConnection {
             ex.printStackTrace();
         }
     }
+
+    /**
+     * Provides global access to the singleton instance of the UrlSet.
+     *
+     * @return a handle to the singleton instance of the UrlSet.
+     */
+    public static Connection getInstance() {
+        if (instance == null) {
+            new DbConnection();
+        }
+        return instance;
+    }
+
+
+    private static void displayContents(Statement st, String query) throws SQLException {
+        // get all current entries
+        ResultSet rs = st.executeQuery(query);
+
+        // use metadata to get the number of columns
+        int columnCount = rs.getMetaData().getColumnCount();
+
+        // output the column names
+        for (int i = 0; i < columnCount; i++) {
+            System.out.printf("%-20s", rs.getMetaData().getColumnName(i + 1));
+        }
+        System.out.printf("%n");
+
+        // output each row
+        while (rs.next()) {
+            for (int i = 0; i < columnCount; i++) {
+                System.out.printf("%-20s", rs.getString(i + 1));
+            }
+            System.out.printf("%n");
+        }
+        System.out.printf("%n");
+    }
+
+
+
+
 
 }
