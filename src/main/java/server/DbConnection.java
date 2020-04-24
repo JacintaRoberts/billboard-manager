@@ -20,7 +20,12 @@ public class DbConnection {
 //    }
 
 
-    public DbConnection(String propString) {
+    /**
+     * Constructor intializes the connection.
+     */
+
+    public static void connectDataBase(String propString) {
+        // Set new properties class and initiate File input stream and connection
         Properties props = new Properties();
         FileInputStream in = null;
         Connection connection = null;
@@ -47,8 +52,4 @@ public class DbConnection {
         }
     }
 
-//    public HashMap<String, String> readProps(String s) {
-//        HashMap<String,String> dummy = new HashMap<>();
-//        return dummy;
-//    }
 }

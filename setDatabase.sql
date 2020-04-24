@@ -6,7 +6,7 @@ DROP TABLE IF EXISTS `BillboardDatabase`.`Users`;
 
 DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`;
 
-DROP TABLE IF EXISTS `BillboardDatabase`.`Schedules``;
+DROP TABLE IF EXISTS `BillboardDatabase`.`Schedules`;
 
 
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (

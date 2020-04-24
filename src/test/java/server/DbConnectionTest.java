@@ -1,5 +1,6 @@
 package server;
 
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
 class DbConnectionTest {
@@ -15,11 +16,10 @@ class DbConnectionTest {
      * NOTE: Good example on Blackboard as to how to do this :)
      * Use: instance = DriverManager.getConnection(url + "/" + schema, username, password);
      */
-//    @BeforeAll
+    @BeforeAll
     @Test
     public void setupDb() {
-        String propString = "src\\test\\resources\\db.props";
-        instance = new DbConnection(propString);
+        instance = new DbConnection();
     }
 
     /* Test 2: Helper function - Read from database properties files (Success)
@@ -28,21 +28,19 @@ class DbConnectionTest {
      * Expected Output: Successfully return the url, schema, username and password from the database.props file
      * Implementation: very similar to Server.readProps except diff properties/return data structure and PRIVATE!
      */
-//    @Test
-//    public void readDbProps() {
-//        String jdbcUrl = "jdbc:mysql://localhost:3306";
-//        String jdbcSchema = "cab302";
-//        String jdbcUsername = "root";
-//        String jdbcPassword = "";
-//        // Happy to change the HashMap to something like String[] props = new String[4];, but thought it's a bit
-//        // clearer to use key rather than numbers...could also use an enum (e.g. url vs "url") as the key.
-//        HashMap<String, String> props = instance.readProps("src\\test\\resources\\db.props");
-//        // Check Assertions
-//        assertEquals(jdbcUrl, props.get("url"));
-//        assertEquals(jdbcSchema, props.get("schema"));
-//        assertEquals(jdbcUsername, props.get("username"));
-//        assertEquals(jdbcPassword, props.get("password"));
-//    }
+    @Test
+    public void readDbProps() {
+        // Set predetermined test cases
+        String jdbcUrl = "jdbc:mysql://localhost:3306";
+        String jdbcSchema = "BillboardDatabase";
+        String jdbcUsername = "root";
+        String jdbcPassword = "";
+
+        // Initiate
+        String propString = "src\\test\\resources\\db.props";
+        DbConnection.connectDataBase(propString);
+
+    }
 
     /* Test 3: Helper function - Read properties from database properties files (error handling)
      * Description: Implement appropriate error handling for bad file name. This could also pick up:
