@@ -35,7 +35,7 @@ public class Viewer extends JFrame implements Runnable {
     JLabel messageLabel = new JLabel();
     ImageIcon pictureIcon = new ImageIcon();
     JLabel pictureLabel = new JLabel();
-    JTextArea informationTextArea = new JTextArea();
+    JLabel informationLabel = new JLabel();
 
     // Dimensions of screen the viewer will display on
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -234,10 +234,7 @@ public class Viewer extends JFrame implements Runnable {
                 // Add Image to the central panel in the JFrame
                 pictureIcon.setImage(pictureImage);
                 pictureLabel.setIcon(pictureIcon);
-
-                GridBagConstraints constraints = new GridBagConstraints();
-                constraints.fill = GridBagConstraints.BOTH;
-                centralPanel.add(pictureLabel, constraints);
+                centralPanel.add(pictureLabel);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -253,10 +250,7 @@ public class Viewer extends JFrame implements Runnable {
                 // Add Image to the central panel in the JFrame
                 pictureIcon.setImage(pictureImage);
                 pictureLabel.setIcon(pictureIcon);
-
-                GridBagConstraints constraints = new GridBagConstraints();
-                constraints.fill = GridBagConstraints.BOTH;
-                centralPanel.add(pictureLabel, constraints);
+                centralPanel.add(pictureLabel);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -275,23 +269,12 @@ public class Viewer extends JFrame implements Runnable {
      */
     public void informationOnlyBillboard(String information) {
         // Set the text and font of the information label
-        informationTextArea.setEditable(false);
-        informationTextArea.setLineWrap(true);
-        informationTextArea.setWrapStyleWord(true);
-        informationTextArea.setText(information);
-        informationTextArea.setFont(new Font(informationTextArea.getFont().getName(), Font.PLAIN, 30));
+        informationLabel.setText("<html>" + information + "</html>");
+        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.PLAIN, 30));
+        informationLabel.setBounds(0, 0, 10, 2);
 
         // Add information label to the central panel in the JFrame
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.weightx = 1;
-        constraints.weighty = 1;
-        constraints.gridx = 0;
-        constraints.gridy = 0;
-        constraints.gridwidth = 1;
-        constraints.gridheight = 1;
-        centralPanel.add(informationTextArea, constraints);
+        centralPanel.add(informationLabel);
     }
 
 
@@ -377,8 +360,8 @@ public class Viewer extends JFrame implements Runnable {
 
         // Check if there's a specific message colour
         if (informationColour != null) {
-            informationTextArea.setForeground(Color.decode(informationColour));
-            informationTextArea.setBackground(Color.decode(informationColour));
+            informationLabel.setForeground(Color.decode(informationColour));
+            informationLabel.setBackground(Color.decode(informationColour));
         }
 
         // Check if there's a specific message colour
@@ -450,7 +433,7 @@ public class Viewer extends JFrame implements Runnable {
      */
     public void displayBillboard() {
         setupBillboard();
-        File fileToDisplay = extractXMLFile(2);
+        File fileToDisplay = extractXMLFile(3);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
         formatBillboard(billboardData);
 //        noBillboardToDisplay();
