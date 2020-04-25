@@ -22,23 +22,20 @@ import java.util.Base64;
 import java.util.HashMap;
 
 
-public class Viewer {
-
-    // Set up the JFrame to show the viewer
-    private static JFrame viewerFrame = new JFrame();
+public class Viewer extends JFrame implements Runnable {
 
     // Set up the panels on the viewer
-    private static JPanel northBorderPanel = new JPanel();
-    private static JPanel eastBorderPanel = new JPanel();
-    private static JPanel southBorderPanel = new JPanel();
-    private static JPanel westBorderPanel = new JPanel();
-    private static JPanel centralPanel = new JPanel();
+    JPanel northBorderPanel = new JPanel();
+    JPanel eastBorderPanel = new JPanel();
+    JPanel southBorderPanel = new JPanel();
+    JPanel westBorderPanel = new JPanel();
+    JPanel centralPanel = new JPanel();
 
     // Set up the labels, image icons etc. to display the different parts of the billboard
-    private static JLabel messageLabel = new JLabel();
-    private static ImageIcon pictureIcon = new ImageIcon();
-    private static JLabel pictureLabel = new JLabel();
-    private static JTextArea informationTextArea = new JTextArea();
+    JLabel messageLabel = new JLabel();
+    ImageIcon pictureIcon = new ImageIcon();
+    JLabel pictureLabel = new JLabel();
+    JTextArea informationTextArea = new JTextArea();
 
     // Dimensions of screen the viewer will display on
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
@@ -47,10 +44,19 @@ public class Viewer {
 
 
     /**
+     * Constructor method
+     * @param title - the title of the viewer
+     */
+    public Viewer(String title) throws HeadlessException{
+        super(title);
+    }
+
+
+    /**
      * Extracts the xml file that we want to display.
      * TODO: This method should be the only one which needs to be changed when the actual database is connected
      */
-    public static File extractXMLFile(int fileNum) {
+    public File extractXMLFile(int fileNum) {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
         return xmlFiles.get(fileNum-1);
     }
@@ -64,7 +70,7 @@ public class Viewer {
      *      picture type (data or url), information, and information colour of the billboard, if there is no content
      *      for one or more of these tags, the string is null
      */
-    public static HashMap<String, String> extractDataFromXML(File xmlFile) {
+    public HashMap<String, String> extractDataFromXML(File xmlFile) {
         // Initiate an ArrayList to return
         HashMap<String, String> billboardData = new HashMap<>();
 
@@ -169,15 +175,15 @@ public class Viewer {
     /**
      * Setups the basics of the billboard regardless of what is being displayed
      */
-    public static void setupBillboard() {
+    public void setupBillboard() {
         // Create a border layout
-        viewerFrame.setLayout(new BorderLayout());
+        setLayout(new BorderLayout());
 
         // Set each of the border panels to a location in the border layout
-        viewerFrame.add(northBorderPanel, BorderLayout.NORTH);
-        viewerFrame.add(eastBorderPanel, BorderLayout.EAST);
-        viewerFrame.add(southBorderPanel, BorderLayout.SOUTH);
-        viewerFrame.add(westBorderPanel, BorderLayout.WEST);
+        add(northBorderPanel, BorderLayout.NORTH);
+        add(eastBorderPanel, BorderLayout.EAST);
+        add(southBorderPanel, BorderLayout.SOUTH);
+        add(westBorderPanel, BorderLayout.WEST);
 
         northBorderPanel.setBackground(Color.LIGHT_GRAY);
         eastBorderPanel.setBackground(Color.LIGHT_GRAY);
@@ -185,35 +191,11 @@ public class Viewer {
         westBorderPanel.setBackground(Color.LIGHT_GRAY);
 
         // Add the central panel to the center of the billboard
-        viewerFrame.add(centralPanel, BorderLayout.CENTER);
+        add(centralPanel, BorderLayout.CENTER);
 
         // Create a grid bag layout
         centralPanel.setLayout(new GridBagLayout());
-    }
-
-
-    /**
-     * A convenience method to add a component to given grid bag layout locations. Taken from Practical 6.
-     * @param c the component to add
-     * @param x the x grid position
-     * @param y the y grid position
-     * @param w the grid width of the component
-     * @param h the grid height of the component
-     */
-    private static void addToPanel(JPanel jp, Component c, int x, int y, int w, int h) {
-        // Add default constraints to grid bag layout
-        GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.NONE;
-        constraints.anchor = GridBagConstraints.CENTER;
-        constraints.weightx = 100;
-        constraints.weighty = 100;
-
-        // Add constraints that were in the input
-        constraints.gridx = x;
-        constraints.gridy = y;
-        constraints.gridwidth = w;
-        constraints.gridheight = h;
-        jp.add(c, constraints);
+        centralPanel.setBackground(Color.WHITE);
     }
 
 
@@ -224,13 +206,13 @@ public class Viewer {
      *       between the edge of the screen and the text. Make sure the minimum message text is larger than the maximum
      *       information text.
      */
-    public static void messageOnlyBillboard(String message) {
+    public void messageOnlyBillboard(String message) {
         // Set the text and font of the message label
         messageLabel.setText(message);
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
 
         // Add the message label to the central panel in the JFrame
-        addToPanel(centralPanel, messageLabel, 0, 0, 1, 1);
+        centralPanel.add(messageLabel);
     }
 
 
@@ -240,7 +222,7 @@ public class Viewer {
      * @param pictureType - a string which is either url or data, so that we can decode the iamge
      * TODO: Fit image to screen but keep the right aspect ratio
      */
-    public static void pictureOnlyBillboard(String picture, String pictureType) {
+    public void pictureOnlyBillboard(String picture, String pictureType) {
         // Decide if it's a url or data attribute
         if (pictureType.equals("url")) {
             // Try to extract picture from url, if this fails catch the exception
@@ -252,7 +234,10 @@ public class Viewer {
                 // Add Image to the central panel in the JFrame
                 pictureIcon.setImage(pictureImage);
                 pictureLabel.setIcon(pictureIcon);
-                addToPanel(centralPanel, pictureLabel, 0, 0, 1, 1);
+
+                GridBagConstraints constraints = new GridBagConstraints();
+                constraints.fill = GridBagConstraints.BOTH;
+                centralPanel.add(pictureLabel, constraints);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -268,13 +253,15 @@ public class Viewer {
                 // Add Image to the central panel in the JFrame
                 pictureIcon.setImage(pictureImage);
                 pictureLabel.setIcon(pictureIcon);
-                addToPanel(centralPanel, pictureLabel, 0, 0, 1, 1);
+
+                GridBagConstraints constraints = new GridBagConstraints();
+                constraints.fill = GridBagConstraints.BOTH;
+                centralPanel.add(pictureLabel, constraints);
 
             } catch (Exception e) {
                 e.printStackTrace();
             }
         }
-
 
     }
 
@@ -286,15 +273,25 @@ public class Viewer {
      *       edge of the screen and the text. Make sure the minimum message text is larger than the maximum
      *       information text.
      */
-    public static void informationOnlyBillboard(String information) {
+    public void informationOnlyBillboard(String information) {
         // Set the text and font of the information label
         informationTextArea.setEditable(false);
         informationTextArea.setLineWrap(true);
+        informationTextArea.setWrapStyleWord(true);
         informationTextArea.setText(information);
         informationTextArea.setFont(new Font(informationTextArea.getFont().getName(), Font.PLAIN, 30));
 
         // Add information label to the central panel in the JFrame
-        addToPanel(centralPanel, informationTextArea, 0, 0, 20, 1);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.CENTER;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        constraints.gridwidth = 1;
+        constraints.gridheight = 1;
+        centralPanel.add(informationTextArea, constraints);
     }
 
 
@@ -302,7 +299,7 @@ public class Viewer {
      * Displays a billboard which has a message and picture
      * TODO
      */
-    public static void messagePictureBillboard(HashMap<String, String> billboardData) {
+    public void messagePictureBillboard(HashMap<String, String> billboardData) {
 
     }
 
@@ -311,7 +308,7 @@ public class Viewer {
      * Displays a billboard which has a message and information
      * TODO
      */
-    public static void messageInformationBillboard(HashMap<String, String> billboardData) {
+    public void messageInformationBillboard(HashMap<String, String> billboardData) {
 
     }
 
@@ -319,7 +316,7 @@ public class Viewer {
      * Displays a billboard which has a picture and information
      * TODO
      */
-    public static void pictureInformationBillboard(HashMap<String, String> billboardData) {
+    public void pictureInformationBillboard(HashMap<String, String> billboardData) {
 
     }
 
@@ -328,7 +325,7 @@ public class Viewer {
      * Displays a billboard which has all the features: a message, picture and information
      * TODO
      */
-    public static void allFeaturesBillboard(HashMap<String, String> billboardData) {
+    public void allFeaturesBillboard(HashMap<String, String> billboardData) {
 
     }
 
@@ -339,7 +336,7 @@ public class Viewer {
      * TODO: Check the if statements to make sure they have the correct
      * TODO: Potentially move message colour and information colour into this function?
      */
-    public static void formatBillboard(HashMap<String, String> billboardData) {
+    public void formatBillboard(HashMap<String, String> billboardData) {
         // Retrieve all the data from the HashMap
         String backgroundColour = billboardData.get("Background Colour");
         String message = billboardData.get("Message");
@@ -395,20 +392,20 @@ public class Viewer {
     /**
      * If there are no billboards to display, display a message for the user.
      */
-    public static void noBillboardToDisplay() {
+    public void noBillboardToDisplay() {
         // Create a label to display a message and format it
         messageLabel.setText("There are no billboards to display right now.");
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
 
         // Add the message label to the JFrame
-        addToPanel(centralPanel, messageLabel, 0, 0, 1, 1);
+        centralPanel.add(messageLabel);
     }
 
 
     /**
      * Exits the window if the user presses the escape key.
      */
-    public static void listenEscapeKey() {
+    public void listenEscapeKey() {
         KeyListener escListener = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent event) {
@@ -418,14 +415,14 @@ public class Viewer {
             }
         };
 
-        viewerFrame.addKeyListener(escListener);
+        addKeyListener(escListener);
     }
 
 
     /**
      * Exits the window if the user clicks anywhere on the window.
      */
-    public static void listenMouseClick() {
+    public void listenMouseClick() {
         MouseListener clickListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent event) {
@@ -433,31 +430,30 @@ public class Viewer {
             }
         };
 
-        viewerFrame.addMouseListener(clickListener);
+        addMouseListener(clickListener);
     }
 
 
     /**
      * Show the GUI for displaying the billboard.
      */
-    public static void showViewer() {
+    public void showViewer() {
         // Displaying the window to be completely full screen
-        viewerFrame.setExtendedState(Frame.MAXIMIZED_BOTH);
-        viewerFrame.setUndecorated(true);
-
-        viewerFrame.setVisible(true);
+        setExtendedState(Frame.MAXIMIZED_BOTH);
+        setUndecorated(true);
+        setVisible(true);
     }
 
 
     /**
      * Displays the billboards
      */
-    public static void displayBillboard() {
+    public void displayBillboard() {
         setupBillboard();
-        File fileToDisplay = extractXMLFile(8);
+        File fileToDisplay = extractXMLFile(2);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
         formatBillboard(billboardData);
-        // noBillboardToDisplay();
+//        noBillboardToDisplay();
 
         listenEscapeKey();
         listenMouseClick();
@@ -467,15 +463,24 @@ public class Viewer {
     /**
      * Displays an error if the viewer cannot connect to the server
      */
-    public static void displayError() {
+    public void displayError() {
+        setupBillboard();
+
         // Add an error message label to the central panel of the JFrame
         messageLabel.setText("Error: Cannot connect to server. Trying again now...");
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
-        addToPanel(centralPanel, messageLabel, 0, 0, 1, 1);
+        centralPanel.add(messageLabel);
 
         listenEscapeKey();
         listenMouseClick();
         showViewer();
+    }
+
+
+    @Override
+    public void run() {
+        displayBillboard();
+//        displayError();
     }
 
 
@@ -526,10 +531,9 @@ public class Viewer {
         } catch (IOException e) { // Could not connect to server
             // TODO: Billboard show something alternate if cannot connect to server
             System.err.println("Exception caught: " + e);
-            // displayError();
         }
 
-        displayBillboard();
+        SwingUtilities.invokeLater(new Viewer("Billboard Viewer"));
     }
 
 }
