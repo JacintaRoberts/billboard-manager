@@ -203,10 +203,10 @@ public class Controller
     // FIXME: change to WEEKLY listener
     private void addScheduleMonthlyListener()
     {
-        addGenericListeners(SCHEDULE_MONTH);
-        ScheduleMonthlyView scheduleMonthlyView = (ScheduleMonthlyView) views.get(SCHEDULE_MONTH);
+        addGenericListeners(SCHEDULE_WEEK);
+        ScheduleWeekView scheduleMonthlyView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
         scheduleMonthlyView.addDayButtonListener(new ScheduleDailyListener());
-        views.put(SCHEDULE_MONTH, scheduleMonthlyView);
+        views.put(SCHEDULE_WEEK, scheduleMonthlyView);
     }
 
     /**
@@ -625,7 +625,7 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Schedule button clicked");
             // navigate to home screen
-            updateView(SCHEDULE_MONTH);
+            updateView(SCHEDULE_WEEK);
         }
     }
 

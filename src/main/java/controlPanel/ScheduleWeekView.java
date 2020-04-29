@@ -8,15 +8,13 @@ import controlPanel.Main.VIEW_TYPE;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.time.Month;
-import java.time.Year;
 import java.util.ArrayList;
 
-public class ScheduleMonthlyView extends AbstractGenericView
+public class ScheduleWeekView extends AbstractGenericView
 {
     //*** VARIABLES**
     //--- Panels ---
     private JPanel calendarPanel;
-    private JPanel monthPanel;
     //--- Labels ---
     private JLabel monLabel;
     private JLabel tuesLabel;
@@ -25,26 +23,21 @@ public class ScheduleMonthlyView extends AbstractGenericView
     private JLabel friLabel;
     private JLabel satLabel;
     private JLabel sunLabel;
-    private JLabel yearLabel;
     // --- Buttons ---
     private ArrayList<JButton> buttonArray;
-    // --- Combo Box ---
-    private JComboBox<Month> monthComboBox;
-    // --- Text Field ---
-    private JTextField yearText;
     // --- ENUM ---
     private VIEW_TYPE view_type;
     // --- MISC ---
-    private int days_in_month = 31;
+    private int days_in_week = 7;
 
 
     /**
      * Constructor to create schedule view, use parent constructor.
      */
-    public ScheduleMonthlyView()
+    public ScheduleWeekView()
     {
         super("Schedule View");
-        view_type = VIEW_TYPE.SCHEDULE_MONTH;
+        view_type = VIEW_TYPE.SCHEDULE_WEEK;
     }
 
     @Override
@@ -52,7 +45,7 @@ public class ScheduleMonthlyView extends AbstractGenericView
     {
         // calendar panel
         calendarPanel = new JPanel();
-        calendarPanel.setLayout(new GridLayout(6,7));
+        calendarPanel.setLayout(new GridLayout(3,7));
         // create labels
         monLabel = new JLabel("Mon");
         tuesLabel = new JLabel("Tues");
@@ -71,24 +64,14 @@ public class ScheduleMonthlyView extends AbstractGenericView
         calendarPanel.add(sunLabel);
         // create and fill button array
         buttonArray = new ArrayList<>();
-        for (int i = 1 ; i <= 31; i++)
+        for (int i = 1 ; i <= days_in_week; i++)
         {
-            JButton dayButton = new JButton(String.valueOf(i));
+            JButton dayButton = new JButton();
             dayButton.setName(String.valueOf(i));
             calendarPanel.add(dayButton);
             buttonArray.add(dayButton);
         }
         getContentPane().add(calendarPanel, BorderLayout.CENTER);
-        // month panel
-        monthPanel = new JPanel();
-        monthPanel.setLayout(new GridLayout(6, 1));
-        monthComboBox = new JComboBox<>(Month.values());
-        yearLabel = new JLabel("Year:");
-        yearText = new JTextField();
-        monthPanel.add(monthComboBox);
-        monthPanel.add(yearLabel);
-        monthPanel.add(yearText);
-        getContentPane().add(monthPanel, BorderLayout.WEST);
     }
 
     @Override

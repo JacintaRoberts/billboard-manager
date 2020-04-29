@@ -17,7 +17,7 @@ public class Main {
         LOGIN, HOME,
         BB_MENU, BB_LIST, BB_CREATE, BB_PREVIEW,
         USERS_MENU, USER_VIEW,USER_LIST, USER_EDIT,
-        SCHEDULE_MONTH, SCHEDULE_DAY, SCHEDULE_UPDATE;
+        SCHEDULE_WEEK, SCHEDULE_DAY, SCHEDULE_UPDATE;
     }
 
     /**
@@ -58,7 +58,7 @@ public class Main {
         app_views.put(USER_LIST, new UserListView());
         app_views.put(USER_EDIT, new UserEditView());
         // schedule
-        app_views.put(SCHEDULE_MONTH, new ScheduleMonthlyView());
+        app_views.put(SCHEDULE_WEEK, new ScheduleWeekView());
         app_views.put(SCHEDULE_DAY, new ScheduleDailyView());
         app_views.put(SCHEDULE_UPDATE, new ScheduleUpdateView());
 
