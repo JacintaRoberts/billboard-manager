@@ -205,7 +205,6 @@ public class Controller
     {
         addGenericListeners(SCHEDULE_WEEK);
         ScheduleWeekView scheduleMonthlyView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
-        scheduleMonthlyView.addDayButtonListener(new ScheduleDailyListener());
         views.put(SCHEDULE_WEEK, scheduleMonthlyView);
     }
 
@@ -630,34 +629,6 @@ public class Controller
     }
 
     /**
-     * Listener to handle List daily schedule mouse clicks.
-     */
-    private class ScheduleDailyListener extends MouseAdapter
-    {
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            System.out.println("CONTROLLER LEVEL: List Day Schedule button clicked");
-
-            JButton button = (JButton) e.getSource();
-            System.out.println("BB Name: " + button.getName());
-
-            // getName() is equivalent to the day's date
-            // FIXME: send req to server to get all bb for that date, returning an array of strings (BB names) or objects
-
-            // get daily schedule view
-            ScheduleDailyView scheduleDailyView = (ScheduleDailyView) views.get(SCHEDULE_DAY);
-            String[] stringArray = {"8 - 9am: Myer's Biggest Sale","9.30 - 10am Kathmandu Summer Sale", "11 - 12pm Quilton's Covid Special", "1 - 3pm Macca's New Essentials Range"};
-            // FIXME: required to create edit, delete and view listeners!
-            scheduleDailyView.addContent(stringArray, new EditScheduleButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
-            views.put(SCHEDULE_DAY, scheduleDailyView);
-
-            // navigate to bb list screen
-            updateView(SCHEDULE_DAY);
-        }
-    }
-
-    /**
      * Listener to handle Edit Schedule Button mouse clicks.
      */
     private class EditScheduleButtonListener extends MouseAdapter
@@ -673,6 +644,8 @@ public class Controller
             updateView(SCHEDULE_UPDATE);
         }
     }
+}
+
 
 //    /**
 //     * Listener to handle Schedule Day mouse clicks.
@@ -695,4 +668,30 @@ public class Controller
 //        }
 //    }
 
-}
+//    /**
+//     * Listener to handle List daily schedule mouse clicks.
+//     */
+//    private class ScheduleDailyListener extends MouseAdapter
+//    {
+//        @Override
+//        public void mouseClicked(MouseEvent e)
+//        {
+//            System.out.println("CONTROLLER LEVEL: List Day Schedule button clicked");
+//
+//            JButton button = (JButton) e.getSource();
+//            System.out.println("BB Name: " + button.getName());
+//
+//            // getName() is equivalent to the day's date
+//            // FIXME: send req to server to get all bb for that date, returning an array of strings (BB names) or objects
+//
+//            // get daily schedule view
+//            ScheduleDailyView scheduleDailyView = (ScheduleDailyView) views.get(SCHEDULE_DAY);
+//            String[] stringArray = {"8 - 9am: Myer's Biggest Sale","9.30 - 10am Kathmandu Summer Sale", "11 - 12pm Quilton's Covid Special", "1 - 3pm Macca's New Essentials Range"};
+//            // FIXME: required to create edit, delete and view listeners!
+//            scheduleDailyView.addContent(stringArray, new EditScheduleButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+//            views.put(SCHEDULE_DAY, scheduleDailyView);
+//
+//            // navigate to bb list screen
+//            updateView(SCHEDULE_DAY);
+//        }
+//    }

@@ -23,12 +23,8 @@ public class ScheduleWeekView extends AbstractGenericView
     private JLabel friLabel;
     private JLabel satLabel;
     private JLabel sunLabel;
-    // --- Buttons ---
-    private ArrayList<JButton> buttonArray;
     // --- ENUM ---
     private VIEW_TYPE view_type;
-    // --- MISC ---
-    private int days_in_week = 7;
 
 
     /**
@@ -43,9 +39,10 @@ public class ScheduleWeekView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        int days_in_week = 7;
         // calendar panel
         calendarPanel = new JPanel();
-        calendarPanel.setLayout(new GridLayout(3,7));
+        calendarPanel.setLayout(new GridLayout(2,7));
         // create labels
         monLabel = new JLabel("Mon");
         tuesLabel = new JLabel("Tues");
@@ -62,15 +59,10 @@ public class ScheduleWeekView extends AbstractGenericView
         calendarPanel.add(friLabel);
         calendarPanel.add(satLabel);
         calendarPanel.add(sunLabel);
-        // create and fill button array
-        buttonArray = new ArrayList<>();
-        for (int i = 1 ; i <= days_in_week; i++)
-        {
-            JButton dayButton = new JButton();
-            dayButton.setName(String.valueOf(i));
-            calendarPanel.add(dayButton);
-            buttonArray.add(dayButton);
-        }
+        // create 7 scrollable tables
+        
+
+
         getContentPane().add(calendarPanel, BorderLayout.CENTER);
     }
 
@@ -87,17 +79,5 @@ public class ScheduleWeekView extends AbstractGenericView
     @Override
     public void update(Subject s) {
 
-    }
-
-    /**
-     * Add listener to handle mouse click of submit button.
-     * @param listener mouse click listener
-     */
-    public void addDayButtonListener(MouseListener listener)
-    {
-        for (JButton dayButton : buttonArray)
-        {
-            dayButton.addMouseListener(listener);
-        }
     }
 }
