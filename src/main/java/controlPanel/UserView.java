@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
+/**
+ * View designed for viewing Users.
+ */
 public class UserView extends AbstractGenericView
 {
     // *** DECLARE VARIABLES**
@@ -52,6 +55,11 @@ public class UserView extends AbstractGenericView
 
         errorText.setVisible(false);
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
+    }
+
+    @Override
+    void cleanUp() {
+
     }
 
     protected void setUsername(String username)

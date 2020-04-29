@@ -39,6 +39,11 @@ public class BBMenuView extends AbstractGenericView
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
+    @Override
+    void cleanUp() {
+
+    }
+
     /**
      * Update is used when model is updated and view needs to change accordingly!
      * @param s The subject that has been updated.

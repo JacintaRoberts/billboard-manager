@@ -35,8 +35,10 @@ public abstract class AbstractListView extends AbstractGenericView
 
     protected void addContent(String[] contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
     {
+
         for (String contentName : contentArray)
         {
+            System.out.println("content name: "+ contentName);
             // create one panel per piece of information (i.e. User or BB)
             JPanel contentPanel = new JPanel();
             contentPanel.setLayout(new GridLayout(1,4));
@@ -81,7 +83,8 @@ public abstract class AbstractListView extends AbstractGenericView
      * Remove everything in list panel upon re-entering screen. Each time the list of content may be different so this
      * information should not be persistent whilst hidden.
      */
-    protected void cleanUp()
+    @Override
+    void cleanUp()
     {
         listPanel.removeAll();
         listPanel.revalidate();
