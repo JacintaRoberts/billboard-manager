@@ -80,10 +80,13 @@ public class ScheduleWeekView extends AbstractGenericView
         getContentPane().add(calendarPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Clean up the schedule by removing all rows in the models for each day.
+     */
     @Override
     void cleanUp()
     {
-        System.out.println("Cleaning up");
+        // loop thru each day's model and set row count to 0 to remove
         for(DefaultTableModel model : dayScheduleMap.values())
         {
             model.setRowCount(0);
@@ -100,10 +103,17 @@ public class ScheduleWeekView extends AbstractGenericView
 
     }
 
+    /**
+     * Populate Schedule from the database
+     * @param bbScheduleArray
+     */
+    // FIXME: update when we know what the BBInfoObject will look like!
     protected void populatedSchedule(String[][] bbScheduleArray)
     {
+        // loop thru each day's model and populate information
         for(DefaultTableModel model : dayScheduleMap.values())
         {
+            // loop thru db info and add into models
             for(String[] schedule: bbScheduleArray)
             {
                 model.addRow(schedule);
