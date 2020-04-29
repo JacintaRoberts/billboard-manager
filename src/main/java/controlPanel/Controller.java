@@ -302,6 +302,14 @@ public class Controller
             case LOGIN:
                 System.out.println("Check LogIn permission");
                 break;
+            case SCHEDULE_WEEK:
+                System.out.println("Check Schedule permission");
+                System.out.println("Populate Table");
+                ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+                // get information from the database (send username, session token) returns scheduleObject
+                // Billboard Schedule: day, time, bb name
+                String[][] billboardSchedule = new String[][] {{"1-2pm", "Myer's Sale"},{"6-7am", "Spotlight Winter Sale"}};
+                scheduleWeekView.populatedSchedule(billboardSchedule);
         }
     }
 
