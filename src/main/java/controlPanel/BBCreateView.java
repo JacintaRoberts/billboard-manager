@@ -78,6 +78,11 @@ public class BBCreateView extends AbstractGenericView
     }
 
     @Override
+    void cleanUp() {
+
+    }
+
+    @Override
     public void update(Subject s) {
 
     }

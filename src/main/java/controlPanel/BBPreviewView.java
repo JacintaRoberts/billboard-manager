@@ -8,7 +8,7 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 
-public class BBPreviewView extends JFrame
+public class BBPreviewView extends AbstractView
 {
     // *** VARIABLES**
     // --- Panels ---
@@ -40,4 +40,13 @@ public class BBPreviewView extends JFrame
         return view_type;
     }
 
+    @Override
+    void cleanUp() {
+
+    }
+
+    @Override
+    public void update(Subject s) {
+
+    }
 }

@@ -103,4 +103,9 @@ public class LogInView extends AbstractView
     {
         return logInType;
     }
+
+    @Override
+    void cleanUp() {
+
+    }
 }

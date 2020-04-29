@@ -1,9 +1,6 @@
 package controlPanel;
 
 import observer.Subject;
-
-import javax.swing.*;
-
 public class UserListView extends AbstractListView
 {
     // *** VARIABLES**
