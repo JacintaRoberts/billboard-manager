@@ -24,14 +24,8 @@ import java.util.HashMap;
 
 public class Viewer extends JFrame implements Runnable {
 
-    // Set up the panels on the viewer
-    JPanel northBorderPanel = new JPanel();
-    JPanel eastBorderPanel = new JPanel();
-    JPanel southBorderPanel = new JPanel();
-    JPanel westBorderPanel = new JPanel();
-    JPanel centralPanel = new JPanel();
-
-    // Set up the labels, image icons etc. to display the different parts of the billboard
+    // Set up the panels, labels, image icons etc. to display the different parts of the billboard
+    JPanel mainPanel = new JPanel();
     JLabel messageLabel = new JLabel();
     ImageIcon pictureIcon = new ImageIcon();
     JLabel pictureLabel = new JLabel();
@@ -39,8 +33,8 @@ public class Viewer extends JFrame implements Runnable {
 
     // Dimensions of screen the viewer will display on
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    private static int screenHeight = screenSize.height;
-    private static int screenWidth = screenSize.width;
+    private static double screenHeight = screenSize.height;
+    private static double screenWidth = screenSize.width;
 
 
     /**
@@ -54,7 +48,7 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Extracts the xml file that we want to display.
-     * TODO: This method should be the only one which needs to be changed when the actual database is connected
+     * TODO: Remove or change this function to extract the XML file from the database
      */
     public File extractXMLFile(int fileNum) {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
@@ -176,35 +170,23 @@ public class Viewer extends JFrame implements Runnable {
      * Setups the basics of the billboard regardless of what is being displayed
      */
     public void setupBillboard() {
-        // Create a border layout
+        // Create a border layout and aff the main panel to the billboard
         setLayout(new BorderLayout());
 
-        // Set each of the border panels to a location in the border layout
-        add(northBorderPanel, BorderLayout.NORTH);
-        add(eastBorderPanel, BorderLayout.EAST);
-        add(southBorderPanel, BorderLayout.SOUTH);
-        add(westBorderPanel, BorderLayout.WEST);
-
-        northBorderPanel.setBackground(Color.LIGHT_GRAY);
-        eastBorderPanel.setBackground(Color.LIGHT_GRAY);
-        southBorderPanel.setBackground(Color.LIGHT_GRAY);
-        westBorderPanel.setBackground(Color.LIGHT_GRAY);
-
         // Add the central panel to the center of the billboard
-        add(centralPanel, BorderLayout.CENTER);
+        add(mainPanel, BorderLayout.CENTER);
 
         // Create a grid bag layout
-        centralPanel.setLayout(new GridBagLayout());
-        centralPanel.setBackground(Color.WHITE);
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(Color.WHITE);
     }
 
 
     /**
      * Displays a billboard which has only a message
      * @param message - a string which stores the message to display
-     * TODO: Format so that the string will fit the width of the screen on one line, and so that there are margins
-     *       between the edge of the screen and the text. Make sure the minimum message text is larger than the maximum
-     *       information text.
+     * TODO: The message should be displayed almost as large as possible, within the constraints that the text cannot
+     *       be broken across multiple lines and it must all fit on the screen.
      */
     public void messageOnlyBillboard(String message) {
         // Set the text and font of the message label
@@ -212,15 +194,65 @@ public class Viewer extends JFrame implements Runnable {
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
 
         // Add the message label to the central panel in the JFrame
-        centralPanel.add(messageLabel);
+        mainPanel.add(messageLabel);
+    }
+
+
+    /**
+     * Adds the picture to the central panel - for pictureOnlyBillboard at this stage
+     * @param image - the image that needs to be added to the panel
+     * TODO: The image should be scaled up to half the width and height of the screen and displayed in the centre.
+     */
+    public void addPictureToPanel(BufferedImage image) {
+        // Find the current dimensions of the picture
+        double originalWidth = image.getWidth();
+        double originalHeight = image.getHeight();
+
+        // Define the maximum image dimensions based on the screen dimensions
+        double maxImageWidth = screenWidth/2;
+        double maxImageHeight = screenHeight/2;
+
+        // Initialise variables to store the new dimensions - set the initial value as the current dimensions
+        double newWidth = originalWidth;
+        double newHeight = originalHeight;
+        double ratio = 1;
+
+        // Decide how to scale the image (or if we need to at all)
+        if (originalWidth > maxImageWidth || originalHeight > maxImageHeight) {
+            if (originalWidth < maxImageWidth && originalHeight > maxImageHeight) {
+                newHeight = maxImageHeight;
+                ratio = newHeight/originalHeight;
+                newWidth = ratio*originalWidth;
+            }
+
+        }
+
+        // Testing
+        System.out.println("Maximum Image Dimensions: " + maxImageWidth + " x " + maxImageHeight);
+        System.out.println("Original Dimensions: " + originalWidth + " x " + originalHeight);
+        System.out.println("Ratio: " + ratio);
+        System.out.println("New Dimensions: " + newWidth + " x " + newHeight);
+
+        // Scale the image
+        Image scaledImage = image.getScaledInstance( (int) newWidth, (int) newHeight, Image.SCALE_DEFAULT);
+
+        // Set the scaled image as the JLabel
+        pictureIcon.setImage(scaledImage);
+        pictureLabel.setIcon(pictureIcon);
+
+        // Set constraints for formatting the image
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+
+        // Add Image to the central panel in the JFrame
+        mainPanel.add(pictureLabel, constraints);
     }
 
 
     /**
      * Displays a billboard which has only a picture
      * @param picture - a string which is the picture to display, this could be in the form of a url or data attribute
-     * @param pictureType - a string which is either url or data, so that we can decode the iamge
-     * TODO: Fit image to screen but keep the right aspect ratio
+     * @param pictureType - a string which is either url or data, so that we can decode the image
      */
     public void pictureOnlyBillboard(String picture, String pictureType) {
         // Decide if it's a url or data attribute
@@ -229,12 +261,10 @@ public class Viewer extends JFrame implements Runnable {
             try {
                 // Extract picture from URL
                 URL pictureURL = new URL(picture);
-                Image pictureImage = ImageIO.read(pictureURL);
+                BufferedImage pictureImage = ImageIO.read(pictureURL);
 
-                // Add Image to the central panel in the JFrame
-                pictureIcon.setImage(pictureImage);
-                pictureLabel.setIcon(pictureIcon);
-                centralPanel.add(pictureLabel);
+                // Add the image to the central panel
+                addPictureToPanel(pictureImage);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -247,10 +277,8 @@ public class Viewer extends JFrame implements Runnable {
                 byte[] pictureByteArray = Base64.getDecoder().decode(picture.getBytes(StandardCharsets.UTF_8));
                 BufferedImage pictureImage = ImageIO.read(new ByteArrayInputStream(pictureByteArray));
 
-                // Add Image to the central panel in the JFrame
-                pictureIcon.setImage(pictureImage);
-                pictureLabel.setIcon(pictureIcon);
-                centralPanel.add(pictureLabel);
+                // Add the image to the central panel
+                addPictureToPanel(pictureImage);
 
             } catch (Exception e) {
                 e.printStackTrace();
@@ -263,18 +291,24 @@ public class Viewer extends JFrame implements Runnable {
     /**
      * Displays a billboard which has only a information
      * @param information - a string which stores the information to display
-     * TODO: Format so that the string will automatically wrap the text, and so that there are margins between the
-     *       edge of the screen and the text. Make sure the minimum message text is larger than the maximum
-     *       information text.
+     * TODO: The text should be displayed in the centre, with word wrapping and font size chosen so that the text fills
+     *       up no more than 75% of the screen's width and 50% of the screen's height.
      */
     public void informationOnlyBillboard(String information) {
         // Set the text and font of the information label
-        informationLabel.setText("<html>" + information + "</html>");
+        informationLabel.setText("<html><div style='text-align: center;'>" + information + "</div></html>");
         informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.PLAIN, 30));
-        informationLabel.setBounds(0, 0, 10, 2);
 
         // Add information label to the central panel in the JFrame
-        centralPanel.add(informationLabel);
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+//        constraints.gridheight = 1;
+//        constraints.gridwidth = 1;
+//        constraints.gridx = 0;
+//        constraints.gridy = 0;
+        constraints.ipadx = 800;
+
+        mainPanel.add(informationLabel, constraints);
     }
 
 
@@ -316,8 +350,7 @@ public class Viewer extends JFrame implements Runnable {
     /**
      * Formats the display window using the mock database depending on whether there is a message,
      * picture, information or a combination.
-     * TODO: Check the if statements to make sure they have the correct
-     * TODO: Potentially move message colour and information colour into this function?
+     * TODO: Check the if statements to make sure they have the correct format
      */
     public void formatBillboard(HashMap<String, String> billboardData) {
         // Retrieve all the data from the HashMap
@@ -331,7 +364,7 @@ public class Viewer extends JFrame implements Runnable {
 
         // If there is a background colour, format the JFrame so that this is visible
         if (backgroundColour != null) {
-            centralPanel.setBackground(Color.decode(backgroundColour));
+            mainPanel.setBackground(Color.decode(backgroundColour));
         }
 
         // Check all cases and decide which method to call
@@ -357,23 +390,23 @@ public class Viewer extends JFrame implements Runnable {
             informationOnlyBillboard(information);
         }
 
-
-        // Check if there's a specific message colour
-        if (informationColour != null) {
-            informationLabel.setForeground(Color.decode(informationColour));
-            informationLabel.setBackground(Color.decode(informationColour));
-        }
-
-        // Check if there's a specific message colour
+        // Check if there's a specific message text colour
         if (messageColour != null) {
             messageLabel.setForeground(Color.decode(messageColour));
             messageLabel.setBackground(Color.decode(messageColour));
+        }
+
+        // Check if there's a specific information text colour
+        if (informationColour != null) {
+            informationLabel.setForeground(Color.decode(informationColour));
+            informationLabel.setBackground(Color.decode(informationColour));
         }
 
     }
 
     /**
      * If there are no billboards to display, display a message for the user.
+     * TODO: Formatting exactly the same as messageOnlyBillboard
      */
     public void noBillboardToDisplay() {
         // Create a label to display a message and format it
@@ -381,7 +414,7 @@ public class Viewer extends JFrame implements Runnable {
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
 
         // Add the message label to the JFrame
-        centralPanel.add(messageLabel);
+        mainPanel.add(messageLabel);
     }
 
 
@@ -433,7 +466,8 @@ public class Viewer extends JFrame implements Runnable {
      */
     public void displayBillboard() {
         setupBillboard();
-        File fileToDisplay = extractXMLFile(3);
+
+        File fileToDisplay = extractXMLFile(13);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
         formatBillboard(billboardData);
 //        noBillboardToDisplay();
@@ -445,6 +479,7 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Displays an error if the viewer cannot connect to the server
+     * TODO: Formatting exactly the same as messageOnlyBillboard
      */
     public void displayError() {
         setupBillboard();
@@ -452,7 +487,7 @@ public class Viewer extends JFrame implements Runnable {
         // Add an error message label to the central panel of the JFrame
         messageLabel.setText("Error: Cannot connect to server. Trying again now...");
         messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
-        centralPanel.add(messageLabel);
+        mainPanel.add(messageLabel);
 
         listenEscapeKey();
         listenMouseClick();
