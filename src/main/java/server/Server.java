@@ -9,60 +9,79 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class Server {
-    public static void main(String[] args) {
-        // Clients connect to the server with a port number (server listens) - TCP/IP
-        // Read port number and ip address from network.props
-        final String networkPropsFilePath = "src\\main\\resources\\network.props";
+    private final static String networkPropsFilePath = "src\\main\\resources\\network.props";
+    /**
+     * initServer initialises the Server to begin listening for connections from clients (TCP/IP) through a
+     * ServerSocket, this continually loops so that multiple connections can be handled.
+     * Port number is read from network.props and is bound to the ServerSocket.
+     * Client will later connect to the server socket with a port number and
+     * the communication is handled through input/output streams.
+     * General usage notes: always flush streams at the correct time + interleave the operations so that they
+     * are in the same order. Write, read on client = Read, write on server (flush in between).
+     * Ensure that every object sent across implements "Serializable" to convert to bytes.
+     */
+    private static void initServer() throws IOException, ClassNotFoundException {
+        // Read port number from network.props
+        //final String networkPropsFilePath = "src\\main\\resources\\network.props";
         final int port = Helpers.getPort(networkPropsFilePath);
-        final String ip = Helpers.getIp(networkPropsFilePath);
+        // Bind port number and begin listening, loop to keep receiving connections from clients
+        ServerSocket serverSocket = new ServerSocket(port);
+        for (;;) {
+            // Accept client
+            Socket socket = serverSocket.accept();
+            System.out.println("Connected to " + socket.getInetAddress());
 
+            // Input/Output Stream setup
+            ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
+            ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
+
+            // Read client's request
+            String clientRequest = ois.readUTF();
+            System.out.println("Received from client: " + clientRequest);
+
+            // Work out what method to call and send back to client
+            Object serverResponse = callServerMethod(clientRequest);
+            //MyClass o = (MyClass) ois.readObject(); // Example casting to MyClass for reading object
+            oos.writeObject(serverResponse);
+            oos.flush();
+
+            // Cleanup
+            oos.close();
+            ois.close();
+            socket.close();
+        }
+    }
+
+    /**
+     * callServerMethod calls the corresponding method from the server which fetches/updates data from
+     * the database as necessary.
+     * @param clientRequest String to indicate the method that the client requests
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callServerMethod(String clientRequest) {
+        switch (clientRequest) {
+            case "Test": {
+                return  "Test successful!";
+            }
+            // TODO: THIS IS GOING TO BE A LONG SWITCH STATEMENT BUT THIS IS THE IDEA, WOULD LIKE TO DO:
+            //  clientRequest.startsWith("UserAdmin,AddUser") because we will likely append the
+            //  arguments: username and pass etc. to the end...IS THERE A BETTER WAY?
+            case "UserAdmin,AddUser":
+                return UserAdmin.addUser();
+            case "Viewer":
+                return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
+            default: {
+                return "Connection successful!";
+            }
+        }
+    }
+
+    public static void main(String[] args) {
         //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
         try {
-            // Bind port number and begin listening
-            ServerSocket serverSocket = new ServerSocket(port);
-            // Socket is what will be used to communicate on, loop to keep receiving connections
-            for (;;) {
-                Socket socket = serverSocket.accept();
-
-                System.out.println("Connected to " + socket.getInetAddress());
-
-                ObjectInputStream ois = new ObjectInputStream(socket.getInputStream());
-                ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
-
-                /* General notes: always flush streams at the correct time + interleave the operations so that they
-                / are in the same order. Write, read on client = Read, write on server (flush in between).*/
-
-
-                // TODO: Need to make every object that needs to be sent across "implement Serializable" to be able
-                //  to break up into bytes (see example MyClass)
-                MyClass o = (MyClass) ois.readObject(); // Cast to MyClass
-                System.out.println("Received from client: " + o);
-                System.out.println("o.getVal(): " + o.getVal());
-
-//                System.out.println(ois.readUTF());
-//                oos.writeUTF("Hi, thanks for sending me two UTF-8 strings!");
-//                oos.flush();
-//                System.out.println(ois.readUTF());
-//                System.out.println(ois.readUTF());
-//                oos.flush();
-
-                oos.close();
-                ois.close();
-                // Read a single byte from the stream
-                //InputStream inputStream = socket.getInputStream();
-                //int num = inputStream.read();
-                //System.out.println("Read byte: " + num);
-
-                //OutputStream outputStream = socket.getOutputStream();
-                //outputStream.write(num + 1);
-
-                socket.close();
-            }
+            initServer();
         } catch (IOException | ClassNotFoundException e) {
             System.err.println("Exception caught: " + e);
         }
-
-
     }
 }
-
