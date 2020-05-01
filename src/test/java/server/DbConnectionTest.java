@@ -1,10 +1,11 @@
 package server;
 
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 
-import java.sql.Connection;
-import java.sql.Statement;
+import java.util.Properties;
+
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DbConnectionTest {
     /* Test 0: Declaring Connection object
@@ -19,11 +20,11 @@ class DbConnectionTest {
      * NOTE: Good example on Blackboard as to how to do this :)
      * Use: instance = DriverManager.getConnection(url + "/" + schema, username, password);
      */
-    @BeforeAll
-    @Test
-    public static void setupDb() {
-        Connection connection = DbConnection.getInstance();
-    }
+//    @BeforeAll
+//    @Test
+//    public static void setupDb() {
+//        Connection connection = DbConnection.getInstance();
+//    }
 
     /* Test 2: Helper function - Read from database properties files (Success)
      * Description: Takes the file name to be read and returns the jdbcUrl, jdbcSchema, jdbcUsername and jdbcPassword
@@ -31,18 +32,26 @@ class DbConnectionTest {
      * Expected Output: Successfully return the url, schema, username and password from the database.props file
      * Implementation: very similar to Server.readProps except diff properties/return data structure and PRIVATE!
      */
-    // TODO: When initialising it already reads through so not too sure if this is required
-//    @Test
-//    public void readDbProps() {
-//        // Set predetermined test cases
-//        String jdbcUrl = "jdbc:mysql://localhost:3306";
-//        String jdbcSchema = "BillboardDatabase";
-//        String jdbcUsername = "root";
-//        String jdbcPassword = "";
-//
-//        // Initiate
-//
-//    }
+    @Test
+    public void readDbProps() {
+
+        // Set predetermined test cases
+        String jdbcUrl = "jdbc:mysql://localhost:3306";
+        String jdbcSchema = "BillboardDatabase";
+        String jdbcUsername = "root";
+        String jdbcPassword = "";
+
+        // Initiate and run properties
+        Properties props = DbConnection.readProperties("src\\test\\resources\\db.props");
+
+        // Do Assertion to check if properties are read in or not
+        assertAll("This should return the properties of the DBprops file",
+                () -> assertEquals(jdbcUrl, props.getProperty("jdbc.url")),
+                () -> assertEquals(jdbcSchema, props.getProperty("jdbc.schema")),
+                () -> assertEquals(jdbcUsername, props.getProperty("jdbc.username")),
+                () -> assertEquals(jdbcPassword, props.getProperty("jdbc.password"))
+        );
+    }
 
     /* Test 3: Helper function - Read properties from database properties files (error handling)
      * Description: Implement appropriate error handling for bad file name. This could also pick up:
@@ -60,21 +69,21 @@ class DbConnectionTest {
      * Description: DBConnection Object should create new tables in DB if they do not already exist
      * Expected Output: If db initially empty, should create 3 tables
      */
-    @Test
-    public void createTables() {
-        Connection connection = DbConnection.getInstance();
-        Statement st = connection.createStatement();
-        final String GET_TABLE_COUNT = "SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns` WHERE `table_schema` = 'BillboardDatabase'";
-        st.execute(GET_TABLE_COUNT);
-        DbConnection.displayContents(st,GET_TABLE_COUNT);
-
+//    @Test
+//    public void createTables() {
+//        Connection connection = DbConnection.getInstance();
+//        Statement st = connection.createStatement();
+//        final String GET_TABLE_COUNT = "SELECT COUNT(DISTINCT `table_name`) FROM `information_schema`.`columns` WHERE `table_schema` = 'BillboardDatabase'";
+//        st.execute(GET_TABLE_COUNT);
+//        DbConnection.displayContents(st,GET_TABLE_COUNT);
+//
 //        int tableCount = connection.executeQuery(GET_TABLE_COUNT);
 //        if (tableCount == 0) {
 //            connection.createTables();
 //        }
 //        // Check that the table count now equals 3
 //        assertEquals(3,instance.executeQuery(GET_TABLE_COUNT));
-    }
+//    }
 
     /* Test 5: Check that the Users table exists with correct columns (Success)
      * Description: Users table should have 4 columns: Username (PK), HashedPassword, Salt, Permissions

@@ -41,20 +41,3 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
       PRIMARY KEY (`StartDateTime`)
   );
 
-
-/*Create Custom Procedures for Database*/
-DELIMITER $$
-DROP PROCEDURE IF EXISTS `BillboardDatabase`.`displayUserList` $$
-CREATE PROCEDURE `BillboardDatabase`.`displayUserList` ()
-BEGIN
-  SELECT Username FROM Users;
-END $$
-
-DROP PROCEDURE IF EXISTS `BillboardDatabase`.`displayUserList` $$
-CREATE PROCEDURE `BillboardDatabase`.`displayUserList` ()
-BEGIN
-  SELECT Username FROM Users;
-END $$
-
-
-DELIMITER ;

@@ -8,53 +8,76 @@ import java.util.Properties;
 
 public class DbConnection {
 
-        /**
-         * The singleton instance of the database connection.
-         */
+    /**
+    * The singleton instance of the database connection.
+    */
     private static Connection instance = null;
 
 
     /**
-     * Constructor intializes the connection.
-     */
-    private DbConnection() {
-        // Set new properties class and initiate File input stream and connection
-        Properties props = new Properties();
-        FileInputStream in = null;
-        Connection connection = null;
-        try{
-            // set input path and load
-            in = new FileInputStream("src\\test\\resources\\db.props");
-            props.load(in);
-            in.close();
-
-            // specify data source, username and password
-            String url = props.getProperty("jdbc.url");
-            String username = props.getProperty("jdbc.username");
-            String password = props.getProperty("jdbc.password");
-            String schema = props.getProperty("jdbc.schema");
-
-            // get a connection
-            connection = DriverManager.getConnection(url + "/" + schema, username, password);
-        } catch (SQLException sqle){
-            System.err.println(sqle);
-        } catch (FileNotFoundException fnfe){
-            System.err.println(fnfe);
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
-    }
-
-    /**
-     * Provides global access to the singleton instance of the UrlSet.
-     *
-     * @return a handle to the singleton instance of the UrlSet.
+     * Provides global access to the singleton instance of the database connection.
+     * <p>
+     * @return a handle to the singleton instance of the database connection.
      */
     public static Connection getInstance() {
         if (instance == null) {
             new DbConnection();
         }
         return instance;
+    }
+
+
+    /**
+     * Main Database Connection function. This method will set up relevant property files and call relevant functions.
+     * <p>
+     * This method always returns immediately.
+     */
+    private DbConnection() {
+
+        // Set new properties class and initiate File input stream and connection
+        Properties props = readProperties("src\\test\\resources\\db.props");
+
+        // specify data source, username and password
+        String url = props.getProperty("jdbc.url");
+        String username = props.getProperty("jdbc.username");
+        String password = props.getProperty("jdbc.password");
+        String schema = props.getProperty("jdbc.schema");
+
+        // get a connection
+        Connection connection = null;
+        try{
+            connection = DriverManager.getConnection(url + "/" + schema, username, password);
+        } catch (SQLException sqle){
+            System.err.println(sqle);
+        }
+
+    }
+
+
+
+    /**
+     * Read Database Properties as input stream
+     * <p>
+     * This method always returns immediately.
+     * @param  filelocation The location of the dbprops File
+     * @return prop: A properties object containing information about the database
+     */
+    public static Properties readProperties(String filelocation){
+        // Set new properties class and initiate File input stream and connection
+        Properties props = new Properties();
+        FileInputStream in = null;
+
+        // set input path and load
+        try {
+            in = new FileInputStream(filelocation);
+            props.load(in);
+            in.close();
+        } catch (FileNotFoundException fnfe){
+            System.err.println(fnfe);
+        } catch (IOException ex){
+            ex.printStackTrace();
+        }
+        return props;
     }
 
 
