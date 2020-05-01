@@ -99,14 +99,14 @@ class UserAdminTest {
 
     /* Test 5: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent calling username in DB
-     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Error: Calling Username Deleted"
+     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void getOtherUserPermissionsCallingUsernameDeleted() {
 //      // Temporarily change calling username to something unknown (via the session token)
 //      Object[] dbResponse = userAdmin.getUserPermissions("unknownSessionToken", "non-existent");
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse[0]);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
 //    }
 
@@ -115,31 +115,31 @@ class UserAdminTest {
      * Description: Get other User's Permissions from db - throw exception due to insufficient calling permissions
      * Require "EditUsers" permission which is the 4th element in UserPermissions object
      * e.g. [1,1,1,0] can't call the method.
-     * Expected Output: User's Permissions unable to be retrieved and returns "Error: Insufficient User Permission"
+     * Expected Output: User's Permissions unable to be retrieved and returns "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void getOtherUserPermissionsInsufficientPermissions() {
 //      Object[] dbResponse =  userAdmin.getUserPermissions("basicToken", "root");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permission", dbResponse[0]);
+//      assertEquals("Fail: Insufficient User Permission", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
 //    }
 
 
     /* Test 7: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent username in DB
-     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Error: Username Does Not Exist"
+     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Username Does Not Exist"
      */
 //    @Test
 //    public void getOtherUserPermissionsNoUsernameInDb() {
 //      Object[] dbResponse = userAdmin.getUserPermissions("sessionToken", "non-existent");
 //      // Check return value
-//      assertEquals("Error: Username Does Not Exist", dbResponse[0]);
+//      assertEquals("Fail: Username Does Not Exist", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
 //    }
 
 
-    /* Test 8: List Users (Success)
+    /* Test 8: List Users (Pass)
      * Description: List all of the users in the database if calling username has "Edit Users" permissions
      * Note: The calling username is retrieved as a private field from this UserAdmin Class
      * Expected Output: All of the users in the database are able to be listed.
@@ -154,7 +154,7 @@ class UserAdminTest {
     /* Test 9: List Users (Exception Handling)
      * Description: List all of the users in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Error: Calling Username Deleted"
+     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void listUsersCallingUsernameDeleted() {
@@ -165,7 +165,7 @@ class UserAdminTest {
 //      // Check return message and that no other results get appended
 
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse.get(0));
+//      assertEquals("Fail: Calling Username Deleted", dbResponse.get(0));
 //      assertEquals(1, dbResponse.size());
 //    }
 
@@ -174,28 +174,28 @@ class UserAdminTest {
      * Description: List all of the users in the database - throw exception due to insufficient permissions
      * Require "EditUsers" permission which is the 4th element in UserPermissions object
      * e.g. [1,1,1,0] can't call the method.
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Error: Insufficient User Permission"
+     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void listUsersInsufficientPermissions() {
 //      userAdmin.listUsers("basicToken");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permission", dbResponse.get(0));
+//      assertEquals("Fail: Insufficient User Permission", dbResponse.get(0));
 //      assertEquals(1, dbResponse.size());
 //    }
 
 
-    /* Test 11: Set Own User Permissions (Success)
+    /* Test 11: Set Own User Permissions (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
-     * Expected Output: User permissions updated in the DB and returns string "Success: Own Permissions Updated"
+     * Expected Output: User permissions updated in the DB and returns string "Pass: Own Permissions Updated"
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOwnUserPermissions() {
 //      // Attempt to remove own CreateBillboardsPermission
 //      String dbResponse = userAdmin.setUserPermissions("root", {0,1,1,1}, "sessionToken");
 //      // Check return value
-//      assertEquals("Success: Own Permissions Updated", dbResponse);
+//      assertEquals("Pass: Own Permissions Updated", dbResponse);
 //      // Check that the user permissions are actually updated in the DB
 //      assertEquals({0,1,1,1}, userAdmin.getUserPermissions("root"));
 //    }
@@ -204,7 +204,7 @@ class UserAdminTest {
     /* Test 12: Set Own User Permissions (Exception Handling)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
-     * Expected Output: User permissions not updated in DB and returns "Error: Cannot Remove Own Edit Users Permission"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Cannot Remove Own Edit Users Permission"
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOwnUserEditUsersPermission() {
@@ -215,7 +215,7 @@ class UserAdminTest {
 //      // Attempt to remove own EditUsersPermission (last element in array)
 //      String dbResponse = userAdmin.setUserPermissions("sessionToken", "root", {0,1,1,0});
 //      // Check return value
-//      assertEquals("Error: Cannot Remove Own Edit Users Permission", dbResponse);
+//      assertEquals("Fail: Cannot Remove Own Edit Users Permission", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({1,1,1,1}, userAdmin.getUserPermissions("root"));
 //    }
@@ -225,7 +225,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Error: Calling Username Deleted"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void setOwnUserPermissionsCallingUsernameDeleted() {
@@ -235,7 +235,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("unknownSessionToken", "non-existent", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse);
 //      // Check that the user permissions are still unobtainable
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          userAdmin.getUserPermissions("sessionToken", "non-existent"));
@@ -245,7 +245,7 @@ class UserAdminTest {
 
     /* Test 14: Set Own User Permissions (Exception Handling)
      * Description: Attempt to set user permissions however calling user does not "EditUser" Permission
-     * Expected Output: User permissions not updated in DB and returns "Error: Insufficient User Permission"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void setOwnUserPermissionsInsufficientPermissions() {
@@ -255,17 +255,17 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("basicToken", "Joe", {0,0,0,1});
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permission", dbResponse);
+//      assertEquals("Fail: Insufficient User Permission", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({0,0,0,0}, userAdmin.getUserPermissions("Joe"));
 //    }
 
 
 
-    /* Test 15: Set Other User Permissions (Success)
+    /* Test 15: Set Other User Permissions (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
-     * Expected Output: User permissions updated in the DB and returns string "Success: Other User Permissions Updated"
+     * Expected Output: User permissions updated in the DB and returns string "Pass: Other User Permissions Updated"
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOtherUserPermissions() {
@@ -279,7 +279,7 @@ class UserAdminTest {
 //      // Attempt to give CreateBillboards Permission and Remove Edit Users
 //      String dbResponse = userAdmin.setUserPermissions("sessionToken", "Jenny", {1,1,1,0});
 //      // Check return value
-//      assertEquals("Success: Other User Permissions Updated", dbResponse);
+//      assertEquals("Pass: Other User Permissions Updated", dbResponse);
 //      // Check that the user permissions are actually updated in the DB
 //      assertEquals({1,1,1,0}, userAdmin.getUserPermissions("Jenny"));
 //    }
@@ -289,7 +289,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Error: Calling Username Deleted"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void setOtherUserPermissionsCallingUsernameDeleted() {
@@ -302,7 +302,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("unknownSessionToken", "root", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({1,1,1,1}, userAdmin.getUserPermissions("root"));
 //    }
@@ -310,7 +310,7 @@ class UserAdminTest {
 
     /* Test 17: Set Other User Permissions (Exception Handling)
      * Description: Attempt to set user permissions however calling user does not "EditUser" Permission
-     * Expected Output: User permissions not updated in DB and returns "Error: Insufficient User Permission"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void setOtherUserPermissionsInsufficientPermissions() {
@@ -320,7 +320,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("basicToken", "Jenny", {0,0,0,0});
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permission", dbResponse);
+//      assertEquals("Fail: Insufficient User Permission", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({1,1,1,0}, userAdmin.getUserPermissions("Jenny"));
 //    }
@@ -329,7 +329,7 @@ class UserAdminTest {
     /* Test 18: Set Other User Permissions (Exception Handling)
      * Description: Attempt to set user's permissions but throw exception due to non-existent requested username in db
      * (e.g. if someone else deleted the other user whilst logged in).
-     * Expected Output: User permissions not updated in DB and returns "Error: Username Does Not Exist"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Username Does Not Exist"
      */
 //    @Test
 //    public void setOtherUserPermissionsNoUsernameInDb() {
@@ -338,7 +338,7 @@ class UserAdminTest {
 //          userAdmin.deleteUser("sessionToken", "non-existent");
 //      String dbResponse = userAdmin.setUserPermissions("sessionToken", "non-existent", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Error: Username Does Not Exist", dbResponse);
+//      assertEquals("Fail: Username Does Not Exist", dbResponse);
 //      // Check that the user permissions are still unobtainable
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          userAdmin.getUserPermissions("non-existent"));
@@ -346,7 +346,7 @@ class UserAdminTest {
 //    }
 
 
-    /* Test 19: Get Password (Success)
+    /* Test 19: Get Password (Pass)
      * Description: Find corresponding username in db (if it exists) and then return the password
      * Expected Output: Password is retrieved from the DB and is returned as a string
      */
@@ -377,10 +377,10 @@ class UserAdminTest {
 
     //TODO: Should maybe test for get password where they have insufficient permission
 
-    /* Test 21: Set Own Password (Success)
+    /* Test 21: Set Own Password (Pass)
      * Description: Find corresponding username in db (if it exists) and then modify to the hashed password and
      *              return acknowledgement string to Control Panel.
-     * Expected Output: Hashed password updated in the DB and returns string "Success: Own Password Updated"
+     * Expected Output: Hashed password updated in the DB and returns string "Pass: Own Password Updated"
      */
 //    @Test
 //    public void setOwnPassword() {
@@ -390,7 +390,7 @@ class UserAdminTest {
 //      }
 //      string dbResponse = userAdmin.setPassword("basicToken", "Joe", "changedPass");
 //      // Check return value
-//      assertEquals("Success: Own Password Updated", dbResponse);
+//      assertEquals("Pass: Own Password Updated", dbResponse);
 //      // Check that the user pass is actually updated in the DB
 //      assertEquals("changedPass",userAdmin.getPassword("sessionToken","Joe"));
 //    }
@@ -399,7 +399,7 @@ class UserAdminTest {
     /* Test 22: Set Own Password (Exception Handling)
      * Description: Set own user password in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: Hashed password not updated in the DB and returns string "Error: Calling Username Deleted"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void setOwnPasswordCallingUsernameDeleted() {
@@ -409,7 +409,7 @@ class UserAdminTest {
 //      }
 //      string dbResponse = userAdmin.setPassword("unknownSessionToken", "non-existent", "changedPass");
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse);
 //      // Check for Exception that the password cannot be obtained for user that does not exist in DB
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          string dbResponse = userAdmin.getPassword("sessionToken", "non-existent");
@@ -417,10 +417,10 @@ class UserAdminTest {
 //    }
 
 
-    /* Test 23: Set Other User Password (Success)
+    /* Test 23: Set Other User Password (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the hashed password and return acknowledgement (String) to Control Panel.
-     * Expected Output: Hashed password updated in the DB and returns string "Success: Other User Password Updated"
+     * Expected Output: Hashed password updated in the DB and returns string "Pass: Other User Password Updated"
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void setOtherPassword() {
@@ -430,7 +430,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setPassword("sessionToken", "newUser", "changedPass");
 //      // Check return value
-//      assertEquals("Success: Other User Password Updated", dbResponse);
+//      assertEquals("Pass: Other User Password Updated", dbResponse);
 //      // Check that the user pass is actually updated in the DB
 //      assertEquals("changedPass", userAdmin.getPassword("sessionToken", "newUser"));
 //    }
@@ -438,7 +438,7 @@ class UserAdminTest {
 
     /* Test 24: Set Other User Password (Exception Handling)
      * Description: Check that the calling user still exists in the DB before setting user password.
-     * Expected Output: Hashed password not updated in the DB and returns string "Error: Calling Username Deleted"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void setOtherPasswordCallingUsernameDeleted() {
@@ -451,7 +451,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setPassword("unknownSessionToken", "Jenny", "changedPass");
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
 //      assertEquals("pass",userAdmin.getPassword("sessionToken", "Jenny"));
 //    }
@@ -460,7 +460,7 @@ class UserAdminTest {
     /* Test 25: Set Other User Password (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * modify password of other users.
-     * Expected Output: Hashed password not updated in the DB and returns string "Error: Insufficient User Permission"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void setOtherPasswordInsufficientPermissions() {
@@ -473,7 +473,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setPassword("basicToken", "Jenny", "changedPass");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permission", dbResponse);
+//      assertEquals("Fail: Insufficient User Permission", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
 //      assertEquals("pass",userAdmin.getPassword("sessionToken", "Jenny"));
 //    }
@@ -482,7 +482,7 @@ class UserAdminTest {
     /* Test 26: Set Other User Password (Exception Handling)
      * Description: Check that if the username associated with the hashed password does not exist in database then
      * the password should not be updated and an exception should be thrown.
-     * Expected Output: Hashed password not updated in the DB and returns string "Error: Username Does Not Exist"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Username Does Not Exist"
      */
 //    @Test
 //    public void setOtherPasswordNoUsernameInDb() {
@@ -492,18 +492,18 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setPassword("sessionToken", "unknownUser", "changedPass");
 //      // Check return value
-//      assertEquals("Error: Username Does Not Exist", dbResponse);
+//      assertEquals("Fail: Username Does Not Exist", dbResponse);
 //      // Check for Exception that the password cannot be obtained for user that does not exist in DB
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          string dbResponse = userAdmin.getPassword("sessionToken", "unknownUser");
 //      });//    }
 
 
-    /* Test 27: Delete User (Success)
+    /* Test 27: Delete User (Pass)
      * Description:
      * Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then remove and return acknowledgement to Control Panel.
-     * Expected Output: Username is deleted in DB and returns string "Success: User Deleted"
+     * Expected Output: Username is deleted in DB and returns string "Pass: User Deleted"
      */
 //    @Test
 //    public void deleteUser() {
@@ -513,14 +513,14 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("sessionToken", "Jenny");
-//      assertEquals("Success: User Deleted", dbResponse);
+//      assertEquals("Pass: User Deleted", dbResponse);
 //      // Check that the user is actually removed from DB
 //      assertFalse(userAdmin.userExists("Jenny"));
 //    }
 
     /* Test 28: Delete User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not deleted in DB and returns string "Error: Calling Username Deleted"
+     * Expected Output: Username is not deleted in DB and returns string "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void deleteUserCallingUsernameDeleted()() {
@@ -530,7 +530,7 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("unknownSessionToken", "Jenny");
-//      assertEquals("Error: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
 //    }
@@ -539,7 +539,7 @@ class UserAdminTest {
     /* Test 29: Delete User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * delete other users.
-     * Expected Output: Username is not deleted in DB and returns string "Error: Insufficient User Permission"
+     * Expected Output: Username is not deleted in DB and returns string "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void deleteUserInsufficientPermissions() {
@@ -549,7 +549,7 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("basicToken", "Jenny");
-//      assertEquals("Error: Insufficient User Permission", dbResponse);
+//      assertEquals("Fail: Insufficient User Permission", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
 //    }
@@ -557,7 +557,7 @@ class UserAdminTest {
     /* Test 30: Delete User (Exception Handling)
      * Description: Check that if the username specified does not exist in database then, they should not be deleted
      * and instead an exception should be thrown.
-     * Expected Output: Username is not deleted in DB and returns string "Error: Username Does Not Exist"
+     * Expected Output: Username is not deleted in DB and returns string "Fail: Username Does Not Exist"
      */
 //    @Test
 //    public void deleteUserNoUsernameInDb() {
@@ -567,7 +567,7 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("sessionToken", "unknownUser");
-//      assertEquals("Error: Username Does Not Exist", dbResponse);
+//      assertEquals("Fail: Username Does Not Exist", dbResponse);
 //      // Check that the user to be deleted still doesn't exist
 //      assertFalse(userAdmin.userExists("unknownUser"));
 //    }
@@ -576,7 +576,7 @@ class UserAdminTest {
     /* Test 31: Delete User (Exception Handling)
      * Description: Check that if the username specified does not exist in database then, they should not be deleted
      * and instead an exception should be thrown.
-     * Expected Output: Username is not deleted in DB and returns string "Error: Cannot Delete Yourself"
+     * Expected Output: Username is not deleted in DB and returns string "Fail: Cannot Delete Yourself"
      */
 //    @Test
 //    public void deleteUserNoUsernameInDb() {
@@ -586,16 +586,16 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("sessionToken", "root");
-//      assertEquals("Error: Cannot Delete Yourself", dbResponse);
+//      assertEquals("Fail: Cannot Delete Yourself", dbResponse);
 //      // Check that the user to be deleted still exists
 //      assertTrue(userAdmin.userExists("root"));
 //    }
 
 
-    /* Test 32: Create User (Success)
+    /* Test 32: Create User (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then create the corresponding username in
      * the DB with the hashed password and permissions and return acknowledgement to Control Panel.
-     * Expected Output: User is created in the DB and returns string "Success: User Created"
+     * Expected Output: User is created in the DB and returns string "Pass: User Created"
      */
 //    @Test(expected = Test.None.class /* no exception expected */)
 //    public void createUser() {
@@ -605,14 +605,14 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      String dbResponse = userAdmin.createUser("sessionToken", "Jacinta", {0,0,0,0}, "pass");
-//      assertEquals("Success: User Created", dbResponse);
+//      assertEquals("Pass: User Created", dbResponse);
 //      // Check that the user is actually added to the DB
 //      assertTrue(userAdmin.userExists("Jacinta"));
 //    }
 
     /* Test 33: Create User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not created in DB and returns string "Error: Calling Username Deleted"
+     * Expected Output: Username is not created in DB and returns string "Fail: Calling Username Deleted"
      */
 //    @Test
 //    public void createUserCallingUsernameDeleted() {
@@ -622,7 +622,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = unknownUserAdmin.createUser("unknownSessionToken", "Ra", {0,0,0,0}, "pass");
 //      // Check return value
-//      assertEquals("Error: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Calling Username Deleted", dbResponse);
 //      // Check that the user to be created is not added to the DB anyway
 //      assertFalse(unknownUserAdmin.userExists("Ra"));
 //    }
@@ -630,13 +630,13 @@ class UserAdminTest {
     /* Test 34: Create User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * create other users.
-     * Expected Output: Username is not created in DB and returns string "Error: Insufficient User Permission"
+     * Expected Output: Username is not created in DB and returns string "Fail: Insufficient User Permission"
      */
 //    @Test
 //    public void createUserInsufficientPermissions() {
 //      String dbResponse = userAdmin.createUser("basicToken", "DuplicateUser", {0,0,0,0}, "pass");
 //      // Check return value
-//      assertEquals("Error: Insufficient User Permission", dbResponse);
+//      assertEquals("Fail: Insufficient User Permission", dbResponse);
 //      // Check that the user is not added to the DB anyway
 //      assertFalse(userAdmin.userExists("Ra"));
 //    }
@@ -644,7 +644,7 @@ class UserAdminTest {
 
     /* Test 35: Create User (Exception Handling)
      * Description: Check that if the desired username does not already exist in the DB (must be unique).
-     * Expected Output: Username already exists in DB and returns string "Error: Username Already Taken"
+     * Expected Output: Username already exists in DB and returns string "Fail: Username Already Taken"
      */
 //    @Test
 //    public void createUserDuplicateUsername() {
@@ -655,7 +655,7 @@ class UserAdminTest {
 //      // Attempt to add duplicate username
 //      String dbResponse = userAdmin.createUser("sessionToken", "DuplicateUser", {0,0,0,0}, "pass");
 //      // Check return value
-//      assertEquals("Error: Username Already Taken", dbResponse);
+//      assertEquals("Fail: Username Already Taken", dbResponse);
 //    }
 
 }
