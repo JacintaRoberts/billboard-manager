@@ -201,7 +201,8 @@ public class Viewer extends JFrame implements Runnable {
     /**
      * Adds the picture to the central panel - for pictureOnlyBillboard at this stage
      * @param image - the image that needs to be added to the panel
-     * TODO: The image should be scaled up to half the width and height of the screen and displayed in the centre.
+     * TODO: What if the screen height is larger than the screen width - do we need to account for this, or do we
+     *       assume it will always be run on a regular laptop with a larger screen width and screen height?
      */
     public void addPictureToPanel(BufferedImage image) {
         // Find the current dimensions of the picture
@@ -215,26 +216,60 @@ public class Viewer extends JFrame implements Runnable {
         // Initialise variables to store the new dimensions - set the initial value as the current dimensions
         double newWidth = originalWidth;
         double newHeight = originalHeight;
+
+        // How much the image width or height has changed - we will use this to alter the other dimension
         double ratio = 1;
 
         // Decide how to scale the image (or if we need to at all)
-        if (originalWidth > maxImageWidth || originalHeight > maxImageHeight) {
-            if (originalWidth < maxImageWidth && originalHeight > maxImageHeight) {
+        // If the width is too big but the height is smaller
+        if (originalWidth > maxImageWidth && originalHeight < maxImageHeight) {
+            newWidth = maxImageWidth;
+            ratio = newWidth/originalWidth;
+            newHeight = ratio*originalHeight;
+        }
+
+        // If the height is too big but the width is smaller
+        if (originalWidth < maxImageWidth && originalHeight > maxImageHeight) {
+            newHeight = maxImageHeight;
+            ratio = newHeight/originalHeight;
+            newWidth = ratio*originalWidth;
+        }
+
+
+        // If both the width and the height are too small or too big
+        if ((originalWidth < maxImageWidth && originalHeight < maxImageHeight) ||
+                (originalWidth > maxImageWidth && originalHeight > maxImageHeight)) {
+            if (originalWidth > originalHeight) {
+                newWidth = maxImageWidth;
+                ratio = newWidth/originalWidth;
+                newHeight = ratio*originalHeight;
+            }
+            else if (originalWidth < originalHeight) {
                 newHeight = maxImageHeight;
                 ratio = newHeight/originalHeight;
                 newWidth = ratio*originalWidth;
             }
-
+            // The width and height are the same i.e. the image is square. Make the width and height equal to the
+            // maximum screen height
+            else {
+                newWidth = maxImageHeight;
+                newHeight = maxImageHeight;
+            }
         }
 
+        // Round the dimensions properly and cast to int (since Math.round gives a long)
+        int finalWidth = (int) Math.round(newWidth);
+        int finalHeight = (int) Math.round(newHeight);
+
         // Testing
-        System.out.println("Maximum Image Dimensions: " + maxImageWidth + " x " + maxImageHeight);
-        System.out.println("Original Dimensions: " + originalWidth + " x " + originalHeight);
-        System.out.println("Ratio: " + ratio);
-        System.out.println("New Dimensions: " + newWidth + " x " + newHeight);
+//        System.out.println("Maximum Image Dimensions: " + maxImageWidth + " x " + maxImageHeight);
+//        System.out.println("Original Dimensions: " + originalWidth + " x " + originalHeight);
+//        System.out.println("Ratio: " + ratio);
+//        System.out.println("New Dimensions: " + newWidth + " x " + newHeight);
+//        System.out.println("Final Rounded Dimensions: " + finalWidth + " x " + finalHeight);
 
         // Scale the image
-        Image scaledImage = image.getScaledInstance( (int) newWidth, (int) newHeight, Image.SCALE_DEFAULT);
+        Image scaledImage = image.getScaledInstance(finalWidth, finalHeight, Image.SCALE_DEFAULT);
 
         // Set the scaled image as the JLabel
         pictureIcon.setImage(scaledImage);
@@ -467,9 +502,14 @@ public class Viewer extends JFrame implements Runnable {
     public void displayBillboard() {
         setupBillboard();
 
-        File fileToDisplay = extractXMLFile(13);
+        File fileToDisplay = extractXMLFile(16);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
-        formatBillboard(billboardData);
+//        formatBillboard(billboardData);
+
+        String picture = billboardData.get("Picture");
+        String pictureType = billboardData.get("Picture Type");
+        pictureOnlyBillboard(picture, pictureType);
+
 //        noBillboardToDisplay();
 
         listenEscapeKey();
