@@ -21,7 +21,7 @@ public class DbConnection {
      * <p>
      * This method always returns immediately.
      */
-    private DbConnection() {
+    private DbConnection() throws FileNotFoundException,IOException {
 
         // Set new properties class and initiate File input stream and connection
         Properties props = readProperties("src\\test\\resources\\db.props");
@@ -62,33 +62,28 @@ public class DbConnection {
      * @param  filelocation The location of the dbprops File
      * @return prop: A properties object containing information about the database
      */
-    public static Properties readProperties(String filelocation){
+    public static Properties readProperties(String filelocation) throws FileNotFoundException,IOException {
         // Set new properties class and initiate File input stream and connection
         Properties props = new Properties();
         FileInputStream in = null;
 
         // set input path and load
-        try {
-            in = new FileInputStream(filelocation);
-            props.load(in);
-            in.close();
-        } catch (FileNotFoundException fnfe){
-            System.err.println(fnfe);
-        } catch (IOException ex){
-            ex.printStackTrace();
-        }
+        in = new FileInputStream(filelocation);
+        props.load(in);
+        in.close();
         return props;
     }
 
 
-    /**
-     * Prints Database Query result to the system console for debugging purposes. This is mainly created for debugging
-     * and printing to server console when the application is running
-     * <p>
-     * This method always returns immediately.
-     * @param  st A Statement object which is the connection.createStatement()
-     * @param  query A String which has the query fed into executeQuery
-     */
+
+/**
+ * Prints Database Query result to the system console for debugging purposes. This is mainly created for debugging
+ * and printing to server console when the application is running
+ * <p>
+ * This method always returns immediately.
+ * @param  st A Statement object which is the connection.createStatement()
+ * @param  query A String which has the query fed into executeQuery
+ */
     public static void displayContents(Statement st, String query) throws SQLException {
         // get all current entries
         ResultSet rs = st.executeQuery(query);
