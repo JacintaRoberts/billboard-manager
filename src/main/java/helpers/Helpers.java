@@ -88,8 +88,10 @@ public class Helpers {
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
      * @param message String message to be send to the server (indicates method)
      * @return Server's response (either acknowledgement or data object from database connection)
-     */
-    public static Object initClient(String message) throws IOException, ClassNotFoundException {
+     * @throws IOException Thrown if unknown server host when communicating through sockets
+     * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     * */
+    public static Object initClient(String message) throws ClassNotFoundException, IOException {
         // Connect to server
         final String networkPropsFilePath = "src\\main\\resources\\network.props";
         final int port = Helpers.getPort(networkPropsFilePath);
