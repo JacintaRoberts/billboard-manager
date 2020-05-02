@@ -130,15 +130,15 @@ public class DbConnection {
         // use metadata to get the number of columns
         int columnCount = rs.getMetaData().getColumnCount();
 
+        // Loop through cursor
         while (rs.next()) {
-            DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"), rs.getString("Creator"), rs.getString("XMLCode"));
+            DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
+                                                      rs.getString("Creator"),
+                                                      rs.getString("XMLCode"));
             queryList.add(dbBillboard);
         }
 
         return queryList;
     }
-
-
-
 
 }
