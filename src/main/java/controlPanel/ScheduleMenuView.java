@@ -9,7 +9,7 @@ import java.awt.event.MouseListener;
 import java.time.Month;
 import java.util.ArrayList;
 
-public class ScheduleDailyView extends AbstractListView
+public class ScheduleMenuView extends AbstractGenericView
 {
     //*** VARIABLES**
     // --- ENUM ---
@@ -18,10 +18,10 @@ public class ScheduleDailyView extends AbstractListView
     /**
      * Constructor to create schedule view, use parent constructor.
      */
-    public ScheduleDailyView()
+    public ScheduleMenuView()
     {
-        super("Schedule Daily View");
-        view_type = VIEW_TYPE.SCHEDULE_DAY;
+        super("Schedule Menu View");
+        view_type = VIEW_TYPE.SCHEDULE_MENU;
     }
 
     @Override
@@ -30,8 +30,17 @@ public class ScheduleDailyView extends AbstractListView
     }
 
     @Override
+    void cleanUp() {
+
+    }
+
+    @Override
     public void update(Subject s) {
 
     }
 
+    @Override
+    void createComponents() {
+
+    }
 }
