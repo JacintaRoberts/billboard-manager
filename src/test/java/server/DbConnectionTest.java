@@ -3,6 +3,7 @@ package server;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.table.DefaultTableModel;
+import java.io.IOException;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -28,7 +29,7 @@ class DbConnectionTest {
      * Implementation: very similar to Server.readProps except diff properties/return data structure and PRIVATE!
      */
     @Test
-    public void readDbProps() {
+    public void readDbProps() throws IOException {
 
         // Set predetermined test cases
         String jdbcUrl = "jdbc:mysql://localhost:3306";
@@ -69,7 +70,7 @@ class DbConnectionTest {
      * Use: instance = DriverManager.getConnection(url + "/" + schema, username, password);
      */
     @Test
-    public void testDBConnection() {
+    public void testDBConnection() throws IOException {
         Connection connection = DbConnection.getInstance();
         assertTrue(connection!=null);
     }
@@ -80,7 +81,7 @@ class DbConnectionTest {
      * Expected Output: 3 tables will be present within the database
      */
     @Test
-    public void checkTableInDatabase() {
+    public void checkTableInDatabase() throws IOException {
 
         // Set connection
         Connection connection = DbConnection.getInstance();
@@ -134,7 +135,7 @@ class DbConnectionTest {
      * Expected Output: The Users table exists and has the columns specified
      */
     @Test
-    public void checkUsersTable() {
+    public void checkUsersTable() throws IOException {
 
         // Set SQL Query
         final String GET_USERS_COLS = "SHOW COLUMNS FROM users FROM billboarddatabase";
@@ -205,7 +206,7 @@ class DbConnectionTest {
      * Expected Output: The Billboard table exists and has the columns specified
      */
     @Test
-    public void checkBillboardsTable() {
+    public void checkBillboardsTable() throws IOException {
 
         // Set SQL Query
         final String GET_BILLBOARDS_COLS = "SHOW COLUMNS FROM Billboards FROM billboarddatabase";
@@ -283,7 +284,7 @@ class DbConnectionTest {
      * Expected Output: The Billboard table exists and has the columns specified
      */
     @Test
-    public void checkScheduleTable() {
+    public void checkScheduleTable() throws IOException {
 
         // Set SQL Query
         final String GET_SCHEDULES_COLS = "SHOW COLUMNS FROM Schedules FROM billboarddatabase";

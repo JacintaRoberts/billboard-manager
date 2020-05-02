@@ -11,7 +11,7 @@ public class DbUser {
     private String EditUser;
 
 
-    public DbUser(String Username, String Password, String CreateBillboard, String CreateBillboard) {
+    public DbUser(String Username, String Password, String CreateBillboard) {
     }
 
 

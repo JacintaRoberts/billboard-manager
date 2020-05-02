@@ -47,7 +47,7 @@ public class DbConnection {
      * <p>
      * @return a handle to the singleton instance of the database connection.
      */
-    public static Connection getInstance() {
+    public static Connection getInstance() throws IOException {
         if (instance == null) {
             new DbConnection();
         }

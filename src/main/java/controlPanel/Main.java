@@ -20,7 +20,7 @@ public class Main {
         LOGIN, HOME,
         BB_MENU, BB_LIST, BB_CREATE, BB_PREVIEW,
         USERS_MENU, USER_VIEW,USER_LIST, USER_EDIT,
-        SCHEDULE_WEEK, SCHEDULE_DAY, SCHEDULE_UPDATE;
+        SCHEDULE_WEEK, SCHEDULE_MENU, SCHEDULE_UPDATE;
     }
 
     /**
@@ -73,7 +73,7 @@ public class Main {
         app_views.put(USER_EDIT, new UserEditView());
         // schedule
         app_views.put(SCHEDULE_WEEK, new ScheduleWeekView());
-        app_views.put(SCHEDULE_DAY, new ScheduleDailyView());
+        app_views.put(SCHEDULE_MENU, new ScheduleMenuView());
         app_views.put(SCHEDULE_UPDATE, new ScheduleUpdateView());
 
         // set up the controller
