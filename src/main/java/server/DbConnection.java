@@ -4,6 +4,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Properties;
 
 public class DbConnection {
@@ -12,19 +14,6 @@ public class DbConnection {
     * The singleton instance of the database connection.
     */
     private static Connection instance = null;
-
-
-    /**
-     * Provides global access to the singleton instance of the database connection.
-     * <p>
-     * @return a handle to the singleton instance of the database connection.
-     */
-    public static Connection getInstance() {
-        if (instance == null) {
-            new DbConnection();
-        }
-        return instance;
-    }
 
 
     /**
@@ -44,15 +33,26 @@ public class DbConnection {
         String schema = props.getProperty("jdbc.schema");
 
         // get a connection
-        Connection connection = null;
         try{
-            connection = DriverManager.getConnection(url + "/" + schema, username, password);
+            instance = DriverManager.getConnection(url + "/" + schema,username, password);
         } catch (SQLException sqle){
             System.err.println(sqle);
         }
 
     }
 
+
+    /**
+     * Provides global access to the singleton instance of the database connection.
+     * <p>
+     * @return a handle to the singleton instance of the database connection.
+     */
+    public static Connection getInstance() {
+        if (instance == null) {
+            new DbConnection();
+        }
+        return instance;
+    }
 
 
     /**
@@ -81,7 +81,15 @@ public class DbConnection {
     }
 
 
-    private static void displayContents(Statement st, String query) throws SQLException {
+    /**
+     * Prints Database Query result to the system console for debugging purposes. This is mainly created for debugging
+     * and printing to server console when the application is running
+     * <p>
+     * This method always returns immediately.
+     * @param  st A Statement object which is the connection.createStatement()
+     * @param  query A String which has the query fed into executeQuery
+     */
+    public static void displayContents(Statement st, String query) throws SQLException {
         // get all current entries
         ResultSet rs = st.executeQuery(query);
 
@@ -104,6 +112,31 @@ public class DbConnection {
         System.out.printf("%n");
     }
 
+
+    /**
+     * Stores Database Queries: Billboard
+     * <p>
+     * This method always returns immediately.
+     * @param  st A Statement object which is the connection.createStatement()
+     * @param  query A String which has the query fed into executeQuery
+     */
+    public static ArrayList<DbBillboard> storeBillboardContents(Statement st, String query) throws SQLException {
+        // Set List to store contents in
+        ArrayList<DbBillboard> queryList = new ArrayList<>();
+
+        // get all current entries
+        ResultSet rs = st.executeQuery(query);
+
+        // use metadata to get the number of columns
+        int columnCount = rs.getMetaData().getColumnCount();
+
+        while (rs.next()) {
+            DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"), rs.getString("Creator"), rs.getString("XMLCode"));
+            queryList.add(dbBillboard);
+        }
+
+        return queryList;
+    }
 
 
 
