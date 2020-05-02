@@ -12,11 +12,16 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.*;
+import java.awt.font.FontRenderContext;
+import java.awt.font.LineBreakMeasurer;
+import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.text.AttributedCharacterIterator;
+import java.text.AttributedString;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -35,6 +40,8 @@ public class Viewer extends JFrame implements Runnable {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private static double screenHeight = screenSize.height;
     private static double screenWidth = screenSize.width;
+    private static double screenWidthBorder = 75;
+    private static double screenHeightBorder = 50;
 
 
     /**
@@ -183,15 +190,54 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
+     * Calculates the largest font size for the message string, which must fit on one line on the screen.
+     * @param message - the string to display on the screen
+     * @return fontSize - the largest font size that the message can be displayed at
+     */
+    public int getMessageFontSize(String message) {
+        // Get the current font size and initialise the variable to return
+        int currentFontSize = messageLabel.getFont().getSize();
+        int fontSize = currentFontSize;
+
+        // Calculate what the width of the string would be based on the current font size
+        FontMetrics fontMetrics = messageLabel.getFontMetrics(new Font(messageLabel.getFont().getName(), Font.BOLD,
+                currentFontSize));
+        double stringWidth = fontMetrics.stringWidth(message);
+
+        // Testing
+//        System.out.println("screenWidth = " + screenWidth);
+//        System.out.println("stringWidth = " + stringWidth);
+//        System.out.println("fontSize = " + fontSize);
+
+        // While the current width of the string is less than the screen width minus some threshold for the border
+        while (stringWidth < (screenWidth - screenWidthBorder*2)) {
+            // Increase the font size
+            fontSize = fontSize + 1;
+
+            // Recalculate the string width
+            fontMetrics = messageLabel.getFontMetrics(new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize));
+            stringWidth = fontMetrics.stringWidth(message);
+        }
+
+        // Testing
+//        System.out.println("stringWidth = " + stringWidth);
+//        System.out.println("fontSize = " + fontSize);
+
+        return fontSize;
+    }
+
+
+    /**
      * Displays a billboard which has only a message
      * @param message - a string which stores the message to display
-     * TODO: The message should be displayed almost as large as possible, within the constraints that the text cannot
-     *       be broken across multiple lines and it must all fit on the screen.
      */
     public void messageOnlyBillboard(String message) {
         // Set the text and font of the message label
         messageLabel.setText(message);
-        messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
+
+        // Choose the font size so the message fits in one line
+        int fontSize = getMessageFontSize(message);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize));
 
         // Add the message label to the central panel in the JFrame
         mainPanel.add(messageLabel);
@@ -201,8 +247,7 @@ public class Viewer extends JFrame implements Runnable {
     /**
      * Adds the picture to the central panel - for pictureOnlyBillboard at this stage
      * @param image - the image that needs to be added to the panel
-     * TODO: What if the screen height is larger than the screen width - do we need to account for this, or do we
-     *       assume it will always be run on a regular laptop with a larger screen width and screen height?
+     * TODO: Edit this method to account for other sizes of pictures also.
      */
     public void addPictureToPanel(BufferedImage image) {
         // Find the current dimensions of the picture
@@ -288,6 +333,7 @@ public class Viewer extends JFrame implements Runnable {
      * Displays a billboard which has only a picture
      * @param picture - a string which is the picture to display, this could be in the form of a url or data attribute
      * @param pictureType - a string which is either url or data, so that we can decode the image
+     * TODO: Move some stuff out of this method and create a new method which reads in an images and returns the image.
      */
     public void pictureOnlyBillboard(String picture, String pictureType) {
         // Decide if it's a url or data attribute
@@ -324,6 +370,57 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
+     * Calculates the largest font size for the information string. The text should be displayed in the centre, with
+     * word wrapping and font size chosen so that the text fills up no more than 75% of the screen's width and 50% of
+     * the screen's height.
+     * @param information - the string to display on the screen
+     * @return fontSize - the largest font size that the information text can be displayed at
+     * TODO: Somehow calculate the number of lines.
+     */
+    public int getInformationFontSize(String information) {
+        // Get the current font size and initialise the variable to return
+        int currentFontSize = informationLabel.getFont().getSize();
+        int fontSize = currentFontSize;
+
+        // Calculate what the height of the string would be based on the current font size
+        FontMetrics fontMetrics = informationLabel.getFontMetrics(new Font(informationLabel.getFont().getName(),
+                Font.BOLD, currentFontSize));
+        double lineHeight = fontMetrics.getHeight();
+        double numLines = 2;
+        double stringHeight = lineHeight * numLines;
+        double maxStringHeight = screenHeight*0.5;
+
+        // Testing
+        System.out.println("maxStringHeight = " + maxStringHeight);
+        System.out.println("lineHeight = " + lineHeight);
+        System.out.println("numLines = " + numLines);
+        System.out.println("stringHeight = " + stringHeight);
+        System.out.println("fontSize = " + fontSize + "\n");
+
+        // While the current height of the string is less than the maximum string height (50% of the screen height)
+        while (stringHeight < maxStringHeight) {
+            // Increase the font size
+            fontSize = fontSize + 1;
+
+            // Recalculate the string height
+            fontMetrics = informationLabel.getFontMetrics(new Font(informationLabel.getFont().getName(), Font.BOLD, fontSize));
+            lineHeight = fontMetrics.getHeight();
+            numLines = 2;
+            stringHeight = lineHeight * numLines;
+        }
+
+        // Testing
+        System.out.println("lineHeight = " + lineHeight);
+        System.out.println("numLines = " + numLines);
+        System.out.println("stringHeight = " + stringHeight);
+        System.out.println("lineHeight = " + lineHeight);
+        System.out.println("fontSize = " + fontSize);
+
+        return fontSize;
+    }
+
+
+    /**
      * Displays a billboard which has only a information
      * @param information - a string which stores the information to display
      * TODO: The text should be displayed in the centre, with word wrapping and font size chosen so that the text fills
@@ -331,18 +428,20 @@ public class Viewer extends JFrame implements Runnable {
      */
     public void informationOnlyBillboard(String information) {
         // Set the text and font of the information label
-        informationLabel.setText("<html><div style='text-align: center;'>" + information + "</div></html>");
-        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.PLAIN, 30));
+        double maxStringWidth = screenWidth*0.75;
+        String informationHTML = "<html><div style='width: " + maxStringWidth + "; text-align: center;'>" + information
+                + "</div></html>";
+        informationLabel.setText(informationHTML);
+        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.BOLD, 40));
+
+        int fontSize = getInformationFontSize(information);
+//        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.BOLD, fontSize));
 
         // Add information label to the central panel in the JFrame
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-//        constraints.gridheight = 1;
-//        constraints.gridwidth = 1;
-//        constraints.gridx = 0;
-//        constraints.gridy = 0;
-        constraints.ipadx = 800;
 
+        // Add information to main panel
         mainPanel.add(informationLabel, constraints);
     }
 
@@ -397,11 +496,6 @@ public class Viewer extends JFrame implements Runnable {
         String information = billboardData.get("Information");
         String informationColour = billboardData.get("Information Colour");
 
-        // If there is a background colour, format the JFrame so that this is visible
-        if (backgroundColour != null) {
-            mainPanel.setBackground(Color.decode(backgroundColour));
-        }
-
         // Check all cases and decide which method to call
         if (message != null && picture != null && information != null) {
             allFeaturesBillboard(billboardData);
@@ -425,28 +519,51 @@ public class Viewer extends JFrame implements Runnable {
             informationOnlyBillboard(information);
         }
 
+        // Check if there's a specific background colour
+        if (backgroundColour != null) {
+            mainPanel.setBackground(Color.decode(backgroundColour));
+        }
+        else {
+            mainPanel.setBackground(Color.WHITE);
+        }
+
         // Check if there's a specific message text colour
-        if (messageColour != null) {
-            messageLabel.setForeground(Color.decode(messageColour));
-            messageLabel.setBackground(Color.decode(messageColour));
+        if (message != null) {
+            if (messageColour != null) {
+                messageLabel.setForeground(Color.decode(messageColour));
+                messageLabel.setBackground(Color.decode(messageColour));
+            }
+            else {
+                messageLabel.setForeground(Color.BLACK);
+                messageLabel.setBackground(Color.BLACK);
+            }
         }
 
         // Check if there's a specific information text colour
-        if (informationColour != null) {
-            informationLabel.setForeground(Color.decode(informationColour));
-            informationLabel.setBackground(Color.decode(informationColour));
+        if (information != null) {
+            if (informationColour != null) {
+                informationLabel.setForeground(Color.decode(informationColour));
+                informationLabel.setBackground(Color.decode(informationColour));
+            }
+            else {
+                informationLabel.setForeground(Color.BLACK);
+                informationLabel.setBackground(Color.BLACK);
+            }
         }
 
     }
 
     /**
      * If there are no billboards to display, display a message for the user.
-     * TODO: Formatting exactly the same as messageOnlyBillboard
      */
     public void noBillboardToDisplay() {
         // Create a label to display a message and format it
-        messageLabel.setText("There are no billboards to display right now.");
-        messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
+        String noBillboardMessage = "There are no billboards to display right now.";
+        messageLabel.setText(noBillboardMessage);
+
+        // Choose the correct font size
+        int fontSize = getMessageFontSize(noBillboardMessage);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize));
 
         // Add the message label to the JFrame
         mainPanel.add(messageLabel);
@@ -502,13 +619,14 @@ public class Viewer extends JFrame implements Runnable {
     public void displayBillboard() {
         setupBillboard();
 
-        File fileToDisplay = extractXMLFile(16);
+        File fileToDisplay = extractXMLFile(2);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
-//        formatBillboard(billboardData);
 
-        String picture = billboardData.get("Picture");
-        String pictureType = billboardData.get("Picture Type");
-        pictureOnlyBillboard(picture, pictureType);
+        formatBillboard(billboardData);
+
+//        String picture = billboardData.get("Picture");
+//        String pictureType = billboardData.get("Picture Type");
+//        pictureOnlyBillboard(picture, pictureType);
 
 //        noBillboardToDisplay();
 
@@ -519,14 +637,15 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Displays an error if the viewer cannot connect to the server
-     * TODO: Formatting exactly the same as messageOnlyBillboard
      */
     public void displayError() {
         setupBillboard();
 
         // Add an error message label to the central panel of the JFrame
-        messageLabel.setText("Error: Cannot connect to server. Trying again now...");
-        messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.PLAIN, 50));
+        String errorMessage = "Error: Cannot connect to server. Trying again now...";
+        messageLabel.setText(errorMessage);
+        int fontSize = getMessageFontSize(errorMessage);
+        messageLabel.setFont(new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize));
         mainPanel.add(messageLabel);
 
         listenEscapeKey();
