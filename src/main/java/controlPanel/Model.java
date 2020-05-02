@@ -3,6 +3,8 @@ package controlPanel;
 import observer.Subject;
 import controlPanel.Main.VIEW_TYPE;
 
+import java.awt.*;
+
 public class Model extends Subject
 {
     // *** VARIABLES**
@@ -49,6 +51,8 @@ public class Model extends Subject
         // redefine previous and current view
         this.previousView = this.currentView;
         this.currentView = newView;
+        System.out.println("prev set: " + previousView);
+        System.out.println("current set: " + currentView);
     }
 
     /**

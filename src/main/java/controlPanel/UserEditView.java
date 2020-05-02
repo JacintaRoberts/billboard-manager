@@ -2,6 +2,9 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 
+/**
+ * View designed for editing users.
+ */
 public class UserEditView extends AbstractUserView
 {
     // *** DECLARE VARIABLES**
@@ -24,5 +27,10 @@ public class UserEditView extends AbstractUserView
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
+    }
+
+    @Override
+    void cleanUp() {
+
     }
 }

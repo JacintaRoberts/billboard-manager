@@ -12,16 +12,12 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.*;
-import java.awt.font.FontRenderContext;
-import java.awt.font.LineBreakMeasurer;
-import java.awt.font.TextAttribute;
 import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.Socket;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.text.AttributedCharacterIterator;
-import java.text.AttributedString;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -660,57 +656,16 @@ public class Viewer extends JFrame implements Runnable {
 //        displayError();
     }
 
-
     public static void main(String[] args ) {
-        // Read port number and ip address from network.props
-        final String networkPropsFilePath = "src\\main\\resources\\network.props";
-        final int port = Helpers.getPort(networkPropsFilePath);
-        final String ip = Helpers.getIp(networkPropsFilePath);
-
+        //TODO: NEED TO FACILITATE THE CONNECTION EVERY 15 SECONDS
         try {
-            // Connect to server
-            Socket socket = new Socket(ip, port);
-
-            // Write to the server
-            OutputStream outputStream = socket.getOutputStream();
-            InputStream inputStream = socket.getInputStream();
-
-            ObjectOutputStream oos = new ObjectOutputStream(outputStream);
-            ObjectInputStream ois = new ObjectInputStream(inputStream);
-
-            int[] ar = {1, 2, 3};
-            oos.writeObject("Hello server");
-            oos.writeObject(ar);
-
-            // oos.writeUTF("Hello server");
-            // oos.writeUTF("1");
-            // oos.flush();
-            // System.out.println("Message from server: " + ois.readUTF());
-            // oos.writeUTF("2");
-            // oos.writeUTF("3");
-            oos.flush();
-
-            ois.close();
-            oos.close();
-
-            // System.out.println("Connected to server");
-            // outputStream.write(42);
-            // System.out.println("Sent byte");
-
-            // System.out.print("Received byte: " + inputStream.read());
-
-            // BufferedOutputStream bos = new BufferedOutputStream(outputStream);
-            // bos.write(42); //0-255
-            // bos.flush();
-            // bos.close();
-
-            socket.close();
-        } catch (IOException e) { // Could not connect to server
-            // TODO: Billboard show something alternate if cannot connect to server
+            Object serverResponse = Helpers.initClient("Viewer");
+            System.out.println("Received from server: " + serverResponse.toString());
+        } catch (IOException | ClassNotFoundException e) { // Could not connect to server
+            //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
             System.err.println("Exception caught: " + e);
         }
-
         SwingUtilities.invokeLater(new Viewer("Billboard Viewer"));
+        //displayBillboard();
     }
-
 }

@@ -40,6 +40,11 @@ public class UsersMenuView extends AbstractGenericView
     }
 
     @Override
+    void cleanUp() {
+
+    }
+
+    @Override
     public void update(Subject s)
     {
 

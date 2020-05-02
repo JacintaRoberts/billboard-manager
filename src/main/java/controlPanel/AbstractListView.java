@@ -33,6 +33,7 @@ public abstract class AbstractListView extends AbstractGenericView
         getContentPane().add(listPanel, BorderLayout.CENTER);
     }
 
+    // add content dynamically to the list panel. It's design is to associate the added buttons with the correct listeners.
     protected void addContent(String[] contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
     {
         for (String contentName : contentArray)
@@ -81,10 +82,9 @@ public abstract class AbstractListView extends AbstractGenericView
      * Remove everything in list panel upon re-entering screen. Each time the list of content may be different so this
      * information should not be persistent whilst hidden.
      */
-    protected void cleanUp()
+    @Override
+    void cleanUp()
     {
-        listPanel.removeAll();
-        listPanel.revalidate();
-        listPanel.repaint();
+
     }
 }

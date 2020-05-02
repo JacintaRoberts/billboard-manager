@@ -22,6 +22,7 @@ public class BBListView extends AbstractListView
         view_type = VIEW_TYPE.BB_LIST;
     }
 
+
     @Override
     public void update(Subject s)
     {
