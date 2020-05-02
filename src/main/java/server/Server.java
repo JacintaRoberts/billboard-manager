@@ -19,8 +19,9 @@ public class Server {
      * General usage notes: always flush streams at the correct time + interleave the operations so that they
      * are in the same order. Write, read on client = Read, write on server (flush in between).
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
+     * @throws IOException
      */
-    private static void initServer() throws IOException, ClassNotFoundException {
+    private static void initServer() throws IOException {
         // Read port number from network.props
         //final String networkPropsFilePath = "src\\main\\resources\\network.props";
         final int port = Helpers.getPort(networkPropsFilePath);
@@ -59,19 +60,23 @@ public class Server {
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
     private static Object callServerMethod(String clientRequest) {
-        switch (clientRequest) {
+        String method = clientRequest.split(",")[0];
+        switch (method) {
             case "Test": {
                 return  "Test successful!";
             }
             // TODO: THIS IS GOING TO BE A LONG SWITCH STATEMENT BUT THIS IS THE IDEA, WOULD LIKE TO DO:
             //  clientRequest.startsWith("UserAdmin,AddUser") because we will likely append the
             //  arguments: username and pass etc. to the end...IS THERE A BETTER WAY?
-            case "UserAdmin,AddUser":
+            case "AddUser":
                 return UserAdmin.addUser();
+            case "Logout":
+                String sessionToken = clientRequest.split(",")[1]; // 2nd argument should be the session token
+                return UserAdmin.logout(sessionToken);
             case "Viewer":
                 return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
             default: {
-                return "Connection successful!";
+                return "No method requested, but Connection successful!";
             }
         }
     }
@@ -80,7 +85,7 @@ public class Server {
         //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
         try {
             initServer();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException e) {
             System.err.println("Exception caught: " + e);
         }
     }

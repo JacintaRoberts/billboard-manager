@@ -32,8 +32,8 @@ public class Main {
     {
         // TODO: ONLY PUT THIS IN THE CP BACKEND FUNCTIONS WHEN NEED TO CONNECT TO SERVER - HERE FOR TESTING
         try {
-            //Object serverResponse = initClient("Test");
-            Object serverResponse = Helpers.initClient("UserAdmin,AddUser");
+            //Object serverResponse = initClient("Test,");
+            Object serverResponse = Helpers.initClient("Logout,sessionToken");
             //Object serverResponse = initClient("Something else...");
             System.out.println("Received from server: " + serverResponse.toString());
         } catch (IOException | ClassNotFoundException e) { // Could not connect to server
