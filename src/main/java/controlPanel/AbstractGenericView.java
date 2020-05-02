@@ -30,11 +30,11 @@ public abstract class AbstractGenericView extends AbstractView
     {
         // assign frame name
         super(frame_name);
-        // create components specific to view
-        createComponents();
         // add profile and nav panel
         addProfilePanel();
         addNavPanel();
+        // create components specific to view
+        createComponents();
     }
 
     /**
@@ -109,4 +109,13 @@ public abstract class AbstractGenericView extends AbstractView
      * @param listener Mouse Click listener
      */
     protected void addViewUserButtonListener(MouseListener listener) {profileButton.addMouseListener(listener);}
+
+    /**
+     * Get nav panel such that abstract classes can edit
+     * @return
+     */
+    protected JPanel getNavPanel()
+    {
+        return navPanel;
+    }
 }

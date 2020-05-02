@@ -6,6 +6,8 @@ import observer.Subject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.time.Month;
 import java.util.ArrayList;
 
@@ -17,7 +19,6 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JPanel recurrencePanel;
     //--- Labels ---
     private JLabel bbNameLabel;
-    private JLabel bbNameText;
     private JLabel startTimeLabel;
     private JLabel endTimeLabel;
     private JLabel durationLabel;
@@ -40,10 +41,14 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JButton submitButton;
     private JButton cancelButton;
     // --- Text Field ---
+    private JLabel bbNameText;
     private JTextField startTimeText;
     private JTextField endTimeText;
     private JTextField durationText;
     // --- Date Field ---
+    private DateFormat dateFormat;
+    private JFormattedTextField dateField;
+
 
     // --- ENUM ---
     private VIEW_TYPE view_type;
@@ -66,11 +71,18 @@ public class ScheduleUpdateView extends AbstractGenericView
         timePanel.setLayout(new GridLayout(6,2));
         // create labels
         bbNameLabel = new JLabel("Billboard Name: ");
-        bbNameText = new JLabel("");
+        bbNameText = new JLabel("Myer Sale");
+
+        dateFormat = new SimpleDateFormat("dd MMM YYYY");
+        dateField = new JFormattedTextField(dateFormat);
+        dateField.setName("StartDate");
+        dateField.setColumns(5);
+        startDateLabel = new JLabel("Start Date:");
+        startDateLabel.setLabelFor(dateField);
+
         startTimeLabel = new JLabel("Start Time:");
         endTimeLabel = new JLabel("End Time:");
         durationLabel = new JLabel("Duration: ");
-        startDateLabel = new JLabel("Start Date: ");
         endDateLabel = new JLabel("End Date: ");
         timePanel.add(bbNameLabel);
         timePanel.add(bbNameText);
@@ -78,6 +90,8 @@ public class ScheduleUpdateView extends AbstractGenericView
         timePanel.add(endTimeLabel);
         timePanel.add(durationLabel);
         timePanel.add(startDateLabel);
+        timePanel.add(dateField);
+
         timePanel.add(endDateLabel);
         getContentPane().add(timePanel, BorderLayout.WEST);
 
@@ -118,6 +132,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         recurrencePanel.add(repeatLabel);
         recurrencePanel.add(repeatCheckBox);
         getContentPane().add(recurrencePanel, BorderLayout.EAST);
+
     }
 
     @Override
@@ -134,6 +149,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     public void update(Subject s) {
 
     }
+
 
 //    /**
 //     * Add listener to handle mouse click of submit button.

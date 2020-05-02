@@ -3,6 +3,7 @@ package controlPanel;
 import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.HashMap;
@@ -38,8 +39,8 @@ public class Controller
         addLogInListener();
         addHomeListener();
 
-        addScheduleMonthlyListener();
-        addScheduleDailyListener();
+        addScheduleWeekListener();
+        addScheduleListener();
 
         addUserMenuListener();
         addUserViewListener();
@@ -183,6 +184,12 @@ public class Controller
         addGenericListeners(BB_CREATE);
         BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
         // FIXME: lots to come!
+        bbCreateView.addScheduleButtonListener(new EditScheduleButtonListener());
+        bbCreateView.addBBBackgroundColourListener(new ColourListener());
+        bbCreateView.addBBTitleListener(new TitleListener());
+        bbCreateView.addBBTextListener(new BBTextListener());
+        bbCreateView.addBBPhotoListener(new BBPhotoListener());
+        bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -200,26 +207,20 @@ public class Controller
 
     //---------------------------------- SCHEDULE LISTENER ------------------------------
 
-    // FIXME: change to WEEKLY listener
-    private void addScheduleMonthlyListener()
+
+    private void addScheduleWeekListener()
     {
-        addGenericListeners(SCHEDULE_MONTH);
-        ScheduleMonthlyView scheduleMonthlyView = (ScheduleMonthlyView) views.get(SCHEDULE_MONTH);
-        scheduleMonthlyView.addDayButtonListener(new ScheduleDailyListener());
-        views.put(SCHEDULE_MONTH, scheduleMonthlyView);
+        addGenericListeners(SCHEDULE_WEEK);
+        ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+        views.put(SCHEDULE_WEEK, scheduleWeekView);
     }
 
-    /**
-     * DAILY SCHEDULE LISTENERS: designed to add listeners to the DAILY SCHEDULE VIEW.
-     * Listeners include: Home, Back and Profile.
-     */
-    private void addScheduleDailyListener()
+    private void addScheduleListener()
     {
-        addGenericListeners(SCHEDULE_DAY);
-//        ScheduleDailyView scheduleDailyView = (ScheduleDailyView) views.get(SCHEDULE_DAY);
-//        views.put(SCHEDULE_DAY, scheduleDailyView);
+        addGenericListeners(SCHEDULE_UPDATE);
+        ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
-
 
    /*
      #################################### VIEW MANAGEMENT ####################################
@@ -303,6 +304,14 @@ public class Controller
             case LOGIN:
                 System.out.println("Check LogIn permission");
                 break;
+            case SCHEDULE_WEEK:
+                System.out.println("Check Schedule permission");
+                System.out.println("Populate Table");
+                ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+                // get information from the database (send username, session token) returns scheduleObject
+                // Billboard Schedule: day, time, bb name
+                String[][] billboardSchedule = new String[][] {{"1-2pm", "Myer's Sale"},{"6-7am", "Spotlight Winter Sale"}};
+                scheduleWeekView.populateSchedule(billboardSchedule);
         }
     }
 
@@ -612,6 +621,91 @@ public class Controller
         }
     }
 
+    /**
+     * Listener to handle background colour BB mouse clicks.
+     */
+    private class ColourListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Background color button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.setColour(Color.blue);
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle title BB mouse clicks.
+     */
+    private class TitleListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Title button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.setBBTitle("Billboard Title");
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle text BB mouse clicks.
+     */
+    private class BBTextListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Text button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.setBBText();
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle photo BB mouse clicks.
+     */
+    private class BBPhotoListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Photo button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.browsePhotos();
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle xml import BB mouse clicks.
+     */
+    private class BBXMLImportListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: XML import button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.browseXMLImport();
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
     //---------------------------------- SCHEDULE LISTENERS ------------------------------
 
     /**
@@ -625,35 +719,7 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Schedule button clicked");
             // navigate to home screen
-            updateView(SCHEDULE_MONTH);
-        }
-    }
-
-    /**
-     * Listener to handle List daily schedule mouse clicks.
-     */
-    private class ScheduleDailyListener extends MouseAdapter
-    {
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            System.out.println("CONTROLLER LEVEL: List Day Schedule button clicked");
-
-            JButton button = (JButton) e.getSource();
-            System.out.println("BB Name: " + button.getName());
-
-            // getName() is equivalent to the day's date
-            // FIXME: send req to server to get all bb for that date, returning an array of strings (BB names) or objects
-
-            // get daily schedule view
-            ScheduleDailyView scheduleDailyView = (ScheduleDailyView) views.get(SCHEDULE_DAY);
-            String[] stringArray = {"8 - 9am: Myer's Biggest Sale","9.30 - 10am Kathmandu Summer Sale", "11 - 12pm Quilton's Covid Special", "1 - 3pm Macca's New Essentials Range"};
-            // FIXME: required to create edit, delete and view listeners!
-            scheduleDailyView.addContent(stringArray, new EditScheduleButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
-            views.put(SCHEDULE_DAY, scheduleDailyView);
-
-            // navigate to bb list screen
-            updateView(SCHEDULE_DAY);
+            updateView(SCHEDULE_WEEK);
         }
     }
 
@@ -669,10 +735,11 @@ public class Controller
             JButton button = (JButton) e.getSource();
             System.out.println("BB Name: " + button.getName());
             // navigate to edit BB screen
-            // FIXME: CHANGE TO BB_EDIT!!!
             updateView(SCHEDULE_UPDATE);
         }
     }
+}
+
 
 //    /**
 //     * Listener to handle Schedule Day mouse clicks.
@@ -695,4 +762,30 @@ public class Controller
 //        }
 //    }
 
-}
+//    /**
+//     * Listener to handle List daily schedule mouse clicks.
+//     */
+//    private class ScheduleDailyListener extends MouseAdapter
+//    {
+//        @Override
+//        public void mouseClicked(MouseEvent e)
+//        {
+//            System.out.println("CONTROLLER LEVEL: List Day Schedule button clicked");
+//
+//            JButton button = (JButton) e.getSource();
+//            System.out.println("BB Name: " + button.getName());
+//
+//            // getName() is equivalent to the day's date
+//            // FIXME: send req to server to get all bb for that date, returning an array of strings (BB names) or objects
+//
+//            // get daily schedule view
+//            ScheduleDailyView scheduleDailyView = (ScheduleDailyView) views.get(SCHEDULE_DAY);
+//            String[] stringArray = {"8 - 9am: Myer's Biggest Sale","9.30 - 10am Kathmandu Summer Sale", "11 - 12pm Quilton's Covid Special", "1 - 3pm Macca's New Essentials Range"};
+//            // FIXME: required to create edit, delete and view listeners!
+//            scheduleDailyView.addContent(stringArray, new EditScheduleButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+//            views.put(SCHEDULE_DAY, scheduleDailyView);
+//
+//            // navigate to bb list screen
+//            updateView(SCHEDULE_DAY);
+//        }
+//    }
