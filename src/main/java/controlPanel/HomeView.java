@@ -43,6 +43,11 @@ public class HomeView extends AbstractGenericView
     }
 
     @Override
+    void cleanUp() {
+
+    }
+
+    @Override
     VIEW_TYPE getEnum()
     {
         return view_type;

@@ -31,7 +31,7 @@ public class BBCreateView extends AbstractGenericView
     public BBCreateView()
     {
         super("Create Billboard");
-        view_type = VIEW_TYPE.CREATE_BB;
+        view_type = VIEW_TYPE.BB_CREATE;
     }
 
     @Override
@@ -75,6 +75,11 @@ public class BBCreateView extends AbstractGenericView
 //        colorChooser = new JColorChooser();
 //        optionsPanel.add(colorChooser);
 //        getContentPane().add(optionsPanel, BorderLayout.CENTER);
+    }
+
+    @Override
+    void cleanUp() {
+
     }
 
     @Override

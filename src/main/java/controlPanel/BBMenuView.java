@@ -39,6 +39,11 @@ public class BBMenuView extends AbstractGenericView
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
+    @Override
+    void cleanUp() {
+
+    }
+
     /**
      * Update is used when model is updated and view needs to change accordingly!
      * @param s The subject that has been updated.
@@ -52,6 +57,11 @@ public class BBMenuView extends AbstractGenericView
     public void addBBCreateButtonListener(MouseListener listener)
     {
         createBillboardButton.addMouseListener(listener);
+    }
+
+    public void addBBListListener(MouseListener listener)
+    {
+        billboardsButton.addMouseListener(listener);
     }
 
     @Override

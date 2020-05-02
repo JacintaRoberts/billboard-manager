@@ -1,15 +1,11 @@
 package controlPanel;
 
 import observer.Subject;
-
-import javax.swing.*;
-
 public class UserListView extends AbstractListView
 {
     // *** VARIABLES**
     // --- ENUM ---
     private Main.VIEW_TYPE view_type;
-
 
     public UserListView()
     {
@@ -23,7 +19,8 @@ public class UserListView extends AbstractListView
     }
 
     @Override
-    public void update(Subject s) {
+    public void update(Subject s)
+    {
 
     }
 }
