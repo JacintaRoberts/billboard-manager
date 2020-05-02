@@ -11,7 +11,7 @@ public class MyClass implements Serializable {
 
     @Override
     public String toString() {
-        return "MyClass numer is " + val;
+        return "MyClass number is " + val;
     }
 
     public int getVal() {

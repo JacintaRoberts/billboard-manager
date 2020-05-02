@@ -1,6 +1,13 @@
 package controlPanel;
 
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class UserControlTest {
     /* Test 0: Declaring UserControl object
      * Description: UserControl object should be running in background on application start.
@@ -12,21 +19,21 @@ class UserControlTest {
      * Description: UserControl Object should be able to be created on logged in user request from control panel
      * Expected Output: UserControl object is instantiated from UserControl class
      */
-//    @BeforeEach
-//    @Test
-//    public void setUpUserControl() {
-//      userControl = new UserControl("CAB302");
-//    }
+    @BeforeEach
+    @Test
+    public void setUpUserControl() {
+      userControl = new UserControl();
+    }
 
     /* Test 2: Log out Request (Success)
      * Description: User's request to log out is sent to the server and an acknowledgement is received
      * Expected Output: Successful log out of the user, acknowledgement received and the session token is expired.
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void logOut() {
-//      String serverResponse = userControl.logout(sessionToken)
-//      assertEquals(serverResponse, "Pass: Logout Successful");
-//    }
+    @Test
+    public void logOut() throws IOException, ClassNotFoundException {
+      String serverResponse = userControl.logout("sessionToken");
+      assertEquals(serverResponse, "Pass: Logout Successful");
+    }
 
 
     /* Test 3: Request to server to list Current Users (Success)

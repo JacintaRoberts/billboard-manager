@@ -1,5 +1,8 @@
 package controlPanel;
 
+import helpers.Helpers;
+
+import java.io.IOException;
 import java.util.HashMap;
 import static controlPanel.Main.VIEW_TYPE.*;
 
@@ -27,6 +30,17 @@ public class Main {
      */
     public static void main(String[] args)
     {
+        // TODO: ONLY PUT THIS IN THE CP BACKEND FUNCTIONS WHEN NEED TO CONNECT TO SERVER - HERE FOR TESTING
+        try {
+            //Object serverResponse = initClient("Test,");
+            Object serverResponse = Helpers.initClient("Logout,sessionToken");
+            //Object serverResponse = initClient("Something else...");
+            System.out.println("Received from server: " + serverResponse.toString());
+        } catch (IOException | ClassNotFoundException e) { // Could not connect to server
+            //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
+            System.err.println("Exception caught: " + e);
+        }
+
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
