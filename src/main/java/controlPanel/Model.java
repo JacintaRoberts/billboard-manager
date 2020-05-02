@@ -3,6 +3,8 @@ package controlPanel;
 import observer.Subject;
 import controlPanel.Main.VIEW_TYPE;
 
+import java.awt.*;
+
 public class Model extends Subject
 {
     // *** VARIABLES**

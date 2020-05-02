@@ -55,7 +55,7 @@ public class ScheduleWeekView extends AbstractGenericView
         // initialise the day schedule map
         dayScheduleMap = new HashMap<>();
 
-        // create 7 scrollable tables
+        // create 7 day scrollable tables
         for(String days : dayLabels)
         {
             // create table model and add columns
@@ -108,7 +108,7 @@ public class ScheduleWeekView extends AbstractGenericView
      * @param bbScheduleArray
      */
     // FIXME: update when we know what the BBInfoObject will look like!
-    protected void populatedSchedule(String[][] bbScheduleArray)
+    protected void populateSchedule(String[][] bbScheduleArray)
     {
         // loop thru each day's model and populate information
         for(DefaultTableModel model : dayScheduleMap.values())
