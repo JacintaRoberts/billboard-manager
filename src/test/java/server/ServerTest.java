@@ -3,6 +3,9 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import static org.junit.jupiter.api.Assertions.*;
+
 class ServerTest {
     /* Test 0: Declaring Server object
      * Description: Server object should be running in background on application start.
@@ -27,121 +30,89 @@ class ServerTest {
      * listenForConnections(portNumber, *optional* ip); -> default ip is localhost if not specified.
      * Expected Output: Server successfully listens for connections on localhost at port 4444
      */
-//    @Test
-//    public void listenForConnection() {
-//        server.listenForConnections(4444);
-//    }
-//
+    @Test
+    public void listenForConnection() throws IOException {
+        server.listenForConnections(4444);
+    }
 
-    /* Test 3: Listen for Connection with a Specific IP (Success)
-     * Description: Check that the server is able to listen for connections on a specific IP address
-     * listenForConnections(port, *optional* addr); -> default addr is localhost if not specified
-     * Suggested implementation: InetAddress.getByAddress(byte[]) returns InetAddress which is passed into ->
-     * ServerSocket sock = new ServerSocket(port, backlog, addr); (backlog = 50 as a default) to facilitate this.
-     * Relevant tutorial: https://docs.oracle.com/javase/tutorial/networking/sockets/clientServer.html
-     * Expected Output: Server successfully listens for connection on specified IP address at port 4444
-     */
-//    @Test
-//    public void listenForConnectionSpecificIP() {
-//        // Specific IP to be used
-//        byte[] addr = server.getIp(""src\\test\\resources\\network.props"");
-//        server.listenForConnections(4444, addr);
-//    }
-
-    /* Test 4: Send acknowledgement to client
-     * Description: Send appropriate acknowledgements made to client based on commandType received
-     * Expected Output: Assert true as sendAcknowledgment should return a string containing message to send to client
-     */
-//    @Test
-//    public void sendAcknowledgement() {
-//        assertTrue(server.sendAcknowledgement(String[] commandType) instanceof String[]);
-//    }
-
-    /* Test 5: Login Response (Success)
+    /* Test 3: Login Response (Success)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return a valid session token.
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void loginResponse() {
-//          // Ensure this test user exists with this password in the fake DB where this method is implemented
-//            sessionToken response = server.loginResponse("test0", "pass")
-//        });
-//    }
+    @Test
+    public void loginResponse() {
+        // Ensure this test user exists with this password in the fake DB where this method is implemented
+        String serverResponse = server.login("test0", "pass");
+        assertEquals(serverResponse,"sessionToken");
+    }
 
-    /* Test 6: Login Response (error handling)
+    /* Test 4: Login Response (error handling)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return an invalid session token and throw IncorrectPasswordException
      */
-//    @Test
-//    public void loginResponse() {
-//      userAdmin = new UserAdmin("root");
-//      bool userExists = userAdmin.userExists("testUser");
-//      assertTrue(userExists);
-//      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
-//      assertThrows(IncorrectPasswordException.class, () -> {
-//          sessionToken response = server.loginResponse("test1", "wrongPass")
-//       });
-//    }
+    @Test
+    public void loginIncorrectPassword() {
+        boolean userExists = UserAdmin.userExists("testUser");
+        assertTrue(userExists);
+        // Ensure this test user exists with a diff password in the fake DB where this method is implemented
+        assertEquals(server.login("testUser", "wrongPass"), "Fail: Incorrect Password");
+    }
 
-    /* Test 6: Login Response (error handling)
+    /* Test 5: Login Response (error handling)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return an invalid session token and throw UserNotExistException
      */
-//    @Test
-//    public void loginResponse() {
-//      userAdmin = new UserAdmin("root");
-//      bool userExists = userAdmin.userExists("testUser");
-//      assertTrue(userExists);
-//      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
-//      assertThrows(UserNotExistException.class, () -> {
-//          sessionToken response = server.loginResponse("WrongUsername", "Whatever")
-//       });
-//    }
+    @Test
+    public void loginNoSuchUser() {
+      boolean userExists = UserAdmin.userExists("wrongUser");
+      assertFalse(userExists);
+      // Ensure this test user exists with a diff password in the fake DB where this method is implemented
+      assertEquals(server.login("wrongUser", "anything"), "Fail: No Such User");
+    }
 
-    /* Test 8: Log out Response (Success)
+    /* Test 6: Log out Response (Success)
      * Description: The Control Panel will send the Server a valid session token and the Server will expire that
      *              session token and send back a boolean acknowledgement for success/failure.
      * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void logOut() {
-//      String testToken = "test-remove";
-//      bool success = userAdmin.logout(testToken);
-//      assertTrue(success);
-//      // Valid session token holder should not hold the sessionToken anymore
-//      assertFalse(sessionTokens.contains(testToken));
-//    }
+    @Test
+    public void logOut() {
+        server.addToken("testToken"); // Test set up
+        assertEquals(server.logout("testToken"), "Pass: Logout Successful");
+        // Valid session token holder should not hold the sessionToken anymore
+        assertFalse(server.validateToken("testToken"));
+    }
 
 
-    /* Test 9: Validate SessionToken (Success)
+    /* Test 7: Validate SessionToken (Success)
      * Description: Check that the Session token is still valid - validation needs to happen on the server-side
      *              according to the specification.
      * Expected Output: Returns true as the given session should be active
      * TODO: implement validSessionTokens is an array of strings (include "sessionToken" and exclude "failToken")
      */
-//    @Test
-//    public void verifySession() {
-//      Server.addToken("sessionToken");
-//      assertTrue(Server.validateToken("sessionToken"));
-//    }
+    @Test
+    public void verifySession() {
+      Server.addToken("sessionToken");
+      assertTrue(Server.validateToken("sessionToken"));
+    }
 
 
-    /* Test 10: Validate SessionToken (Exception Handling)
+    /* Test 8: Validate SessionToken (Exception Handling)
      * Description: Check that the Session token is still valid.
      * Expected Output: Returns false as the given session should be inactive, throws invalidSessionTokenException
      */
-//    @Test
-//    public void verifySession() {
-//      Server.addToken("failToken");
-//      Server.expireToken("failToken");
-//      // Check Expired Token
-//      assertFalse(Server.validateToken("failToken"));
-//      // Also Check Empty
-//      assertFalse(Server.validateToken(""));
-//    }
+    @Test
+    public void verifySessionExpiration() {
+      Server.addToken("failToken");
+      Server.logout("failToken");
+      // Check Expired Token
+      assertFalse(Server.validateToken("failToken"));
+      // Also Check Empty
+      assertFalse(Server.validateToken(""));
+    }
 
 
 }
