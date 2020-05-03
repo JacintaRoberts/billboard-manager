@@ -70,7 +70,7 @@ class DbConnectionTest {
      * Use: instance = DriverManager.getConnection(url + "/" + schema, username, password);
      */
     @Test
-    public void testDBConnection() throws IOException {
+    public void testDBConnection() throws IOException, SQLException {
         Connection connection = DbConnection.getInstance();
         assertTrue(connection!=null);
     }
@@ -81,7 +81,7 @@ class DbConnectionTest {
      * Expected Output: 3 tables will be present within the database
      */
     @Test
-    public void checkTableInDatabase() throws IOException {
+    public void checkTableInDatabase() throws IOException, SQLException {
 
         // Set connection
         Connection connection = DbConnection.getInstance();
@@ -135,7 +135,7 @@ class DbConnectionTest {
      * Expected Output: The Users table exists and has the columns specified
      */
     @Test
-    public void checkUsersTable() throws IOException {
+    public void checkUsersTable() throws IOException, SQLException {
 
         // Set SQL Query
         final String GET_USERS_COLS = "SHOW COLUMNS FROM users FROM billboarddatabase";
@@ -206,7 +206,7 @@ class DbConnectionTest {
      * Expected Output: The Billboard table exists and has the columns specified
      */
     @Test
-    public void checkBillboardsTable() throws IOException {
+    public void checkBillboardsTable() throws IOException, SQLException {
 
         // Set SQL Query
         final String GET_BILLBOARDS_COLS = "SHOW COLUMNS FROM Billboards FROM billboarddatabase";
@@ -284,7 +284,7 @@ class DbConnectionTest {
      * Expected Output: The Billboard table exists and has the columns specified
      */
     @Test
-    public void checkScheduleTable() throws IOException {
+    public void checkScheduleTable() throws IOException, SQLException {
 
         // Set SQL Query
         final String GET_SCHEDULES_COLS = "SHOW COLUMNS FROM Schedules FROM billboarddatabase";
