@@ -1,6 +1,10 @@
 package server;
 
 
+import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+
 // SERVER SIDE USER ADMIN CONTROLS
 public class UserAdmin {
 
@@ -14,14 +18,38 @@ public class UserAdmin {
      * @param username Checks if the desired username exists in the database
      * @return boolean true if they exist, boolean false if the user does not exist
      */
-    public static boolean userExists(String username) {
+    public static boolean userExists(String username) throws IOException, SQLException {
         //TODO: ALAN HELP ME WORK OUT THIS LOGIC WITH DB LOL
-        if (username == "testUser") { // Logic: If username exists in db
+        ArrayList<String> user = DbUser.retrieveUser(username);
+        System.out.println("This was received"+ user.toString());
+        if (!user.isEmpty()) { // Logic: If username exists in db
+            System.out.print("User exists");
             return true;
         } else {
+            System.out.print("User does not exist");
             return false;
         }
     }
+
+    /**
+     * Checks if desired user exists in the database
+     * @param username Checks if the desired username exists in the database
+     * @param password Checks if password matches
+     * @return boolean true if they exist, boolean false if the user does not exist
+     */
+    public static boolean checkPassword(String username, String password) throws IOException, SQLException {
+        //TODO: ALAN HELP ME WORK OUT THIS LOGIC WITH DB LOL
+        ArrayList<String> user = DbUser.retrieveUser(username);
+        System.out.println("This was received"+ user.toString());
+        if (user.get(1) == password) { // Logic: If username exists in db
+            System.out.print("Password matches");
+            return true;
+        } else {
+            System.out.print("Password mismatch");
+            return false;
+        }
+    }
+
 }
 
 

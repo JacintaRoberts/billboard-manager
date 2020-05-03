@@ -4,6 +4,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.sql.SQLException;
+
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServerTest {
@@ -41,7 +43,7 @@ class ServerTest {
      * Expected Output: Return a valid session token.
      */
     @Test
-    public void loginResponse() {
+    public void loginResponse() throws IOException, SQLException {
         // Ensure this test user exists with this password in the fake DB where this method is implemented
         String serverResponse = server.login("testUser", "goodPass");
         assertEquals(serverResponse,"sessionToken");
@@ -53,7 +55,7 @@ class ServerTest {
      * Expected Output: Return an invalid session token and throw IncorrectPasswordException
      */
     @Test
-    public void loginIncorrectPassword() {
+    public void loginIncorrectPassword() throws IOException, SQLException {
         boolean userExists = UserAdmin.userExists("testUser");
         assertTrue(userExists);
         // Ensure this test user exists with a diff password in the fake DB where this method is implemented
@@ -66,7 +68,7 @@ class ServerTest {
      * Expected Output: Return an invalid session token and throw UserNotExistException
      */
     @Test
-    public void loginNoSuchUser() {
+    public void loginNoSuchUser() throws IOException, SQLException {
       boolean userExists = UserAdmin.userExists("wrongUser");
       assertFalse(userExists);
       // Ensure this test user exists with a diff password in the fake DB where this method is implemented

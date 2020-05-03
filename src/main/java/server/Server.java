@@ -62,7 +62,7 @@ public class Server {
      * are in the same order. Write, read on client = Read, write on server (flush in between).
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
      */
-    private static void initServer() throws IOException {
+    private static void initServer() throws IOException, SQLException {
         // Read port number from network.props
         final int port = Helpers.getPort(networkPropsFilePath);
         // Bind port number and begin listening, loop to keep receiving connections from clients
@@ -100,7 +100,7 @@ public class Server {
      * @param clientRequest String to indicate the method that the client requests
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
-    private static Object callServerMethod(String clientRequest) {
+    private static Object callServerMethod(String clientRequest) throws IOException, SQLException {
         // Extracting parameters
         String method = "";
         String sessionToken = "";
@@ -120,7 +120,10 @@ public class Server {
             case "Login":
                 String username = clientArgs[1]; // Overwrite as this only method that doesn't send session token
                 String hashedPassword = clientArgs[2]; //TODO: Hash this somewhere here as well
-                return login(username, hashedPassword); // Returns session token
+                String serverResponse = login(username, hashedPassword); // Returns session token
+                System.out.println("Received info...");
+                System.out.println(serverResponse);
+                return serverResponse;
             default: {
                 return "No server method requested";
             }
@@ -148,14 +151,15 @@ public class Server {
      * @param hashedPassword The hashed password entered by the user on the GUI
      * @return A valid session token for the user or server acknowledgment for user/password mismatch
      */
-    public static String login(String username, String hashedPassword) {
+    public static String login(String username, String hashedPassword) throws IOException, SQLException {
         // TODO: Implement logic for salting, hashing etc. accessing database to check
-        if (hashedPassword=="goodPass") {
-            return "sessionToken";
-        } else if (UserAdmin.userExists(username)) {
-            return "Fail: Incorrect Password";
+        if (UserAdmin.userExists(username)) {
+            if (UserAdmin.checkPassword(username, hashedPassword)) {
+                return "sessionToken"; // 1. Good password, generate session token
+            }
+            return "Fail: Incorrect Password"; // 2. Bad password
         } else {
-            return "Fail: No Such User";
+            return "Fail: No Such User"; // 3. No such user
         }
     }
 
