@@ -7,6 +7,8 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.Connection;
+import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +18,7 @@ import static helpers.Helpers.networkPropsFilePath;
 public class Server {
     // Session tokens are stored in memory on server as per the specification
     private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    private static Connection db;
 
     /**
      * addToken adds the given sessionToken to the Hashmap of valid session tokens
@@ -64,6 +67,7 @@ public class Server {
         final int port = Helpers.getPort(networkPropsFilePath);
         // Bind port number and begin listening, loop to keep receiving connections from clients
         ServerSocket serverSocket = listenForConnections(port);
+        System.out.println("Server has begun listening on port: " + port);
         for (;;) {
             // Accept client
             Socket socket = serverSocket.accept();
@@ -97,9 +101,17 @@ public class Server {
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
     private static Object callServerMethod(String clientRequest) {
-        String[] clientArgs = clientRequest.split(",");
-        String method = clientArgs[0]; // First argument is the method
-        String sessionToken = clientArgs[1]; // Second argument is the session token
+        // Extracting parameters
+        String method = "";
+        String sessionToken = "";
+        String [] clientArgs = clientRequest.split(",");
+        if (clientArgs.length >= 2) {
+            sessionToken = clientArgs[1]; // Second argument is the session token (optional)
+        }
+        if (clientArgs.length >= 1) {
+            method = clientArgs[0]; // First argument is the method
+        }
+        // Determine which method to execute
         switch (method) {
             case "Viewer":
                 return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
@@ -148,12 +160,16 @@ public class Server {
     }
 
     public static void main(String[] args) {
-        //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
         try {
-            DbConnection db = new DbConnection();
+            db = DbConnection.getInstance();
             initServer();
         } catch (IOException e) {
-            System.err.println("Exception caught: " + e);
+            //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
+            System.err.println("Server IO Exception caught: " + e);
+            e.printStackTrace();
+        } catch (SQLException e) {
+            System.err.println("Database Connection Exception caught: " + e);
+            e.printStackTrace();
         }
     }
 

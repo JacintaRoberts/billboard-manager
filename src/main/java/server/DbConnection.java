@@ -20,7 +20,7 @@ public class DbConnection {
      * <p>
      * This method always returns immediately.
      */
-    DbConnection() throws FileNotFoundException,IOException {
+    DbConnection() throws FileNotFoundException,IOException, SQLException {
 
         // Set new properties class and initiate File input stream and connection
         Properties props = readProperties("src\\test\\resources\\db.props");
@@ -32,13 +32,8 @@ public class DbConnection {
         String schema = props.getProperty("jdbc.schema");
 
         // get a connection
-        try{
-            instance = DriverManager.getConnection(url + "/" + schema,username, password);
-            System.out.println("Connected to database at: "+ url + "/" + schema);
-        } catch (SQLException sqle){
-            System.err.println(sqle);
-        }
-
+        instance = DriverManager.getConnection(url + "/" + schema,username, password);
+        System.out.println("Connected to database at: "+ url + "/" + schema);
     }
 
 
@@ -47,7 +42,7 @@ public class DbConnection {
      * <p>
      * @return a handle to the singleton instance of the database connection.
      */
-    public static Connection getInstance() throws IOException {
+    public static Connection getInstance() throws IOException, SQLException {
         if (instance == null) {
             new DbConnection();
         }
