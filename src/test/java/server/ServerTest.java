@@ -43,7 +43,7 @@ class ServerTest {
     @Test
     public void loginResponse() {
         // Ensure this test user exists with this password in the fake DB where this method is implemented
-        String serverResponse = server.login("test0", "pass");
+        String serverResponse = server.login("testUser", "goodPass");
         assertEquals(serverResponse,"sessionToken");
     }
 
@@ -80,7 +80,7 @@ class ServerTest {
      */
     @Test
     public void logOut() {
-        server.addToken("testToken"); // Test set up
+        server.addToken("testToken", "testUser"); // Test set up
         assertEquals(server.logout("testToken"), "Pass: Logout Successful");
         // Valid session token holder should not hold the sessionToken anymore
         assertFalse(server.validateToken("testToken"));
@@ -95,7 +95,7 @@ class ServerTest {
      */
     @Test
     public void verifySession() {
-      Server.addToken("sessionToken");
+      Server.addToken("sessionToken", "testUser");
       assertTrue(Server.validateToken("sessionToken"));
     }
 
@@ -106,7 +106,7 @@ class ServerTest {
      */
     @Test
     public void verifySessionExpiration() {
-      Server.addToken("failToken");
+      Server.addToken("failToken", "testUser");
       Server.logout("failToken");
       // Check Expired Token
       assertFalse(Server.validateToken("failToken"));

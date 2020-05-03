@@ -1,4 +1,5 @@
 package server;
+
 import helpers.Helpers;
 
 import java.io.IOException;
@@ -6,20 +7,27 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import static helpers.Helpers.networkPropsFilePath;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
-    private static ArrayList<String> validSessionTokens = new ArrayList<>();
+    private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
 
     /**
-     *
+     * addToken adds the given sessionToken to the Hashmap of valid session tokens
      * @param sessionToken to be added
      */
-    public static void addToken(String sessionToken) {
-        validSessionTokens.add(sessionToken);
+    public static void addToken(String sessionToken, String username) {
+        // Generate current date time
+        LocalDateTime creationTime = LocalDateTime.now(); // Create a date-time object
+        ArrayList<Object> values = new ArrayList<>();
+        values.add(username);
+        values.add(creationTime);
+        validSessionTokens.put(sessionToken, values);
     }
 
     /**
@@ -27,7 +35,7 @@ public class Server {
      * @return boolean true if the session token exists, false otherwise
      */
     public static boolean validateToken(String sessionToken) {
-        return validSessionTokens.contains(sessionToken);
+        return validSessionTokens.containsKey(sessionToken);
     }
 
 
@@ -113,7 +121,8 @@ public class Server {
      * @return String acknowledgement from server which determines whether the expiration was successful
      */
     public static String logout(String sessionToken) {
-        if (validSessionTokens.remove(sessionToken)) {
+        if (validSessionTokens.containsKey(sessionToken)) {
+            validSessionTokens.remove(sessionToken);
             return "Pass: Logout Successful";  // Session token existed and was successfully expired
         } else {
             return "Fail: Already Logged Out"; // Session token was already expired/did not exist
