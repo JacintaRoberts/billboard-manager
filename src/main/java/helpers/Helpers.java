@@ -5,7 +5,8 @@ import java.net.Socket;
 import java.util.Properties;
 
 public class Helpers {
-
+    // Network props file configuration
+    public final static String networkPropsFilePath = "src\\main\\resources\\network.props";
     /**
      * Reads the properties from the specified file (.props)
      * @param filePath The string file path to be read from
@@ -92,8 +93,6 @@ public class Helpers {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      * */
     public static Object initClient(String message) throws ClassNotFoundException, IOException {
-        // Connect to server
-        final String networkPropsFilePath = "src\\main\\resources\\network.props";
         final int port = Helpers.getPort(networkPropsFilePath);
         final String ip = Helpers.getIp(networkPropsFilePath);
         Socket socket = new Socket(ip, port);
