@@ -128,6 +128,7 @@ class DbConnectionTest {
      * Description: Users table should have the following columns:
      * `Username` varchar(255)
      * `Password` varchar(255)
+     * `Salt` varchar(255)
      * `CreateBillboard` bool
      * `EditBillboard` bool
      * `ScheduleBillboard` bool
@@ -143,6 +144,7 @@ class DbConnectionTest {
         // Set predetermined test cases
         String Username = "Username";
         String Password = "Password";
+        String Salt = "Salt";
         String CreateBillboard = "CreateBillboard";
         String EditBillboard = "EditBillboard";
         String ScheduleBillboard = "ScheduleBillboard";
@@ -189,10 +191,11 @@ class DbConnectionTest {
         assertAll("This should check if table columns are set properly",
                 () -> assertEquals(Username, verifyList.get(0)),
                 () -> assertEquals(Password, verifyList.get(1)),
-                () -> assertEquals(CreateBillboard, verifyList.get(2)),
-                () -> assertEquals(EditBillboard, verifyList.get(3)),
-                () -> assertEquals(ScheduleBillboard, verifyList.get(4)),
-                () -> assertEquals(EditUser, verifyList.get(5))
+                () -> assertEquals(Salt, verifyList.get(2)),
+                () -> assertEquals(CreateBillboard, verifyList.get(3)),
+                () -> assertEquals(EditBillboard, verifyList.get(4)),
+                () -> assertEquals(ScheduleBillboard, verifyList.get(5)),
+                () -> assertEquals(EditUser, verifyList.get(6))
         );
 
     }
@@ -369,6 +372,76 @@ class DbConnectionTest {
 //    public static void tearDown() {
 //        instance.close()
 //    }
+
+
+
+    @Test
+    public void checkBillboardsTable2() throws IOException {
+
+        // Set SQL Query
+        final String GET_BILLBOARDS_COLS = "SHOW COLUMNS FROM Billboards FROM billboarddatabase";
+        final String GET_BILLBOARD_DATA = "SELECT * FROM Billboards";
+
+        // Set connection
+        Connection connection = DbConnection.getInstance();
+
+        // Set Statement Object
+        Statement st = null;
+
+        // Storage Variable
+        ArrayList<DbBillboard> firstRow = null;
+
+        // Generate Java list
+        List<String> verifyList = new ArrayList<>();
+
+        // Try statement to verify table count
+        try {
+            st = connection.createStatement();
+
+            // rename the table
+            st.executeQuery(GET_BILLBOARDS_COLS);
+
+            // Display results
+            DbConnection.displayContents(st,GET_BILLBOARDS_COLS);
+
+
+            // Storage for assertion Checks
+            // get all current entries
+            ResultSet rs = st.executeQuery(GET_BILLBOARDS_COLS);
+            // Get Column
+            int columnCount = rs.getMetaData().getColumnCount();
+
+            // output each row
+            while (rs.next()) {
+                verifyList.add(rs.getString(1));
+            }
+
+            // Execute Query for storage
+            // TODO: CHECK IF WE WANT THIS
+            st.executeQuery(GET_BILLBOARD_DATA);
+            firstRow = DbConnection.storeBillboardContents(st,GET_BILLBOARD_DATA);
+
+            // Close connection
+            st.close();
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
+        // Check storage
+        assertTrue(firstRow != null);
+        System.out.println(firstRow.get(1));
+
+    }
+
+
+
+
+
+
+
+
+
 
 
 }

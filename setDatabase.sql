@@ -18,6 +18,7 @@ DROP TABLE IF EXISTS `BillboardDatabase`.`Schedules`;
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
     `Username` varchar(255) NOT NULL default '',
     `Password` varchar(255) NOT NULL default '',
+    `Salt`  varchar(255) NOT NULL default '',
     `CreateBillboard` bool default 0,
     `EditBillboard` bool default 0,
     `ScheduleBillboard` bool default 0,
@@ -41,3 +42,12 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
       PRIMARY KEY (`StartDateTime`)
   );
 
+
+INSERT INTO Billboards
+VALUES ("TestBillboard", "TestUser", "TestXMLCODE");
+
+INSERT INTO Billboards
+VALUES ("TestBillboard2", "TestUser2", "TestXMLCODE2");
+
+INSERT INTO Billboards
+VALUES ("TestBillboard3", "TestUser3", "TestXMLCODE3");
