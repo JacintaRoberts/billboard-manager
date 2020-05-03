@@ -120,10 +120,7 @@ public class Server {
             case "Login":
                 String username = clientArgs[1]; // Overwrite as this only method that doesn't send session token
                 String hashedPassword = clientArgs[2]; //TODO: Hash this somewhere here as well
-                String serverResponse = login(username, hashedPassword); // Returns session token
-                System.out.println("Received info...");
-                System.out.println(serverResponse);
-                return serverResponse;
+                return login(username, hashedPassword); // Returns session token or fail message
             default: {
                 return "No server method requested";
             }

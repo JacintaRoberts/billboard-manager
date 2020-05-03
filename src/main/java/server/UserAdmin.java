@@ -23,29 +23,30 @@ public class UserAdmin {
         ArrayList<String> user = DbUser.retrieveUser(username);
         System.out.println("This was received"+ user.toString());
         if (!user.isEmpty()) { // Logic: If username exists in db
-            System.out.print("User exists");
+            System.out.println("User exists");
             return true;
         } else {
-            System.out.print("User does not exist");
+            System.out.println("User does not exist");
             return false;
         }
     }
 
     /**
      * Checks if desired user exists in the database
-     * @param username Checks if the desired username exists in the database
-     * @param password Checks if password matches
-     * @return boolean true if they exist, boolean false if the user does not exist
+     * @param username String username that the user typed from GUI
+     * @param hashedPassword User provided password from GUI
+     * @return boolean true if the password matches, boolean false if password mismatch
      */
-    public static boolean checkPassword(String username, String password) throws IOException, SQLException {
-        //TODO: ALAN HELP ME WORK OUT THIS LOGIC WITH DB LOL
+    public static boolean checkPassword(String username, String hashedPassword) throws IOException, SQLException {
         ArrayList<String> user = DbUser.retrieveUser(username);
-        System.out.println("This was received"+ user.toString());
-        if (user.get(1) == password) { // Logic: If username exists in db
-            System.out.print("Password matches");
+        System.out.println("This was received: " + user.toString());
+        System.out.println("Your pass..." + hashedPassword);
+        System.out.println("This is the password in database:" + user.get(1).toString());
+        if (user.get(1).equals(hashedPassword)) { // Logic: If password matches the password in the database
+            System.out.println("Password matches");
             return true;
         } else {
-            System.out.print("Password mismatch");
+            System.out.println("Password mismatch");
             return false;
         }
     }

@@ -47,7 +47,6 @@ public class DbUser {
                 System.out.printf("%-20s",value);
             }
         }
-        close();
         return retrievedUser;
     }
 

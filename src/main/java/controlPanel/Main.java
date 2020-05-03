@@ -36,7 +36,7 @@ public class Main {
             Object serverResponse = Helpers.initClient("Test");
             Object serverResponse2 = Helpers.initClient("Login,testUser,goodPass");
             System.out.println("Received from server: " + serverResponse.toString());
-            //System.out.println("Received from server: " + serverResponse2.toString());
+            System.out.println("Received from server: " + serverResponse2.toString());
         } catch (IOException | ClassNotFoundException e) { // Could not connect to server
             //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
             System.err.println("Exception caught: " + e);
