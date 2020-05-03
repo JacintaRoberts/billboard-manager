@@ -5,7 +5,6 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
 public class DbConnection {
@@ -21,7 +20,7 @@ public class DbConnection {
      * <p>
      * This method always returns immediately.
      */
-    private DbConnection() throws FileNotFoundException,IOException {
+    DbConnection() throws FileNotFoundException,IOException {
 
         // Set new properties class and initiate File input stream and connection
         Properties props = readProperties("src\\test\\resources\\db.props");
@@ -35,6 +34,7 @@ public class DbConnection {
         // get a connection
         try{
             instance = DriverManager.getConnection(url + "/" + schema,username, password);
+            System.out.println("Connected to database at: "+ url + "/" + schema);
         } catch (SQLException sqle){
             System.err.println(sqle);
         }

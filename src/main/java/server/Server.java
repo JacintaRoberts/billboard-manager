@@ -150,6 +150,7 @@ public class Server {
     public static void main(String[] args) {
         //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
         try {
+            DbConnection db = new DbConnection();
             initServer();
         } catch (IOException e) {
             System.err.println("Exception caught: " + e);
