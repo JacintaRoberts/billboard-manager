@@ -41,6 +41,7 @@ public class Controller
 
         addScheduleWeekListener();
         addScheduleListener();
+        addScheduleMenuListener();
 
         addUserMenuListener();
         addUserViewListener();
@@ -184,7 +185,7 @@ public class Controller
         addGenericListeners(BB_CREATE);
         BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
         // FIXME: lots to come!
-        bbCreateView.addScheduleButtonListener(new EditScheduleButtonListener());
+        bbCreateView.addScheduleButtonListener(new ScheduleEditButtonListener());
         bbCreateView.addBBBackgroundColourListener(new ColourListener());
         bbCreateView.addBBTitleListener(new TitleListener());
         bbCreateView.addBBTextListener(new BBTextListener());
@@ -207,6 +208,14 @@ public class Controller
 
     //---------------------------------- SCHEDULE LISTENER ------------------------------
 
+    private void addScheduleMenuListener()
+    {
+        addGenericListeners(SCHEDULE_MENU);
+        ScheduleMenuView scheduleMenuView = (ScheduleMenuView) views.get(SCHEDULE_MENU);
+        scheduleMenuView.addScheduleViewListener(new ScheduleViewButtonListener());
+        scheduleMenuView.addScheduleCreateListener(new ScheduleCreateButtonListener());
+        views.put(SCHEDULE_MENU, scheduleMenuView);
+    }
 
     private void addScheduleWeekListener()
     {
@@ -312,6 +321,13 @@ public class Controller
                 // Billboard Schedule: day, time, bb name
                 String[][] billboardSchedule = new String[][] {{"1-2pm", "Myer's Sale"},{"6-7am", "Spotlight Winter Sale"}};
                 scheduleWeekView.populateSchedule(billboardSchedule);
+                break;
+            case SCHEDULE_UPDATE:
+                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                // FIXME: call to server: get BB names
+                String[] names = {"Myer", "Anaconda", "David Jones"};
+                scheduleUpdateView.getBBNames(names);
+                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
 
@@ -710,7 +726,7 @@ public class Controller
 
     /**
      * Listener to handle Schedule Button mouse clicks.
-     * If user clicks the Schedule button, user is navigated to Schedule view.
+     * If user clicks the Schedule button, user is navigated to Schedule Menu view.
      */
     private class ScheduleButtonListener extends MouseAdapter
     {
@@ -719,14 +735,14 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Schedule button clicked");
             // navigate to home screen
-            updateView(SCHEDULE_WEEK);
+            updateView(SCHEDULE_MENU);
         }
     }
 
     /**
      * Listener to handle Edit Schedule Button mouse clicks.
      */
-    private class EditScheduleButtonListener extends MouseAdapter
+    private class ScheduleEditButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
@@ -735,6 +751,34 @@ public class Controller
             JButton button = (JButton) e.getSource();
             System.out.println("BB Name: " + button.getName());
             // navigate to edit BB screen
+            updateView(SCHEDULE_UPDATE);
+        }
+    }
+
+    /**
+     * Listener to handle View Schedule Button mouse clicks.
+     */
+    private class ScheduleViewButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: View Schedule button clicked");
+            // navigate to edit schedule week view
+            updateView(SCHEDULE_WEEK);
+        }
+    }
+
+    /**
+     * Listener to handle Create Schedule Button mouse clicks.
+     */
+    private class ScheduleCreateButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
+            // navigate to edit schedule week view
             updateView(SCHEDULE_UPDATE);
         }
     }

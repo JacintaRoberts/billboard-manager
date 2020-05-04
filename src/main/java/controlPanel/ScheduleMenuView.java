@@ -11,7 +11,12 @@ import java.util.ArrayList;
 
 public class ScheduleMenuView extends AbstractGenericView
 {
-    //*** VARIABLES**
+    // *** VARIABLES**
+    // --- Panels ---
+    private JPanel optionsPanel;
+    // --- Buttons ---
+    private JButton viewScheduleButton;
+    private JButton createScheduleButton;
     // --- ENUM ---
     private VIEW_TYPE view_type;
 
@@ -40,7 +45,24 @@ public class ScheduleMenuView extends AbstractGenericView
     }
 
     @Override
-    void createComponents() {
+    void createComponents()
+    {
+        optionsPanel = new JPanel();
+        optionsPanel.setLayout(new FlowLayout());
+        viewScheduleButton = new JButton("View Schedule");
+        createScheduleButton = new JButton("Create Schedule");
+        optionsPanel.add(viewScheduleButton);
+        optionsPanel.add(createScheduleButton);
+        getContentPane().add(optionsPanel, BorderLayout.CENTER);
+    }
 
+    protected void addScheduleViewListener(MouseListener listener)
+    {
+        viewScheduleButton.addMouseListener(listener);
+    }
+
+    protected void addScheduleCreateListener(MouseListener listener)
+    {
+        createScheduleButton.addMouseListener(listener);
     }
 }
