@@ -5,13 +5,18 @@ import observer.Subject;
 
 import javax.swing.*;
 import javax.swing.border.Border;
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.awt.*;
+import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
 import java.awt.event.MouseListener;
 import java.text.DateFormat;
 import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 import java.time.Month;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Enumeration;
 import java.util.concurrent.Flow;
 
 public class ScheduleUpdateView extends AbstractGenericView
@@ -26,11 +31,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JLabel startTimeLabel;
     private JLabel endTimeLabel;
     private JLabel durationLabel;
-    private JLabel startDayLabel;
-    private JLabel endDayLabel;
     private JLabel repeatLabel;
-    private JCheckBox dailyLabel;
-    private JCheckBox hourlyLabel;
     private JComboBox<Integer> repeatCheckBox;
     private JComboBox<String> bbNameSelector;
     private JCheckBox monLabel;
@@ -55,7 +56,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JLabel weekLabel;
 
     private Integer[] hour;
-    private String[] minutes;
+    private Integer[] minutes;
 
     private JComboBox<Integer> startHourSelector;
     private JComboBox<String> startMinSelector;
@@ -67,18 +68,21 @@ public class ScheduleUpdateView extends AbstractGenericView
     // am pm selector
     private JComboBox<String> endAMPMSelector;
 
+    private int duration;
+
+    private ArrayList<JCheckBox> checkboxGroup;
+
     // --- Buttons ---
     private JButton submitButton;
-    private JButton cancelButton;
-    // --- Text Field ---
-    private JLabel bbNameText;
-    private JTextField startTimeText;
-    private JTextField endTimeText;
-    private JTextField durationText;
+    private JButton confirmButton;
 
     // --- ENUM ---
     private VIEW_TYPE view_type;
 
+//    protected enum BUTTON_ENUM
+//    {
+//        DAILY, HOURLY, MINUTE;
+//    }
 
     /**
      * Constructor to create schedule view, use parent constructor.
@@ -94,21 +98,20 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // time panel
         timePanel = new JPanel();
-        timePanel.setLayout(new GridLayout(5,2));
+        timePanel.setLayout(new GridLayout(6,2));
         // create labels
         timeLabel = new JLabel("Select Billboard Name and Time:");
         bbNameLabel = new JLabel("Billboard Name: ");
         bbNameSelector = new JComboBox(new String[]{});
-        startDayLabel = new JLabel("Start Day:");
 
         // define hours and minute selection
         hour = new Integer[]{1,2,3,4,5,6,7,8,9,10,11,12};
-        minutes = new String[60];
+        minutes = new Integer[60];
         DecimalFormat df = new DecimalFormat("00");
         for (int minute = 0; minute<60; minute++)
         {
             String minuteValue = df.format(minute);
-            minutes[minute] = minuteValue;
+            minutes[minute] = Integer.valueOf(minuteValue);
         }
         am_pm = new String[] {"AM", "PM"};
 
@@ -144,7 +147,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         endTimeLabel = new JLabel("End Time:");
         durationLabel = new JLabel("Duration: ");
         durationTimeLabel = new JLabel("0 minutes");
-        endDayLabel = new JLabel("End Day: ");
 
         // -------------- ADD TO TIME PANEL ------------------
         timePanel.add(timeLabel);
@@ -164,6 +166,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         weekRecurrencePanel.setLayout(new GridLayout(8,1));
         // create labels
         weekLabel = new JLabel("Select Days to Schedule Billboard");
+        checkboxGroup = new ArrayList<>();
         monLabel = new JCheckBox("Mon");
         tuesLabel = new JCheckBox("Tues");
         wedLabel = new JCheckBox("Wed");
@@ -171,6 +174,13 @@ public class ScheduleUpdateView extends AbstractGenericView
         friLabel = new JCheckBox("Fri");
         satLabel = new JCheckBox("Sat");
         sunLabel = new JCheckBox("Sun");
+        checkboxGroup.add(monLabel);
+        checkboxGroup.add(tuesLabel);
+        checkboxGroup.add(wedLabel);
+        checkboxGroup.add(thurLabel);
+        checkboxGroup.add(friLabel);
+        checkboxGroup.add(satLabel);
+        checkboxGroup.add(sunLabel);
         weekRecurrencePanel.add(weekLabel);
         weekRecurrencePanel.add(monLabel);
         weekRecurrencePanel.add(tuesLabel);
@@ -183,15 +193,19 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // -------------- RECURRENCE PATTERNS ------------------
         recurrencePanel = new JPanel();
-        recurrencePanel.setLayout(new GridLayout(5,1));
+        recurrencePanel.setLayout(new GridLayout(6,1));
         // add labels to panel
         hourlyButton = new JRadioButton("Hourly");
         dailyButton = new JRadioButton("Daily");
         minuteButton = new JRadioButton("Minutes");
+        hourlyButton.setName("hourly");
+        dailyButton.setName("daily");
+        minuteButton.setName("minute");
         repeatLabel = new JLabel("Repeat every X minute/s: ");
         repeatMinutes = new JPanel();
-        Integer[] minuteSelection = new Integer[59];
-        for (int i = 1; i < 59; i++)
+        repeatMinutes.setLayout(new FlowLayout());
+        Integer[] minuteSelection = new Integer[60];
+        for (int i = 1; i < 60; i++)
         {
             minuteSelection[i] = i;
         }
@@ -214,8 +228,12 @@ public class ScheduleUpdateView extends AbstractGenericView
         recurrencePanel.add(minuteButton);
         recurrencePanel.add(repeatMinutes);
         getContentPane().add(recurrencePanel, BorderLayout.EAST);
+
+        submitButton = new JButton("Submit");
+        JPanel navPanel = getNavPanel();
+        navPanel.add(submitButton);
     }
-    
+
     @Override
     void cleanUp() {
 
@@ -239,29 +257,189 @@ public class ScheduleUpdateView extends AbstractGenericView
         }
     }
 
-    protected void calcDuration(MouseListener listener)
+    protected void calcDuration()
     {
+        // get values from user
+        // hour
+        int startHour = (int)startHourSelector.getSelectedItem();
+        int endHour = (int)endHourSelector.getSelectedItem();
+        // minutes
+        int startMinute = (int)startMinSelector.getSelectedItem();
+        int endMinute = (int)endMinSelector.getSelectedItem();
+        // am pm
+        String startAM_PM = (String) startAMPMSelector.getSelectedItem();
+        String endAM_PM = (String) endAMPMSelector.getSelectedItem();
+        // calculate the difference
+        int minDifference = endMinute - startMinute;
+        int hourDifference = endHour - startHour;
 
+        // Invalid if PM -> AM
+        if (startAM_PM.equals("PM") && endAM_PM.equals("AM"))
+        {
+            durationTimeLabel.setText("Invalid");
+        }
+        // Add +12 if AM -> PM, create error if duration is equal or less than 0, set duration text if valid
+        else
+        {
+            if (startAM_PM.equals("AM") && endAM_PM.equals("PM"))
+            {
+                hourDifference = hourDifference + 12;
+            }
+            duration = hourDifference*60 + minDifference;
+            // create error if duration is equal to or less than 0
+            if (duration <= 0)
+            {
+                durationTimeLabel.setText("Invalid");
+            }
+            // calculate hours, minutes and total minutes to display to user
+            else
+            {
+                String hours = String.valueOf(duration/60);
+                String minutes = String.valueOf(duration%60);
+                String totalMinutes = String.valueOf(duration);
+                durationTimeLabel.setText(hours + " hrs " + minutes + " mins. Total Minutes: " + totalMinutes);
+            }
+
+            // disable hourly button if duration is longer than 1 hour
+            if (duration > 60)
+            {
+                hourlyButton.setEnabled(false);
+            }
+            else
+            {
+                hourlyButton.setEnabled(true);
+            }
+
+            repeatCheckBox.removeAllItems();
+            for (int i = (duration+1); i <= 1440; i++)
+            {
+                repeatCheckBox.addItem(i);
+            }
+        }
     }
 
+    protected void checkAllDayButtons(boolean selectAll)
+    {
+        monLabel.setSelected(selectAll);
+        tuesLabel.setSelected(selectAll);
+        wedLabel.setSelected(selectAll);
+        thurLabel.setSelected(selectAll);
+        friLabel.setSelected(selectAll);
+        satLabel.setSelected(selectAll);
+        sunLabel.setSelected(selectAll);
+    }
 
-//    /**
-//     * Add listener to handle mouse click of submit button.
-//     * @param listener mouse click listener
-//     */
-//    public void addDayButtonListener(MouseListener listener)
-//    {
-//        for (JButton dayButton : buttonArray)
-//        {
-//            dayButton.addMouseListener(listener);
-//        }
-//    }
+    protected void enableMinuteSelector(boolean enable)
+    {
+        repeatCheckBox.setEnabled(enable);
+        repeatCheckBox.setSelectedIndex(0);
+    }
 
-//
-//    // start day
-//    String[] daySelection = new String[]{"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
-//    startDayComboBox = new JComboBox(daySelection);
-//
-//    // end day
-//    endDayComboBox = new JComboBox(daySelection);
+    protected void setValues(boolean[] daysOfWeek, int startHour, int  endHour, int startMin, int endMin, String buttonSelect, int minRepeat)
+    {
+        for (int i = 0; i < daysOfWeek.length ;i++)
+        {
+            System.out.println("Check box " + checkboxGroup.get(i));
+            System.out.println("boolean " + daysOfWeek[i]);
+            checkboxGroup.get(i).setSelected(daysOfWeek[i]);
+        }
+        startHourSelector.getModel().setSelectedItem(startHour);
+        endHourSelector.getModel().setSelectedItem(endHour);
+        startMinSelector.getModel().setSelectedItem(startMin);
+        endMinSelector.getModel().setSelectedItem(endMin);
+        repeatCheckBox.getModel().setSelectedItem(minRepeat);
+
+        switch (buttonSelect)
+        {
+            case "hourly":
+                hourlyButton.setSelected(true);
+                enableMinuteSelector(false);
+                break;
+            case "minute":
+                minuteButton.setSelected(true);
+                enableMinuteSelector(true);
+                break;
+            case "daily":
+                dailyButton.setSelected(true);
+                enableMinuteSelector(false);
+                break;
+        }
+    }
+
+    protected void showConfirmationDialog()
+    {
+        JOptionPane.showMessageDialog(null,"You have just scheduled Billboard " + bbNameSelector.getSelectedItem());
+    }
+
+    private boolean checkRequiredFields()
+    {
+        boolean isDaySelected = false;
+        for (JCheckBox checkBox: checkboxGroup)
+        {
+            if (checkBox.isSelected())
+            {
+                isDaySelected = true;
+                break;
+            }
+        }
+        return isDaySelected;
+    }
+
+    protected ArrayList<Object> getScheduleInfo()
+    {
+        ArrayList<Object> scheduleInfo = new ArrayList();
+        boolean requiredFieldsProvided = checkRequiredFields();
+        if (requiredFieldsProvided)
+        {
+            String name = (String) bbNameSelector.getSelectedItem();
+            int min_repeat = (int) repeatCheckBox.getSelectedItem();
+
+            scheduleInfo.add(name);
+            scheduleInfo.add(min_repeat);
+
+        }
+        return scheduleInfo;
+    }
+
+    protected boolean checkValidDuration()
+    {
+        return !durationTimeLabel.getText().equals("Invalid");
+    }
+
+    protected void raiseScheduleError()
+    {
+        JOptionPane.showMessageDialog(null, "Please select at least one day");
+    }
+
+    protected void raiseDurationError()
+    {
+        JOptionPane.showMessageDialog(null, "Please select a valid duration");
+    }
+
+    protected void addDurationListener(ActionListener listener)
+    {
+        startAMPMSelector.addActionListener(listener);
+        endAMPMSelector.addActionListener(listener);
+        startMinSelector.addActionListener(listener);
+        endMinSelector.addActionListener(listener);
+        startHourSelector.addActionListener(listener);
+        endHourSelector.addActionListener(listener);
+    }
+
+    protected void addDailyRadioButtonListener(ActionListener listener)
+    {
+        dailyButton.addActionListener(listener);
+        hourlyButton.addActionListener(listener);
+        minuteButton.addActionListener(listener);
+    }
+
+    protected void addPopulateScheduleListener(ActionListener listener)
+    {
+        bbNameSelector.addActionListener(listener);
+    }
+
+    protected void addScheduleSubmitButtonListener(MouseAdapter listener)
+    {
+        submitButton.addMouseListener(listener);
+    }
 }

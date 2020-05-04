@@ -4,8 +4,11 @@ import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.ArrayList;
 import java.util.HashMap;
 import static controlPanel.Main.VIEW_TYPE.*;
 
@@ -228,6 +231,10 @@ public class Controller
     {
         addGenericListeners(SCHEDULE_UPDATE);
         ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+        scheduleUpdateView.addDurationListener(new ScheduleDurationListener());
+        scheduleUpdateView.addDailyRadioButtonListener(new ScheduleRadioButtonListener());
+        scheduleUpdateView.addPopulateScheduleListener(new SchedulePopulateListener());
+        scheduleUpdateView.addScheduleSubmitButtonListener(new ScheduleSubmitButtonListener());
         views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
 
@@ -780,6 +787,122 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
             // navigate to edit schedule week view
             updateView(SCHEDULE_UPDATE);
+        }
+    }
+
+    /**
+     * Listener to handle show duration in Schedule Create
+     */
+    private class ScheduleDurationListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Time changed");
+
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            scheduleUpdateView.calcDuration();
+            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+        }
+    }
+
+    /**
+     * Listener to handle Schedule Radio Button mouse clicks.
+     */
+    private class ScheduleRadioButtonListener implements ActionListener
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Daily Recurrence button clicked");
+            JRadioButton button = (JRadioButton) e.getSource();
+            System.out.println("selected " + button.isSelected());
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            String buttonName = button.getName();
+
+            switch (buttonName) {
+                case "daily":
+                    scheduleUpdateView.checkAllDayButtons(true);
+                    scheduleUpdateView.enableMinuteSelector(false);
+                break;
+                case "hourly":
+                    scheduleUpdateView.enableMinuteSelector(false);
+                    break;
+                case "minute":
+                    scheduleUpdateView.enableMinuteSelector(true);
+                    break;
+            }
+            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+        }
+    }
+
+    /**
+     * Listener to handle BB Schedules to populate information
+     */
+    private class SchedulePopulateListener implements ActionListener
+    {
+        @Override
+        public void actionPerformed(ActionEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
+            JComboBox menuItem = (JComboBox) e.getSource();
+            String bbName = (String)menuItem.getSelectedItem();
+            System.out.println("selected " + bbName);
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            // FIXME: get BB Schedule for this menu item
+            if (bbName.equals("Myer"))
+            {
+                boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
+                int startHour = 5;
+                int endHour = 6;
+                int startMin = 0;
+                int endMin = 30;
+                int minRepeat = 220;
+                String recurrenceButton = "minute";
+                scheduleUpdateView.setValues(daysOfWeek, startHour, endHour, startMin, endMin, recurrenceButton, minRepeat);
+            }
+            else if (bbName.equals("Anaconda"))
+            {
+                boolean[] daysOfWeek = new boolean[]{true,true,true,false,false,false,false};
+                int startHour = 1;
+                int endHour = 2;
+                int startMin = 0;
+                int endMin = 30;
+                int minRepeat = -1;
+                String recurrenceButton = "daily";
+                scheduleUpdateView.setValues(daysOfWeek, startHour, endHour, startMin, endMin, recurrenceButton, minRepeat);
+            }
+            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+        }
+    }
+
+    /**
+     * Listener to handle Submit Schedule Button mouse clicks.
+     */
+    private class ScheduleSubmitButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            boolean validDuration = scheduleUpdateView.checkValidDuration();
+            ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
+            if (!validDuration)
+            {
+                scheduleUpdateView.raiseDurationError();
+            }
+            else if (scheduleInfo.isEmpty())
+            {
+                scheduleUpdateView.raiseScheduleError();
+            }
+            else
+            {
+                System.out.println("SEND INFO TO DB "+scheduleInfo);
+                scheduleUpdateView.showConfirmationDialog();
+                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                // navigate to schedule menu
+                updateView(SCHEDULE_MENU);
+            }
         }
     }
 }
