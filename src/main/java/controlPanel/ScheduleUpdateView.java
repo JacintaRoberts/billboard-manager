@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
+import static java.lang.Integer.min;
 import static java.lang.Integer.parseInt;
 
 public class ScheduleUpdateView extends AbstractGenericView
@@ -44,13 +45,13 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JComboBox<String> endAMPMSelector;
 
     // --- CheckBox ---
-    private JCheckBox monLabel;
-    private JCheckBox tuesLabel;
-    private JCheckBox wedLabel;
-    private JCheckBox thurLabel;
-    private JCheckBox friLabel;
-    private JCheckBox satLabel;
-    private JCheckBox sunLabel;
+    private JCheckBox monCheckBox;
+    private JCheckBox tuesCheckBox;
+    private JCheckBox wedCheckBox;
+    private JCheckBox thurCheckBox;
+    private JCheckBox friCheckBox;
+    private JCheckBox satCheckBox;
+    private JCheckBox sunCheckBox;
 
     // --- Buttons ---
     private JRadioButton hourlyButton;
@@ -97,15 +98,11 @@ public class ScheduleUpdateView extends AbstractGenericView
         Integer[] hour = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
         // --- Array List ---
         String[] min = new String[60];
-        System.out.println("before");
         for (int minute = 0; minute < 60; minute++)
         {
             // add minutes to array, pad single digits with a 0
             min[minute] = String.format("%02d",minute);
-            System.out.println("minutes" + min[minute]);
-            System.out.println("minutes" + String.format("%02d",minute));
         }
-        System.out.println("after");
 
         // define AM and PM
         // --- String ---
@@ -169,33 +166,33 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // create labels
         weekdayPanelDescription = new JLabel("Select Days to Schedule Billboard");
-        monLabel = new JCheckBox("Mon");
-        tuesLabel = new JCheckBox("Tues");
-        wedLabel = new JCheckBox("Wed");
-        thurLabel = new JCheckBox("Thurs");
-        friLabel = new JCheckBox("Fri");
-        satLabel = new JCheckBox("Sat");
-        sunLabel = new JCheckBox("Sun");
+        monCheckBox = new JCheckBox("Mon");
+        tuesCheckBox = new JCheckBox("Tues");
+        wedCheckBox = new JCheckBox("Wed");
+        thurCheckBox = new JCheckBox("Thurs");
+        friCheckBox = new JCheckBox("Fri");
+        satCheckBox = new JCheckBox("Sat");
+        sunCheckBox = new JCheckBox("Sun");
         weekdayArray = new ArrayList<>();
 
         // add labels to array list
-        weekdayArray.add(monLabel);
-        weekdayArray.add(tuesLabel);
-        weekdayArray.add(wedLabel);
-        weekdayArray.add(thurLabel);
-        weekdayArray.add(friLabel);
-        weekdayArray.add(satLabel);
-        weekdayArray.add(sunLabel);
+        weekdayArray.add(monCheckBox);
+        weekdayArray.add(tuesCheckBox);
+        weekdayArray.add(wedCheckBox);
+        weekdayArray.add(thurCheckBox);
+        weekdayArray.add(friCheckBox);
+        weekdayArray.add(satCheckBox);
+        weekdayArray.add(sunCheckBox);
 
         // add labels to panel
         weekdayPanel.add(weekdayPanelDescription);
-        weekdayPanel.add(monLabel);
-        weekdayPanel.add(tuesLabel);
-        weekdayPanel.add(wedLabel);
-        weekdayPanel.add(thurLabel);
-        weekdayPanel.add(friLabel);
-        weekdayPanel.add(satLabel);
-        weekdayPanel.add(sunLabel);
+        weekdayPanel.add(monCheckBox);
+        weekdayPanel.add(tuesCheckBox);
+        weekdayPanel.add(wedCheckBox);
+        weekdayPanel.add(thurCheckBox);
+        weekdayPanel.add(friCheckBox);
+        weekdayPanel.add(satCheckBox);
+        weekdayPanel.add(sunCheckBox);
 
         // add panel to frame
         getContentPane().add(weekdayPanel, BorderLayout.CENTER);
@@ -228,6 +225,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // create labels
         repeatMinutesLabel = new JLabel("Repeat every X minute/s: ");
         minutesLabel = new JLabel("");
+        minutesLabel.setEnabled(false);
 
         // create panel to contain minute selection
         repeatMinutesPanel = new JPanel();
@@ -283,16 +281,14 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     protected void calcDuration()
     {
-        System.out.println("CALC DURATION");
         // ################## VALUES FROM USER FORM ##################
         // start and end hour
         int startHour = (int) startHourSelector.getSelectedItem();
         int endHour = (int) endHourSelector.getSelectedItem();
-        System.out.println("start" + startHour + "end" + endHour);
         // start and end minutes
         String startMinuteString = (String) startMinSelector.getSelectedItem();
         String endMinuteString = (String) endMinSelector.getSelectedItem();
-        System.out.println("start" + startMinSelector.getSelectedItem() + "end" + endMinSelector.getSelectedItem());
+
         int startMinute = parseInt(startMinuteString);
         int endMinute = parseInt(endMinuteString);
 
@@ -336,8 +332,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         repeatMinutesComboBox.removeAllItems();
 
-        int MINS_PER_DAY = 1440;
-        for (int minute = (duration+1); minute <= MINS_PER_DAY; minute++)
+        for (int minute = (duration+1); minute <= 1440; minute++)
         {
             repeatMinutesComboBox.addItem(minute);
         }
@@ -345,39 +340,31 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     protected void checkAllDayButtons(boolean selectAll)
     {
-        monLabel.setSelected(selectAll);
-        tuesLabel.setSelected(selectAll);
-        wedLabel.setSelected(selectAll);
-        thurLabel.setSelected(selectAll);
-        friLabel.setSelected(selectAll);
-        satLabel.setSelected(selectAll);
-        sunLabel.setSelected(selectAll);
+        monCheckBox.setSelected(selectAll);
+        tuesCheckBox.setSelected(selectAll);
+        wedCheckBox.setSelected(selectAll);
+        thurCheckBox.setSelected(selectAll);
+        friCheckBox.setSelected(selectAll);
+        satCheckBox.setSelected(selectAll);
+        sunCheckBox.setSelected(selectAll);
     }
 
     protected void enableMinuteSelector(boolean enable)
     {
         repeatMinutesComboBox.setEnabled(enable);
-        repeatMinutesComboBox.setSelectedIndex(0);
         repeatMinutesLabel.setEnabled(enable);
         minutesLabel.setEnabled(enable);
     }
 
-//    protected int getMinuteRepeat()
-//    {
-//        return (int) repeatCheckBox.getSelectedItem();
-//    }
-//
-//    protected void setMinuteLabel(int minuteRepeat)
-//    {
-//        System.out.println("Setting minute label to " + minuteRepeat);
-//        int hours = minuteRepeat/60;
-//        int mins = minuteRepeat%60;
-//        minuteLabel.setText("Repeat every " + hours + " hrs " + mins + " min");
-//    }
-
-    private int getDuration()
+    protected void setMinuteLabel(int minuteRepeat)
     {
-        return duration;
+        minutesLabel.setText("Repeat every " +  minuteRepeat/60 + " hrs " + minuteRepeat%60 + " min");
+        minutesLabel.setEnabled(true);
+    }
+
+    protected int getMinuteRepeat()
+    {
+        return (int)repeatMinutesComboBox.getSelectedItem();
     }
 
     private void setDuration(int newDuration)
@@ -387,7 +374,6 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     protected void setValues(boolean[] daysOfWeek, int startHour, int startMin, int BBduration, String buttonSelect, int minRepeat)
     {
-        System.out.println("SET VALUES ");
         // set day checkboxes based on BB
         for (int dayIndex = 0; dayIndex < daysOfWeek.length ;dayIndex++)
         {
@@ -400,25 +386,12 @@ public class ScheduleUpdateView extends AbstractGenericView
         startHourSelector.getModel().setSelectedItem(startHour);
         startMinSelector.getModel().setSelectedItem(String.valueOf(startMin));
 
-        System.out.println("SETTING START TIME ");
-
         int endHour = startHour + BBduration/60;
         int endMin = startMin +  BBduration%60;
-
-        System.out.println("SETTING END TIME getDuration()");
-
-        System.out.println("duration hour" + BBduration/60);
-        System.out.println("duration min" + BBduration%60);
 
         // set end time
         endHourSelector.getModel().setSelectedItem(endHour);
         endMinSelector.getModel().setSelectedItem(String.valueOf(endMin));
-
-        // set minute repeat time
-        if (minRepeat != -1)
-        {
-            repeatMinutesComboBox.getModel().setSelectedItem(minRepeat);
-        }
 
         // set radio button selection for recurrence
         switch (buttonSelect)
@@ -428,9 +401,10 @@ public class ScheduleUpdateView extends AbstractGenericView
                 enableMinuteSelector(false);
                 break;
             case "minute":
+                repeatMinutesComboBox.getModel().setSelectedItem(minRepeat);
                 minuteButton.setSelected(true);
                 enableMinuteSelector(true);
-//                setMinuteLabel(100);
+                setMinuteLabel(minRepeat);
                 break;
             case "daily":
                 dailyButton.setSelected(true);
@@ -487,6 +461,8 @@ public class ScheduleUpdateView extends AbstractGenericView
         JOptionPane.showMessageDialog(null, "Please select a valid duration");
     }
 
+    // ############### ADD LISTENERS ###############
+
     protected void addDurationListener(ItemListener listener)
     {
         startAMPMSelector.addItemListener(listener);
@@ -504,9 +480,9 @@ public class ScheduleUpdateView extends AbstractGenericView
         minuteButton.addActionListener(listener);
     }
 
-    protected void addPopulateScheduleListener(ActionListener listener)
+    protected void addPopulateScheduleListener(ItemListener listener)
     {
-        bbNameComboBox.addActionListener(listener);
+        bbNameComboBox.addItemListener(listener);
     }
 
     protected void addScheduleSubmitButtonListener(MouseAdapter listener)
@@ -514,8 +490,8 @@ public class ScheduleUpdateView extends AbstractGenericView
         submitButton.addMouseListener(listener);
     }
 
-    protected void addMinuteRepeatListener(ActionListener listener)
+    protected void addMinuteRepeatListener(ItemListener listener)
     {
-        repeatMinutesComboBox.addActionListener(listener);
+        repeatMinutesComboBox.addItemListener(listener);
     }
 }
