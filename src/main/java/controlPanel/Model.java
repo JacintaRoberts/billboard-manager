@@ -51,8 +51,6 @@ public class Model extends Subject
         // redefine previous and current view
         this.previousView = this.currentView;
         this.currentView = newView;
-        System.out.println("prev set: " + previousView);
-        System.out.println("current set: " + currentView);
     }
 
     /**

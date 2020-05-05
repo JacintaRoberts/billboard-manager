@@ -4,10 +4,7 @@ import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
+import java.awt.event.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -235,6 +232,7 @@ public class Controller
         scheduleUpdateView.addDailyRadioButtonListener(new ScheduleRadioButtonListener());
         scheduleUpdateView.addPopulateScheduleListener(new SchedulePopulateListener());
         scheduleUpdateView.addScheduleSubmitButtonListener(new ScheduleSubmitButtonListener());
+        scheduleUpdateView.addMinuteRepeatListener(new ScheduleMinuteRepeatListener());
         views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
 
@@ -333,7 +331,7 @@ public class Controller
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
                 // FIXME: call to server: get BB names
                 String[] names = {"Myer", "Anaconda", "David Jones"};
-                scheduleUpdateView.getBBNames(names);
+                scheduleUpdateView.setBBNamesFromDB(names);
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
@@ -588,7 +586,7 @@ public class Controller
     private class EditBBButtonListener extends MouseAdapter
     {
         @Override
-        public void mouseClicked(MouseEvent e)
+        public void mousePressed(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit BB button clicked");
             JButton button = (JButton) e.getSource();
@@ -793,15 +791,19 @@ public class Controller
     /**
      * Listener to handle show duration in Schedule Create
      */
-    private class ScheduleDurationListener implements ActionListener {
+    private class ScheduleDurationListener implements ItemListener {
         @Override
-        public void actionPerformed(ActionEvent e)
-        {
-            System.out.println("CONTROLLER LEVEL: Time changed");
+        public void itemStateChanged(ItemEvent e) {
 
-            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-            scheduleUpdateView.calcDuration();
-            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+            int eventId = e.getStateChange();
+            if (eventId == ItemEvent.SELECTED)
+            {
+                System.out.println("CONTROLLER LEVEL: Time changed");
+
+                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                scheduleUpdateView.calcDuration();
+                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+            }
         }
     }
 
@@ -829,6 +831,8 @@ public class Controller
                     break;
                 case "minute":
                     scheduleUpdateView.enableMinuteSelector(true);
+//                    int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
+//                    scheduleUpdateView.setMinuteLabel(minuteRepeat);
                     break;
             }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
@@ -836,13 +840,28 @@ public class Controller
     }
 
     /**
-     * Listener to handle BB Schedules to populate information
+     * Listener to handle Minute Repeat mouse clicks.
      */
-    private class SchedulePopulateListener implements ActionListener
-    {
+    private class ScheduleMinuteRepeatListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e)
         {
+            System.out.println("CONTROLLER LEVEL: Minute Repeat button clicked");
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            JComboBox menuItem = (JComboBox) e.getSource();
+//            int minuteSelected = (int)menuItem.getSelectedItem();
+//            scheduleUpdateView.setMinuteLabel(minuteSelected);
+            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+        }
+    }
+
+    /**
+     * Listener to handle BB Schedules to populate information
+     */
+    private class SchedulePopulateListener implements ActionListener {
+
+        @Override
+        public void actionPerformed(ActionEvent e) {
             System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
             JComboBox menuItem = (JComboBox) e.getSource();
             String bbName = (String)menuItem.getSelectedItem();
@@ -853,23 +872,21 @@ public class Controller
             {
                 boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
                 int startHour = 5;
-                int endHour = 6;
-                int startMin = 0;
-                int endMin = 30;
+                int startMin = 6;
+                int duration = 30;
                 int minRepeat = 220;
                 String recurrenceButton = "minute";
-                scheduleUpdateView.setValues(daysOfWeek, startHour, endHour, startMin, endMin, recurrenceButton, minRepeat);
+                scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
             }
             else if (bbName.equals("Anaconda"))
             {
-                boolean[] daysOfWeek = new boolean[]{true,true,true,false,false,false,false};
+                boolean[] daysOfWeek = new boolean[]{true,true,true,true,true,true,true};
                 int startHour = 1;
-                int endHour = 2;
                 int startMin = 0;
-                int endMin = 30;
+                int duration = 30;
                 int minRepeat = -1;
                 String recurrenceButton = "daily";
-                scheduleUpdateView.setValues(daysOfWeek, startHour, endHour, startMin, endMin, recurrenceButton, minRepeat);
+                scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
             }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
