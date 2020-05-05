@@ -4,6 +4,7 @@ import helpers.Helpers;
 
 import java.io.IOException;
 import java.util.HashMap;
+
 import static controlPanel.Main.VIEW_TYPE.*;
 
 /**
@@ -12,7 +13,7 @@ import static controlPanel.Main.VIEW_TYPE.*;
  */
 public class Main {
 
-    // hashmap to store Enums associated to Views
+    // HashMap to store Enums associated to Views
     private static HashMap<VIEW_TYPE, AbstractView> app_views = new HashMap<>();
 
     // create enum for all application views
@@ -32,15 +33,14 @@ public class Main {
     {
         // TODO: ONLY PUT THIS IN THE CP BACKEND FUNCTIONS WHEN NEED TO CONNECT TO SERVER - HERE FOR TESTING
         try {
-            //Object serverResponse = initClient("Test,");
-            Object serverResponse = Helpers.initClient("Logout,sessionToken");
-            //Object serverResponse = initClient("Something else...");
+            Object serverResponse = Helpers.initClient("Test");
+            Object serverResponse2 = Helpers.initClient("Login,testUser,goodPass");
             System.out.println("Received from server: " + serverResponse.toString());
+            System.out.println("Received from server: " + serverResponse2.toString());
         } catch (IOException | ClassNotFoundException e) { // Could not connect to server
             //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
             System.err.println("Exception caught: " + e);
         }
-
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {
