@@ -5,6 +5,7 @@ import controlPanel.Main.VIEW_TYPE;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -191,6 +192,7 @@ public class Controller
         bbCreateView.addBBTextListener(new BBTextListener());
         bbCreateView.addBBPhotoListener(new BBPhotoListener());
         bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
+        bbCreateView.addXMLExportListener(new BBXMLExportListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -654,7 +656,8 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.setColour(Color.blue);
+            Color newColor = bbCreateView.showColorChooser();
+            bbCreateView.setColour(newColor);
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -671,7 +674,8 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.setBBTitle("Billboard Title");
+            String BBTitle = bbCreateView.showBBTitleChooser();
+            bbCreateView.setBBTitle(BBTitle);
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -688,7 +692,8 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.setBBText();
+            String text = bbCreateView.showBBTextChooser();
+            bbCreateView.setBBText(text);
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -705,7 +710,11 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.browsePhotos();
+            try {
+                bbCreateView.browsePhotos();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -723,6 +732,23 @@ public class Controller
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             bbCreateView.browseXMLImport();
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle xml export BB mouse clicks.
+     */
+    private class BBXMLExportListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: XML export button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.BBXLMExport();
             views.put(BB_CREATE, bbCreateView);
         }
     }
