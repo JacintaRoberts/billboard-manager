@@ -1,8 +1,11 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -656,8 +659,8 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            Color newColor = bbCreateView.showColorChooser();
-            bbCreateView.setColour(newColor);
+            String newColor = bbCreateView.showColorChooser();
+            bbCreateView.setBackgroundColour(newColor);
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -731,7 +734,11 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.browseXMLImport();
+            try {
+                bbCreateView.browseXMLImport();
+            } catch (IOException | ParserConfigurationException | SAXException ex) {
+                ex.printStackTrace();
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -748,7 +755,11 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.BBXLMExport();
+            try {
+                bbCreateView.browseExportFolder();
+            } catch (ParserConfigurationException | TransformerException ex) {
+                ex.printStackTrace();
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }

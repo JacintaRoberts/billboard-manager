@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<billboard background="#0066ff">
+    <message colour="#000000">Hello</message>
+    <picture url=""/>
+    <information colour="#ffffff">sdfs</information>
+</billboard>
