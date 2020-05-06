@@ -189,7 +189,6 @@ public class Controller
         addGenericListeners(BB_CREATE);
         BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
         // FIXME: lots to come!
-        bbCreateView.addScheduleButtonListener(new ScheduleEditButtonListener());
         bbCreateView.addBBBackgroundColourListener(new ColourListener());
         bbCreateView.addBBTitleListener(new TitleListener());
         bbCreateView.addBBTextListener(new BBTextListener());
@@ -678,7 +677,12 @@ public class Controller
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             String BBTitle = bbCreateView.showBBTitleChooser();
-            bbCreateView.setBBTitle(BBTitle);
+            if (BBTitle != null)
+            {
+                bbCreateView.setBBTitle(BBTitle);
+                String titleColour = bbCreateView.browseTitleColour();
+                bbCreateView.setBBTitleColour(titleColour);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -695,8 +699,13 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            String text = bbCreateView.showBBTextChooser();
-            bbCreateView.setBBText(text);
+            String BBText = bbCreateView.showBBTextChooser();
+            if (BBText != null)
+            {
+                bbCreateView.setBBText(BBText);
+                String textColour = bbCreateView.browseTextColour();
+                bbCreateView.setBBTextColour(textColour);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -714,10 +723,10 @@ public class Controller
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             try {
-                bbCreateView.browsePhotos();
-            } catch (IOException ex) {
-                ex.printStackTrace();
+                ImageIcon icon = bbCreateView.browsePhotos();
+                bbCreateView.setPhoto(icon);
             }
+            catch (IOException ex) { ex.printStackTrace(); }
             views.put(BB_CREATE, bbCreateView);
         }
     }
