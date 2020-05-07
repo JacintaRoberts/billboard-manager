@@ -103,33 +103,5 @@ public class DbConnection {
     }
 
 
-    /**
-     * Stores Database Queries: Billboard
-     * <p>
-     * This method always returns immediately.
-     * @param  st A Statement object which is the connection.createStatement()
-     * @param  query A String which has the query fed into executeQuery
-     */
-    public static ArrayList<DbBillboard> storeBillboardContents(Statement st, String query) throws SQLException {
-        // Set List to store contents in
-        ArrayList<DbBillboard> queryList = new ArrayList<>();
-
-        // get all current entries
-        ResultSet rs = st.executeQuery(query);
-
-        // use metadata to get the number of columns
-        int columnCount = rs.getMetaData().getColumnCount();
-
-        // Loop through cursor
-        while (rs.next()) {
-            DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
-                                                      rs.getString("Creator"),
-                                                      rs.getString("XMLCode"));
-            queryList.add(dbBillboard);
-        }
-
-        return queryList;
-    }
-
 
 }

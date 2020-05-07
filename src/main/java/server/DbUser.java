@@ -1,10 +1,7 @@
 package server;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 
 public class DbUser {
@@ -13,6 +10,7 @@ public class DbUser {
     // Set Fields for DbUser
     private String Username;
     private String Password;
+    private String Salt;
     private String CreateBillboard;
     private String EditBillboard;
     private String ScheduleBillboard;
@@ -22,8 +20,51 @@ public class DbUser {
     private static Connection connection;
     private static PreparedStatement selectUser;
 
-    public DbUser(String Username, String Password, String CreateBillboard) {
+    public DbUser(String Username, String Password, String Salt, String CreateBillboard,
+                  String EditBillboard, String ScheduleBillboard, String EditUser) {
+        this.Username = Username;
+        this.Password = Password;
+        this.Salt = Salt;
+        this.CreateBillboard = CreateBillboard;
+        this.EditBillboard = EditBillboard;
+        this.ScheduleBillboard = ScheduleBillboard;
+        this.EditUser = EditUser;
     }
+
+
+    /**
+     * Stores Database Queries: Users. This is a generic method which stores any query sent to the database.
+     * <p>
+     * This method always returns immediately.
+     * @param  st A Statement object which is the connection.createStatement()
+     * @param  query A String which has the query fed into executeQuery
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ArrayList<DbUser> storeUserContents(Statement st, String query) throws IOException,SQLException {
+        // Set List to store contents in
+        ArrayList<DbUser> queryList = new ArrayList<>();
+
+        // get all current entries
+        ResultSet rs = st.executeQuery(query);
+
+        // Loop through cursor
+        while (rs.next()) {
+            DbUser dbUser = new DbUser(rs.getString("Username"),
+                    rs.getString("Password"),
+                    rs.getString("Salt"),
+                    rs.getString("CreateBillboard"),
+                    rs.getString("EditBillboard"),
+                    rs.getString("ScheduleBillboard"),
+                    rs.getString("EditUser"));
+            queryList.add(dbUser);
+        }
+
+        return queryList;
+    }
+
+
+
 
     /**
      * Method to fetch a user from the database - feel free to change this just wanted it to work!

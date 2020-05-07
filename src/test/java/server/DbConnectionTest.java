@@ -213,7 +213,6 @@ class DbConnectionTest {
 
         // Set SQL Query
         final String GET_BILLBOARDS_COLS = "SHOW COLUMNS FROM Billboards FROM billboarddatabase";
-        final String GET_BILLBOARD_DATA = "SELECT * FROM Billboards";
 
         // Set predetermined test cases
         String BillboardName = "BillboardName";
@@ -254,20 +253,12 @@ class DbConnectionTest {
                 verifyList.add(rs.getString(1));
             }
 
-            // Execute Query for storage
-            // TODO: CHECK IF WE WANT THIS
-            st.executeQuery(GET_BILLBOARD_DATA);
-            firstRow = DbConnection.storeBillboardContents(st,GET_BILLBOARD_DATA);
-
             // Close connection
             st.close();
             connection.close();
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-
-        // Check storage
-        assertTrue(firstRow != null);
 
         // Do Assertion to check if properties are read in or not
         assertAll("This should check if table columns are set properly",
@@ -374,13 +365,16 @@ class DbConnectionTest {
 //    }
 
 
-
     @Test
-    public void checkBillboardsTable2() throws IOException {
+    public void checkBillboardsTable2() throws IOException, SQLException {
 
         // Set SQL Query
-        final String GET_BILLBOARDS_COLS = "SHOW COLUMNS FROM Billboards FROM billboarddatabase";
-        final String GET_BILLBOARD_DATA = "SELECT * FROM Billboards";
+        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Billboards ";
+
+        // Set predetermined test cases
+        String BillboardName = "BillboardName";
+        String Creator = "Creator";
+        String XMLCode = "XMLCode";
 
         // Set connection
         Connection connection = DbConnection.getInstance();
@@ -399,27 +393,10 @@ class DbConnectionTest {
             st = connection.createStatement();
 
             // rename the table
-            st.executeQuery(GET_BILLBOARDS_COLS);
+            st.executeQuery(SHOW_BILLBOARD_CONTENT);
 
             // Display results
-            DbConnection.displayContents(st,GET_BILLBOARDS_COLS);
-
-
-            // Storage for assertion Checks
-            // get all current entries
-            ResultSet rs = st.executeQuery(GET_BILLBOARDS_COLS);
-            // Get Column
-            int columnCount = rs.getMetaData().getColumnCount();
-
-            // output each row
-            while (rs.next()) {
-                verifyList.add(rs.getString(1));
-            }
-
-            // Execute Query for storage
-            // TODO: CHECK IF WE WANT THIS
-            st.executeQuery(GET_BILLBOARD_DATA);
-            firstRow = DbConnection.storeBillboardContents(st,GET_BILLBOARD_DATA);
+            DbConnection.displayContents(st,SHOW_BILLBOARD_CONTENT);
 
             // Close connection
             st.close();
@@ -427,18 +404,7 @@ class DbConnectionTest {
         } catch (SQLException ex) {
             ex.printStackTrace();
         }
-
-        // Check storage
-        assertTrue(firstRow != null);
-        System.out.println(firstRow.get(1));
-
     }
-
-
-
-
-
-
 
 
 

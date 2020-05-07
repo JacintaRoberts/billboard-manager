@@ -1,5 +1,11 @@
 package server;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
 public class DbBillboard {
 
     // Set Fields for DbBillboard
@@ -7,7 +13,11 @@ public class DbBillboard {
     private String Creator;
     private String XMLCode;
 
-    public DbBillboard(String billboardName, String creator, String xmlCode) {
+    // Set Constructor for DbBillboard
+    public DbBillboard(String BillboardName, String Creator, String XMLCode) {
+        this.BillboardName = BillboardName;
+        this.Creator = Creator;
+        this.XMLCode = XMLCode;
     }
 
 
@@ -38,6 +48,9 @@ public class DbBillboard {
     public void setXMLCode(String XMLCode) {
         this.XMLCode = XMLCode;
     }
+
+
+
 
 
 

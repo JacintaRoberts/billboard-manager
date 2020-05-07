@@ -3,8 +3,12 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class BillboardAdminTest {
     /* Test 0: Declaring BillboardAdmin object
@@ -49,11 +53,19 @@ class BillboardAdminTest {
      *              Assume sessionToken is valid.
      * Expected Output: Billboard is added to the table and returns "Pass: Billboard Created"
      */
-//    @Test
-//    public void createABillboard(){
-//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(dbResponse, "Pass: Billboard Created");
-//    }
+    @Test
+    public void createABillboard() throws IOException, SQLException {
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String userName = "testUser1";
+        String billboardName = "Billboard1";
+
+        String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
+        assertEquals(dbResponse, "Pass: Billboard Created");
+        billboardAdmin.close();
+    }
 
 
     /* Test 5: Create Billboard - Duplicate Billboard Name (Exception Handling)
@@ -62,13 +74,19 @@ class BillboardAdminTest {
      * Expected Output: Billboard is not added to the table and returns "Fail: Billboard Name Already Exists"
      * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
-//    @Test
-//    public void createSameNameBillboard(){
-//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(dbResponse, "Fail: Billboard Name Already Exists");
-//        // Assert that the DB throws an SQL Exception for duplicate key
-//        assertThrows(SQLException);
-//    }
+    @Test
+    public void createSameNameBillboard() throws IOException, SQLException {
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String userName = "testUser1";
+        String billboardName = "Billboard1";
+
+        String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
+        assertEquals(dbResponse, "Pass: Billboard Created");
+        billboardAdmin.close();
+    }
 
 
     /* Test 6: Create Billboard - Illegal Characters in Billboard Name (Exception Handling)
@@ -78,13 +96,13 @@ class BillboardAdminTest {
      * // TODO: WE SHOULD PROB TELL THE USER ON THE GUI NOT TO ENTER WEIRD CHARS BUT JUST CHECK ANYWAY IN CASE THEY
      *     ESCAPE THEM - ALSO WORK OUT WHAT CHARACTERS ARE BAD FOR MARIA DB/JAVA AND REPLACE THE DUMMY ONES I HAVE
      */
-//    @Test
-//    public void createIllegalNameBillboard(){
-//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "!@#$%^&*()~", xmlCode);
-//        assertEquals(dbResponse, "Fail: Billboard Contains Illegal Character");
-//        // Have to create this exception ourselves - if (name.contains("!@#$%^&*()~)) throw Exception ->
-//        assertThrows(IllegalBillboardNameException);
-//    }
+    @Test
+    public void createIllegalNameBillboard(){
+        String dbResponse = billboardAdmin.createBillboard("sessionToken", "!@#$%^&*()~", xmlCode);
+        assertEquals(dbResponse, "Fail: Billboard Contains Illegal Character");
+        // Have to create this exception ourselves - if (name.contains("!@#$%^&*()~)) throw Exception ->
+        assertThrows(IllegalBillboardNameException);
+    }
 
 
     /* Test 7: Edit Billboard in Billboard Table (Success)

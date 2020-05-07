@@ -41,7 +41,6 @@ public class UserAdmin {
         ArrayList<String> user = DbUser.retrieveUser(username);
         System.out.println("This was received: " + user.toString());
         System.out.println("Your pass..." + hashedPassword);
-        System.out.println("This is the password in database:" + user.get(1).toString());
         if (user.get(1).equals(hashedPassword)) { // Logic: If password matches the password in the database
             System.out.println("Password matches");
             return true;
