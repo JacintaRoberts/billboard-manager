@@ -186,6 +186,116 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
+     * Reads in a picture from a file based on whether it is url or data
+     * @param picture - a string which is the picture to read in, this could be in the form of a url or data attribute
+     * @param pictureType - a string which is either url or data, so that we can decode the image
+     * @return pictureImage - a BufferedImage which is the picture so it can be displayed on the billboard
+     */
+    public BufferedImage readPictureFromFile(String picture, String pictureType) {
+        BufferedImage pictureImage = null;
+
+        // Decide if it's a url or data attribute
+        if (pictureType.equals("url")) {
+            // Try to extract picture from url, if this fails catch the exception
+            try {
+                // Extract picture from URL and convert to an image
+                URL pictureURL = new URL(picture);
+                pictureImage = ImageIO.read(pictureURL);
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        else {
+            // Try to decode the base-64 encoded representation of the image
+            try {
+                // Decode data attribute from url and convert to an image
+                byte[] pictureByteArray = Base64.getDecoder().decode(picture.getBytes(StandardCharsets.UTF_8));
+                pictureImage = ImageIO.read(new ByteArrayInputStream(pictureByteArray));
+
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        return pictureImage;
+    }
+
+
+    /**
+     * Scales the given image to be no larger than the maximum width and no larger than the maximum height
+     * @param image - the image that needs to be scaled
+     * @param maxImageWidth - the largest width the image can be displayed as on the screen
+     * @param maxImageHeight - the largest height the image can be displayed as on the screen
+     * @return scaledImage - an Image which is the scaled version of the input image
+     */
+    public Image getScaledImage(BufferedImage image, double maxImageWidth, double maxImageHeight) {
+        // Find the current dimensions of the picture
+        double originalWidth = image.getWidth();
+        double originalHeight = image.getHeight();
+
+        // Initialise variables to store the new dimensions - set the initial value as the current dimensions
+        double newWidth = originalWidth;
+        double newHeight = originalHeight;
+
+        // How much the image width or height has changed - we will use this to alter the other dimension
+        double ratio = 1;
+
+        // Decide how to scale the image (or if we need to at all)
+        // If the width is too big but the height is smaller
+        if (originalWidth > maxImageWidth && originalHeight < maxImageHeight) {
+            newWidth = maxImageWidth;
+            ratio = newWidth/originalWidth;
+            newHeight = ratio*originalHeight;
+        }
+
+        // If the height is too big but the width is smaller
+        if (originalWidth < maxImageWidth && originalHeight > maxImageHeight) {
+            newHeight = maxImageHeight;
+            ratio = newHeight/originalHeight;
+            newWidth = ratio*originalWidth;
+        }
+
+        // If both the width and the height are too small or too big
+        if ((originalWidth < maxImageWidth && originalHeight < maxImageHeight) ||
+                (originalWidth > maxImageWidth && originalHeight > maxImageHeight)) {
+            if (originalWidth > originalHeight) {
+                newWidth = maxImageWidth;
+                ratio = newWidth/originalWidth;
+                newHeight = ratio*originalHeight;
+            }
+            else if (originalWidth < originalHeight) {
+                newHeight = maxImageHeight;
+                ratio = newHeight/originalHeight;
+                newWidth = ratio*originalWidth;
+            }
+            // The width and height are the same i.e. the image is square. Make the width and height equal to the
+            // maximum screen height
+            else {
+                newWidth = maxImageHeight;
+                newHeight = maxImageHeight;
+            }
+        }
+
+        // Round the dimensions properly and cast to int (since Math.round gives a long)
+        int finalWidth = (int) Math.round(newWidth);
+        int finalHeight = (int) Math.round(newHeight);
+
+        // Testing
+//        System.out.println("Maximum Image Dimensions: " + maxImageWidth + " x " + maxImageHeight);
+//        System.out.println("Original Dimensions: " + originalWidth + " x " + originalHeight);
+//        System.out.println("Ratio: " + ratio);
+//        System.out.println("New Dimensions: " + newWidth + " x " + newHeight);
+//        System.out.println("Final Rounded Dimensions: " + finalWidth + " x " + finalHeight);
+
+        // Scale the image
+        Image scaledImage = image.getScaledInstance(finalWidth, finalHeight, Image.SCALE_DEFAULT);
+
+        return scaledImage;
+    }
+
+
+    /**
      * Calculates the largest font size for the message string, which must fit on one line on the screen.
      * @param message - the string to display on the screen
      * @return fontSize - the largest font size that the message can be displayed at
@@ -224,6 +334,27 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
+     * Calculates the largest font size for the information string. The text should be displayed in the centre, with
+     * word wrapping and font size chosen so that the text fills up no more than 75% of the screen's width and 50% of
+     * the screen's height.
+     * @param information - the string to display on the screen
+     * @param maxStringWidth - the maximum width the string can be
+     * @param maxStringHeight - the maximum height the string can be
+     * @return fontSize - the largest font size that the information text can be displayed at
+     * TODO: FIND A NEW WAY TO DO THIS!!!
+     */
+    public int getInformationFontSize(String information, double maxStringWidth, double maxStringHeight) {
+        // Get the current font size and initialise the variable to return
+        int currentFontSize = informationLabel.getFont().getSize();
+        int fontSize = currentFontSize;
+
+
+
+        return fontSize;
+    }
+
+
+    /**
      * Displays a billboard which has only a message
      * @param message - a string which stores the message to display
      */
@@ -241,76 +372,21 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Adds the picture to the central panel - for pictureOnlyBillboard at this stage
-     * @param image - the image that needs to be added to the panel
-     * TODO: Edit this method to account for other sizes of pictures also.
+     * Displays a billboard which has only a picture which is no more than 50% of the screen height and no more than
+     * 50% of the screen width
+     * @param picture - a string which stores the picture to display, in the form of a url or data attribute
+     * @param pictureType - a string which specifies the type of picture, either url or data
      */
-    public void addPictureToPanel(BufferedImage image) {
-        // Find the current dimensions of the picture
-        double originalWidth = image.getWidth();
-        double originalHeight = image.getHeight();
+    public void pictureOnlyBillboard(String picture, String pictureType) {
+        // Read in the picture
+        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
 
         // Define the maximum image dimensions based on the screen dimensions
         double maxImageWidth = screenWidth/2;
         double maxImageHeight = screenHeight/2;
 
-        // Initialise variables to store the new dimensions - set the initial value as the current dimensions
-        double newWidth = originalWidth;
-        double newHeight = originalHeight;
-
-        // How much the image width or height has changed - we will use this to alter the other dimension
-        double ratio = 1;
-
-        // Decide how to scale the image (or if we need to at all)
-        // If the width is too big but the height is smaller
-        if (originalWidth > maxImageWidth && originalHeight < maxImageHeight) {
-            newWidth = maxImageWidth;
-            ratio = newWidth/originalWidth;
-            newHeight = ratio*originalHeight;
-        }
-
-        // If the height is too big but the width is smaller
-        if (originalWidth < maxImageWidth && originalHeight > maxImageHeight) {
-            newHeight = maxImageHeight;
-            ratio = newHeight/originalHeight;
-            newWidth = ratio*originalWidth;
-        }
-
-
-        // If both the width and the height are too small or too big
-        if ((originalWidth < maxImageWidth && originalHeight < maxImageHeight) ||
-                (originalWidth > maxImageWidth && originalHeight > maxImageHeight)) {
-            if (originalWidth > originalHeight) {
-                newWidth = maxImageWidth;
-                ratio = newWidth/originalWidth;
-                newHeight = ratio*originalHeight;
-            }
-            else if (originalWidth < originalHeight) {
-                newHeight = maxImageHeight;
-                ratio = newHeight/originalHeight;
-                newWidth = ratio*originalWidth;
-            }
-            // The width and height are the same i.e. the image is square. Make the width and height equal to the
-            // maximum screen height
-            else {
-                newWidth = maxImageHeight;
-                newHeight = maxImageHeight;
-            }
-        }
-
-        // Round the dimensions properly and cast to int (since Math.round gives a long)
-        int finalWidth = (int) Math.round(newWidth);
-        int finalHeight = (int) Math.round(newHeight);
-
-        // Testing
-//        System.out.println("Maximum Image Dimensions: " + maxImageWidth + " x " + maxImageHeight);
-//        System.out.println("Original Dimensions: " + originalWidth + " x " + originalHeight);
-//        System.out.println("Ratio: " + ratio);
-//        System.out.println("New Dimensions: " + newWidth + " x " + newHeight);
-//        System.out.println("Final Rounded Dimensions: " + finalWidth + " x " + finalHeight);
-
-        // Scale the image
-        Image scaledImage = image.getScaledInstance(finalWidth, finalHeight, Image.SCALE_DEFAULT);
+        // Scale the image we are displaying based on the maximum image dimensions
+        Image scaledImage = getScaledImage(pictureImage, maxImageWidth, maxImageHeight);
 
         // Set the scaled image as the JLabel
         pictureIcon.setImage(scaledImage);
@@ -326,97 +402,6 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has only a picture
-     * @param picture - a string which is the picture to display, this could be in the form of a url or data attribute
-     * @param pictureType - a string which is either url or data, so that we can decode the image
-     * TODO: Move some stuff out of this method and create a new method which reads in an images and returns the image.
-     */
-    public void pictureOnlyBillboard(String picture, String pictureType) {
-        // Decide if it's a url or data attribute
-        if (pictureType.equals("url")) {
-            // Try to extract picture from url, if this fails catch the exception
-            try {
-                // Extract picture from URL
-                URL pictureURL = new URL(picture);
-                BufferedImage pictureImage = ImageIO.read(pictureURL);
-
-                // Add the image to the central panel
-                addPictureToPanel(pictureImage);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-        else {
-            // Try to decode the base-64 encoded representation of the image
-            try {
-                // Decode data attribute from url and convert to an image
-                byte[] pictureByteArray = Base64.getDecoder().decode(picture.getBytes(StandardCharsets.UTF_8));
-                BufferedImage pictureImage = ImageIO.read(new ByteArrayInputStream(pictureByteArray));
-
-                // Add the image to the central panel
-                addPictureToPanel(pictureImage);
-
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
-
-    }
-
-
-    /**
-     * Calculates the largest font size for the information string. The text should be displayed in the centre, with
-     * word wrapping and font size chosen so that the text fills up no more than 75% of the screen's width and 50% of
-     * the screen's height.
-     * @param information - the string to display on the screen
-     * @return fontSize - the largest font size that the information text can be displayed at
-     * TODO: Somehow calculate the number of lines.
-     */
-    public int getInformationFontSize(String information) {
-        // Get the current font size and initialise the variable to return
-        int currentFontSize = informationLabel.getFont().getSize();
-        int fontSize = currentFontSize;
-
-        // Calculate what the height of the string would be based on the current font size
-        FontMetrics fontMetrics = informationLabel.getFontMetrics(new Font(informationLabel.getFont().getName(),
-                Font.BOLD, currentFontSize));
-        double lineHeight = fontMetrics.getHeight();
-        double numLines = 2;
-        double stringHeight = lineHeight * numLines;
-        double maxStringHeight = screenHeight*0.5;
-
-        // Testing
-        System.out.println("maxStringHeight = " + maxStringHeight);
-        System.out.println("lineHeight = " + lineHeight);
-        System.out.println("numLines = " + numLines);
-        System.out.println("stringHeight = " + stringHeight);
-        System.out.println("fontSize = " + fontSize + "\n");
-
-        // While the current height of the string is less than the maximum string height (50% of the screen height)
-        while (stringHeight < maxStringHeight) {
-            // Increase the font size
-            fontSize = fontSize + 1;
-
-            // Recalculate the string height
-            fontMetrics = informationLabel.getFontMetrics(new Font(informationLabel.getFont().getName(), Font.BOLD, fontSize));
-            lineHeight = fontMetrics.getHeight();
-            numLines = 2;
-            stringHeight = lineHeight * numLines;
-        }
-
-        // Testing
-        System.out.println("lineHeight = " + lineHeight);
-        System.out.println("numLines = " + numLines);
-        System.out.println("stringHeight = " + stringHeight);
-        System.out.println("lineHeight = " + lineHeight);
-        System.out.println("fontSize = " + fontSize);
-
-        return fontSize;
-    }
-
-
-    /**
      * Displays a billboard which has only a information
      * @param information - a string which stores the information to display
      * TODO: The text should be displayed in the centre, with word wrapping and font size chosen so that the text fills
@@ -425,12 +410,15 @@ public class Viewer extends JFrame implements Runnable {
     public void informationOnlyBillboard(String information) {
         // Set the text and font of the information label
         double maxStringWidth = screenWidth*0.75;
-        String informationHTML = "<html><div style='width: " + maxStringWidth + "; text-align: center;'>" + information
-                + "</div></html>";
+        double maxStringHeight = screenHeight*0.5;
+
+        String informationHTML = "<html><div style='width: " + maxStringWidth + "; text-align: center;'>"
+                + information + "</div></html>";
         informationLabel.setText(informationHTML);
+
         informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.BOLD, 40));
 
-        int fontSize = getInformationFontSize(information);
+        int fontSize = getInformationFontSize(information, maxStringWidth, maxStringHeight);
 //        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.BOLD, fontSize));
 
         // Add information label to the central panel in the JFrame
@@ -443,20 +431,117 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has a message and picture
-     * TODO
+     * Displays a billboard which has a message and picture. The picture is displayed in the center of the bottom 2/3
+     * of the screen, and the message is displayed in the center of the remaining top of the screen.
+     * @param message - a string which stores the message to display
+     * @param picture - a string which stores the picture to display, in the form of a url or data attribute
+     * @param pictureType - a string which specifies the type of picture, either url or data
      */
-    public void messagePictureBillboard(HashMap<String, String> billboardData) {
+    public void messagePictureBillboard(String message, String picture, String pictureType) {
+        // Set the text of the message label
+        messageLabel.setText(message);
 
+        // Choose the font size so the message fits in one line
+        int fontSize = getMessageFontSize(message);
+        Font messageFont = new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize);
+        messageLabel.setFont(messageFont);
+
+        // Get the message height
+        double messageHeight = messageLabel.getFontMetrics(messageFont).getHeight();
+
+        // Read in the picture
+        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
+
+        // Define the maximum image dimensions based on the screen dimensions
+        double maxImageWidth = screenWidth/2;
+        double maxImageHeight = screenHeight/2;
+
+        // Scale the image we are displaying based on the maximum image dimensions
+        Image scaledImage = getScaledImage(pictureImage, maxImageWidth, maxImageHeight);
+
+        // Set the scaled image as the JLabel
+        pictureIcon.setImage(scaledImage);
+        pictureLabel.setIcon(pictureIcon);
+
+        // Calculate vertical padding for image - the image should fit in the center of bottom 2/3 of screen
+        int picturePadding = (int) ( (2*(screenHeight/3)) - scaledImage.getHeight(null) )/2;
+
+        // Calculate vertical padding for message - the message should fit in the centre of the remaining space at the
+        // top of the screen
+        int messageTopPadding = (int) ( (screenHeight/3) + picturePadding - messageHeight )/2;
+        int messageBottomPadding = messageTopPadding - picturePadding;
+
+        // Create a grid bag constraints for the message
+        GridBagConstraints messageConstraints = new GridBagConstraints();
+        messageConstraints.anchor = GridBagConstraints.CENTER;
+        messageConstraints.gridx = 0;
+        messageConstraints.gridy = 0;
+        messageConstraints.insets = new Insets(messageTopPadding, 0, messageBottomPadding, 0);
+
+        // Create a grid bag constraints for the picture
+        GridBagConstraints pictureConstraints = new GridBagConstraints();
+        pictureConstraints.anchor = GridBagConstraints.CENTER;
+        pictureConstraints.gridx = 0;
+        pictureConstraints.gridy = 1;
+        pictureConstraints.gridheight = 2;
+        pictureConstraints.insets = new Insets(picturePadding, 0, picturePadding, 0);
+
+        // Testing
+//        System.out.println("Screen Dimensions: " + screenWidth + " x " + screenHeight);
+//        System.out.println("1/3 of Screen Height = " + screenHeight/3);
+//        System.out.println("2/3 of Screen Height = " + 2*screenHeight/3);
+//        System.out.println("Message Padding = " + messageTopPadding);
+//        System.out.println("Picture Padding = " + picturePadding);
+
+        // Add the message and image to the billboard
+        mainPanel.add(messageLabel, messageConstraints);
+        mainPanel.add(pictureLabel, pictureConstraints);
     }
 
 
     /**
-     * Displays a billboard which has a message and information
-     * TODO
+     * Displays a billboard which has a message and information. The message is displayed in the center of the top half
+     * of the screen and the information is displayed in the center of the bottom half of the screen.
+     * @param message - a string which stores the message to display
+     * @param information - a string which stores the information to display
+     * TODO: Format properly once information label can be displayed properly on the screen.
      */
-    public void messageInformationBillboard(HashMap<String, String> billboardData) {
+    public void messageInformationBillboard(String message, String information) {
+        // Set the text of the message label
+        messageLabel.setText(message);
 
+        // Choose the font size so the message fits in one line
+        int fontSize = getMessageFontSize(message);
+        Font messageFont = new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize);
+        messageLabel.setFont(messageFont);
+
+        // Get the message height
+        double messageHeight = messageLabel.getFontMetrics(messageFont).getHeight();
+
+        // Set the text of the information label
+        informationLabel.setText(information);
+        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.BOLD, 30));
+
+        // Calculate vertical padding for message - the message should fit in the centre of the remaining space at the
+        // top of the screen
+        int messagePadding = (int) ( (screenHeight/2)  - messageHeight )/2;
+        System.out.println(messagePadding);
+
+        // Create a grid bag constraints for message
+        GridBagConstraints messageConstraints = new GridBagConstraints();
+        messageConstraints.gridx = 0;
+        messageConstraints.gridy = 0;
+        messageConstraints.insets = new Insets(messagePadding, 0, messagePadding, 0);
+
+        // Create a grid bag constraints for information
+        GridBagConstraints informationConstraints = new GridBagConstraints();
+        informationConstraints.gridx = 0;
+        informationConstraints.gridy = 1;
+        messageConstraints.insets = new Insets(10, 0, 200, 0);
+
+        // Add message and information
+        mainPanel.add(messageLabel, messageConstraints);
+        mainPanel.add(informationLabel, informationConstraints);
     }
 
     /**
@@ -497,10 +582,10 @@ public class Viewer extends JFrame implements Runnable {
             allFeaturesBillboard(billboardData);
         }
         else if (message != null && picture != null) {
-            messagePictureBillboard(billboardData);
+            messagePictureBillboard(message, picture, pictureType);
         }
         else if (message != null && information != null) {
-            messageInformationBillboard(billboardData);
+            messageInformationBillboard(message, information);
         }
         else if (picture != null && information != null) {
             pictureInformationBillboard(billboardData);
@@ -615,7 +700,7 @@ public class Viewer extends JFrame implements Runnable {
     public void displayBillboard() {
         setupBillboard();
 
-        File fileToDisplay = extractXMLFile(2);
+        File fileToDisplay = extractXMLFile(7);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
 
         formatBillboard(billboardData);
@@ -666,6 +751,5 @@ public class Viewer extends JFrame implements Runnable {
             System.err.println("Exception caught: " + e);
         }
         SwingUtilities.invokeLater(new Viewer("Billboard Viewer"));
-        //displayBillboard();
     }
 }
