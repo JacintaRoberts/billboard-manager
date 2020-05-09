@@ -246,13 +246,14 @@ class BillboardAdminTest {
         // Required if table is not empty
 //        billboardAdmin.deleteAllBillboard();
 
+//        BillboardList billboardList = billboardAdmin.listBillboard();
+//        assertEquals(billboardList.getServerResponse(),"Fail: No Billboard Exists");
+//        assertTrue(billboardList.getBillboardNames().get(0).equals("0"));
+
         assertThrows(BillboardAdmin.emptyBillboardTable.class, () -> {
             BillboardList billboardList = billboardAdmin.listBillboard();
         });
 
-//        BillboardList billboardList = billboardAdmin.listBillboard();
-//        assertEquals(billboardList.getServerResponse(),"Fail: No Billboard Exists");
-//        assertTrue(billboardList.getBillboardNames().get(0).equals("0"));
 
     }
 
