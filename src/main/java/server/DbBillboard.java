@@ -12,12 +12,14 @@ public class DbBillboard {
     private String BillboardName;
     private String Creator;
     private String XMLCode;
+    private String returnString;
 
     // Set Constructor for DbBillboard
-    public DbBillboard(String BillboardName, String Creator, String XMLCode) {
+    public DbBillboard(String BillboardName, String Creator, String XMLCode, String returnString) {
         this.BillboardName = BillboardName;
         this.Creator = Creator;
         this.XMLCode = XMLCode;
+        this.returnString = returnString;
     }
 
 
@@ -34,7 +36,9 @@ public class DbBillboard {
         return XMLCode;
     }
 
-
+    public String getReturnString() {
+        return returnString;
+    }
 
     // Set Setters for DbBillboard
     public void setBillboardName(String BillboardName) {
@@ -50,7 +54,9 @@ public class DbBillboard {
     }
 
 
-
+    public void setReturnString(String returnString) {
+        this.returnString = returnString;
+    }
 
 
 

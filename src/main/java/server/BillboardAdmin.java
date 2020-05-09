@@ -12,11 +12,19 @@ public class BillboardAdmin {
                                                     "SET XMLCode = ?" +
                                                     "WHERE BillboardName = ?";
     public static final String DELETE_BILLBOARD_SQL = "DELETE FROM Billboards WHERE BillboardName = ?";
+    public static final String DELETE_ALL_BILLBOARD_SQL = "DELETE FROM Billboards";
     public static final String COUNT_FILTER_BILLBOARD_SQL = "SELECT COUNT(*) FROM Billboards WHERE BillboardName = ?";
+    public static final String COUNT_BILLBOARD_SQL = "SELECT COUNT(*) FROM Billboards";
+    public static final String LIST_BILLBOARD_SQL = "SELECT BillboardName FROM Billboards";
+    public static final String SHOW_BILLBOARD_SQL = "SELECT * FROM Billboards WHERE BillboardName = ?";
 
     // Custom Parameters for connection
     private static Connection connection;
-    private static PreparedStatement selectBillboard;
+    private static PreparedStatement createBillboard;
+    private static PreparedStatement deleteBillboard;
+    private static PreparedStatement countFilterBillboard;
+    private static PreparedStatement editBillboard;
+    private static PreparedStatement listaBillboard;
 
 
     // Public Class for Custom Exceptions
@@ -32,6 +40,11 @@ public class BillboardAdmin {
         }
     }
 
+    public class emptyBillboardTable extends Exception {
+        public emptyBillboardTable(String errorMessage) {
+            super(errorMessage);
+        }
+    }
 
 
     /**
@@ -55,7 +68,8 @@ public class BillboardAdmin {
         while (rs.next()) {
             DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
                     rs.getString("Creator"),
-                    rs.getString("XMLCode"));
+                    rs.getString("XMLCode"),
+                    "List");
             queryList.add(dbBillboard);
         }
 
@@ -80,11 +94,11 @@ public class BillboardAdmin {
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
-            selectBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
-            selectBillboard.setString(1,billboard);
-            selectBillboard.setString(2,userName);
-            selectBillboard.setString(3, xmlCode);
-            ResultSet rs = selectBillboard.executeQuery();
+            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+            createBillboard.setString(1,billboard);
+            createBillboard.setString(2,userName);
+            createBillboard.setString(3, xmlCode);
+            ResultSet rs = createBillboard.executeQuery();
         } else {
             throw new illegalBillboardNameException("Fail: Billboard Name Contains Illegal Characters");
         }
@@ -108,16 +122,16 @@ public class BillboardAdmin {
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
-            selectBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
-            selectBillboard.setString(1,billboard);
-            ResultSet rs = selectBillboard.executeQuery();
+            countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
+            countFilterBillboard.setString(1,billboard);
+            ResultSet rs = countFilterBillboard.executeQuery();
             rs.next();
             String count = rs.getString(1);
             if (count.equals("1")){
-                selectBillboard = connection.prepareStatement(EDIT_BILLBOARD_SQL);
-                selectBillboard.setString(1,xmlCode);
-                selectBillboard.setString(2,billboard);
-                rs = selectBillboard.executeQuery();
+                editBillboard = connection.prepareStatement(EDIT_BILLBOARD_SQL);
+                editBillboard.setString(1,xmlCode);
+                editBillboard.setString(2,billboard);
+                rs = editBillboard.executeQuery();
             }else {
                 throw new BillboardNotExistException("Fail: Billboard Does not Exist");
             }
@@ -142,16 +156,15 @@ public class BillboardAdmin {
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
-            selectBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
-            selectBillboard.setString(1,billboard);
-            ResultSet rs = selectBillboard.executeQuery();
+            Statement countBillboard = connection.createStatement();
+            ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
             rs.next();
             String count = rs.getString(1);
             if (count.equals("1")){
                 connection = DbConnection.getInstance();
-                selectBillboard = connection.prepareStatement(DELETE_BILLBOARD_SQL);
-                selectBillboard.setString(1,billboard);
-                rs = selectBillboard.executeQuery();
+                deleteBillboard = connection.prepareStatement(DELETE_BILLBOARD_SQL);
+                deleteBillboard.setString(1,billboard);
+                rs = deleteBillboard.executeQuery();
             }else {
                 throw new BillboardNotExistException("Fail: Billboard Does not Exist");
             }
@@ -165,11 +178,116 @@ public class BillboardAdmin {
 
 
     /**
+     * Stores Database Queries: Billboard. This is a generic method which deletes all billboards stored into database.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public String deleteAllBillboard() throws IOException, SQLException, emptyBillboardTable {
+        String resultMessage;
+        connection = DbConnection.getInstance();
+        Statement countBillboard = connection.createStatement();
+        ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        if (count.equals("0")){
+            throw new emptyBillboardTable("Fail: No Billboard Exists");
+        }else {
+            connection = DbConnection.getInstance();
+            Statement deleteAllBillboard = connection.createStatement();
+            rs = deleteAllBillboard.executeQuery(DELETE_ALL_BILLBOARD_SQL);
+        }
+        resultMessage = "Pass: All Billboards Deleted";
+        return resultMessage;
+    }
+
+
+
+    /**
+     * Stores Database Queries: Billboard. This is a generic method which returns a list of billboards stored into database.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    //     LIST_BILLBOARD_SQL,COUNT_BILLBOARD_SQL
+    public BillboardList listBillboard() throws IOException, SQLException, emptyBillboardTable {
+        ArrayList<String> retrievedBillboard = new ArrayList<>();
+
+        connection = DbConnection.getInstance();
+        Statement countBillboard = connection.createStatement();
+        ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        String serverResponse = null;
+        if (count.equals("0")) {
+            serverResponse = "Fail: No Billboard Exists";
+            retrievedBillboard.add("0");
+            throw new emptyBillboardTable("Fail: No Billboard Exists");
+        } else {
+            connection = DbConnection.getInstance();
+            Statement listBillboard = connection.createStatement();
+            rs = listBillboard.executeQuery(LIST_BILLBOARD_SQL);
+            while (rs.next()) {
+                String value = rs.getString(1);
+                retrievedBillboard.add(value);
+            }
+            serverResponse = "Pass: Billboard List Returned";
+        }
+
+        BillboardList billboardList = new BillboardList(serverResponse,retrievedBillboard);
+
+        return billboardList;
+    }
+
+
+
+    /**
+     * Stores Database Queries: Billboard. This is a generic method which edits billboard xmlCode in the database.
+     * <p>
+     * This method always returns immediately.
+     * @param  billboard A String which provides Billboard Name to store into database
+     * @param  xmlCode A String which provides xmlCode to store into database
+     * @return
+     */
+    public DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException, illegalBillboardNameException, BillboardNotExistException {
+        String resultMessage;
+        String validCharacters = "([A-Za-z0-9-_]+)";
+        if (billboard.matches(validCharacters)) {
+            connection = DbConnection.getInstance();
+            countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
+            countFilterBillboard.setString(1,billboard);
+            ResultSet rs = countFilterBillboard.executeQuery();
+            rs.next();
+            String count = rs.getString(1);
+            if (count.equals("1")){
+                listaBillboard = connection.prepareStatement(SHOW_BILLBOARD_SQL);
+                listaBillboard.setString(1,billboard);
+                rs = listaBillboard.executeQuery();
+                rs.next();
+                DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
+                        rs.getString("Creator"),
+                        rs.getString("XMLCode"),
+                        "Pass: Billboard Info Returned");
+                return dbBillboard;
+            }else {
+                throw new BillboardNotExistException("Fail: Billboard Does not Exist");
+            }
+        } else {
+            throw new illegalBillboardNameException("Fail: Billboard Name Contains Illegal Characters");
+        }
+    }
+
+
+
+    /**
      * Tidy up connections
      */
     public static void close() {
         try {
-            selectBillboard.close();
+            createBillboard.close();
+            deleteBillboard.close();
+            countFilterBillboard.close();
+            editBillboard.close();
             connection.close();
         } catch (SQLException ex) {
             ex.printStackTrace();

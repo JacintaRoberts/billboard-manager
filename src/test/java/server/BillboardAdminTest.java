@@ -7,9 +7,9 @@ import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BillboardAdminTest {
     /* Test 0: Declaring BillboardAdmin object
@@ -219,33 +219,42 @@ class BillboardAdminTest {
      * Expected Output: Returns billboard names array and "Pass: Billboard List Returned"
      * //TODO: Set up mock db to have a Billboard1, Billboard2 and Billboard3 as below with dummy xml code
      */
-//    @Test
-//    public void listAllBillboard(){
-//        List<String> testBillboardList = new ArrayList<String>();
-//        testBillboardList.add("Billboard1");
-//        testBillboardList.add("Billboard2");
-//        testBillboardList.add("Billboard3");
-//        BillboardList billboardList = billboardAdmin.listBillboards("sessionToken");
-//        assertEquals(billboardList.getServerResponse(),"Pass: Billboard List Returned");
-//        assertArrayEquals(testBillboardList, billboardList.getBillboardList());
-//    }
+    @Test
+    public void listAllBillboard() throws BillboardAdmin.emptyBillboardTable, SQLException, IOException {
+        List<String> testBillboardList = new ArrayList<String>();
+        // Set test cases
+        testBillboardList.add("TestBillboard");
+        testBillboardList.add("TestBillboard2");
+        testBillboardList.add("TestBillboard3");
+
+
+        BillboardList billboardList = billboardAdmin.listBillboard();
+        assertEquals(billboardList.getServerResponse(),"Pass: Billboard List Returned");
+        assertArrayEquals(testBillboardList.toArray(),billboardList.getBillboardNames().toArray());
+    }
 
 
     /* Test 14: List Billboards - Billboard Name Does Not Exist (Exception Handling)
      * Description: Receive list billboard request from CP. Assume sessionToken is valid.
      *              Fails because there is no billboard to return (empty).
      * Expected Output: Returns billboard names array and "Fail: No Billboard Exists"
-     * //TODO: Ensure that the MockDB is empty for this test
-     * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
+     * //TODO: See throws or nay
      */
-//    @Test
-//    public void listAllBillboardNoBillboard(){
-//        BillboardList billboardList = billboardAdmin.listBillboard("sessionToken");
-//        assertTrue(billboardList.getBillboardList() == 0);
+    @Test
+    public void listAllBillboardNoBillboard() throws BillboardAdmin.emptyBillboardTable, SQLException, IOException {
+
+        // Required if table is not empty
+//        billboardAdmin.deleteAllBillboard();
+
+        assertThrows(BillboardAdmin.emptyBillboardTable.class, () -> {
+            BillboardList billboardList = billboardAdmin.listBillboard();
+        });
+
+//        BillboardList billboardList = billboardAdmin.listBillboard();
 //        assertEquals(billboardList.getServerResponse(),"Fail: No Billboard Exists");
-//        // Billboard Name does not exist in DB
-//        assertThrows(SQLException);
-//    }
+//        assertTrue(billboardList.getBillboardNames().get(0).equals("0"));
+
+    }
 
 
     /* Test 15: Billboard Information from Billboard Table (Success)
@@ -253,17 +262,22 @@ class BillboardAdminTest {
      *              information such as billboardName, Creator, xmlCode.
      * Expected Output: Returns Billboard Information object and "Pass: Billboard Info Returned"
      */
-//    @Test
-//    public void getABillboardInformationPass(){
-//        billboardAdmin.createBillboard("sampleToken", "Billboard1", xmlCode);
-//        BillboardInformation billboardInformation = billboardAdmin.getBillboardInformation("sessionToken","Billboard1");
-//        assertAll("Should return details of Given Billboard",
-//                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getServerResponse()),
-//                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
-//                () -> assertEquals("CAB302", billboardInformation.getBillboardCreator()),
-//                () -> assertEquals(xmlCode, billboardInformation.getBillboardXML())
-//        );
-//    }
+    @Test
+    public void getABillboardInformationPass() throws BillboardAdmin.illegalBillboardNameException, SQLException, BillboardAdmin.BillboardNotExistException, IOException {
+        // Use below code to create if needed
+        //        billboardAdmin.createBillboard("User1", "Billboard1", "xmlCode");
+
+        DbBillboard billboardInformation = billboardAdmin.getBillboardInformation("Billboard1");
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("User1", billboardInformation.getCreator()),
+                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
+                () -> assertEquals("xmlCode", billboardInformation.getXMLCode()),
+                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getReturnString())
+        );
+    }
 
 
     /* Test 16: Billboard Information - Billboard Name Does Not Exist (Exception Handling)
