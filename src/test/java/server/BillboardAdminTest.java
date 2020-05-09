@@ -3,8 +3,13 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
 
 class BillboardAdminTest {
     /* Test 0: Declaring BillboardAdmin object
@@ -49,11 +54,19 @@ class BillboardAdminTest {
      *              Assume sessionToken is valid.
      * Expected Output: Billboard is added to the table and returns "Pass: Billboard Created"
      */
-//    @Test
-//    public void createABillboard(){
-//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(dbResponse, "Pass: Billboard Created");
-//    }
+    @Test
+    public void createABillboard() throws IOException, SQLException, BillboardAdmin.illegalBillboardNameException {
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String userName = "testUser1";
+        String billboardName = "Billboard1";
+
+        String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
+        assertEquals(dbResponse, "Pass: Billboard Created");
+        billboardAdmin.close();
+    }
 
 
     /* Test 5: Create Billboard - Duplicate Billboard Name (Exception Handling)
@@ -62,29 +75,44 @@ class BillboardAdminTest {
      * Expected Output: Billboard is not added to the table and returns "Fail: Billboard Name Already Exists"
      * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
-//    @Test
-//    public void createSameNameBillboard(){
-//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(dbResponse, "Fail: Billboard Name Already Exists");
-//        // Assert that the DB throws an SQL Exception for duplicate key
-//        assertThrows(SQLException);
-//    }
+    @Test
+    public void createSameNameBillboard() throws IOException, SQLException {
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String userName = "testUser1";
+        String billboardName = "Billboard1";
+
+
+        assertThrows(SQLException.class, () -> {
+            String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
+        });
+
+        billboardAdmin.close();
+    }
 
 
     /* Test 6: Create Billboard - Illegal Characters in Billboard Name (Exception Handling)
      * Description: Receive create billboard request from CP, will have sessionToken, billboard name, and xml.
      *          Expect Fail due to Invalid Name (Illegal Characters). Assume sessionToken is valid.
      * Expected Output: Billboard is not added to the table and returns "Fail: Billboard Name Already Exists"
-     * // TODO: WE SHOULD PROB TELL THE USER ON THE GUI NOT TO ENTER WEIRD CHARS BUT JUST CHECK ANYWAY IN CASE THEY
-     *     ESCAPE THEM - ALSO WORK OUT WHAT CHARACTERS ARE BAD FOR MARIA DB/JAVA AND REPLACE THE DUMMY ONES I HAVE
      */
-//    @Test
-//    public void createIllegalNameBillboard(){
-//        String dbResponse = billboardAdmin.createBillboard("sessionToken", "!@#$%^&*()~", xmlCode);
-//        assertEquals(dbResponse, "Fail: Billboard Contains Illegal Character");
-//        // Have to create this exception ourselves - if (name.contains("!@#$%^&*()~)) throw Exception ->
-//        assertThrows(IllegalBillboardNameException);
-//    }
+    @Test
+    public void createIllegalNameBillboard(){
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String userName = "testUser1";
+        String billboardName = "ksdj@$#(_%I";
+
+        assertThrows(BillboardAdmin.illegalBillboardNameException.class, () -> {
+            String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
+        });
+
+
+    }
 
 
     /* Test 7: Edit Billboard in Billboard Table (Success)
@@ -92,11 +120,18 @@ class BillboardAdminTest {
      *              board and user needs to provide a new xmlCode. Assume sessionToken is valid.
      * Expected Output: Billboard is edited in the table and returns "Pass: Billboard Edited"
      */
-//    @Test
-//    public void editABillboard(){
-//        String dbResponse = billboardAdmin.editBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(dbResponse, "Pass: Billboard Edited");
-//    }
+    @Test
+    public void editABillboard() throws SQLException, IOException, BillboardAdmin.illegalBillboardNameException, BillboardAdmin.BillboardNotExistException {
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String billboardName = "TestBillboard2";
+
+        String dbResponse = billboardAdmin.editBillboard(billboardName, xmlCode);
+        assertEquals(dbResponse, "Pass: Billboard Edited");
+        billboardAdmin.close();
+    }
 
 
     /* Test 8: Edit Billboard - Insufficient User Permission (Exception Handling)
@@ -117,42 +152,53 @@ class BillboardAdminTest {
      *              board and user needs to provide a new xmlCode. Assume sessionToken is valid.
      *              Fail due to non-existent board (does not exists or was deleted before clicking button).
      * Expected Output: Billboard is not edited in the table and returns "Fail: Billboard Does not Exist"
-     * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
+     * // TODO: Weird Assertion here
      */
-//    @Test
-//    public void editABillboardNoBillboard(){
-//        String dbResponse = billboardAdmin.editBillboard("sessionToken", "Billboard1", xmlCode);
-//        assertEquals(dbResponse, "Fail: Billboard Does not Exist");
-//        // Billboard Name does not exist in DB
-//        assertThrows(SQLException);
-//    }
+    @Test
+    public void editABillboardNoBillboard() throws SQLException, IOException,
+            BillboardAdmin.illegalBillboardNameException,
+            BillboardAdmin.BillboardNotExistException {
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <message>Basic message-only billboard</message>\n" +
+                "</billboard>";
+        String billboardName = "ThisDosentExistdddd";
+
+        assertThrows(BillboardAdmin.BillboardNotExistException.class, () -> {
+            String dbResponse = billboardAdmin.editBillboard(billboardName, xmlCode);
+        });
+
+        billboardAdmin.close();
+
+    }
 
 
     /* Test 10: Delete Billboard in Billboard Table (Success)
      * Description: Receive delete billboard request from CP. Assume sessionToken is valid, and target exists.
      * Expected Output: Billboard is deleted in the table and returns "Pass: Billboard Deleted"
      */
-//    @Test
-//    public void deleteABillboard(){
-//        String dbResponse = billboardAdmin.deleteBillboard("sessionToken", "Billboard1");
-//        // sessionToken required to be passed in to check permissions inside function
-//        assertEquals(dbResponse, "Pass: Billboard Deleted");
-//    }
+    @Test
+    public void deleteABillboard() throws SQLException, IOException, BillboardAdmin.illegalBillboardNameException, BillboardAdmin.BillboardNotExistException {
+    String billboardName = "TestBillboard2";
+    String dbResponse = billboardAdmin.deleteBillboard(billboardName);
+    assertEquals(dbResponse, "Pass: Billboard Deleted");
+        billboardAdmin.close();
+    }
 
 
     /* Test 11: Delete Billboard - Billboard Name Does Not Exist (Exception Handling)
      * Description: Receive delete billboard request from CP. Assume sessionToken is valid, and target exists.
      *              Fail due to non-existent billboard name requested.
      * Expected Output: Billboard is not deleted in the table and returns "Fail: Billboard Does not Exist"
-     * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
-//    @Test
-//    public void deleteABillboardNoBillboard(){
-//        String dbResponse = billboardAdmin.deleteBillboard("sessionToken","Billboard1");
-//        assertEquals(dbResponse, "Fail: Billboard Does Not Exist");
-//        // Billboard Name does not exist in DB
-//        assertThrows(SQLException);
-//    }
+    @Test
+    public void deleteABillboardNoBillboard(){
+        String billboardName = "ThisDosentExistdddd";
+        assertThrows(BillboardAdmin.BillboardNotExistException.class, () -> {
+            String dbResponse = billboardAdmin.deleteBillboard(billboardName);
+        });
+        billboardAdmin.close();
+    }
 
 
     /* Test 12: Delete Billboard - Insufficient Permissions (Exception Handling)
@@ -173,33 +219,43 @@ class BillboardAdminTest {
      * Expected Output: Returns billboard names array and "Pass: Billboard List Returned"
      * //TODO: Set up mock db to have a Billboard1, Billboard2 and Billboard3 as below with dummy xml code
      */
-//    @Test
-//    public void listAllBillboard(){
-//        List<String> testBillboardList = new ArrayList<String>();
-//        testBillboardList.add("Billboard1");
-//        testBillboardList.add("Billboard2");
-//        testBillboardList.add("Billboard3");
-//        BillboardList billboardList = billboardAdmin.listBillboards("sessionToken");
-//        assertEquals(billboardList.getServerResponse(),"Pass: Billboard List Returned");
-//        assertArrayEquals(testBillboardList, billboardList.getBillboardList());
-//    }
+    @Test
+    public void listAllBillboard() throws BillboardAdmin.emptyBillboardTable, SQLException, IOException {
+        List<String> testBillboardList = new ArrayList<String>();
+        // Set test cases
+        testBillboardList.add("TestBillboard");
+        testBillboardList.add("TestBillboard2");
+        testBillboardList.add("TestBillboard3");
+
+
+        BillboardList billboardList = billboardAdmin.listBillboard();
+        assertEquals(billboardList.getServerResponse(),"Pass: Billboard List Returned");
+        assertArrayEquals(testBillboardList.toArray(),billboardList.getBillboardNames().toArray());
+    }
 
 
     /* Test 14: List Billboards - Billboard Name Does Not Exist (Exception Handling)
      * Description: Receive list billboard request from CP. Assume sessionToken is valid.
      *              Fails because there is no billboard to return (empty).
      * Expected Output: Returns billboard names array and "Fail: No Billboard Exists"
-     * //TODO: Ensure that the MockDB is empty for this test
-     * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
+     * //TODO: See throws or nay
      */
-//    @Test
-//    public void listAllBillboardNoBillboard(){
-//        BillboardList billboardList = billboardAdmin.listBillboard("sessionToken");
-//        assertTrue(billboardList.getBillboardList() == 0);
+    @Test
+    public void listAllBillboardNoBillboard() throws BillboardAdmin.emptyBillboardTable, SQLException, IOException {
+
+        // Required if table is not empty
+//        billboardAdmin.deleteAllBillboard();
+
+//        BillboardList billboardList = billboardAdmin.listBillboard();
 //        assertEquals(billboardList.getServerResponse(),"Fail: No Billboard Exists");
-//        // Billboard Name does not exist in DB
-//        assertThrows(SQLException);
-//    }
+//        assertTrue(billboardList.getBillboardNames().get(0).equals("0"));
+
+        assertThrows(BillboardAdmin.emptyBillboardTable.class, () -> {
+            BillboardList billboardList = billboardAdmin.listBillboard();
+        });
+
+
+    }
 
 
     /* Test 15: Billboard Information from Billboard Table (Success)
@@ -207,17 +263,22 @@ class BillboardAdminTest {
      *              information such as billboardName, Creator, xmlCode.
      * Expected Output: Returns Billboard Information object and "Pass: Billboard Info Returned"
      */
-//    @Test
-//    public void getABillboardInformationPass(){
-//        billboardAdmin.createBillboard("sampleToken", "Billboard1", xmlCode);
-//        BillboardInformation billboardInformation = billboardAdmin.getBillboardInformation("sessionToken","Billboard1");
-//        assertAll("Should return details of Given Billboard",
-//                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getServerResponse()),
-//                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
-//                () -> assertEquals("CAB302", billboardInformation.getBillboardCreator()),
-//                () -> assertEquals(xmlCode, billboardInformation.getBillboardXML())
-//        );
-//    }
+    @Test
+    public void getABillboardInformationPass() throws BillboardAdmin.illegalBillboardNameException, SQLException, BillboardAdmin.BillboardNotExistException, IOException {
+        // Use below code to create if needed
+        //        billboardAdmin.createBillboard("User1", "Billboard1", "xmlCode");
+
+        DbBillboard billboardInformation = billboardAdmin.getBillboardInformation("Billboard1");
+        System.out.println();
+        System.out.println();
+        System.out.println();
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("User1", billboardInformation.getCreator()),
+                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
+                () -> assertEquals("xmlCode", billboardInformation.getXMLCode()),
+                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getReturnString())
+        );
+    }
 
 
     /* Test 16: Billboard Information - Billboard Name Does Not Exist (Exception Handling)

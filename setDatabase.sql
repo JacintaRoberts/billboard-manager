@@ -42,3 +42,12 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
       PRIMARY KEY (`StartDateTime`)
   );
 
+
+INSERT INTO Billboards
+VALUES ("TestBillboard", "TestUser", "TestXMLCODE");
+
+INSERT INTO Billboards
+VALUES ("TestBillboard2", "TestUser2", "TestXMLCODE2");
+
+INSERT INTO Billboards
+VALUES ("TestBillboard3", "TestUser3", "TestXMLCODE3");

@@ -1,13 +1,25 @@
 package server;
 
+import java.io.IOException;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+
 public class DbBillboard {
 
     // Set Fields for DbBillboard
     private String BillboardName;
     private String Creator;
     private String XMLCode;
+    private String returnString;
 
-    public DbBillboard(String billboardName, String creator, String xmlCode) {
+    // Set Constructor for DbBillboard
+    public DbBillboard(String BillboardName, String Creator, String XMLCode, String returnString) {
+        this.BillboardName = BillboardName;
+        this.Creator = Creator;
+        this.XMLCode = XMLCode;
+        this.returnString = returnString;
     }
 
 
@@ -24,7 +36,9 @@ public class DbBillboard {
         return XMLCode;
     }
 
-
+    public String getReturnString() {
+        return returnString;
+    }
 
     // Set Setters for DbBillboard
     public void setBillboardName(String BillboardName) {
@@ -37,6 +51,11 @@ public class DbBillboard {
 
     public void setXMLCode(String XMLCode) {
         this.XMLCode = XMLCode;
+    }
+
+
+    public void setReturnString(String returnString) {
+        this.returnString = returnString;
     }
 
 
