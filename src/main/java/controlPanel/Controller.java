@@ -1,10 +1,14 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
+import org.xml.sax.SAXException;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -185,12 +189,12 @@ public class Controller
         addGenericListeners(BB_CREATE);
         BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
         // FIXME: lots to come!
-        bbCreateView.addScheduleButtonListener(new ScheduleEditButtonListener());
         bbCreateView.addBBBackgroundColourListener(new ColourListener());
         bbCreateView.addBBTitleListener(new TitleListener());
         bbCreateView.addBBTextListener(new BBTextListener());
         bbCreateView.addBBPhotoListener(new BBPhotoListener());
         bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
+        bbCreateView.addXMLExportListener(new BBXMLExportListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -654,7 +658,8 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.setColour(Color.blue);
+            String newColor = bbCreateView.showColorChooser();
+            bbCreateView.setBackgroundColour(newColor);
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -671,7 +676,13 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.setBBTitle("Billboard Title");
+            String BBTitle = bbCreateView.showBBTitleChooser();
+            if (BBTitle != null)
+            {
+                bbCreateView.setBBTitle(BBTitle);
+                String titleColour = bbCreateView.browseTitleColour();
+                bbCreateView.setBBTitleColour(titleColour);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -688,7 +699,13 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.setBBText();
+            String BBText = bbCreateView.showBBTextChooser();
+            if (BBText != null)
+            {
+                bbCreateView.setBBText(BBText);
+                String textColour = bbCreateView.browseTextColour();
+                bbCreateView.setBBTextColour(textColour);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -705,7 +722,11 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.browsePhotos();
+            try {
+                ImageIcon icon = bbCreateView.browsePhotos();
+                bbCreateView.setPhoto(icon);
+            }
+            catch (IOException ex) { ex.printStackTrace(); }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -722,7 +743,32 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            bbCreateView.browseXMLImport();
+            try {
+                bbCreateView.browseXMLImport();
+            } catch (IOException | ParserConfigurationException | SAXException ex) {
+                ex.printStackTrace();
+            }
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle xml export BB mouse clicks.
+     */
+    private class BBXMLExportListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: XML export button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            try {
+                bbCreateView.browseExportFolder();
+            } catch (ParserConfigurationException | TransformerException ex) {
+                ex.printStackTrace();
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -817,7 +863,6 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Daily Recurrence button clicked");
             JRadioButton button = (JRadioButton) e.getSource();
-            System.out.println("selected " + button.isSelected());
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
             String buttonName = button.getName();
 
@@ -831,8 +876,8 @@ public class Controller
                     break;
                 case "minute":
                     scheduleUpdateView.enableMinuteSelector(true);
-//                    int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-//                    scheduleUpdateView.setMinuteLabel(minuteRepeat);
+                    int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
+                    scheduleUpdateView.setMinuteLabel(minuteRepeat);
                     break;
             }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
@@ -842,53 +887,63 @@ public class Controller
     /**
      * Listener to handle Minute Repeat mouse clicks.
      */
-    private class ScheduleMinuteRepeatListener implements ActionListener {
+    private class ScheduleMinuteRepeatListener implements ItemListener {
+
         @Override
-        public void actionPerformed(ActionEvent e)
+        public void itemStateChanged(ItemEvent e)
         {
-            System.out.println("CONTROLLER LEVEL: Minute Repeat button clicked");
-            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-            JComboBox menuItem = (JComboBox) e.getSource();
-//            int minuteSelected = (int)menuItem.getSelectedItem();
-//            scheduleUpdateView.setMinuteLabel(minuteSelected);
-            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+            int eventId = e.getStateChange();
+            if (eventId == ItemEvent.SELECTED)
+            {
+                System.out.println("CONTROLLER LEVEL: Minute Repeat button clicked");
+                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                JComboBox menuItem = (JComboBox) e.getSource();
+                int minuteSelected = (int) menuItem.getSelectedItem();
+                scheduleUpdateView.setMinuteLabel(minuteSelected);
+                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+            }
         }
     }
 
     /**
      * Listener to handle BB Schedules to populate information
      */
-    private class SchedulePopulateListener implements ActionListener {
+    private class SchedulePopulateListener implements ItemListener {
 
         @Override
-        public void actionPerformed(ActionEvent e) {
-            System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
-            JComboBox menuItem = (JComboBox) e.getSource();
-            String bbName = (String)menuItem.getSelectedItem();
-            System.out.println("selected " + bbName);
-            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-            // FIXME: get BB Schedule for this menu item
-            if (bbName.equals("Myer"))
+        public void itemStateChanged(ItemEvent e)
+        {
+            int eventId = e.getStateChange();
+            if (eventId == ItemEvent.SELECTED)
             {
-                boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
-                int startHour = 5;
-                int startMin = 6;
-                int duration = 30;
-                int minRepeat = 220;
-                String recurrenceButton = "minute";
-                scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
+                JComboBox menuItem = (JComboBox) e.getSource();
+                String bbName = (String)menuItem.getSelectedItem();
+                System.out.println("selected " + bbName);
+                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                // FIXME: get BB Schedule for this menu item
+                if (bbName.equals("Myer"))
+                {
+                    boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
+                    int startHour = 5;
+                    int startMin = 6;
+                    int duration = 30;
+                    int minRepeat = 220;
+                    String recurrenceButton = "minute";
+                    scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                }
+                else if (bbName.equals("Anaconda"))
+                {
+                    boolean[] daysOfWeek = new boolean[]{true,true,true,true,true,true,true};
+                    int startHour = 1;
+                    int startMin = 0;
+                    int duration = 30;
+                    int minRepeat = -1;
+                    String recurrenceButton = "daily";
+                    scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                }
+                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
-            else if (bbName.equals("Anaconda"))
-            {
-                boolean[] daysOfWeek = new boolean[]{true,true,true,true,true,true,true};
-                int startHour = 1;
-                int startMin = 0;
-                int duration = 30;
-                int minRepeat = -1;
-                String recurrenceButton = "daily";
-                scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-            }
-            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
 
