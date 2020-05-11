@@ -31,7 +31,7 @@ class UserControlTest {
      */
     @Test
     public void logOut() throws IOException, ClassNotFoundException {
-      String serverResponse = userControl.logout("sessionToken");
+      String serverResponse = userControl.cpLogout("sessionToken");
       assertEquals(serverResponse, "Pass: Logout Successful");
     }
 

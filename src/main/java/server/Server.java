@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -18,6 +19,7 @@ import static helpers.Helpers.networkPropsFilePath;
 public class Server {
     // Session tokens are stored in memory on server as per the specification
     private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    // Private connection to database declaration
     private static Connection db;
 
     /**
@@ -62,7 +64,7 @@ public class Server {
      * are in the same order. Write, read on client = Read, write on server (flush in between).
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
      */
-    private static void initServer() throws IOException, SQLException {
+    private static void initServer() throws IOException, SQLException, NoSuchAlgorithmException {
         // Read port number from network.props
         final int port = Helpers.getPort(networkPropsFilePath);
         // Bind port number and begin listening, loop to keep receiving connections from clients
@@ -100,7 +102,7 @@ public class Server {
      * @param clientRequest String to indicate the method that the client requests
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
-    private static Object callServerMethod(String clientRequest) throws IOException, SQLException {
+    private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
         // Extracting parameters
         String method = "";
         String sessionToken = "";
@@ -119,13 +121,14 @@ public class Server {
                 return logout(sessionToken); // Returns string acknowledgement
             case "Login":
                 String username = clientArgs[1]; // Overwrite as this only method that doesn't send session token
-                String hashedPassword = clientArgs[2]; //TODO: Hash this somewhere here as well
+                String hashedPassword = clientArgs[2];
                 return login(username, hashedPassword); // Returns session token or fail message
             default: {
                 return "No server method requested";
             }
         }
     }
+
 
     /**
      * logout server-side expires the provided session token to log out the user
@@ -141,24 +144,28 @@ public class Server {
         }
     }
 
+
     /**
      * login server-side checks the username and password provided in the database, if they exist
      * and are correctly matched, then a session token is created and returned.
      * @param username The username entered by the user on the GUI
-     * @param hashedPassword The hashed password entered by the user on the GUI
+     * @param hashedPassword The hashed version of the password entered by the user on the GUI
      * @return A valid session token for the user or server acknowledgment for user/password mismatch
      */
-    public static String login(String username, String hashedPassword) throws IOException, SQLException {
-        // TODO: Implement logic for salting, hashing etc. accessing database to check
+    public static String login(String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
         if (UserAdmin.userExists(username)) {
+            // Compares hashedPassword from CP with the password stored in the database (validation with salt)
             if (UserAdmin.checkPassword(username, hashedPassword)) {
                 return "sessionToken"; // 1. Good password, generate session token
             }
-            return "Fail: Incorrect Password"; // 2. Bad password
-        } else {
+            return "Fail: Incorrect Password"; // 2. User exists, but bad password
+        }
+
+        else {
             return "Fail: No Such User"; // 3. No such user
         }
     }
+
 
     public static void main(String[] args) {
         try {
@@ -170,6 +177,8 @@ public class Server {
             e.printStackTrace();
         } catch (SQLException e) {
             System.err.println("Database Connection Exception caught: " + e);
+            e.printStackTrace();
+        } catch (NoSuchAlgorithmException e) {
             e.printStackTrace();
         }
     }
