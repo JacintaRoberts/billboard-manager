@@ -40,7 +40,7 @@ public class Main {
             //System.out.println("Received from server: " + serverResponse2.toString()); // Error message 1
             //System.out.println("Received from server: " + serverResponse3.toString()); // Error message 2*/
 
-            Object serverResponse4 = createUserRequest((String) sessionToken,"Dan", "hello", true,true, true, true); // CP Backend method call
+            Object serverResponse4 = createUserRequest((String) sessionToken,"Jacinta", "testPassword", true,true, true, true); // CP Backend method call
             System.out.println("Received from server: " + serverResponse4.toString()); // Create user
 
 

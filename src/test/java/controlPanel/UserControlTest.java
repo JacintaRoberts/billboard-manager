@@ -11,6 +11,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static server.Server.generateToken;
 
 class UserControlTest {
     /* Test 0: Declaring UserControl object
@@ -468,15 +469,19 @@ class UserControlTest {
     /* Test 28: Request to server to Create New Users (Success)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user.
-     * Expected Output: Server will return "Fail: Calling Username Deleted" and an CallingUsernameDeletedException
-     *                  will be thrown
+     * Expected Output: Server will return "Success: User Created"
      */
+    //TODO: FOR SOME REASON THIS IS NOT PASSING? NO IDEA WHY IT CAN'T SEEM TO CREATE THE SESSION TOKEN WHEN WE CALL
+    // DIRECTLY FROM USER CONTROL. IT DOESN'T MAKE SENSE, THE ISSUE IS VALIDATING A SESSION TOKEN FROM CP, WORKS FINE
+    // IN THE ACTUAL PROGRAM JUST THIS UNIT TEST IDK...I ONLY ADDED THE GETTERS AND SETTERS FOR VALID SESSION TOKEN
+    // TO TRY AND FIX THE ISSUE BUT I DON'T THINK ITS DONE ANYTHING?
     @Test
     public void createUserRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
-        //String sessionToken = generateToken("testUser");
-        String sessionToken = Server.addTestToken();
-        assertTrue(Server.validateToken(sessionToken));
-        String serverResponse = userControl.createUserRequest(sessionToken, "NewUser1", "myPass", true, true, true, true);
+        String callingUsername = "testUser";
+        String testToken = generateToken(callingUsername);
+        assertTrue(Server.validateToken(testToken));
+        String serverResponse = userControl.createUserRequest(testToken, "NewUser1",
+                "myPass", true, true, true, true);
         assertEquals("Success: User Created", serverResponse);
     }
 

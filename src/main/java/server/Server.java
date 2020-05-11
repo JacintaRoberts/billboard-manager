@@ -29,19 +29,6 @@ public class Server {
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
 
-    /* Just a test method */
-    public static String addTestToken() {
-        ArrayList<Object> values = new ArrayList<>();
-        values.add("testUser");
-        values.add(LocalDateTime.now());
-        String sessionToken = "testToken";
-        System.out.println("Before keys: " + validSessionTokens.keySet());
-        validSessionTokens.put(sessionToken, values);
-        setValidTokens(validSessionTokens);
-        System.out.println("After keys: " + validSessionTokens.keySet());
-        return sessionToken;
-    }
-
     /**
      * Generates a sessionToken and adds it to the HashMap of valid session tokens
      * @param username that was successfully validated and logged in

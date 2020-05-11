@@ -10,6 +10,7 @@ import java.util.Random;
 
 import static controlPanel.UserControl.hash;
 import static helpers.Helpers.bytesToString;
+import static server.Server.getValidTokens;
 import static server.Server.validateToken;
 
 // SERVER SIDE USER ADMIN CONTROLS
@@ -75,6 +76,7 @@ public class UserAdmin {
     public static String createUser(String sessionToken, String username, String hashedPassword, boolean createBillboard,
                                     boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException, IOException, SQLException {
         System.out.println("Validating session token..." + sessionToken);
+        getValidTokens();
         if ( validateToken(sessionToken) ) {
             System.out.println("Session is valid");
             // Prepare parameters for storage in the database
