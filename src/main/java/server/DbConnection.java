@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class DbConnection {
@@ -54,16 +53,15 @@ public class DbConnection {
      * Read Database Properties as input stream
      * <p>
      * This method always returns immediately.
-     * @param  filelocation The location of the dbprops File
+     * @param  fileLocation The location of the dbprops File
      * @return prop: A properties object containing information about the database
      */
-    public static Properties readProperties(String filelocation) throws FileNotFoundException,IOException {
+    public static Properties readProperties(String fileLocation) throws FileNotFoundException,IOException {
         // Set new properties class and initiate File input stream and connection
         Properties props = new Properties();
         FileInputStream in = null;
-
-        // set input path and load
-        in = new FileInputStream(filelocation);
+        // Load properties
+        in = new FileInputStream(fileLocation);
         props.load(in);
         in.close();
         return props;

@@ -3,7 +3,7 @@ SQL File to Create Database for Billboard Application
 By Team 60
 */
 
-/*Create Database if it dosent exsits*/
+/*Create Database if it doesn't exist*/
 CREATE DATABASE IF NOT EXISTS BillboardDatabase;
 
 /*Use the Database as default*/
