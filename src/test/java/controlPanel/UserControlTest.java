@@ -3,10 +3,14 @@ package controlPanel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Server;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 class UserControlTest {
     /* Test 0: Declaring UserControl object
@@ -31,7 +35,7 @@ class UserControlTest {
      */
     @Test
     public void logOut() throws IOException, ClassNotFoundException {
-      String serverResponse = userControl.cpLogout("sessionToken");
+      String serverResponse = userControl.logoutRequest("sessionToken");
       assertEquals(serverResponse, "Pass: Logout Successful");
     }
 
@@ -467,10 +471,14 @@ class UserControlTest {
      * Expected Output: Server will return "Fail: Calling Username Deleted" and an CallingUsernameDeletedException
      *                  will be thrown
      */
-//    public void createUserRequest(){
-//        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
-//        assertEquals("Success: User Created", serverResponse);
-//    }
+    @Test
+    public void createUserRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
+        //String sessionToken = generateToken("testUser");
+        String sessionToken = Server.addTestToken();
+        assertTrue(Server.validateToken(sessionToken));
+        String serverResponse = userControl.createUserRequest(sessionToken, "NewUser1", "myPass", true, true, true, true);
+        assertEquals("Success: User Created", serverResponse);
+    }
 
 
     /* Test 29: Request to server to Create New Users (Exception Handling)
@@ -487,7 +495,8 @@ class UserControlTest {
 //        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken"));
 //      }
 //      // Check for correct message received
-//      assertEquals("Fail: Calling Username Deleted", serverResponse);
+//      //TODO: CHECK INSTANCES OF FAIL: CALLING USERNAME DELETED AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
+//      assertEquals("Fail: Invalid Session Token", serverResponse);
 //    }
 
 

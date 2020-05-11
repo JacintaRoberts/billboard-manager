@@ -3,7 +3,8 @@ package controlPanel;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
-import static controlPanel.UserControl.cpLogin;
+import static controlPanel.UserControl.createUserRequest;
+import static controlPanel.UserControl.loginRequest;
 
 /**
  * Main Class creates instance of all application views and associates to an enum in a HashMap.
@@ -31,23 +32,18 @@ public class Main {
     {
         // TODO: ONLY PUT THIS IN THE CP BACKEND FUNCTIONS WHEN NEED TO CONNECT TO SERVER - HERE FOR TESTING
         try {
-            //Object serverResponse = Helpers.initClient("Test");
-            //Object serverResponse2 = Helpers.initClient("Login,testUser,goodPass");
-            Object serverResponse3 = cpLogin("testUser","goodPass"); // CP Backend method call
-            //Object serverResponse4 = cpLogout("sessionToken"); // CP Backend method call
-            //System.out.println("Received from server: " + serverResponse.toString());
-            //System.out.println("Received from server: " + serverResponse2.toString());
-            System.out.println("Received from server: " + serverResponse3.toString());
+            // Login testing
+            Object sessionToken = loginRequest("testUser","goodPass"); // CP Backend method call
+            //Object serverResponse2 = loginRequest("testUser","wrongPass"); // CP Backend method call
+            //Object serverResponse3 = loginRequest("nonExistentUser","anyPass"); // CP Backend method call
+            System.out.println("Received from server: " + sessionToken.toString()); // My token
+            //System.out.println("Received from server: " + serverResponse2.toString()); // Error message 1
+            //System.out.println("Received from server: " + serverResponse3.toString()); // Error message 2*/
 
-            // TESTING TO BE REMOVED...
-            /*Random rng = new Random(); // just create once
-            byte[] saltBytes = new byte[32];
-            rng.nextBytes(saltBytes);
-            String saltString = bytesToString(saltBytes);
-            System.out.println("Salt: " + saltString);
-            String hashedPass = hash("goodPass");
-            String saltedPassword = hash(hashedPass+saltString);
-            System.out.println("Salted, Hashed password: " + saltedPassword);*/
+            Object serverResponse4 = createUserRequest((String) sessionToken,"Dan", "hello", true,true, true, true); // CP Backend method call
+            System.out.println("Received from server: " + serverResponse4.toString()); // Create user
+
+
         } catch (Exception e) { // Could not connect to server
             //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
             System.err.println("Exception caught: " + e);
