@@ -18,7 +18,7 @@ public class UserControl {
      * @throws IOException Thrown if unknown server host when communicating through sockets
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
-    public static String cpLogout(String sessionToken) throws IOException, ClassNotFoundException {
+    public static String logoutRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = "Logout," + sessionToken;
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
@@ -47,10 +47,41 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      * @throws NoSuchAlgorithmException If the hashing algorithm does not exist
      */
-    public static String cpLogin(String username, String passwordFromControlPanel) throws IOException,
-                                                                    ClassNotFoundException, NoSuchAlgorithmException {
+    public static String loginRequest(String username, String passwordFromControlPanel) throws IOException,
+            ClassNotFoundException, NoSuchAlgorithmException {
         String hashedPassword = hash(passwordFromControlPanel); // Hash password
         String message = "Login," + username + "," + hashedPassword;
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
+
+    /**
+     * Sends a user's request to create a user to the server
+     * Receives a string acknowledgement from the server if user creation is successful
+     * @param username String username of the user that is entered upon starting the GUI.
+     * @param passwordFromControlPanel String password of the user that is entered upon starting the GUI.
+     * @param createBillboard Boolean true if the user has the Create Billboards Permission
+     * @param editBillboard Boolean true if the user has the Edit Billboards Permission
+     * @param scheduleBillboard Boolean true if the user has the Schedule Billboards Permission
+     * @param editUser Boolean true if the user has the Edit Users Permission
+     * @return String server acknowledgement if user creation is successful, otherwise error message occurred.
+     * @throws IOException Thrown if unknown server host when communicating through sockets.
+     * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     * @throws NoSuchAlgorithmException If the hashing algorithm does not exist
+     */
+    public static String createUserRequest(String sessionToken, String username, String passwordFromControlPanel, boolean createBillboard, boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException,
+            ClassNotFoundException, NoSuchAlgorithmException {
+        String hashedPassword = hash(passwordFromControlPanel); // Hash password entered by the user
+        String message = String.format("CreateUser,%s,%s,%s,%s,%s,%s,%s",
+                sessionToken,
+                username,
+                hashedPassword,
+                Boolean.toString(createBillboard),
+                Boolean.toString(editBillboard),
+                Boolean.toString(scheduleBillboard),
+                Boolean.toString(editUser));
+        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
+
+
 }

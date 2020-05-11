@@ -17,8 +17,12 @@ public class DbUser {
     private String EditUser;
 
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
+    public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
+    public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
     private static Connection connection;
     private static PreparedStatement selectUser;
+    private static PreparedStatement addUser;
+    private static PreparedStatement deleteUser;
 
     public DbUser(String Username, String Password, String Salt, String CreateBillboard,
                   String EditBillboard, String ScheduleBillboard, String EditUser) {
@@ -64,8 +68,6 @@ public class DbUser {
     }
 
 
-
-
     /**
      * Method to fetch a user from the database - feel free to change this just wanted it to work!
      * @return
@@ -91,6 +93,40 @@ public class DbUser {
         return retrievedUser;
     }
 
+
+    /**
+     * Method to put a user from the database - feel free to change this just wanted it to work!
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void addUser(String username, String password, String randomSalt, boolean createBillboard,
+                 boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        addUser = connection.prepareStatement(ADD_USER_SQL);
+        addUser.setString(1, username);
+        addUser.setString(2, password);
+        addUser.setString(3, randomSalt);
+        addUser.setBoolean(4, createBillboard);
+        addUser.setBoolean(5, editBillboard);
+        addUser.setBoolean(6, scheduleBillboard);
+        addUser.setBoolean(7, editUser);
+        ResultSet rs = addUser.executeQuery();
+    }
+
+
+    /**
+     * Method to delete user from database
+     * @param username String username that corresponds to the record to be deleted
+     */
+    public static void deleteUser(String username) throws SQLException, IOException {
+        connection = DbConnection.getInstance();
+        deleteUser = connection.prepareStatement(DELETE_USER_SQL);
+        deleteUser.setString(1, username);
+        ResultSet rs = deleteUser.executeQuery();
+    }
+
+
     /**
      * Tidy up connections
      */
@@ -103,4 +139,6 @@ public class DbUser {
         }
 
     }
+
+
 }

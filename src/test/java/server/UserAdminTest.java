@@ -3,6 +3,14 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
+
+import static controlPanel.UserControl.hash;
+import static org.junit.jupiter.api.Assertions.*;
+import static server.Server.generateToken;
+
 class UserAdminTest {
     /* Test 0: Declaring UserAdmin object
      * Description: UserAdmin object should be running in background on application start.
@@ -20,25 +28,25 @@ class UserAdminTest {
         userAdmin = new UserAdmin();
     }
 
-    //TODO: SETUP HASHMAP OF SESSIONTOKENS SO THAT USER PERMISSIONS CAN BE ADEQUATELY TESTED - WILL NEED
-    // TO SHARE THIS WITH MOST OF THE TEST CLASSES...
-
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
      * Expected Output: A boolean where true is returned if the user is found in the DB and false otherwise
      */
-//    @Test
-//    public void userExists() {
-//      assertAll("Check for Existing User",
-//        // Ensure that these users don't exist in the Fake DB.
-//        ()-> assertFalse(userAdmin.userExists("non-existent-user")),
-//        // Check for case sensitivity
-//        ()-> assertFalse(userAdmin.userExists("Root")),
-//        // Check for empty
-//        ()-> assertFalse(userAdmin.userExists("")),
-//        ()-> assertTrue(userAdmin.userExists("root"))
-//      )
-//    }
+    @Test
+    public void userExists() {
+      assertAll("Check for Existing User",
+        // Ensure that these users don't exist in the Fake DB.
+        ()-> assertFalse(userAdmin.userExists("non-existent-user")),
+        // Check for case sensitivity
+        ()-> assertFalse(userAdmin.userExists("testuser")),
+        // Check for trailing whitespace stripping
+        ()-> assertFalse(userAdmin.userExists("testuser ")),
+        // Check for empty
+        ()-> assertFalse(userAdmin.userExists("")),
+        // Check for valid
+        ()-> assertTrue(userAdmin.userExists("testUser"))
+      );
+    }
 
     /* Test 3: Get Other User's Permissions
      * Description: Check that only users with "Edit Permissions" can see any user's permissions
@@ -597,35 +605,50 @@ class UserAdminTest {
      * the DB with the hashed password and permissions and return acknowledgement to Control Panel.
      * Expected Output: User is created in the DB and returns string "Pass: User Created"
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void createUser() {
-//      // Test setup - Ensure the user to be created does not already exist
-//      if (userAdmin.userExists("Jacinta")) {
-//          userAdmin.deleteUser("sessionToken", "Jacinta");
-//      }
-//      // Check return value
-//      String dbResponse = userAdmin.createUser("sessionToken", "Jacinta", {0,0,0,0}, "pass");
-//      assertEquals("Pass: User Created", dbResponse);
-//      // Check that the user is actually added to the DB
-//      assertTrue(userAdmin.userExists("Jacinta"));
-//    }
+    @Test
+    public void createUser() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure the user to be created does not already exist
+        String testUsername = "Jacinta";
+        String hashedPassword = hash("myPass");
+        String testToken = generateToken("testUser");
+        System.out.println("The test token: " + testToken);
+        if (userAdmin.userExists(testUsername)) {
+            System.out.println("The user exists, so it will be deleted.");
+            userAdmin.deleteUser(testToken, testUsername);
+        }
+        // Check return value
+        String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
+        assertEquals("Pass: User Created", dbResponse);
+        // Check that the user is actually added to the DB
+        assertTrue(userAdmin.userExists(testUsername));
+    }
 
     /* Test 33: Create User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
      * Expected Output: Username is not created in DB and returns string "Fail: Calling Username Deleted"
      */
-//    @Test
-//    public void createUserCallingUsernameDeleted() {
-//      // Test setup - Ensure the user to be created does not already exist
-//      if (userAdmin.userExists("non-existent")) {
-//          userAdmin.deleteUser("sessionToken", "non-existent");
-//      }
-//      String dbResponse = unknownUserAdmin.createUser("unknownSessionToken", "Ra", {0,0,0,0}, "pass");
-//      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
-//      // Check that the user to be created is not added to the DB anyway
-//      assertFalse(unknownUserAdmin.userExists("Ra"));
-//    }
+    @Test
+    public void createUserCallingUsernameDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure the user to be created does not already exist
+        String testUsername = "NewUser";
+        String callingUsername = "testUser";
+        String testToken = generateToken(callingUsername);
+        String hashedPassword = hash("myPass");
+        // Ensure the user to be added does not already exist
+        if (userAdmin.userExists(testUsername)) {
+            userAdmin.deleteUser(testToken, testUsername);
+        }
+        // Remove the user associated with the session token
+        if (userAdmin.userExists(callingUsername)) {
+            userAdmin.deleteUser(testToken, callingUsername);
+        }
+        // Check return value
+        String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
+        // TODO: CHECK INSTANCES OF FAIL: CALLING USERNAME DELETED AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
+        assertEquals("Fail: Invalid Session Token", dbResponse);
+        // Check that the user to be created is not added to the DB anyway
+        assertFalse(userAdmin.userExists(testUsername));
+    }
 
     /* Test 34: Create User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to

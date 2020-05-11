@@ -3,10 +3,15 @@ package controlPanel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Server;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static server.Server.generateToken;
 
 class UserControlTest {
     /* Test 0: Declaring UserControl object
@@ -31,7 +36,7 @@ class UserControlTest {
      */
     @Test
     public void logOut() throws IOException, ClassNotFoundException {
-      String serverResponse = userControl.cpLogout("sessionToken");
+      String serverResponse = userControl.logoutRequest("sessionToken");
       assertEquals(serverResponse, "Pass: Logout Successful");
     }
 
@@ -464,13 +469,21 @@ class UserControlTest {
     /* Test 28: Request to server to Create New Users (Success)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user.
-     * Expected Output: Server will return "Fail: Calling Username Deleted" and an CallingUsernameDeletedException
-     *                  will be thrown
+     * Expected Output: Server will return "Success: User Created"
      */
-//    public void createUserRequest(){
-//        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
-//        assertEquals("Success: User Created", serverResponse);
-//    }
+    //TODO: FOR SOME REASON THIS IS NOT PASSING? NO IDEA WHY IT CAN'T SEEM TO CREATE THE SESSION TOKEN WHEN WE CALL
+    // DIRECTLY FROM USER CONTROL. IT DOESN'T MAKE SENSE, THE ISSUE IS VALIDATING A SESSION TOKEN FROM CP, WORKS FINE
+    // IN THE ACTUAL PROGRAM JUST THIS UNIT TEST IDK...I ONLY ADDED THE GETTERS AND SETTERS FOR VALID SESSION TOKEN
+    // TO TRY AND FIX THE ISSUE BUT I DON'T THINK ITS DONE ANYTHING?
+    @Test
+    public void createUserRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
+        String callingUsername = "testUser";
+        String testToken = generateToken(callingUsername);
+        assertTrue(Server.validateToken(testToken));
+        String serverResponse = userControl.createUserRequest(testToken, "NewUser1",
+                "myPass", true, true, true, true);
+        assertEquals("Success: User Created", serverResponse);
+    }
 
 
     /* Test 29: Request to server to Create New Users (Exception Handling)
@@ -487,7 +500,8 @@ class UserControlTest {
 //        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken"));
 //      }
 //      // Check for correct message received
-//      assertEquals("Fail: Calling Username Deleted", serverResponse);
+//      //TODO: CHECK INSTANCES OF FAIL: CALLING USERNAME DELETED AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
+//      assertEquals("Fail: Invalid Session Token", serverResponse);
 //    }
 
 
