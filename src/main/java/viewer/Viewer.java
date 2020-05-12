@@ -13,14 +13,17 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URL;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 
 public class Viewer extends JFrame implements Runnable {
@@ -801,8 +804,10 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Displays the billboards
+     * @param serverResponse
      */
-    public void displayBillboard() {
+    public void displayBillboard(Object serverResponse) {
+        // TODO: Do something with serverResponse
         setupBillboard();
 
         File fileToDisplay = extractXMLFile(6);
@@ -833,21 +838,34 @@ public class Viewer extends JFrame implements Runnable {
     }
 
 
+
+    // Determines whether a billboard xml was received from the server
+    private Boolean noBillboard() {
+        if ( serverResponse.toString().isEmpty() ) { return true; }
+        else { return false; }
+    }
+
+    // Contains the server's response (Billboard XML)
+    private Object serverResponse;
+
     @Override
     public void run() {
-        displayBillboard();
-//        displayError();
+        try {
+            //TODO: May want to cast the return type to XML - probably Alan and Kanu figure this out.
+            serverResponse = Helpers.initClient("Viewer");
+            System.out.println("Received from server: " + serverResponse.toString());
+            displayBillboard(serverResponse);
+            if (noBillboard()) {
+                noBillboardToDisplay(); // Show no billboard screen
+            }
+        } catch (IOException | ClassNotFoundException e) {
+            displayError(); // Error in receiving content
+        }
     }
 
     public static void main(String[] args ) {
-        // TODO: NEED TO FACILITATE THE CONNECTION EVERY 15 SECONDS
-        try {
-            Object serverResponse = Helpers.initClient("Viewer");
-            System.out.println("Received from server: " + serverResponse.toString());
-        } catch (IOException | ClassNotFoundException e) { // Could not connect to server
-            //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
-            System.err.println("Exception caught: " + e);
-        }
-        SwingUtilities.invokeLater(new Viewer("Billboard Viewer"));
+        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
+        executor.scheduleAtFixedRate(new Viewer("Billboard Viewer"), 0, 15, TimeUnit.SECONDS);
+        //SwingUtilities.invokeLater(new Viewer("Billboard Viewer")); // This is now redundant I think...
     }
 }
