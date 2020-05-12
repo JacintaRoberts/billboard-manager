@@ -190,14 +190,14 @@ class UserAdminTest {
 
     /* Test 5: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent calling username in DB
-     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void getOtherUserPermissionsCallingUsernameDeleted() {
 //      // Temporarily change calling username to something unknown (via the session token)
 //      Object[] dbResponse = userAdmin.getUserPermissions("unknownSessionToken", "non-existent");
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse[0]);
+//      assertEquals("Fail: Invalid Session Token", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
 //    }
 
@@ -245,7 +245,7 @@ class UserAdminTest {
     /* Test 9: List Users (Exception Handling)
      * Description: List all of the users in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void listUsersCallingUsernameDeleted() {
@@ -256,7 +256,7 @@ class UserAdminTest {
 //      // Check return message and that no other results get appended
 
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse.get(0));
+//      assertEquals("Fail: Invalid Session Token", dbResponse.get(0));
 //      assertEquals(1, dbResponse.size());
 //    }
 
@@ -316,7 +316,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnUserPermissionsCallingUsernameDeleted() {
@@ -326,7 +326,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("unknownSessionToken", "non-existent", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user permissions are still unobtainable
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          userAdmin.getUserPermissions("sessionToken", "non-existent"));
@@ -380,7 +380,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOtherUserPermissionsCallingUsernameDeleted() {
@@ -393,7 +393,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("unknownSessionToken", "root", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({1,1,1,1}, userAdmin.getUserPermissions("root"));
 //    }
@@ -490,7 +490,7 @@ class UserAdminTest {
     /* Test 22: Set Own Password (Exception Handling)
      * Description: Set own user password in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnPasswordCallingUsernameDeleted() {
@@ -500,7 +500,7 @@ class UserAdminTest {
 //      }
 //      string dbResponse = userAdmin.setPassword("unknownSessionToken", "non-existent", "changedPass");
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check for Exception that the password cannot be obtained for user that does not exist in DB
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          string dbResponse = userAdmin.getPassword("sessionToken", "non-existent");
@@ -529,7 +529,7 @@ class UserAdminTest {
 
     /* Test 24: Set Other User Password (Exception Handling)
      * Description: Check that the calling user still exists in the DB before setting user password.
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOtherPasswordCallingUsernameDeleted() {
@@ -542,7 +542,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setPassword("unknownSessionToken", "Jenny", "changedPass");
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
 //      assertEquals("pass",userAdmin.getPassword("sessionToken", "Jenny"));
 //    }
@@ -611,7 +611,7 @@ class UserAdminTest {
 
     /* Test 28: Delete User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not deleted in DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Username is not deleted in DB and returns string "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void deleteUserCallingUsernameDeleted()() {
@@ -621,7 +621,7 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("unknownSessionToken", "Jenny");
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
 //    }
@@ -708,7 +708,7 @@ class UserAdminTest {
 
     /* Test 33: Create User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not created in DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Username is not created in DB and returns string "Fail: Invalid Session Token"
      */
     @Test
     public void createUserCallingUsernameDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -727,7 +727,7 @@ class UserAdminTest {
         }
         // Check return value
         String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
-        // TODO: CHECK INSTANCES OF FAIL: CALLING USERNAME DELETED AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
+        // TODO: CHECK INSTANCES OF Fail: Invalid Session Token AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
         assertEquals("Fail: Invalid Session Token", dbResponse);
         // Check that the user to be created is not added to the DB anyway
         assertFalse(userAdmin.userExists(testUsername));
