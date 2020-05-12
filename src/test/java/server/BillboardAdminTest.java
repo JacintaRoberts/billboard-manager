@@ -56,6 +56,8 @@ class BillboardAdminTest {
      */
     @Test
     public void createABillboard() throws IOException, SQLException, BillboardAdmin.illegalBillboardNameException {
+        String dbResponse2 = billboardAdmin.dropBillboardTable();
+        String dbResponse3 = billboardAdmin.createBillboardTable();
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
                 "    <message>Basic message-only billboard</message>\n" +
@@ -65,7 +67,7 @@ class BillboardAdminTest {
 
         String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
         assertEquals(dbResponse, "Pass: Billboard Created");
-        billboardAdmin.close();
+//        billboardAdmin.close();
     }
 
 
@@ -77,6 +79,9 @@ class BillboardAdminTest {
      */
     @Test
     public void createSameNameBillboard() throws IOException, SQLException {
+        String dbResponse2 = billboardAdmin.dropBillboardTable();
+        String dbResponse3 = billboardAdmin.createBillboardTable();
+
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
                 "    <message>Basic message-only billboard</message>\n" +
@@ -99,7 +104,10 @@ class BillboardAdminTest {
      * Expected Output: Billboard is not added to the table and returns "Fail: Billboard Name Already Exists"
      */
     @Test
-    public void createIllegalNameBillboard(){
+    public void createIllegalNameBillboard() throws IOException, SQLException {
+        String dbResponse2 = billboardAdmin.dropBillboardTable();
+        String dbResponse3 = billboardAdmin.createBillboardTable();
+
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
                 "    <message>Basic message-only billboard</message>\n" +
@@ -122,6 +130,9 @@ class BillboardAdminTest {
      */
     @Test
     public void editABillboard() throws SQLException, IOException, BillboardAdmin.illegalBillboardNameException, BillboardAdmin.BillboardNotExistException {
+        String dbResponse2 = billboardAdmin.dropBillboardTable();
+        String dbResponse3 = billboardAdmin.createBillboardTable();
+
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
                 "    <message>Basic message-only billboard</message>\n" +
@@ -269,9 +280,6 @@ class BillboardAdminTest {
         //        billboardAdmin.createBillboard("User1", "Billboard1", "xmlCode");
 
         DbBillboard billboardInformation = billboardAdmin.getBillboardInformation("Billboard1");
-        System.out.println();
-        System.out.println();
-        System.out.println();
         assertAll("Should return details of Given Billboard",
                 () -> assertEquals("User1", billboardInformation.getCreator()),
                 () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
@@ -309,6 +317,18 @@ class BillboardAdminTest {
 //        BillboardInformation dbResponse = billboardAdmin.getBillboardInformation("basicToken","Billboard500");
 //        assertEquals(billboardInformation.getServerResponse(), "Fail: Insufficient User Permission");
 //    }
+
+
+    @Test
+    public void testsql() throws IOException, SQLException, BillboardAdmin.emptyBillboardTable {
+//        String dbResponse3 = billboardAdmin.createBillboardTable();
+//        String dbResponse2 = billboardAdmin.deleteAllBillboard();
+//        String dbResponse = billboardAdmin.createBillboardTable();
+//        String dbResponse = billboardAdmin.dropBillboardTable();
+//        System.out.println(dbResponse);
+//        System.out.println(dbResponse2);
+//        System.out.println(dbResponse3);
+    }
 
 
 }
