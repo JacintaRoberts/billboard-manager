@@ -29,7 +29,7 @@ public class UserAdmin {
                 return true;
             }
         }
-            System.out.println("User does not exist");
+            System.out.println("The user: " + username + " does not exist");
             return false;
     }
 

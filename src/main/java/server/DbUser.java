@@ -45,7 +45,7 @@ public class DbUser {
      * @throws IOException
      * @throws SQLException
      */
-    public static ArrayList<DbUser> storeUserContents(Statement st, String query) throws IOException,SQLException {
+    public static ArrayList<DbUser> storeUserContents(Statement st, String query) throws IOException, SQLException {
         // Set List to store contents in
         ArrayList<DbUser> queryList = new ArrayList<>();
 

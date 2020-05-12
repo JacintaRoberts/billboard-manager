@@ -34,10 +34,11 @@ class UserAdminTest {
      * Expected Output: UserAdmin and MockUserTable objects able to be instantiated from their respective classes.
      */
     @BeforeEach @Test
-    public void setUpUserAdmin() {
+    public void setUpUserAdmin() throws IOException, SQLException {
         userAdmin = new UserAdmin();
         mockUserTable = new MockUserTable();
-        // Populate Mock User Table
+
+        // Populate Mock User Table - For Unit Testing
         username = "testUser";
         sessionToken = MockSessionTokens.generateMockToken(username);
         dummyValues = new ArrayList<>();
@@ -54,6 +55,12 @@ class UserAdminTest {
         dummyValues.add(scheduleBillboard);
         dummyValues.add(editUser);
         MockUserTable.populateDummyData(username, dummyValues);
+        
+        // Populate MariaDB Table - For Integrated Testing
+        // Only add if not already present
+        if (DbUser.retrieveUser(username).isEmpty()) {
+            DbUser.addUser(username, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+        }
     }
 
     // -- UNIT TESTS WITH MOCK USER TABLE -- //
@@ -101,6 +108,7 @@ class UserAdminTest {
 
 
     // -- START INTEGRATED TESTS -- //
+    // -- DEPENDENCY: REQUIRE SERVER TO BE RUNNING IN THE BACKGROUND -- //
 
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
