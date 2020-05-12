@@ -1,6 +1,5 @@
 package server;
 
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
@@ -15,6 +14,11 @@ import static server.Server.validateToken;
 
 // SERVER SIDE USER ADMIN CONTROLS
 public class UserAdmin {
+
+    // Constructor for the fake db for unit tests
+    <MockDatabase> UserAdmin(MockDatabase mock) {
+
+    }
     /**
      * Checks if desired user exists in the database
      * @param username Checks if the desired username exists in the database

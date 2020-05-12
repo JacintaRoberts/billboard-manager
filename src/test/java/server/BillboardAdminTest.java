@@ -32,7 +32,7 @@ class BillboardAdminTest {
      * Description: Database Mock simulates Maria DB for testing purposes.
      * Expected Output: DatabaseMock object for Billboard Table is declared
      */
-    DatabaseMock<String, ArrayList<String>> billboardTableMock;
+    MockDatabase<String, ArrayList<String>> billboardTableMock;
 
     /* Test 3: Constructing a DatabaseMock object for Billboard Table
      * Description: DatabaseMock should be used to verify unit tests and setup of the DB
@@ -41,7 +41,7 @@ class BillboardAdminTest {
     @BeforeEach
     @Test
     public void setUpBillboardTableMock() {
-        billboardTableMock = new DatabaseMock<>();
+        billboardTableMock = new MockDatabase<>();
         // Add a dummy value (insert more as necessary or create separate function to populate)
         billboardTableMock.addValue("myBillboard", new ArrayList<String>( Arrays.asList("Creator",
                                     "<?xml version=\"1.0\" encoding=\"UTF-8\"?><billboard background=\"#0000FF\">" +
