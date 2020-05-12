@@ -31,8 +31,17 @@ public class DbConnection {
         String schema = props.getProperty("jdbc.schema");
 
         // get a connection
-        instance = DriverManager.getConnection(url + "/" + schema,username, password);
-        System.out.println("Connected to database at: "+ url + "/" + schema);
+        try{
+            instance = DriverManager.getConnection(url + "/" + schema,username, password);
+            System.out.println("Connected to database at: "+ url + "/" + schema);
+        } catch (SQLSyntaxErrorException throwables) {
+            instance = DriverManager.getConnection(url ,username, password);
+                Statement statement = instance.createStatement();
+                String sql = "CREATE DATABASE IF NOT EXISTS BillboardDatabase";
+                statement.executeUpdate(sql);
+                instance = DriverManager.getConnection(url + "/" + schema,username, password);
+                System.out.println("Database created!");
+        }
     }
 
 
@@ -69,6 +78,8 @@ public class DbConnection {
 
 
 
+
+
 /**
  * Prints Database Query result to the system console for debugging purposes. This is mainly created for debugging
  * and printing to server console when the application is running
@@ -99,6 +110,8 @@ public class DbConnection {
         }
         System.out.printf("%n");
     }
+
+
 
 
 

@@ -15,6 +15,13 @@ public class BillboardAdmin {
     public static final String DELETE_ALL_BILLBOARD_SQL = "DELETE FROM Billboards";
     public static final String COUNT_FILTER_BILLBOARD_SQL = "SELECT COUNT(*) FROM Billboards WHERE BillboardName = ?";
     public static final String COUNT_BILLBOARD_SQL = "SELECT COUNT(*) FROM Billboards";
+    public static final String CREATE_BILLBOARD_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (\n" +
+            "    `BillboardName` varchar(255) NOT NULL default '',\n" +
+            "      `Creator` varchar(255) NOT NULL default '',\n" +
+            "      `XMLCode` TEXT,\n" +
+            "      PRIMARY KEY (`BillboardName`)\n" +
+            "  )";
+    public static final String DROP_BILLBOARD_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`";
     public static final String LIST_BILLBOARD_SQL = "SELECT BillboardName FROM Billboards";
     public static final String SHOW_BILLBOARD_SQL = "SELECT * FROM Billboards WHERE BillboardName = ?";
 
@@ -22,6 +29,7 @@ public class BillboardAdmin {
     private static Connection connection;
     private static PreparedStatement createBillboard;
     private static PreparedStatement deleteBillboard;
+    private static PreparedStatement dropBillboard;
     private static PreparedStatement countFilterBillboard;
     private static PreparedStatement editBillboard;
     private static PreparedStatement listaBillboard;
@@ -76,6 +84,95 @@ public class BillboardAdmin {
         return queryList;
     }
 
+
+    /**
+     * Stores Database Queries: Billboard. This is a generic method which Make sures billboard is made with default data.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public String createGenericBillboard() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement countBillboard = connection.createStatement();
+        ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        if (count.equals("0")){
+            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+            createBillboard.setString(1,"TestBillboard");
+            createBillboard.setString(2,"TestUser");
+            createBillboard.setString(3, "TestXMLCODE");
+            createBillboard.executeQuery();
+
+            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+            createBillboard.setString(1,"TestBillboard2");
+            createBillboard.setString(2,"TestUser2");
+            createBillboard.setString(3, "TestXMLCODE2");
+            createBillboard.executeQuery();
+
+            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+            createBillboard.setString(1,"TestBillboard3");
+            createBillboard.setString(2,"TestUser3");
+            createBillboard.setString(3, "TestXMLCODE3");
+            createBillboard.executeQuery();
+
+            resultMessage = "Pass: Billboard Database Created";
+
+        } else {
+            resultMessage = "Pass: Billboard Database Already Created";
+        }
+        return resultMessage;
+    }
+
+
+    /**
+     * Delete Table: Billboard. This is a generic method which deletes the table.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public String dropBillboardTable() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement dropBillboard = connection.createStatement();
+        ResultSet rs = dropBillboard.executeQuery(DROP_BILLBOARD_TABLE);
+        resultMessage = "Billboard Table Dropped";
+        return resultMessage;
+    }
+
+
+    /**
+     * Stores Database Queries: Billboard. This is a generic method which Make sures billboard is made with default data.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public String createBillboardTable() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement countBillboard = connection.createStatement();
+        ResultSet rs = null;
+        try {
+            rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
+            rs.next();
+            String count = rs.getString(1);
+            if (count.equals("0")){
+                createGenericBillboard();
+                resultMessage = "Data Filled";
+            } else {
+                resultMessage = "Data Exists";
+            }
+        } catch (SQLSyntaxErrorException throwables) {
+            rs = countBillboard.executeQuery(CREATE_BILLBOARD_TABLE);
+            createGenericBillboard();
+            resultMessage = "Table Created";
+        }
+        return resultMessage;
+    }
 
 
     /**
@@ -160,7 +257,7 @@ public class BillboardAdmin {
             ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
             rs.next();
             String count = rs.getString(1);
-            if (count.equals("1")){
+            if (!count.equals("0")){
                 connection = DbConnection.getInstance();
                 deleteBillboard = connection.prepareStatement(DELETE_BILLBOARD_SQL);
                 deleteBillboard.setString(1,billboard);
@@ -288,7 +385,10 @@ public class BillboardAdmin {
             deleteBillboard.close();
             countFilterBillboard.close();
             editBillboard.close();
+            dropBillboard.close();
+            listaBillboard.close();
             connection.close();
+
         } catch (SQLException ex) {
             ex.printStackTrace();
         }

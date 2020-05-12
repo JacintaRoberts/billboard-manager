@@ -3,7 +3,7 @@ package server;
 import org.junit.jupiter.api.Test;
 
 import javax.swing.table.DefaultTableModel;
-import java.io.IOException;
+import java.io.*;
 import java.sql.Connection;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -407,6 +407,19 @@ class DbConnectionTest {
     }
 
 
+    @Test
+    public void testSQLRead() throws IOException, FileNotFoundException {
+        InputStream is = new FileInputStream("setDatabase.sql");
+        BufferedReader buf = new BufferedReader(new InputStreamReader(is));
+        String line = buf.readLine();
+        StringBuilder sb = new StringBuilder();
+        while(line != null){ sb.append(line).append("\n");
+            line = buf.readLine();
+        }
+        String fileAsString = sb.toString();
+        System.out.println("Contents : " + fileAsString);
+
+    }
 
 
 
