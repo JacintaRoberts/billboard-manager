@@ -4,8 +4,11 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.net.BindException;
+import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 
+import static controlPanel.UserControl.hash;
 import static org.junit.jupiter.api.Assertions.*;
 
 class ServerTest {
@@ -34,7 +37,11 @@ class ServerTest {
      */
     @Test
     public void listenForConnection() throws IOException {
-        server.listenForConnections(4444);
+        try {
+            Server.listenForConnections(4444);
+        } catch (BindException e) {
+            System.out.println("Port in use.");
+        }
     }
 
     /* Test 3: Login Response (Success)
@@ -43,10 +50,10 @@ class ServerTest {
      * Expected Output: Return a valid session token.
      */
     @Test
-    public void loginResponse() throws IOException, SQLException {
+    public void loginResponse() throws IOException, SQLException, NoSuchAlgorithmException {
         // Ensure this test user exists with this password in the fake DB where this method is implemented
-        String serverResponse = server.login("testUser", "goodPass");
-        assertEquals(serverResponse,"sessionToken");
+        String serverResponse = (String) Server.login("testUser", hash("goodPass"));
+        assertEquals(64, serverResponse.length());
     }
 
     /* Test 4: Login Response (error handling)
@@ -55,11 +62,11 @@ class ServerTest {
      * Expected Output: Return an invalid session token and throw IncorrectPasswordException
      */
     @Test
-    public void loginIncorrectPassword() throws IOException, SQLException {
+    public void loginIncorrectPassword() throws IOException, SQLException, NoSuchAlgorithmException {
         boolean userExists = UserAdmin.userExists("testUser");
         assertTrue(userExists);
         // Ensure this test user exists with a diff password in the fake DB where this method is implemented
-        assertEquals(server.login("testUser", "wrongPass"), "Fail: Incorrect Password");
+        assertEquals(Server.login("testUser", hash("wrongPass")), "Fail: Incorrect Password");
     }
 
     /* Test 5: Login Response (error handling)
@@ -68,11 +75,11 @@ class ServerTest {
      * Expected Output: Return an invalid session token and throw UserNotExistException
      */
     @Test
-    public void loginNoSuchUser() throws IOException, SQLException {
+    public void loginNoSuchUser() throws IOException, SQLException, NoSuchAlgorithmException {
       boolean userExists = UserAdmin.userExists("wrongUser");
       assertFalse(userExists);
       // Ensure this test user exists with a diff password in the fake DB where this method is implemented
-      assertEquals(server.login("wrongUser", "anything"), "Fail: No Such User");
+      assertEquals(Server.login("wrongUser", hash("anything")), "Fail: No Such User");
     }
 
     /* Test 6: Log out Response (Success)
@@ -81,11 +88,12 @@ class ServerTest {
      * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
      */
     @Test
-    public void logOut() {
-        server.addToken("testToken", "testUser"); // Test set up
-        assertEquals(server.logout("testToken"), "Pass: Logout Successful");
+    public void logOut() throws IOException, SQLException {
+        String sessionToken = Server.generateToken("testUser"); // Test set up
+        assertTrue(Server.validateToken(sessionToken));
+        assertEquals(Server.logout(sessionToken), "Pass: Logout Successful");
         // Valid session token holder should not hold the sessionToken anymore
-        assertFalse(server.validateToken("testToken"));
+        assertFalse(Server.validateToken(sessionToken));
     }
 
 
@@ -96,9 +104,9 @@ class ServerTest {
      * TODO: implement validSessionTokens is an array of strings (include "sessionToken" and exclude "failToken")
      */
     @Test
-    public void verifySession() {
-      Server.addToken("sessionToken", "testUser");
-      assertTrue(Server.validateToken("sessionToken"));
+    public void verifySession() throws IOException, SQLException {
+      String sessionToken = Server.generateToken("testUser");
+      assertTrue(Server.validateToken(sessionToken));
     }
 
 
@@ -107,11 +115,11 @@ class ServerTest {
      * Expected Output: Returns false as the given session should be inactive, throws invalidSessionTokenException
      */
     @Test
-    public void verifySessionExpiration() {
-      Server.addToken("failToken", "testUser");
-      Server.logout("failToken");
+    public void verifySessionExpiration() throws IOException, SQLException {
+      String sessionToken = Server.generateToken("testUser");
+      Server.logout(sessionToken); // Should expire token
       // Check Expired Token
-      assertFalse(Server.validateToken("failToken"));
+      assertFalse(Server.validateToken(sessionToken));
       // Also Check Empty
       assertFalse(Server.validateToken(""));
     }

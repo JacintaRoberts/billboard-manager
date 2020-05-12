@@ -4,7 +4,6 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
-import java.util.ArrayList;
 import java.util.Properties;
 
 public class DbConnection {
@@ -32,8 +31,17 @@ public class DbConnection {
         String schema = props.getProperty("jdbc.schema");
 
         // get a connection
-        instance = DriverManager.getConnection(url + "/" + schema,username, password);
-        System.out.println("Connected to database at: "+ url + "/" + schema);
+        try{
+            instance = DriverManager.getConnection(url + "/" + schema,username, password);
+            System.out.println("Connected to database at: "+ url + "/" + schema);
+        } catch (SQLSyntaxErrorException throwables) {
+            instance = DriverManager.getConnection(url ,username, password);
+                Statement statement = instance.createStatement();
+                String sql = "CREATE DATABASE IF NOT EXISTS BillboardDatabase";
+                statement.executeUpdate(sql);
+                instance = DriverManager.getConnection(url + "/" + schema,username, password);
+                System.out.println("Database created!");
+        }
     }
 
 
@@ -54,20 +62,21 @@ public class DbConnection {
      * Read Database Properties as input stream
      * <p>
      * This method always returns immediately.
-     * @param  filelocation The location of the dbprops File
+     * @param  fileLocation The location of the dbprops File
      * @return prop: A properties object containing information about the database
      */
-    public static Properties readProperties(String filelocation) throws FileNotFoundException,IOException {
+    public static Properties readProperties(String fileLocation) throws FileNotFoundException,IOException {
         // Set new properties class and initiate File input stream and connection
         Properties props = new Properties();
         FileInputStream in = null;
-
-        // set input path and load
-        in = new FileInputStream(filelocation);
+        // Load properties
+        in = new FileInputStream(fileLocation);
         props.load(in);
         in.close();
         return props;
     }
+
+
 
 
 
@@ -103,33 +112,7 @@ public class DbConnection {
     }
 
 
-    /**
-     * Stores Database Queries: Billboard
-     * <p>
-     * This method always returns immediately.
-     * @param  st A Statement object which is the connection.createStatement()
-     * @param  query A String which has the query fed into executeQuery
-     */
-    public static ArrayList<DbBillboard> storeBillboardContents(Statement st, String query) throws SQLException {
-        // Set List to store contents in
-        ArrayList<DbBillboard> queryList = new ArrayList<>();
 
-        // get all current entries
-        ResultSet rs = st.executeQuery(query);
-
-        // use metadata to get the number of columns
-        int columnCount = rs.getMetaData().getColumnCount();
-
-        // Loop through cursor
-        while (rs.next()) {
-            DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
-                                                      rs.getString("Creator"),
-                                                      rs.getString("XMLCode"));
-            queryList.add(dbBillboard);
-        }
-
-        return queryList;
-    }
 
 
 }

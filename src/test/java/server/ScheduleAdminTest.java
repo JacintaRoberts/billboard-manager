@@ -27,7 +27,7 @@ class ScheduleAdminTest {
      * Description: Database Mock simulates Maria DB for testing purposes.
      * Expected Output: DatabaseMock object for Schedule Table is declared
      */
-    DatabaseMock<String, ArrayList<String>> scheduleTableMock;
+    MockDatabase<String, ArrayList<String>> scheduleTableMock;
 
     /* Test 3: Constructing a DatabaseMock object for Schedule Table
      * Description: DatabaseMock should be used to verify unit tests and setup of the DB
@@ -36,7 +36,7 @@ class ScheduleAdminTest {
     @BeforeEach
     @Test
     public void setUpScheduleTableMock() {
-        scheduleTableMock = new DatabaseMock<>();
+        scheduleTableMock = new MockDatabase<>();
         // TODO: For date-time/time storage in MariaDB
         //  For start date (date-time) storage:
         //  Use this formatting: 'YYYY-MM-DD HH:MM:SS', e.g. 2007-11-30 10:30:19

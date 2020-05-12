@@ -3,16 +3,11 @@ SQL File to Create Database for Billboard Application
 By Team 60
 */
 
-/*Create Database if it dosent exsits*/
+/*Create Database if it doesn't exist*/
 CREATE DATABASE IF NOT EXISTS BillboardDatabase;
 
 /*Use the Database as default*/
 USE BillboardDatabase;
-
-/*Drop tables if database exists these tables*/
-DROP TABLE IF EXISTS `BillboardDatabase`.`Users`;
-DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`;
-DROP TABLE IF EXISTS `BillboardDatabase`.`Schedules`;
 
 /*Create new copies of tables*/
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
@@ -25,7 +20,6 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
     `EditUser` bool default 0,
     PRIMARY KEY (`Username`)
 );
-
 
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
     `BillboardName` varchar(255) NOT NULL default '',
@@ -42,3 +36,19 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
       PRIMARY KEY (`StartDateTime`)
   );
 
+
+
+/*Initial admin user - login is root, pass*/
+INSERT INTO Users
+VALUES ("root", "a461ab9266dbbec4623de686f806a23e69337f524527e282bb325092159f0d87",
+"8bca1326370a157d9c33acd5a173440d9475d3955ae559872f47cfe34aa793bd", true, true, true, true);
+
+
+INSERT INTO Billboards
+VALUES ("TestBillboard", "TestUser", "TestXMLCODE");
+
+INSERT INTO Billboards
+VALUES ("TestBillboard2", "TestUser2", "TestXMLCODE2");
+
+INSERT INTO Billboards
+VALUES ("TestBillboard3", "TestUser3", "TestXMLCODE3");

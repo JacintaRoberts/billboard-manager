@@ -3,10 +3,15 @@ package controlPanel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.Server;
 
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static server.Server.generateToken;
 
 class UserControlTest {
     /* Test 0: Declaring UserControl object
@@ -31,7 +36,7 @@ class UserControlTest {
      */
     @Test
     public void logOut() throws IOException, ClassNotFoundException {
-      String serverResponse = userControl.logout("sessionToken");
+      String serverResponse = userControl.logoutRequest("sessionToken");
       assertEquals(serverResponse, "Pass: Logout Successful");
     }
 
@@ -57,14 +62,14 @@ class UserControlTest {
      * Description: Method to request to server to send a list of active users in the database. Requires a valid
      *              sessionToken. Throw exception due to non-existent calling username
      *              (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void listUsersTestUsernameDeleted(){
 //        userControl.createUserRequest("sessionToken", "NewUser1", "Pass1", {1,1,1,1});
 //        userControl.createUserRequest("sessionToken", "NewUser2", "Pass2", {1,1,1,1});
 //        String serverResponse = userControl.listUsers("sessionToken");
-//        assertArrayEquals(serverResponse, "Fail: Calling Username Deleted");
+//        assertArrayEquals(serverResponse, "Fail: Invalid Session Token");
 //        assertThrows(DeletedUserException);
 //    }
 
@@ -107,8 +112,8 @@ class UserControlTest {
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
      *              running, and that user has permission. This test tests for themself. This test will test when
      *              the method is called but user is deleted halfway during a session. This will raise an exception
-     *              saying that "Fail: Calling Username Deleted".  Assume current user logged in is called "CAB302"
-     * Expected Output: Exception raised with message of "Fail: Calling Username Deleted"
+     *              saying that "Fail: Invalid Session Token".  Assume current user logged in is called "CAB302"
+     * Expected Output: Exception raised with message of "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnUserPasswordRequest() {
@@ -117,7 +122,7 @@ class UserControlTest {
 //        userControl2 = new UserControl();
 //        userControl2.deleteUser("sessionToken", "CAB302");
 //        String serverResponse = userControl.setUserPasswordRequest("sessionToken", "CAB302", "NewPassword");
-//        assertEquals(serverResponse, "Fail: Calling Username Deleted");
+//        assertEquals(serverResponse, "Fail: Invalid Session Token");
 //        assertThrows(CallingUsernameDeletedException.class, 
 //                     () -> { userControl.getUserPermission("non-existent");}
 //                    );
@@ -150,7 +155,7 @@ class UserControlTest {
 //        userControl2 = new UserControl();
 //        userControl2.deleteUser("sessionToken", "CAB302");
 //        String serverResponse = userControl.setUserPasswordRequest("sessionToken", "NewUser2", "NewPassword");
-//        assertEquals(serverResponse, Fail: Calling Username Deleted");
+//        assertEquals(serverResponse, Fail: Invalid Session Token");
 //        List<String> testUserList = new ArrayList<String>();
 //        testUserList.add("NewUser1");
 //        testUserList.add("NewUser2");
@@ -229,7 +234,7 @@ class UserControlTest {
 
     /* Test 14: Request to server to set user permissions of a user (Exception Handling)
      * Description: Method to set a user permission for another person. User being delted mid session
-     * Expected Output: Exception Fail with user deleted halfway "Fail: Calling Username Deleted"
+     * Expected Output: Exception Fail with user deleted halfway "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnUserPermissionTestDeleteMidway() {
@@ -239,7 +244,7 @@ class UserControlTest {
 //      Exception exception = assertThrows(CallingUsernameDeletedException.class,
 //                                         () -> {userControl.setUserPermission("sessionToken", "CAB302", boolean[] {0,0,0,1});}
 //                                        );
-//      assertEquals(exception.getMessage(),"Fail: Calling Username Deleted");
+//      assertEquals(exception.getMessage(),"Fail: Invalid Session Token");
 //    }
 
 
@@ -275,7 +280,7 @@ class UserControlTest {
 
     /* Test 17: Request to server to set user permissions of a user (Exception Handling)
      * Description: Method to set a user permission for another person. User being delted mid session
-     * Expected Output: Exception Fail with user deleted halfway "Fail: Calling Username Deleted"
+     * Expected Output: Exception Fail with user deleted halfway "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnUserPermissionTestDeleteMidway() {
@@ -288,7 +293,7 @@ class UserControlTest {
 //      Exception exception = assertThrows(CallingUsernameDeletedException.class,
 //                                         () -> {testAdmin.setUserPermission("sessionToken", "CAB302", boolean[] {0,0,0,1});}
 //                                        );
-//      assertEquals(exception.getMessage(),"Fail: Calling Username Deleted");
+//      assertEquals(exception.getMessage(),"Fail: Invalid Session Token");
 //    }
 
 
@@ -335,7 +340,7 @@ class UserControlTest {
 //      Exception exception = assertThrows(CallingUsernameDeletedException.class,
 //                                         () -> {testAdmin.getUserPermission("sessionToken", "CAB302");}
 //                                        );
-//      assertEquals(exception.getMessage(),"Fail: Calling Username Deleted");
+//      assertEquals(exception.getMessage(),"Fail: Invalid Session Token");
 //    }
 
 
@@ -404,7 +409,7 @@ class UserControlTest {
 //      Exception exception = assertThrows(CallingUsernameDeletedException.class,
 //                                         () -> {testAdmin.deleteUserRequest("sessionToken", "CAB302");}
 //                                        );
-//      assertEquals(exception.getMessage(),"Fail: Calling Username Deleted");
+//      assertEquals(exception.getMessage(),"Fail: Invalid Session Token");
 //    }
 
 
@@ -464,20 +469,28 @@ class UserControlTest {
     /* Test 28: Request to server to Create New Users (Success)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user.
-     * Expected Output: Server will return "Fail: Calling Username Deleted" and an CallingUsernameDeletedException
-     *                  will be thrown
+     * Expected Output: Server will return "Success: User Created"
      */
-//    public void createUserRequest(){
-//        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", sessionToken);
-//        assertEquals("Success: User Created", serverResponse);
-//    }
+    //TODO: FOR SOME REASON THIS IS NOT PASSING? NO IDEA WHY IT CAN'T SEEM TO CREATE THE SESSION TOKEN WHEN WE CALL
+    // DIRECTLY FROM USER CONTROL. IT DOESN'T MAKE SENSE, THE ISSUE IS VALIDATING A SESSION TOKEN FROM CP, WORKS FINE
+    // IN THE ACTUAL PROGRAM JUST THIS UNIT TEST IDK...I ONLY ADDED THE GETTERS AND SETTERS FOR VALID SESSION TOKEN
+    // TO TRY AND FIX THE ISSUE BUT I DON'T THINK ITS DONE ANYTHING?
+    @Test
+    public void createUserRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
+        String callingUsername = "testUser";
+        String testToken = generateToken(callingUsername);
+        assertTrue(Server.validateToken(testToken));
+        String serverResponse = userControl.createUserRequest(testToken, "NewUser1",
+                "myPass", true, true, true, true);
+        assertEquals("Success: User Created", serverResponse);
+    }
 
 
     /* Test 29: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user. This test checks for sufficient
      *              permissions on the calling user.
-     * Expected Output: Server will return "Fail: Calling Username Deleted" and an CallingUsernameDeletedException
+     * Expected Output: Server will return "Fail: Invalid Session Token"
      *                  will be thrown
      * //TODO: NEED TO IMPLEMENT SOME WAY TO CHANGE THE "CALLING USERNAME" IN THIS METHOD RATHER THAN JUST
      *    "USERNAME TO BE CREATED" SO THAT THIS CAN BE ADEQUATELY TESTED
@@ -487,7 +500,8 @@ class UserControlTest {
 //        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken"));
 //      }
 //      // Check for correct message received
-//      assertEquals("Fail: Calling Username Deleted", serverResponse);
+//      //TODO: CHECK INSTANCES OF Fail: Invalid Session Token AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
+//      assertEquals("Fail: Invalid Session Token", serverResponse);
 //    }
 
 

@@ -2,7 +2,7 @@ package server;
 
 import java.util.*;
 
-public class DatabaseMock<K, V> extends AbstractMap<K, ArrayList<V>> implements Iterable<V> {
+public class MockDatabase<K, V> extends AbstractMap<K, ArrayList<V>> implements Iterable<V> {
 
     private HashMap<K, ArrayList<V>> internal = new HashMap<K, ArrayList<V>>();
 
@@ -43,13 +43,6 @@ public class DatabaseMock<K, V> extends AbstractMap<K, ArrayList<V>> implements 
         return new MapListIterator<V>();
     }
 
-    public void addValue(K key, V value) {
-        if (!containsKey(key)) {
-            internal.put(key, new ArrayList<>());
-        }
-        get(key).add(value);
-    }
-
     @Override
     public Set<Entry<K, ArrayList<V>>> entrySet() {
         return internal.entrySet();
@@ -63,4 +56,16 @@ public class DatabaseMock<K, V> extends AbstractMap<K, ArrayList<V>> implements 
             System.out.println(key + " " + value);
         }
     }
+
+    // Method to add
+    public String addValue(K key, V value) {
+        String dbResponse = "Fail: Username Already Taken";
+        if (!containsKey(key)) {
+            internal.put(key, new ArrayList<>());
+            dbResponse = "Pass: User Created";
+        }
+        get(key).add(value);
+        return dbResponse;
+    }
+
 }

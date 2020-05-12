@@ -106,7 +106,9 @@ public class Helpers {
         // Write message to server and receive server's return object
         oos.writeUTF(message);
         oos.flush();
+        System.out.println("Sent message to server: " + message);
         Object serverResponse = ois.readObject();
+        //System.out.println("Received from server: " + serverResponse);
 
         // Cleanup
         ois.close();
@@ -114,4 +116,19 @@ public class Helpers {
         socket.close();
         return serverResponse;
     }
+
+    /**
+     * Converts inputted bytes to a string (required for password validation)
+     * @param hash an array of bytes to be converted to a string type
+     * @return String representation of the provided bytes
+     * Reference - From CAB302 Week 9 Assignment Q&A Lecture
+     */
+    public static String bytesToString(byte[] hash) {
+        StringBuffer sb = new StringBuffer();
+        for (byte b : hash) {
+            sb.append(String.format("%02x", b & 0xFF));
+        }
+        return sb.toString();
+    }
+
 }

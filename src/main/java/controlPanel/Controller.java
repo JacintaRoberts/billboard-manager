@@ -6,12 +6,14 @@ import org.xml.sax.SAXException;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import static controlPanel.Main.VIEW_TYPE.*;
+import static controlPanel.UserControl.loginRequest;
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
@@ -420,6 +422,7 @@ public class Controller
     }
     //---------------------------------- LOG IN LISTENER ------------------------------
 
+
     /**
      * Listener to handle user's log in attempt. The username and password is retrieved from the GUI input and a
      * request is sent to server to check validity of user. If response is true, username is stored in model and user
@@ -438,18 +441,29 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-
-            // TODO: String[] response = userControl.loginRequest(username, Password). response[0], response[1]; This could either be error message or session token
-            boolean response = false;
-            String sessionToken = "SessionToken";
-
-            if (username.equals("P") && password.equals("P"))
+            String sessionToken = ""; // default
+            try {
+                sessionToken = loginRequest(username, password); // CP Backend method call
+                //TODO: RETURN CUSTOM MESSAGE
+                // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
+                // 1. VALID SESSION TOKEN
+                // 2. "Fail: Incorrect Password" -> User exists, but bad password
+                // 3. "Fail: No Such User"; -> No such user
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
+            }
+            // Redundant
+            /*if (username.equals("P") && password.equals("P"))
             {
                 response = true;
-            }
+            }*/
 
             // if successful, store info in model, hide error and navigate to home screen
-            if (response)
+            if (response(sessionToken))
             {
                 System.out.println("CONTROLLER LEVEL - Correct Credentials");
                 // store username and session token in model
@@ -467,11 +481,24 @@ public class Controller
             else
             {
                 System.out.println("CONTROLLER LEVEL - Incorrect Credentials");
+                System.out.println(sessionToken);
+                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
+
                 // show error message
                 logInView.setErrorVisibility(true);
                 views.put(VIEW_TYPE.LOGIN, logInView);
             }
         }
+    }
+
+    //TODO: MAY WANT TO REWORK THIS
+
+    // Determines whether there was a response from server
+    private Boolean response(String sessionToken) {
+        if (sessionToken.startsWith("Fail:")) { // An Exception occurred on the server-side
+            return false;
+    }
+        else return true;
     }
 
     //---------------------------------- USER LISTENERS ------------------------------
