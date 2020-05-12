@@ -20,8 +20,8 @@ public class LogInView extends AbstractView
     private JLabel passwordText;
     private JLabel errorText;
     // --- Fields ---
-    private JTextField usernameField;
-    private JTextField passwordField;
+    private static JTextField usernameField;
+    private static JTextField passwordField;
     // --- ENUM ---
     private VIEW_TYPE logInType;
 
@@ -60,7 +60,7 @@ public class LogInView extends AbstractView
      * Get username text field from frame
      * @return username string
      */
-    public String getUsername()
+    public static String getUsername()
     {
         return usernameField.getText();
     }
@@ -69,7 +69,7 @@ public class LogInView extends AbstractView
      * Get password text field from frame
      * @return password string
      */
-    public String getPassword()
+    public static String getPassword()
     {
         return passwordField.getText();
     }

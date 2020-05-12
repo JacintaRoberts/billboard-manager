@@ -18,86 +18,97 @@ class UserAdminTest {
      * Expected Output: UserAdmin object is declared
      */
     UserAdmin userAdmin;
-    MockDatabase mockDatabase;
+    MockUserTable mockUserTable;
+    String sessionToken;
+    String username;
+    String dummySalt;
+    String dummyHashedSaltedPassword;
+    Boolean createBillboard;
+    Boolean editBillboard;
+    Boolean scheduleBillboard;
+    Boolean editUser;
+    ArrayList<Object> dummyValues;
 
-
-    /* Test 1: Constructing a UserAdmin object
-     * Description: UserAdmin Object should be able to be created on logged in user request from control panel
-     * Expected Output: UserAdmin object is instantiated from UserAdmin class
+    /* Test 1: Constructing a UserAdmin and Mock User Table object
+     * Description: UserAdmin and MockUserTable Objects should be able to be created
+     * Expected Output: UserAdmin and MockUserTable objects able to be instantiated from their respective classes.
      */
     @BeforeEach @Test
-    public void setUpUserAdmin() {
-        mockDatabase = new MockDatabase();
-        ArrayList<Object> values = new ArrayList();
-        String username = "testUser"; // pk
-        values.add("794b258f6780a0606f35aeac1d1b747bc81658f276a12b1fa58009a8a2bcf23c"); // Password
-        values.add("68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433"); // Random salt
-        values.add(true); // CreateBillboard permission
-        values.add(true); // EditBillboard permission
-        values.add(true); // ScheduleBillboard permission
-        values.add(true); // EditUser permission
-        mockDatabase.addValue(username, values);
-        userAdmin = new UserAdmin(mockDatabase);
+    public void setUpUserAdmin() throws IOException, SQLException {
+        userAdmin = new UserAdmin();
+        mockUserTable = new MockUserTable();
+
+        // Populate Mock User Table - For Unit Testing
+        username = "testUser";
+        sessionToken = MockSessionTokens.generateMockToken(username);
+        dummyValues = new ArrayList<>();
+        dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
+        dummyHashedSaltedPassword = "10330629f1ddb57a41a9c41d19f0d30c53af983bcd7f1d582bdd203c7875b585";
+        createBillboard = true;
+        editBillboard = true;
+        scheduleBillboard = true;
+        editUser = true;
+        dummyValues.add(dummyHashedSaltedPassword);
+        dummyValues.add(dummySalt);
+        dummyValues.add(createBillboard);
+        dummyValues.add(editBillboard);
+        dummyValues.add(scheduleBillboard);
+        dummyValues.add(editUser);
+        MockUserTable.populateDummyData(username, dummyValues);
+        
+        // Populate MariaDB Table - For Integrated Testing
+        // Only add if not already present
+        if (DbUser.retrieveUser(username).isEmpty()) {
+            DbUser.addUser(username, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+        }
     }
 
-
-    /* Test 2: Check User Exists (Helper for other methods in this class)
+    // -- UNIT TESTS WITH MOCK USER TABLE -- //
+    /* Test 2: Check User Exists (Helper for other methods in this class) (Pass)
      * Description: Check that a user exists in the database - helper method
-     * Expected Output: A boolean where true is returned if the user is found in the DB and false otherwise
+     * Expected Output: A boolean where true is returned if the user is found in the Mock Table and false otherwise
      */
     @Test
     public void mockUserExists() {
         assertAll("Check for Existing User",
                 // Ensure that these users don't exist in the Fake DB.
-                ()-> assertFalse(mockDatabase.containsKey("non-existent-user")),
+                ()-> assertFalse(mockUserTable.userExists("non-existent-user")),
                 // Check for case sensitivity
-                ()-> assertFalse(mockDatabase.containsKey("testuser")),
+                ()-> assertFalse(mockUserTable.userExists("testuser")),
                 // Check for trailing whitespace stripping
-                ()-> assertFalse(mockDatabase.containsKey("testuser ")),
+                ()-> assertFalse(mockUserTable.userExists("testuser ")),
                 // Check for empty
-                ()-> assertFalse(mockDatabase.containsKey("")),
+                ()-> assertFalse(mockUserTable.userExists("")),
                 // Check for valid
-                ()-> assertTrue(mockDatabase.containsKey("testUser"))
+                ()-> assertTrue(mockUserTable.userExists("testUser"))
         );
     }
 
 
-
-    /* Test 32: Create User (Pass)
-     * Description: Check that the calling user has "EditUsers" permission, then create the corresponding username in
-     * the DB with the hashed password and permissions and return acknowledgement to Control Panel.
+    /* Test 3: Create Users (Pass)
+     * Description: Create the corresponding username in the Mock User Table with the hashed password and permissions
+     * and return acknowledgement to Control Panel.
      * Expected Output: User is created in the DB and returns string "Pass: User Created"
      */
     @Test
-    public void mockCreateUser() throws IOException, SQLException, NoSuchAlgorithmException {
+    public void mockCreateUser() {
         // Test setup - Ensure the user to be created does not already exist
         String testUsername = "Jacinta";
-        String hashedPassword = hash("myPass");
-        String testToken = generateToken("testUser");
-        
-        // Check return value
-        String username = "testUser"; // pk
-        ArrayList values = new ArrayList();
-        values.add(hashedPassword); // Password
-        values.add("18b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433"); // Random salt
-        values.add(true); // CreateBillboard permission
-        values.add(true); // EditBillboard permission
-        values.add(true); // ScheduleBillboard permission
-        values.add(true); // EditUser permission
-        String dbResponse = mockDatabase.addValue(testUsername, values);
+        String dummyHashedPassword = "794b258f6780a0606f35aeac1d1b747bc81658f276a12b1fa58009a8a2bcf23c";
+        String sessionToken = MockSessionTokens.generateMockToken("testUser");
+        String dbResponse = mockUserTable.createUser(sessionToken, testUsername, dummyHashedPassword,
+                true, true, true, true);
         assertEquals("Pass: User Created", dbResponse);
         // Check that the user is actually added to the DB
-        assertTrue(mockDatabase.containsKey(testUsername));
+        assertTrue(mockUserTable.userExists(testUsername));
     }
+    // -- END UNIT TESTS -- //
+//TODO: THERE IS A LOT OF THESE TO DO...WAITING TO SEE WHAT TIM WANTS US TO DO WITH IT.
 
 
 
-
-
-
-    //TODO: CHECK THESE AS THEY CAN BE LABELLED AS INTEGRATED TESTS...
-
-
+    // -- START INTEGRATED TESTS -- //
+    // -- DEPENDENCY: REQUIRE SERVER TO BE RUNNING IN THE BACKGROUND -- //
 
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
@@ -179,14 +190,14 @@ class UserAdminTest {
 
     /* Test 5: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent calling username in DB
-     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void getOtherUserPermissionsCallingUsernameDeleted() {
 //      // Temporarily change calling username to something unknown (via the session token)
 //      Object[] dbResponse = userAdmin.getUserPermissions("unknownSessionToken", "non-existent");
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse[0]);
+//      assertEquals("Fail: Invalid Session Token", dbResponse[0]);
 //      assertEquals(1, dbResponse.length);
 //    }
 
@@ -234,7 +245,7 @@ class UserAdminTest {
     /* Test 9: List Users (Exception Handling)
      * Description: List all of the users in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void listUsersCallingUsernameDeleted() {
@@ -245,7 +256,7 @@ class UserAdminTest {
 //      // Check return message and that no other results get appended
 
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse.get(0));
+//      assertEquals("Fail: Invalid Session Token", dbResponse.get(0));
 //      assertEquals(1, dbResponse.size());
 //    }
 
@@ -305,7 +316,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnUserPermissionsCallingUsernameDeleted() {
@@ -315,7 +326,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("unknownSessionToken", "non-existent", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user permissions are still unobtainable
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          userAdmin.getUserPermissions("sessionToken", "non-existent"));
@@ -369,7 +380,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Fail: Calling Username Deleted"
+     * Expected Output: User permissions not updated in DB and returns "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOtherUserPermissionsCallingUsernameDeleted() {
@@ -382,7 +393,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setUserPermissions("unknownSessionToken", "root", {0,1,1,1});
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user permissions are not updated in the DB
 //      assertEquals({1,1,1,1}, userAdmin.getUserPermissions("root"));
 //    }
@@ -479,7 +490,7 @@ class UserAdminTest {
     /* Test 22: Set Own Password (Exception Handling)
      * Description: Set own user password in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOwnPasswordCallingUsernameDeleted() {
@@ -489,7 +500,7 @@ class UserAdminTest {
 //      }
 //      string dbResponse = userAdmin.setPassword("unknownSessionToken", "non-existent", "changedPass");
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check for Exception that the password cannot be obtained for user that does not exist in DB
 //      assertThrows(UsernameNotFoundException.class, () -> {
 //          string dbResponse = userAdmin.getPassword("sessionToken", "non-existent");
@@ -518,7 +529,7 @@ class UserAdminTest {
 
     /* Test 24: Set Other User Password (Exception Handling)
      * Description: Check that the calling user still exists in the DB before setting user password.
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void setOtherPasswordCallingUsernameDeleted() {
@@ -531,7 +542,7 @@ class UserAdminTest {
 //      }
 //      String dbResponse = userAdmin.setPassword("unknownSessionToken", "Jenny", "changedPass");
 //      // Check return value
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user pass is not actually still updated in the DB
 //      assertEquals("pass",userAdmin.getPassword("sessionToken", "Jenny"));
 //    }
@@ -600,7 +611,7 @@ class UserAdminTest {
 
     /* Test 28: Delete User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not deleted in DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Username is not deleted in DB and returns string "Fail: Invalid Session Token"
      */
 //    @Test
 //    public void deleteUserCallingUsernameDeleted()() {
@@ -610,7 +621,7 @@ class UserAdminTest {
 //      }
 //      // Check return value
 //      string dbResponse = userAdmin.deleteUser("unknownSessionToken", "Jenny");
-//      assertEquals("Fail: Calling Username Deleted", dbResponse);
+//      assertEquals("Fail: Invalid Session Token", dbResponse);
 //      // Check that the user to be deleted isn't removed anyway
 //      assertTrue(userAdmin.userExists("Jenny"));
 //    }
@@ -680,8 +691,8 @@ class UserAdminTest {
     @Test
     public void createUser() throws IOException, SQLException, NoSuchAlgorithmException {
         // Test setup - Ensure the user to be created does not already exist
-        String testUsername = "Jacinta";
-        String hashedPassword = hash("myPass");
+        String testUsername = "root";
+        String hashedPassword = hash("pass");
         String testToken = generateToken("testUser");
         System.out.println("The test token: " + testToken);
         if (userAdmin.userExists(testUsername)) {
@@ -697,7 +708,7 @@ class UserAdminTest {
 
     /* Test 33: Create User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not created in DB and returns string "Fail: Calling Username Deleted"
+     * Expected Output: Username is not created in DB and returns string "Fail: Invalid Session Token"
      */
     @Test
     public void createUserCallingUsernameDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -716,7 +727,6 @@ class UserAdminTest {
         }
         // Check return value
         String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
-        // TODO: CHECK INSTANCES OF FAIL: CALLING USERNAME DELETED AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
         assertEquals("Fail: Invalid Session Token", dbResponse);
         // Check that the user to be created is not added to the DB anyway
         assertFalse(userAdmin.userExists(testUsername));

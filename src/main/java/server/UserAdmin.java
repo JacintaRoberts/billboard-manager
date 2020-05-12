@@ -14,11 +14,6 @@ import static server.Server.validateToken;
 
 // SERVER SIDE USER ADMIN CONTROLS
 public class UserAdmin {
-
-    // Constructor for the fake db for unit tests
-    <MockDatabase> UserAdmin(MockDatabase mock) {
-
-    }
     /**
      * Checks if desired user exists in the database
      * @param username Checks if the desired username exists in the database
@@ -34,7 +29,7 @@ public class UserAdmin {
                 return true;
             }
         }
-            System.out.println("User does not exist");
+            System.out.println("The user: " + username + " does not exist");
             return false;
     }
 
@@ -88,7 +83,9 @@ public class UserAdmin {
             byte[] saltBytes = new byte[32];
             rng.nextBytes(saltBytes);
             String saltString = bytesToString(saltBytes); // Generate salt
+            System.out.println("The salt string is: " + saltString);
             String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
+            System.out.println("The salted, hashed password is: " + saltedHashedPassword);
             try {
                 DbUser.addUser(username, saltedHashedPassword, saltString, createBillboard,
                                                                     editBillboard, scheduleBillboard, editUser);
