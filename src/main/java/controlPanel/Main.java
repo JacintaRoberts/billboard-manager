@@ -3,8 +3,6 @@ package controlPanel;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
-import static controlPanel.UserControl.createUserRequest;
-import static controlPanel.UserControl.loginRequest;
 
 /**
  * Main Class creates instance of all application views and associates to an enum in a HashMap.
@@ -31,23 +29,14 @@ public class Main {
     public static void main(String[] args)
     {
         // TODO: ONLY PUT THIS IN THE CP BACKEND FUNCTIONS WHEN NEED TO CONNECT TO SERVER - HERE FOR TESTING
-        try {
-            // Login testing
-            Object sessionToken = loginRequest("testUser","goodPass"); // CP Backend method call
-            //Object serverResponse2 = loginRequest("testUser","wrongPass"); // CP Backend method call
-            //Object serverResponse3 = loginRequest("nonExistentUser","anyPass"); // CP Backend method call
-            System.out.println("Received from server: " + sessionToken.toString()); // My token
-            //System.out.println("Received from server: " + serverResponse2.toString()); // Error message 1
-            //System.out.println("Received from server: " + serverResponse3.toString()); // Error message 2*/
+        // Login testing
+        //Object sessionToken = loginRequest("testUser","goodPass"); // CP Backend method call
+        //Object serverResponse2 = loginRequest("testUser","wrongPass"); // CP Backend method call
+        //Object serverResponse3 = loginRequest("nonExistentUser","anyPass"); // CP Backend method call
+        //System.out.println("Received from server: " + sessionToken.toString()); // My token
+        //System.out.println("Received from server: " + serverResponse2.toString()); // Error message 1
+        //System.out.println("Received from server: " + serverResponse3.toString()); // Error message 2*/
 
-            Object serverResponse4 = createUserRequest((String) sessionToken,"Jacinta", "testPassword", true,true, true, true); // CP Backend method call
-            System.out.println("Received from server: " + serverResponse4.toString()); // Create user
-
-
-        } catch (Exception e) { // Could not connect to server
-            //TODO: USE GUI TO HANDLE EXCEPTION + NOTIFY USER
-            System.err.println("Exception caught: " + e);
-        }
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

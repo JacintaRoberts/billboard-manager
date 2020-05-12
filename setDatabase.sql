@@ -26,6 +26,10 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
     PRIMARY KEY (`Username`)
 );
 
+/*Initial admin user - login is root, pass*/
+INSERT INTO Users
+VALUES ("root", "a461ab9266dbbec4623de686f806a23e69337f524527e282bb325092159f0d87",
+"8bca1326370a157d9c33acd5a173440d9475d3955ae559872f47cfe34aa793bd", true, true, true, true);
 
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
     `BillboardName` varchar(255) NOT NULL default '',

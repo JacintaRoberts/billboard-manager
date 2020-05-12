@@ -83,7 +83,9 @@ public class UserAdmin {
             byte[] saltBytes = new byte[32];
             rng.nextBytes(saltBytes);
             String saltString = bytesToString(saltBytes); // Generate salt
+            System.out.println("The salt string is: " + saltString);
             String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
+            System.out.println("The salted, hashed password is: " + saltedHashedPassword);
             try {
                 DbUser.addUser(username, saltedHashedPassword, saltString, createBillboard,
                                                                     editBillboard, scheduleBillboard, editUser);

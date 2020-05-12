@@ -691,8 +691,8 @@ class UserAdminTest {
     @Test
     public void createUser() throws IOException, SQLException, NoSuchAlgorithmException {
         // Test setup - Ensure the user to be created does not already exist
-        String testUsername = "Jacinta";
-        String hashedPassword = hash("myPass");
+        String testUsername = "root";
+        String hashedPassword = hash("pass");
         String testToken = generateToken("testUser");
         System.out.println("The test token: " + testToken);
         if (userAdmin.userExists(testUsername)) {
@@ -727,7 +727,6 @@ class UserAdminTest {
         }
         // Check return value
         String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
-        // TODO: CHECK INSTANCES OF Fail: Invalid Session Token AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
         assertEquals("Fail: Invalid Session Token", dbResponse);
         // Check that the user to be created is not added to the DB anyway
         assertFalse(userAdmin.userExists(testUsername));
