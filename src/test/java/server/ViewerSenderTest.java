@@ -30,8 +30,8 @@ public class ViewerSenderTest {
      * Description: Database Mock simulates Maria DB for testing purposes.
      * Expected Output: DatabaseMock object for Schedule and Billboard Table is declared
      */
-    DatabaseMock<String, ArrayList<String>> scheduleTableMock;
-    DatabaseMock<String, ArrayList<String>> billboardTableMock;
+    MockDatabase<String, ArrayList<String>> scheduleTableMock;
+    MockDatabase<String, ArrayList<String>> billboardTableMock;
 
 
     /* Test 3: Constructing a DatabaseMock object for Schedule and Billboard Table
@@ -41,8 +41,8 @@ public class ViewerSenderTest {
     @BeforeEach
     @Test
     public void setUpScheduleAndBillboardTableMocks() {
-        scheduleTableMock = new DatabaseMock<>();
-        billboardTableMock = new DatabaseMock<>();
+        scheduleTableMock = new MockDatabase<>();
+        billboardTableMock = new MockDatabase<>();
         // Default value for testing
         billboardTableMock.addValue("Billboard1", new ArrayList<String>( Arrays.asList("Creator", "xml1")));
         billboardTableMock.addValue("Billboard2", new ArrayList<String>( Arrays.asList("Creator", "xml2")));

@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
+import java.util.ArrayList;
 
 import static controlPanel.UserControl.hash;
 import static org.junit.jupiter.api.Assertions.*;
@@ -17,16 +18,86 @@ class UserAdminTest {
      * Expected Output: UserAdmin object is declared
      */
     UserAdmin userAdmin;
+    MockDatabase mockDatabase;
+
 
     /* Test 1: Constructing a UserAdmin object
      * Description: UserAdmin Object should be able to be created on logged in user request from control panel
      * Expected Output: UserAdmin object is instantiated from UserAdmin class
      */
-    @BeforeEach
-    @Test
+    @BeforeEach @Test
     public void setUpUserAdmin() {
-        userAdmin = new UserAdmin();
+        mockDatabase = new MockDatabase();
+        ArrayList<Object> values = new ArrayList();
+        String username = "testUser"; // pk
+        values.add("794b258f6780a0606f35aeac1d1b747bc81658f276a12b1fa58009a8a2bcf23c"); // Password
+        values.add("68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433"); // Random salt
+        values.add(true); // CreateBillboard permission
+        values.add(true); // EditBillboard permission
+        values.add(true); // ScheduleBillboard permission
+        values.add(true); // EditUser permission
+        mockDatabase.addValue(username, values);
+        userAdmin = new UserAdmin(mockDatabase);
     }
+
+
+    /* Test 2: Check User Exists (Helper for other methods in this class)
+     * Description: Check that a user exists in the database - helper method
+     * Expected Output: A boolean where true is returned if the user is found in the DB and false otherwise
+     */
+    @Test
+    public void mockUserExists() {
+        assertAll("Check for Existing User",
+                // Ensure that these users don't exist in the Fake DB.
+                ()-> assertFalse(mockDatabase.containsKey("non-existent-user")),
+                // Check for case sensitivity
+                ()-> assertFalse(mockDatabase.containsKey("testuser")),
+                // Check for trailing whitespace stripping
+                ()-> assertFalse(mockDatabase.containsKey("testuser ")),
+                // Check for empty
+                ()-> assertFalse(mockDatabase.containsKey("")),
+                // Check for valid
+                ()-> assertTrue(mockDatabase.containsKey("testUser"))
+        );
+    }
+
+
+
+    /* Test 32: Create User (Pass)
+     * Description: Check that the calling user has "EditUsers" permission, then create the corresponding username in
+     * the DB with the hashed password and permissions and return acknowledgement to Control Panel.
+     * Expected Output: User is created in the DB and returns string "Pass: User Created"
+     */
+    @Test
+    public void mockCreateUser() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure the user to be created does not already exist
+        String testUsername = "Jacinta";
+        String hashedPassword = hash("myPass");
+        String testToken = generateToken("testUser");
+        
+        // Check return value
+        String username = "testUser"; // pk
+        ArrayList values = new ArrayList();
+        values.add(hashedPassword); // Password
+        values.add("18b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433"); // Random salt
+        values.add(true); // CreateBillboard permission
+        values.add(true); // EditBillboard permission
+        values.add(true); // ScheduleBillboard permission
+        values.add(true); // EditUser permission
+        String dbResponse = mockDatabase.addValue(testUsername, values);
+        assertEquals("Pass: User Created", dbResponse);
+        // Check that the user is actually added to the DB
+        assertTrue(mockDatabase.containsKey(testUsername));
+    }
+
+
+
+
+
+
+    //TODO: CHECK THESE AS THEY CAN BE LABELLED AS INTEGRATED TESTS...
+
+
 
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
@@ -47,6 +118,7 @@ class UserAdminTest {
         ()-> assertTrue(userAdmin.userExists("testUser"))
       );
     }
+
 
     /* Test 3: Get Other User's Permissions
      * Description: Check that only users with "Edit Permissions" can see any user's permissions
