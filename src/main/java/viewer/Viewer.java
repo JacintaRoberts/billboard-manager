@@ -50,12 +50,11 @@ public class Viewer extends JFrame implements Runnable {
         super(title);
     }
 
-
     /**
      * Extracts the xml file that we want to display.
      * TODO: Remove or change this function to extract the XML file from the database
      */
-    public File extractXMLFile(int fileNum) {
+    public static File extractXMLFile(int fileNum) {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
         return xmlFiles.get(fileNum-1);
     }
@@ -69,7 +68,7 @@ public class Viewer extends JFrame implements Runnable {
      *      picture type (data or url), information, and information colour of the billboard, if there is no content
      *      for one or more of these tags, the string is null
      */
-    public HashMap<String, String> extractDataFromXML(File xmlFile) {
+    public static HashMap<String, String> extractDataFromXML(File xmlFile) {
         // Initiate an ArrayList to return
         HashMap<String, String> billboardData = new HashMap<>();
 
@@ -185,7 +184,7 @@ public class Viewer extends JFrame implements Runnable {
      * @param pictureType - a string which is either url or data, so that we can decode the image
      * @return pictureImage - a BufferedImage which is the picture so it can be displayed on the billboard
      */
-    public BufferedImage readPictureFromFile(String picture, String pictureType) {
+    public static BufferedImage readPictureFromFile(String picture, String pictureType) {
         BufferedImage pictureImage = null;
 
         // Decide if it's a url or data attribute

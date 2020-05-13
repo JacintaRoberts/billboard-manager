@@ -21,9 +21,11 @@ public class LogInView extends AbstractView
     private JLabel errorText;
     // --- Fields ---
     private static JTextField usernameField;
-    private static JTextField passwordField;
+    private static JPasswordField passwordField;
     // --- ENUM ---
     private VIEW_TYPE logInType;
+
+    private GridBagConstraints gbc = new GridBagConstraints();
 
     /**
      * Constructor for LogIn View - set frame name
@@ -38,19 +40,24 @@ public class LogInView extends AbstractView
     void createComponents()
     {
         loginPanel = new JPanel();
-        loginPanel.setLayout(new GridLayout(3,2));
-        usernameText = new JLabel("Username");
+        loginPanel.setLayout(new GridBagLayout());
+        usernameText = new JLabel("USERNAME");
         usernameField = new JTextField();
-        passwordText = new JLabel("Password");
-        passwordField = new JTextField();
-        submitButton = new JButton("Submit");
+        usernameField.setPreferredSize(new Dimension(300,60));
+        passwordText = new JLabel("PASSWORD");
+        passwordField = new JPasswordField();
+        passwordField.setPreferredSize(new Dimension(300,60));
+        submitButton = new JButton("SUBMIT");
         errorText = new JLabel("");
-        loginPanel.add(usernameText);
-        loginPanel.add(usernameField);
-        loginPanel.add(passwordText);
-        loginPanel.add(passwordField);
+
+        gbc.insets = new Insets(5,5,5,5);
+
+        loginPanel.add(usernameText, setGBC(gbc, 1,1,1,1));
+        loginPanel.add(usernameField, setGBC(gbc,5,1,1,1));
+        loginPanel.add(passwordText, setGBC(gbc,1,2,1,1));
+        loginPanel.add(passwordField, setGBC(gbc,5,2,1,1));
         loginPanel.add(errorText);
-        loginPanel.add(submitButton);
+        loginPanel.add(submitButton, setGBC(gbc,3,3,5,2));
 
         errorText.setVisible(false);
         getContentPane().add(loginPanel, BorderLayout.CENTER);
@@ -71,7 +78,7 @@ public class LogInView extends AbstractView
      */
     public static String getPassword()
     {
-        return passwordField.getText();
+        return new String(passwordField.getPassword());
     }
 
     /**

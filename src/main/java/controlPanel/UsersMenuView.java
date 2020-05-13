@@ -18,6 +18,8 @@ public class UsersMenuView extends AbstractGenericView
     // --- ENUM ---
     private VIEW_TYPE view_type;
 
+    private GridBagConstraints gbc;
+
     /**
      * Constructor to create home view, use parent constructor.
      */
@@ -30,12 +32,16 @@ public class UsersMenuView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        gbc = new GridBagConstraints();
         optionsPanel = new JPanel();
-        optionsPanel.setLayout(new FlowLayout());
+        optionsPanel.setLayout(new GridBagLayout());
         viewUsersButton = new JButton("View Users");
         createUsersButton = new JButton("Create User");
-        optionsPanel.add(viewUsersButton);
-        optionsPanel.add(createUsersButton);
+
+        gbc.insets = new Insets(5,10,5,10);
+        optionsPanel.add(viewUsersButton, setGBC(gbc, 1,1,1,1));
+        optionsPanel.add(createUsersButton, setGBC(gbc, 2,1,1,1));
+
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 

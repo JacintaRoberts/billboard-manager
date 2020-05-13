@@ -90,7 +90,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         timeNamePanel = new JPanel();
         timeNamePanel.setLayout(new GridLayout(6,2));
         // create labels
-        timePanelDescription = new JLabel("Select Billboard Name and Time:");
+        timePanelDescription = new JLabel("Billboard Details:");
         bbNameLabel = new JLabel("Billboard Name: ");
         bbNameComboBox = new JComboBox<>(new String[]{""});
         // define hours and minute selection
@@ -165,14 +165,14 @@ public class ScheduleUpdateView extends AbstractGenericView
         weekdayPanel.setLayout(new GridLayout(8,1));
 
         // create labels
-        weekdayPanelDescription = new JLabel("Select Days to Schedule Billboard");
-        monCheckBox = new JCheckBox("Mon");
-        tuesCheckBox = new JCheckBox("Tues");
-        wedCheckBox = new JCheckBox("Wed");
-        thurCheckBox = new JCheckBox("Thurs");
-        friCheckBox = new JCheckBox("Fri");
-        satCheckBox = new JCheckBox("Sat");
-        sunCheckBox = new JCheckBox("Sun");
+        weekdayPanelDescription = new JLabel("Select Days:");
+        monCheckBox = new JCheckBox("Monday");
+        tuesCheckBox = new JCheckBox("Tuesday");
+        wedCheckBox = new JCheckBox("Wednesday");
+        thurCheckBox = new JCheckBox("Thursday");
+        friCheckBox = new JCheckBox("Friday");
+        satCheckBox = new JCheckBox("Saturday");
+        sunCheckBox = new JCheckBox("Sunday");
         weekdayArray = new ArrayList<>();
 
         // add labels to array list
@@ -203,7 +203,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // -------------- RECURRENCE PATTERNS ------------------
         recurrencePanel = new JPanel();
         recurrencePanel.setLayout(new GridLayout(7,1));
-        recurrencePanelDescription = new JLabel("Select Recurrence of Billboard");
+        recurrencePanelDescription = new JLabel("Select Recurrence:");
 
         // create radio buttons
         hourlyButton = new JRadioButton("Hourly");

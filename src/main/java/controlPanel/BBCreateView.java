@@ -13,8 +13,10 @@ import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.MouseListener;
+import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.w3c.dom.Document;
@@ -22,6 +24,9 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
+import viewer.Viewer;
+
+import static viewer.Viewer.*;
 
 public class BBCreateView extends AbstractGenericView
 {
@@ -40,13 +45,10 @@ public class BBCreateView extends AbstractGenericView
     private JButton titleButton;
     private JButton textButton;
     private JButton photoButton;
+    private JButton billboardNameButton;
     // --- Labels ---
-    private JLabel designLabel;
-    private JLabel titleLabel;
-    private JLabel BBTextField;
     private JLabel photoLabel;
-    // --- Fields ---
-    private JTextField billboardNameField;
+    private JLabel BBNameLabel;
     // --- ENUM ---
     private VIEW_TYPE view_type;
 
@@ -56,6 +58,9 @@ public class BBCreateView extends AbstractGenericView
     private String backgroundColour;
     private String titleColour;
     private String infoColour;
+
+    private JTextArea titleLabel;
+    private JTextArea BBTextField;
 
     private JFileChooser photoChooser;
     private JFileChooser xmlChooser;
@@ -75,12 +80,14 @@ public class BBCreateView extends AbstractGenericView
         // Drawing Pad Panel
         drawingPadPanel = new JPanel();
         drawingPadPanel.setLayout(new FlowLayout());
-        titleLabel = new JLabel("");
-        titleLabel.setFont(titleLabel.getFont().deriveFont(64f));
+        titleLabel = new JTextArea("");
+        titleLabel.setFont(titleLabel.getFont().deriveFont(80f));
         titleLabel.setForeground(Color.white);
-        BBTextField = new JLabel("");
-        BBTextField.setFont(titleLabel.getFont().deriveFont(64f));
+        titleLabel.setOpaque(false);
+        BBTextField = new JTextArea("");
+        BBTextField.setFont(BBTextField.getFont().deriveFont(50f));
         BBTextField.setForeground(Color.white);
+        BBTextField.setOpaque(false);
         photoLabel = new JLabel();
 
         drawingPadPanel.add(titleLabel);
@@ -91,8 +98,10 @@ public class BBCreateView extends AbstractGenericView
         // Drawing Tool Bar Panel
         drawingToolsPanel = new JPanel();
         drawingToolsPanel.setLayout(new GridLayout(6,1));
-        designLabel = new JLabel("Design Billboard");
+        billboardNameButton = new JButton("Billboard Name");
+        BBNameLabel = new JLabel("");
         backgroundColourButton = new JButton("Background Colour");
+
         // set default background colour
         backgroundColour = toHexString(Color.CYAN);
         drawingPadPanel.setBackground(Color.decode(backgroundColour));
@@ -107,9 +116,9 @@ public class BBCreateView extends AbstractGenericView
         textButton = new JButton("Text");
         photoButton = new JButton("Photo");
         photoPath = null;
-        billboardNameField = new JTextField("Add Billboard Name");
-        drawingToolsPanel.add(designLabel);
-        drawingToolsPanel.add(billboardNameField);
+
+        drawingToolsPanel.add(BBNameLabel);
+        drawingToolsPanel.add(billboardNameButton);
         drawingToolsPanel.add(backgroundColourButton);
         drawingToolsPanel.add(titleButton);
         drawingToolsPanel.add(textButton);
@@ -193,6 +202,11 @@ public class BBCreateView extends AbstractGenericView
         return titleColour;
     }
 
+    protected void setBBName(String name)
+    {
+        BBNameLabel.setText(name);
+    }
+
     protected void setBackgroundColour(String colour)
     {
         backgroundColour = colour;
@@ -254,6 +268,8 @@ public class BBCreateView extends AbstractGenericView
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Color", drawingPadPanel.getForeground());
         return toHexString(colorSelect);
     }
+
+    protected String showBBNameChooser() { return JOptionPane.showInputDialog(null, "Provide Billboard Name");}
 
     protected String showBBTitleChooser()
     {
@@ -414,11 +430,56 @@ public class BBCreateView extends AbstractGenericView
         return user;
     }
 
-
-    protected void addBBBackgroundColourListener(MouseListener listener)
+    protected void addBBXML(File fileToDisplay)
     {
-        backgroundColourButton.addMouseListener(listener);
+        HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
+
+        String backgroundColour = billboardData.get("Background Colour");
+        String message = billboardData.get("Message");
+        String messageColour = billboardData.get("Message Colour");
+        String picture = billboardData.get("Picture");
+        String pictureType = billboardData.get("Picture Type");
+        String information = billboardData.get("Information");
+        String informationColour = billboardData.get("Information Colour");
+
+        // Read in the picture
+        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
+        setPhoto(new ImageIcon(pictureImage));
+
+        setBBTitle(message);
+        setBBText(information);
+
+        // Check if there's a specific background colour, else set it to be white
+        if (backgroundColour != null) {
+            setBBTitleColour(backgroundColour);
+        }
+        else {
+            setBBTitleColour("#fff");
+        }
+
+        // Check if there's a specific message text colour, else set it to be black
+        if (message != null) {
+            if (messageColour != null) {
+                setBBTextColour(messageColour);
+            }
+            else {
+                setBBTextColour("#fff");
+            }
+        }
+
+        // Check if there's a specific information text colour, else set it to be black
+        if (information != null) {
+            if (informationColour != null) {
+                setBBTextColour(informationColour);
+            }
+            else {
+                setBBTextColour("#fff");
+            }
+        }
     }
+
+
+    protected void addBBBackgroundColourListener(MouseListener listener){backgroundColourButton.addMouseListener(listener);}
 
     protected void addBBTitleListener(MouseListener listener)
     {
@@ -441,5 +502,7 @@ public class BBCreateView extends AbstractGenericView
     }
 
     protected void addXMLExportListener(MouseListener listener) {exportButton.addMouseListener(listener);}
+
+    protected void addBBNameListener(MouseListener listener) {billboardNameButton.addMouseListener(listener);}
 
 }
