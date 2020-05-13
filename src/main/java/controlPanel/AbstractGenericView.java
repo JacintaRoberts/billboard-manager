@@ -14,7 +14,6 @@ public abstract class AbstractGenericView extends AbstractView
     private JPanel navPanel;
     // --- Buttons ---
     private JButton homeButton;
-    private JButton logoutButton;
     protected JButton profileButton;
     private JButton backButton;
     // --- Labels ---
@@ -56,10 +55,8 @@ public abstract class AbstractGenericView extends AbstractView
         profilePanel.setLayout(new FlowLayout());
         welcomeText = new JLabel("Welcome");
         profileButton = new JButton("View Profile");
-        logoutButton = new JButton("Log out");
         profilePanel.add(profileButton);
         profilePanel.add(welcomeText);
-        profilePanel.add(logoutButton);
         getContentPane().add(profilePanel, BorderLayout.NORTH);
     }
 
@@ -112,12 +109,6 @@ public abstract class AbstractGenericView extends AbstractView
      * @param listener Mouse Click listener
      */
     protected void addViewUserButtonListener(MouseListener listener) {profileButton.addMouseListener(listener);}
-
-    /**
-     * Add Log Out Button Listener. This listener will navigate log in view.
-     * @param listener Mouse Click listener
-     */
-    protected void addLogOutUserButtonListener(MouseListener listener) {logoutButton.addMouseListener(listener);}
 
     /**
      * Get nav panel such that abstract classes can edit
