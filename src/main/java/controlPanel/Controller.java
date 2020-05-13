@@ -78,6 +78,7 @@ public class Controller
         genericView.addHomeButtonListener(new HomeButtonListener());
         genericView.addBackButtonListener(new BackButtonListener());
         genericView.addViewUserButtonListener(new ProfileButtonListener());
+        genericView.addLogOutListener(new LogOutButtonListener());
         views.put(view_type, genericView);
     }
 
@@ -108,6 +109,7 @@ public class Controller
         homeView.addScheduleButtonListener(new ScheduleButtonListener());
         homeView.addViewUserButtonListener(new ProfileButtonListener());
         homeView.addBackButtonListener(new BackButtonListener());
+        homeView.addLogOutListener(new LogOutButtonListener());
         views.put(HOME, homeView);
     }
 
@@ -401,6 +403,21 @@ public class Controller
 
             // navigate to home screen
             updateView(USER_VIEW);
+        }
+    }
+
+
+    /**
+     * Listener to handle Log Out Button mouse clicks. User is navigated to Log In Screen.
+     */
+    private class LogOutButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Log Out button clicked");
+            // navigate to log in screen
+            updateView(LOGIN);
         }
     }
 

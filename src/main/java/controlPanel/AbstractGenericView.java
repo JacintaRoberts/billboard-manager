@@ -16,6 +16,7 @@ public abstract class AbstractGenericView extends AbstractView
     private JButton homeButton;
     protected JButton profileButton;
     private JButton backButton;
+    private JButton logOutButton;
     // --- Labels ---
     private JLabel welcomeText;
 
@@ -55,8 +56,10 @@ public abstract class AbstractGenericView extends AbstractView
         profilePanel.setLayout(new FlowLayout());
         welcomeText = new JLabel("Welcome");
         profileButton = new JButton("View Profile");
+        logOutButton = new JButton("Log Out");
         profilePanel.add(profileButton);
         profilePanel.add(welcomeText);
+        profilePanel.add(logOutButton);
         getContentPane().add(profilePanel, BorderLayout.NORTH);
     }
 
@@ -93,6 +96,15 @@ public abstract class AbstractGenericView extends AbstractView
     protected void addBackButtonListener(MouseListener listener)
     {
         backButton.addMouseListener(listener);
+    }
+
+    /**
+     * Add listener to log out button. This listener will navigate user back to log in frame.
+     * @param listener Mouse Click listener
+     */
+    protected void addLogOutListener(MouseListener listener)
+    {
+        logOutButton.addMouseListener(listener);
     }
 
     /**
