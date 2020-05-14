@@ -15,7 +15,11 @@ import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
+<<<<<<< HEAD
 import static viewer.Viewer.extractXMLFile;
+=======
+import static controlPanel.UserControl.logoutRequest;
+>>>>>>> 38cd38c560abb496fffbed17a2843e5c81e33917
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
@@ -26,6 +30,8 @@ public class Controller
     // store model and view
     private Model model;
     private HashMap<VIEW_TYPE, AbstractView> views;
+    private String serverResponse;
+    private String sessionToken;
 
     /*
      #################################### CONSTRUCTOR ####################################
@@ -428,13 +434,43 @@ public class Controller
     private class LogOutButtonListener extends MouseAdapter
     {
         @Override
-        public void mouseClicked(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Log Out button clicked");
-            // navigate to log in screen
-            updateView(LOGIN);
+            try {
+                String sessionToken = model.getSessionToken(); // Retrieve session token
+                serverResponse = logoutRequest(sessionToken); // CP Backend method call
+                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
+                // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
+                // 1. "Pass: Logout Successful"; // Occurs when session token existed and was successfully expired
+                // 2. "Fail: Already Logged Out"; // Occurs when session token was already expired
+                // If successful, let the user know, navigate to login screen
+                if (sessionTokenExpirationSuccess()) {
+                    System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
+                    //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
+                } else { // Session token was already expired
+                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                    //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
+                }
+                // Navigate to log in screen for both cases
+                updateView(LOGIN);
+                //updateView(VIEW_TYPE.LOGIN); // n
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // Determines whether the session token was successfully expired
+        private boolean sessionTokenExpirationSuccess() {
+            if ( serverResponse.equals("Pass: Logout Successful") ) {
+                return true;
+            }
+            return false;
         }
     }
+
 
     //---------------------------------- LOG IN LISTENER ------------------------------
 
@@ -444,23 +480,19 @@ public class Controller
      * request is sent to server to check validity of user. If response is true, username is stored in model and user
      * is navigated to home screen. If invalid credentials, error is displayed.
      */
-    private class SubmitButtonListener extends MouseAdapter
-    {
+    private class SubmitButtonListener extends MouseAdapter {
         @Override
-        public void mouseClicked(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Submit button clicked");
-
             // get LOGIN GUI
             LogInView logInView = (LogInView) views.get(VIEW_TYPE.LOGIN);
 
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-            String sessionToken = ""; // default
             try {
                 sessionToken = loginRequest(username, password); // CP Backend method call
-                //TODO: RETURN CUSTOM MESSAGE
+                //TODO: RETURN CUSTOM MESSAGE TO USER VIA GUI
                 // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
                 // 1. VALID SESSION TOKEN
                 // 2. "Fail: Incorrect Password" -> User exists, but bad password
@@ -472,15 +504,9 @@ public class Controller
             } catch (NoSuchAlgorithmException ex) {
                 ex.printStackTrace();
             }
-            // Redundant
-            /*if (username.equals("P") && password.equals("P"))
-            {
-                response = true;
-            }*/
 
             // if successful, store info in model, hide error and navigate to home screen
-            if (response(sessionToken))
-            {
+            if (sessionTokenCreationSuccess()) {
                 System.out.println("CONTROLLER LEVEL - Correct Credentials");
                 // store username and session token in model
                 model.storeUsername(username);
@@ -494,8 +520,7 @@ public class Controller
                 updateView(VIEW_TYPE.HOME);
             }
             // if unsuccessful, show error and do not allow log in
-            else
-            {
+            else {
                 System.out.println("CONTROLLER LEVEL - Incorrect Credentials");
                 System.out.println(sessionToken);
                 //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
@@ -505,16 +530,15 @@ public class Controller
                 views.put(VIEW_TYPE.LOGIN, logInView);
             }
         }
-    }
 
-    //TODO: MAY WANT TO REWORK THIS
+        //TODO: MAY WANT TO REWORK THIS
 
-    // Determines whether there was a response from server
-    private Boolean response(String sessionToken) {
-        if (sessionToken.startsWith("Fail:")) { // An Exception occurred on the server-side
-            return false;
-    }
-        else return true;
+        // Determines whether there was a successful creation of the session token
+        private Boolean sessionTokenCreationSuccess() {
+            if (sessionToken.startsWith("Fail:")) { // An Exception occurred on the server-side
+                return false;
+            } return true;
+        }
     }
 
     //---------------------------------- USER LISTENERS ------------------------------
@@ -608,8 +632,40 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Delete User button clicked");
             JButton button = (JButton) e.getSource();
-            System.out.println("UserName :" + button.getName());
+            String username = button.getName();
+            System.out.println("UserName :" + username);
             // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
+            try {
+                String sessionToken = model.getSessionToken(); // Retrieve session token
+                serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
+                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
+                // NOTE: THIS deleteUserRequest METHOD WILL EITHER RETURN:
+                // 1. "Pass: User Deleted"; // Session token existed and requested user was successfully deleted
+                // 2. "Fail: Insufficient User Permission"; // Valid token but insufficient permission
+                // 3. "Fail: Invalid Session Token"; // Invalid token
+                // If successful, let the user know, navigate to login screen
+                if (deleteUserSuccess()) {
+                    System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
+                    //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse == "Fail: Insufficient User Permission") { // Session token was already expired
+                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                    //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse == "Fail: Invalid Session Token") { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
+                    //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // Determines whether the user deletion was successful
+        private boolean deleteUserSuccess() {
+            if ( serverResponse.equals("Pass: User Deleted") ) {
+                return true;
+            } return false;
         }
     }
 
