@@ -128,7 +128,7 @@ public class Controller
         // add listeners
         UsersMenuView usersMenuView = (UsersMenuView) views.get(USERS_MENU);
         usersMenuView.addListUserButtonListener(new ListUsersListener());
-        // FIXME: addCreateUserButtonListener
+        usersMenuView.addCreateUserButtonListener(new CreateUserButtonListener());
         views.put(USERS_MENU, usersMenuView);
     }
 
@@ -147,7 +147,7 @@ public class Controller
     }
 
     /**
-     * USER LIST (PROFILE) LISTENERS: designed to add listeners to the USER LIST VIEW.
+     * USER CREATE LISTENERS: designed to add listeners to
      * Listeners include: Home, Back and Profile Button. Please Note: additional listeners are added dynamically upon
      * navigating to this VIEW (i.e. User Edit, Delete, View).
      */
@@ -158,6 +158,7 @@ public class Controller
 //        views.put(USER_LIST, userListView);
     }
 
+
     /**
      * USER EDIT LISTENERS: designed to add listeners to the USER EDIT VIEW.
      * Listeners include: Home, Back and Profile Button.
@@ -166,8 +167,7 @@ public class Controller
     {
         addGenericListeners(USER_EDIT);
         UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-        // FIXME: addSubmitButton
-        // FIXME: addCancelButton
+        userEditView.addSubmitButtonListener(new UserCreateButtonListener());
         views.put(USER_EDIT, userEditView);
     }
 
@@ -179,8 +179,6 @@ public class Controller
     {
         addGenericListeners(USER_VIEW);
         UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
-        // FIXME: addSubmitButton
-        // FIXME: addCancelButton
         views.put(USER_VIEW, userPreviewView);
     }
 
@@ -561,6 +559,44 @@ public class Controller
             updateView(USER_EDIT);
         }
     }
+
+    /**
+     * Listener to handle Create User Button mouse clicks.
+     */
+    private class CreateUserButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Create User button clicked");
+
+            // navigate to edit user screen
+            updateView(USER_EDIT);
+        }
+    }
+
+    /**
+     * Listener to handle Submit New User Button mouse clicks.
+     */
+    private class UserCreateButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
+
+            // update information in EDIT USER view
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            ArrayList<Object> userArray = userEditView.getUserInfo();
+            // FIXME: send userArray to Server/DB
+            System.out.println(userArray);
+            views.put(USER_EDIT, userEditView);
+
+            // navigate to edit user screen
+            updateView(USER_EDIT);
+        }
+    }
+
 
     /**
      * Listener to handle Delete User Button mouse clicks.

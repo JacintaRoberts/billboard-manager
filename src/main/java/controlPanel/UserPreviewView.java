@@ -28,12 +28,6 @@ public class UserPreviewView extends AbstractUserView
         editUsersPermission.setEnabled(false);
     }
 
-//    @Override
-//    void addUserPermissions()
-//    {
-//
-//    }
-
     @Override
     VIEW_TYPE getEnum() {
         return view_type;

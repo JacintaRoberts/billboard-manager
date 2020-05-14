@@ -63,4 +63,6 @@ public class UsersMenuView extends AbstractGenericView
     }
 
     protected void addListUserButtonListener(MouseListener listener) {viewUsersButton.addMouseListener(listener);}
+
+    protected void addCreateUserButtonListener(MouseListener listener) {createUsersButton.addMouseListener(listener);}
 }

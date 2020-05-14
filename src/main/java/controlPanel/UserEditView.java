@@ -3,6 +3,8 @@ package controlPanel;
 import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 /**
  * View designed for editing users.
@@ -26,12 +28,6 @@ public class UserEditView extends AbstractUserView
 
     protected void addSubmitButton()
     {
-//        JPanel userDetailsPanel = getUserDetailsPanel();
-//        submitButton = new JButton("Submit");
-//        cancelButton = new JButton("Cancel");
-//        userDetailsPanel.add(submitButton);
-//        userDetailsPanel.add(cancelButton);
-
         submitButton = new JButton("Submit Changes");
         JPanel navPanel = getNavPanel();
         navPanel.add(submitButton);
@@ -46,12 +42,22 @@ public class UserEditView extends AbstractUserView
         editUsersPermission.setEnabled(true);
     }
 
+    protected ArrayList<Object> getUserInfo()
+    {
+        ArrayList<Object> userInfoArray = new ArrayList<>();
+        userInfoArray.add(usernameText.getText());
+        userInfoArray.add(passwordText.getText());
+        userInfoArray.add(editBBPermission.isSelected());
+        userInfoArray.add(editSchedulePermission.isSelected());
+        userInfoArray.add(editUsersPermission.isSelected());
+        return userInfoArray;
+    }
 
-//    @Override
-//    void addUserPermissions()
-//    {
-//
-//    }
+
+    public void addSubmitButtonListener(MouseListener listener)
+    {
+        submitButton.addMouseListener(listener);
+    }
 
     @Override
     VIEW_TYPE getEnum() {
