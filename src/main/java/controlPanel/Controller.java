@@ -423,7 +423,7 @@ public class Controller
                 serverResponse = logoutRequest(sessionToken); // CP Backend method call
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-                // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
+                // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
                 // 1. "Pass: Logout Successful"; // Occurs when session token existed and was successfully expired
                 // 2. "Fail: Already Logged Out"; // Occurs when session token was already expired
                 // If successful, let the user know, navigate to login screen
@@ -576,8 +576,40 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Delete User button clicked");
             JButton button = (JButton) e.getSource();
-            System.out.println("UserName :" + button.getName());
+            String username = button.getName();
+            System.out.println("UserName :" + username);
             // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
+            try {
+                String sessionToken = model.getSessionToken(); // Retrieve session token
+                serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
+                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
+                // NOTE: THIS deleteUserRequest METHOD WILL EITHER RETURN:
+                // 1. "Pass: User Deleted"; // Session token existed and requested user was successfully deleted
+                // 2. "Fail: Insufficient User Permission"; // Valid token but insufficient permission
+                // 3. "Fail: Invalid Session Token"; // Invalid token
+                // If successful, let the user know, navigate to login screen
+                if (deleteUserSuccess()) {
+                    System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
+                    //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse == "Fail: Insufficient User Permission") { // Session token was already expired
+                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                    //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse == "Fail: Invalid Session Token") { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
+                    //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // Determines whether the user deletion was successful
+        private boolean deleteUserSuccess() {
+            if ( serverResponse.equals("Pass: User Deleted") ) {
+                return true;
+            } return false;
         }
     }
 
