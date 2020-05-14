@@ -578,6 +578,30 @@ public class Controller
             JButton button = (JButton) e.getSource();
             System.out.println("UserName :" + button.getName());
             // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
+            try {
+                String sessionToken = model.getSessionToken(); // Retrieve session token
+                serverResponse = deleteUserRequest(sessionToken); // CP Backend method call
+                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
+                // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
+                // 1. "Pass: Logout Successful"; // Occurs when session token existed and was successfully expired
+                // 2. "Fail: Already Logged Out"; // Occurs when session token was already expired
+                // If successful, let the user know, navigate to login screen
+                if (sessionTokenExpirationSuccess()) {
+                    System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
+                    //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
+                } else { // Session token was already expired
+                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                    //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
+                }
+                // Navigate to log in screen for both cases
+                updateView(LOGIN);
+                //updateView(VIEW_TYPE.LOGIN); // n
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
