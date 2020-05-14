@@ -555,7 +555,7 @@ public class Controller
             userEditView.setPermissions(new boolean[]{false,true,true});
             views.put(USER_EDIT, userEditView);
 
-            // navigate to edit user screen
+            // navigate to user edit screen
             updateView(USER_EDIT);
         }
     }
@@ -592,8 +592,8 @@ public class Controller
             System.out.println(userArray);
             views.put(USER_EDIT, userEditView);
 
-            // navigate to edit user screen
-            updateView(USER_EDIT);
+            // navigate to edit menu screen
+            updateView(USERS_MENU);
         }
     }
 
