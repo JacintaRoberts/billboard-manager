@@ -15,11 +15,8 @@ import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
-<<<<<<< HEAD
 import static viewer.Viewer.extractXMLFile;
-=======
 import static controlPanel.UserControl.logoutRequest;
->>>>>>> 38cd38c560abb496fffbed17a2843e5c81e33917
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
