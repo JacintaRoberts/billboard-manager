@@ -91,18 +91,19 @@ public class Server {
 
     // Helper method to determine whether the retrieved user has the required permission
     private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
+        System.out.println("Checking if the user has the permissions...");
         switch (requiredPermission) {
             case CreateBillboard:
-                if (parseBoolean(retrievedUser.get(3))) return true;
+                if ( retrievedUser.get(3).equals("1") ) return true;
                 return false;
             case EditBillboard:
-                if (parseBoolean(retrievedUser.get(4))) return true;
+                if ( retrievedUser.get(4).equals("1") ) return true;
                 return false;
             case ScheduleBillboard:
-                if (parseBoolean(retrievedUser.get(5))) return true;
+                if ( retrievedUser.get(5).equals("1") ) return true;
                 return false;
             case EditUser:
-                if (parseBoolean(retrievedUser.get(6))) return true;
+                if ( retrievedUser.get(6).equals("1") ) return true;
                 return false;
             default:
                 return false; // Default to false if permission cannot be identified
@@ -198,9 +199,11 @@ public class Server {
                 System.out.println("Calling create user method.");
                 return UserAdmin.createUser(sessionToken, username, hashedPassword, createBillboard, editBillboard,
                                                 scheduleBillboard, editUser); // Returns session token or fail message
-            default: {
+            case "DeleteUser":
+                username = additionalArgs[0];
+                return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
+            default:
                 return "No server method requested";
-            }
         }
     }
 

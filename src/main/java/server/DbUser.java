@@ -90,6 +90,7 @@ public class DbUser {
                 System.out.printf("%-20s",value);
             }
         }
+        System.out.println(""); // newline
         return retrievedUser;
     }
 
