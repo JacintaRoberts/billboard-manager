@@ -11,12 +11,16 @@ public abstract class AbstractUserView extends AbstractGenericView
     // --- Panels ---
     private JPanel userDetailsPane;
     // --- Labels ---
-    private JLabel usernameText;
-    private JLabel passwordText;
+    protected JTextField usernameText;
+    protected JTextField passwordText;
     private JPanel userPermissionsPanel;
     private JLabel userPermissionsLabel;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
+    // --- CheckBox ---
+    protected JCheckBox editUsersPermission;
+    protected JCheckBox editBBPermission;
+    protected JCheckBox editSchedulePermission;
 
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
@@ -28,7 +32,6 @@ public abstract class AbstractUserView extends AbstractGenericView
     public AbstractUserView(String frame_name)
     {
         super(frame_name);
-        addUserPermissions();
     }
 
     @Override
@@ -37,11 +40,19 @@ public abstract class AbstractUserView extends AbstractGenericView
         userDetailsPane = new JPanel();
         userDetailsPane.setLayout(new GridLayout(3,2));
         usernameLabel = new JLabel("Username");
-        usernameText = new JLabel("");
+        usernameText = new JTextField("");
         passwordLabel = new JLabel("Password");
-        passwordText = new JLabel("");
+        passwordText = new JTextField("");
         userPermissionsLabel = new JLabel("User Permissions");
+
+        editBBPermission = new JCheckBox("Edit Billboards");
+        editSchedulePermission = new JCheckBox("Edit Schedules");
+        editUsersPermission = new JCheckBox("Edit All Users");
         userPermissionsPanel = new JPanel();
+        userPermissionsPanel.setLayout(new GridLayout(3,1));
+        userPermissionsPanel.add(editBBPermission);
+        userPermissionsPanel.add(editSchedulePermission);
+        userPermissionsPanel.add(editUsersPermission);
 
         userDetailsPane.add(usernameLabel);
         userDetailsPane.add(usernameText);
@@ -53,6 +64,12 @@ public abstract class AbstractUserView extends AbstractGenericView
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
     }
 
+
+//    protected JPanel getUserDetailsPanel()
+//    {
+//        return userDetailsPane;
+//    }
+
     protected void setUsername(String username)
     {
         usernameText.setText(username);
@@ -63,17 +80,14 @@ public abstract class AbstractUserView extends AbstractGenericView
         passwordText.setText(password);
     }
 
-    protected void setPermissions(String[] permissions)
+    protected void setPermissions(boolean[] permissions)
     {
-        userPermissionsPanel.setLayout(new GridLayout(permissions.length,1));
-        for (String permission: permissions)
-        {
-            JLabel permissionLabel = new JLabel(permission);
-            userPermissionsPanel.add(permissionLabel);
-        }
+        editUsersPermission.setSelected(permissions[0]);
+        editSchedulePermission.setSelected(permissions[1]);
+        editBBPermission.setSelected(permissions[2]);
     }
 
-    abstract void addUserPermissions();
+    abstract void setEditable();
 
     @Override
     public void update(Subject s) {

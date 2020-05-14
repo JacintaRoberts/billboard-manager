@@ -7,6 +7,7 @@ import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.event.*;
+import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -14,7 +15,11 @@ import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
+<<<<<<< HEAD
+import static viewer.Viewer.extractXMLFile;
+=======
 import static controlPanel.UserControl.logoutRequest;
+>>>>>>> 38cd38c560abb496fffbed17a2843e5c81e33917
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
@@ -53,9 +58,10 @@ public class Controller
         addScheduleMenuListener();
 
         addUserMenuListener();
-        addUserViewListener();
+        addUserProfileListener();
         addUserListListener();
         addUserEditListener();
+        addUserPreviewListener();
 
         addBBMenuListener();
         addBBCreateListener();
@@ -128,7 +134,7 @@ public class Controller
         // add listeners
         UsersMenuView usersMenuView = (UsersMenuView) views.get(USERS_MENU);
         usersMenuView.addListUserButtonListener(new ListUsersListener());
-        // FIXME: addCreateUserButtonListener
+        usersMenuView.addCreateUserButtonListener(new CreateUserButtonListener());
         views.put(USERS_MENU, usersMenuView);
     }
 
@@ -136,18 +142,18 @@ public class Controller
      * USER VIEW (PROFILE) LISTENERS: designed to add listeners to the USER VIEW.
      * Listeners include: Home, Back and Edit button.
      */
-    private void addUserViewListener()
+    private void addUserProfileListener()
     {
-        UserView userView = (UserView) views.get(USER_VIEW);
+        UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
         // add listeners
-        userView.addHomeButtonListener(new HomeButtonListener());
-        userView.addBackButtonListener(new BackButtonListener());
+        userProfileView.addHomeButtonListener(new HomeButtonListener());
+        userProfileView.addBackButtonListener(new BackButtonListener());
         // FIXME: addEditButton??
-        views.put(USER_VIEW, userView);
+        views.put(USER_PROFILE, userProfileView);
     }
 
     /**
-     * USER LIST (PROFILE) LISTENERS: designed to add listeners to the USER LIST VIEW.
+     * USER CREATE LISTENERS: designed to add listeners to
      * Listeners include: Home, Back and Profile Button. Please Note: additional listeners are added dynamically upon
      * navigating to this VIEW (i.e. User Edit, Delete, View).
      */
@@ -158,6 +164,7 @@ public class Controller
 //        views.put(USER_LIST, userListView);
     }
 
+
     /**
      * USER EDIT LISTENERS: designed to add listeners to the USER EDIT VIEW.
      * Listeners include: Home, Back and Profile Button.
@@ -166,9 +173,19 @@ public class Controller
     {
         addGenericListeners(USER_EDIT);
         UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-        // FIXME: addSubmitButton
-        // FIXME: addCancelButton
+        userEditView.addSubmitButtonListener(new UserCreateButtonListener());
         views.put(USER_EDIT, userEditView);
+    }
+
+    /**
+     * USER PREVIEW LISTENERS: designed to add listeners to the USER VIEW VIEW.
+     * Listeners include: Home, Back and Profile Button.
+     */
+    private void addUserPreviewListener()
+    {
+        addGenericListeners(USER_VIEW);
+        UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
+        views.put(USER_VIEW, userPreviewView);
     }
 
     //------------------------------------ BB LISTENER --------------------------------
@@ -202,6 +219,7 @@ public class Controller
         bbCreateView.addBBPhotoListener(new BBPhotoListener());
         bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
         bbCreateView.addXMLExportListener(new BBXMLExportListener());
+        bbCreateView.addBBNameListener(new NameListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -394,7 +412,7 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Profile button clicked");
 
             // get PROFILE VIEW
-            UserView userView = (UserView) views.get(USER_VIEW);
+            UserProfileView userView = (UserProfileView) views.get(USER_PROFILE);
 
             // set profile information
             // set username and password text on GUI
@@ -558,13 +576,51 @@ public class Controller
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             userEditView.setUsername(button.getName());
             userEditView.setPassword("password123");
-            userEditView.setPermissions(new String[]{"Edit All Users", "Edit BB", "Edit Schedule"});
+            userEditView.setPermissions(new boolean[]{false,true,true});
             views.put(USER_EDIT, userEditView);
+
+            // navigate to user edit screen
+            updateView(USER_EDIT);
+        }
+    }
+
+    /**
+     * Listener to handle Create User Button mouse clicks.
+     */
+    private class CreateUserButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Create User button clicked");
 
             // navigate to edit user screen
             updateView(USER_EDIT);
         }
     }
+
+    /**
+     * Listener to handle Submit New User Button mouse clicks.
+     */
+    private class UserCreateButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
+
+            // update information in EDIT USER view
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            ArrayList<Object> userArray = userEditView.getUserInfo();
+            // FIXME: send userArray to Server/DB
+            System.out.println(userArray);
+            views.put(USER_EDIT, userEditView);
+
+            // navigate to edit menu screen
+            updateView(USERS_MENU);
+        }
+    }
+
 
     /**
      * Listener to handle Delete User Button mouse clicks.
@@ -624,8 +680,15 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: View User button clicked");
             JButton button = (JButton) e.getSource();
             System.out.println("UserName :" + button.getName());
-            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionTocken, username, userRequest);
-            updateView(USER_EDIT);
+
+            // update information in VIEW USER view
+            UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
+            userPreviewView.setUsername(button.getName());
+            userPreviewView.setPassword("password123");
+            userPreviewView.setPermissions(new boolean[]{false,true,true});
+            views.put(USER_VIEW, userPreviewView);
+
+            updateView(USER_VIEW);
         }
     }
 
@@ -692,8 +755,14 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Edit BB button clicked");
             JButton button = (JButton) e.getSource();
             System.out.println("BB Name: " + button.getName());
-            // navigate to edit BB screen
-            // FIXME: CHANGE TO BB_EDIT!!!
+
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            // FIXME: GET XML FILE FROM SERVER (VIEWER CLASS WILL NEED THE SAME METHOD)
+            File fileToDisplay = extractXMLFile(6);
+            bbCreateView.addBBXML(fileToDisplay);
+            bbCreateView.setBBName(button.getName());
+            views.put(BB_CREATE, bbCreateView);
+
             updateView(BB_CREATE);
         }
     }
@@ -757,6 +826,27 @@ public class Controller
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             String newColor = bbCreateView.showColorChooser();
             bbCreateView.setBackgroundColour(newColor);
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+    /**
+     * Listener to handle name BB mouse clicks.
+     */
+    private class NameListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: BB Name button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            String BBName = bbCreateView.showBBNameChooser();
+            if (BBName != null)
+            {
+                bbCreateView.setBBName(BBName);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }

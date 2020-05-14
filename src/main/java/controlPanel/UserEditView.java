@@ -2,6 +2,10 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 
+import javax.swing.*;
+import java.awt.event.MouseListener;
+import java.util.ArrayList;
+
 /**
  * View designed for editing users.
  */
@@ -10,18 +14,49 @@ public class UserEditView extends AbstractUserView
     // *** DECLARE VARIABLES**
     // --- ENUM ---
     private VIEW_TYPE view_type;
+    // --- Buttons ---
+    private JButton submitButton;
 
 
     public UserEditView()
     {
         super("Edit User");
         view_type = VIEW_TYPE.USER_EDIT;
+        setEditable();
+        addSubmitButton();
     }
 
-    @Override
-    void addUserPermissions()
+    protected void addSubmitButton()
     {
+        submitButton = new JButton("Submit Changes");
+        JPanel navPanel = getNavPanel();
+        navPanel.add(submitButton);
+    }
 
+    protected void setEditable()
+    {
+        passwordText.setEditable(true);
+        usernameText.setEditable(true);
+        editBBPermission.setEnabled(true);
+        editSchedulePermission.setEnabled(true);
+        editUsersPermission.setEnabled(true);
+    }
+
+    protected ArrayList<Object> getUserInfo()
+    {
+        ArrayList<Object> userInfoArray = new ArrayList<>();
+        userInfoArray.add(usernameText.getText());
+        userInfoArray.add(passwordText.getText());
+        userInfoArray.add(editBBPermission.isSelected());
+        userInfoArray.add(editSchedulePermission.isSelected());
+        userInfoArray.add(editUsersPermission.isSelected());
+        return userInfoArray;
+    }
+
+
+    public void addSubmitButtonListener(MouseListener listener)
+    {
+        submitButton.addMouseListener(listener);
     }
 
     @Override

@@ -17,7 +17,7 @@ public class Main {
     protected enum VIEW_TYPE {
         LOGIN, HOME,
         BB_MENU, BB_LIST, BB_CREATE, BB_PREVIEW,
-        USERS_MENU, USER_VIEW,USER_LIST, USER_EDIT,
+        USERS_MENU, USER_VIEW,USER_LIST, USER_EDIT, USER_PROFILE,
         SCHEDULE_WEEK, SCHEDULE_MENU, SCHEDULE_UPDATE;
     }
 
@@ -64,7 +64,8 @@ public class Main {
         app_views.put(BB_LIST, new BBListView());
         // users
         app_views.put(USERS_MENU, new UsersMenuView());
-        app_views.put(USER_VIEW, new UserView());
+        app_views.put(USER_VIEW, new UserPreviewView());
+        app_views.put(USER_PROFILE, new UserProfileView());
         app_views.put(USER_LIST, new UserListView());
         app_views.put(USER_EDIT, new UserEditView());
         // schedule

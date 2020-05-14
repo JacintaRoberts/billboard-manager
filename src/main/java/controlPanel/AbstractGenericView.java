@@ -1,5 +1,6 @@
 package controlPanel;
 import javax.swing.*;
+import javax.swing.border.Border;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
@@ -20,6 +21,9 @@ public abstract class AbstractGenericView extends AbstractView
     // --- Labels ---
     private JLabel welcomeText;
 
+    private GridBagConstraints gbc_profile;
+    private GridBagConstraints gbc_nav;
+
     /**
      * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
      * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
@@ -31,6 +35,8 @@ public abstract class AbstractGenericView extends AbstractView
     {
         // assign frame name
         super(frame_name);
+        gbc_profile = new GridBagConstraints();
+        gbc_nav = new GridBagConstraints();
         // add profile and nav panel
         addProfilePanel();
         addNavPanel();
@@ -53,13 +59,17 @@ public abstract class AbstractGenericView extends AbstractView
     protected void addProfilePanel()
     {
         profilePanel = new JPanel();
-        profilePanel.setLayout(new FlowLayout());
+        profilePanel.setLayout(new GridBagLayout());
+        profilePanel.setBackground(Color.GRAY);
         welcomeText = new JLabel("Welcome");
-        profileButton = new JButton("View Profile");
+        welcomeText.setForeground(Color.WHITE);
+        profileButton = new JButton("Profile");
         logOutButton = new JButton("Log Out");
-        profilePanel.add(profileButton);
-        profilePanel.add(welcomeText);
-        profilePanel.add(logOutButton);
+        gbc_profile.insets = new Insets(5,5,5,5);
+        profilePanel.add(profileButton, setGBC(gbc_profile, 1,1,1,1));
+        profilePanel.add(welcomeText, setGBC(gbc_profile, 6,1,1,1));
+        gbc_profile.insets = new Insets(5,500,5,5);
+        profilePanel.add(logOutButton, setGBC(gbc_profile, 10,1,2,1));
         getContentPane().add(profilePanel, BorderLayout.NORTH);
     }
 
@@ -72,11 +82,13 @@ public abstract class AbstractGenericView extends AbstractView
      */
     protected void addNavPanel()
     {
-        navPanel = new JPanel();
+        navPanel = new JPanel(new GridBagLayout());
+        navPanel.setBackground( new Color(255,87,87));
         homeButton = new JButton("Home");
         backButton = new JButton("Back");
-        navPanel.add(homeButton);
-        navPanel.add(backButton);
+        gbc_nav.insets = new Insets(5,20,5,20);
+        navPanel.add(homeButton, setGBC(gbc_nav,1,1,1,1));
+        navPanel.add(backButton, setGBC(gbc_nav,2,1,1,1));
         getContentPane().add(navPanel, BorderLayout.SOUTH);
     }
 
