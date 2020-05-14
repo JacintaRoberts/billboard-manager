@@ -9,7 +9,8 @@ import java.util.Random;
 
 import static controlPanel.UserControl.hash;
 import static helpers.Helpers.bytesToString;
-import static server.Server.getValidTokens;
+import static server.Server.Permission.EditUser;
+import static server.Server.checkPermission;
 import static server.Server.validateToken;
 
 // SERVER SIDE USER ADMIN CONTROLS
@@ -74,48 +75,58 @@ public class UserAdmin {
      */
     public static String createUser(String sessionToken, String username, String hashedPassword, boolean createBillboard,
                                     boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException, IOException, SQLException {
-        System.out.println("Validating session token..." + sessionToken);
-        getValidTokens();
-        if ( validateToken(sessionToken) ) {
+        if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
-            // Prepare parameters for storage in the database
-            Random rng = new Random();
-            byte[] saltBytes = new byte[32];
-            rng.nextBytes(saltBytes);
-            String saltString = bytesToString(saltBytes); // Generate salt
-            System.out.println("The salt string is: " + saltString);
-            String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
-            System.out.println("The salted, hashed password is: " + saltedHashedPassword);
-            try {
-                DbUser.addUser(username, saltedHashedPassword, saltString, createBillboard,
-                                                                    editBillboard, scheduleBillboard, editUser);
-                return "Pass: User Created"; // Server acknowledgement of user creation
-            } catch (SQLIntegrityConstraintViolationException e) {
-                return "Fail: Duplicate Primary Key"; // User already exists with that username - primary key issue
+            if (checkPermission(sessionToken, EditUser)) {
+                try {
+                    // Prepare parameters for storage in the database
+                    Random rng = new Random();
+                    byte[] saltBytes = new byte[32];
+                    rng.nextBytes(saltBytes);
+                    String saltString = bytesToString(saltBytes); // Generate salt
+                    System.out.println("The salt string is: " + saltString);
+                    String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
+                    System.out.println("The salted, hashed password is: " + saltedHashedPassword);
+                    DbUser.addUser(username, saltedHashedPassword, saltString, createBillboard,
+                            editBillboard, scheduleBillboard, editUser);
+                    return "Pass: User Created"; // 1. User Created - Valid token, sufficient permission and valid user to create
+                } catch (SQLIntegrityConstraintViolationException e) {
+                    return "Fail: Username Already Taken"; // 2. A user already exists with that username - primary key issue
+                }
+            } else {
+                System.out.println("Permissions were not sufficient, no user was deleted");
+                return "Fail: Insufficient User Permission"; // 3. Valid token but insufficient permission
             }
+        } else {
+            System.out.println("Session was not valid");
+            return "Fail: Invalid Session Token"; // 4. Invalid token
         }
-        System.out.println("Session was not valid");
-        return "Fail: Invalid Session Token"; // Server acknowledgement of invalid session token
     }
 
 
     /**
-     * Method to delete user
-     * @param sessionToken
-     * @param username
-     * @return
+     * Method to delete user from database
+     * @param sessionToken Session token from the calling user
+     * @param username Username to be deleted
+     * @return String server acknowledgement
      * @throws SQLException
+     * @throws IOException
      */
-    public String deleteUser(String sessionToken, String username) throws SQLException, IOException {
+    public static String deleteUser(String sessionToken, String username) throws SQLException, IOException {
         if ( validateToken(sessionToken) ) {
             System.out.println("Session is valid");
-            DbUser.deleteUser(username);
-            System.out.println("Username was deleted: " + username);
-            return "Pass: User Deleted"; // Server acknowledgement of user deletion
+            if ( checkPermission(sessionToken, EditUser) ) { // Ensures the user has the edit user permission
+                DbUser.deleteUser(username);
+                System.out.println("Username was deleted: " + username);
+                return "Pass: User Deleted"; // 1. User Deleted - Valid token and sufficient permission
+            } else {
+                System.out.println("Permissions were not sufficient, no user was deleted");
+                return "Fail: Insufficient User Permission"; // 2. Valid token but insufficient permission
+            }
+        } else {
+            System.out.println("Session was not valid, no user was deleted");
+            return "Fail: Invalid Session Token"; // 3. Invalid token
         }
-        System.out.println("Session was not valid");
-        System.out.println("No username was deleted");
-        return "Fail: Invalid Session Token"; // Server acknowledgement of invalid session token
     }
 }
 

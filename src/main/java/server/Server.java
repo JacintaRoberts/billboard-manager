@@ -31,7 +31,7 @@ public class Server {
     private static String[] additionalArgs = new String[0];
 
     // Different permissions that are available
-    private enum Permission {
+    public enum Permission {
         CreateBillboard,
         EditBillboard,
         ScheduleBillboard,
@@ -60,11 +60,11 @@ public class Server {
     }
 
     /**
-     * Validates a session token (no additional permissions to be checked)
+     * Validates the provided session token
      * @param sessionToken to be validated
      * @return boolean true if the session token exists, false otherwise
      */
-    public boolean validateToken(String sessionToken) throws IOException, SQLException {
+    public static boolean validateToken(String sessionToken) throws IOException, SQLException {
         System.out.println("All keys: " + validSessionTokens.keySet());
         String username = (String) validSessionTokens.get(sessionToken).get(0);
         System.out.println("Username of the session token: " + username);
@@ -75,24 +75,22 @@ public class Server {
     }
 
     /**
-     * Validates a session token, overloaded method that has a 2nd parameter to specify required permission
-     * @param sessionToken to be validated
+     * Checks whether the provided username has the required permissions to invoke a particular function
+     * @param sessionToken with the username to be checked
      * @param requiredPermission required permission to execute the server method
      * @return boolean true if the session token exists and the user has the required permission, false otherwise
      */
-    public boolean validateToken(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
-        System.out.println("All keys: " + validSessionTokens.keySet());
+    public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
         String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
         System.out.println("Username of the session token: " + username);
-        if (UserAdmin.userExists(username) && hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
-            return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+        if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
+            return true; // User has required permission
         }
-        return false; // Return false as the user does not exist anymore or they do not have the required permission
+        return false; // Return false as the user does not have the required permission
     }
 
-
-    // Determines whether the retrieved user has the required permission
-    private boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
+    // Helper method to determine whether the retrieved user has the required permission
+    private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
         switch (requiredPermission) {
             case CreateBillboard:
                 if (parseBoolean(retrievedUser.get(3))) return true;
