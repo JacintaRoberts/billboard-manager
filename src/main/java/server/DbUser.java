@@ -19,6 +19,20 @@ public class DbUser {
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
     public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
+    public static final String DELETE_ALL_USER_SQL = "DELETE FROM users";
+    public static final String COUNT_USERS_SQL = "SELECT COUNT(*) FROM Users";
+    public static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (\n" +
+            "    `Username` varchar(255) NOT NULL default '',\n" +
+            "    `Password` varchar(255) NOT NULL default '',\n" +
+            "    `RandomSalt` varchar(255) NOT NULL default '',\n" +
+            "    `CreateBillboard` bool default 0,\n" +
+            "    `EditBillboard` bool default 0,\n" +
+            "    `ScheduleBillboard` bool default 0,\n" +
+            "    `EditUser` bool default 0,\n" +
+            "    PRIMARY KEY (`Username`)\n" +
+            ")";
+    public static final String DROP_USERS_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Users`";
+
     private static Connection connection;
     private static PreparedStatement selectUser;
     private static PreparedStatement addUser;
@@ -34,6 +48,106 @@ public class DbUser {
         this.ScheduleBillboard = ScheduleBillboard;
         this.EditUser = EditUser;
     }
+
+
+
+    /**
+     * Stores Database Queries: Users. This is a generic method which Make sures users is made with default data.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public static String createGenericUsers() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement countUsers = connection.createStatement();
+        ResultSet rs = countUsers.executeQuery(COUNT_USERS_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        if (count.equals("0")){
+            addUser("testUser","goodPass","randomSalt",true,true,true,true);
+            resultMessage = "Pass: User Database Created";
+
+        } else {
+            resultMessage = "Pass: User Database Already Created";
+        }
+        return resultMessage;
+    }
+
+    /**
+     * Delete Table: User. This is a generic method which deletes the table.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public String dropUserTable() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement dropBillboard = connection.createStatement();
+        ResultSet rs = dropBillboard.executeQuery(DROP_USERS_TABLE);
+        resultMessage = "User Table Dropped";
+        return resultMessage;
+    }
+
+    /**
+     * Stores Database Queries: Billboard. This is a generic method which deletes all billboards stored into database.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public String deleteAllUsers() throws IOException, SQLException {
+        String resultMessage;
+        connection = DbConnection.getInstance();
+        Statement countUsers = connection.createStatement();
+        ResultSet rs = countUsers.executeQuery(COUNT_USERS_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        if (count.equals("0")){
+            resultMessage = "Fail: No Users Exists";
+        }else {
+            connection = DbConnection.getInstance();
+            Statement deleteAllUsers = connection.createStatement();
+            rs = deleteAllUsers.executeQuery(DELETE_ALL_USER_SQL);
+            resultMessage = "Pass: All Users Deleted";
+        }
+        return resultMessage;
+    }
+
+
+
+    /**
+     * Stores Database Queries: Users. This is a generic method which Make sures billboard is made with default data.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public static String createUsersTable() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement countUsers = connection.createStatement();
+        ResultSet rs = null;
+        try {
+            rs = countUsers.executeQuery(COUNT_USERS_SQL);
+            rs.next();
+            String count = rs.getString(1);
+            if (count.equals("0")){
+                createGenericUsers();
+                resultMessage = "Data Filled";
+            } else {
+                resultMessage = "Data Exists";
+            }
+        } catch (SQLSyntaxErrorException throwables) {
+            rs = countUsers.executeQuery(CREATE_USERS_TABLE);
+            createGenericUsers();
+            resultMessage = "Table Created";
+        }
+        return resultMessage;
+    }
+
+
 
 
     /**
@@ -90,7 +204,6 @@ public class DbUser {
                 System.out.printf("%-20s",value);
             }
         }
-        System.out.println(""); // newline
         return retrievedUser;
     }
 
@@ -102,7 +215,7 @@ public class DbUser {
      * @throws SQLException
      */
     public static void addUser(String username, String password, String randomSalt, boolean createBillboard,
-                 boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException, SQLException {
+                               boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException, SQLException {
         connection = DbConnection.getInstance();
         addUser = connection.prepareStatement(ADD_USER_SQL);
         addUser.setString(1, username);

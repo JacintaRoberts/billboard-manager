@@ -294,7 +294,6 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    //     LIST_BILLBOARD_SQL,COUNT_BILLBOARD_SQL
     public BillboardList listBillboard() throws IOException, SQLException {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
 
@@ -330,7 +329,6 @@ public class BillboardAdmin {
      * <p>
      * This method always returns immediately.
      * @param  billboard A String which provides Billboard Name to store into database
-     * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
     public DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException {
