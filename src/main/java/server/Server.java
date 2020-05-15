@@ -198,10 +198,14 @@ public class Server {
                 System.out.println("editUser boolean value: " + editUser);
                 System.out.println("Calling create user method.");
                 return UserAdmin.createUser(sessionToken, username, hashedPassword, createBillboard, editBillboard,
-                                                scheduleBillboard, editUser); // Returns session token or fail message
+                        scheduleBillboard, editUser); // Returns session token or fail message
             case "DeleteUser":
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
+            case "CreateBillboard":
+                String billboardName = additionalArgs[2];
+                String xmlCode = additionalArgs[3];
+                return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
             default:
                 return "No server method requested";
         }
