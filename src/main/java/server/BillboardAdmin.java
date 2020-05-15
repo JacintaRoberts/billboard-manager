@@ -25,6 +25,7 @@ public class BillboardAdmin {
     public static final String LIST_BILLBOARD_SQL = "SELECT BillboardName FROM Billboards";
     public static final String SHOW_BILLBOARD_SQL = "SELECT * FROM Billboards WHERE BillboardName = ?";
 
+
     // Custom Parameters for connection
     private static Connection connection;
     private static PreparedStatement createBillboard;
@@ -33,26 +34,6 @@ public class BillboardAdmin {
     private static PreparedStatement countFilterBillboard;
     private static PreparedStatement editBillboard;
     private static PreparedStatement listaBillboard;
-
-
-    // Public Class for Custom Exceptions
-    public class illegalBillboardNameException extends Exception {
-        public illegalBillboardNameException(String errorMessage) {
-            super(errorMessage);
-        }
-    }
-
-    public class BillboardNotExistException extends Exception {
-        public BillboardNotExistException(String errorMessage) {
-            super(errorMessage);
-        }
-    }
-
-    public class emptyBillboardTable extends Exception {
-        public emptyBillboardTable(String errorMessage) {
-            super(errorMessage);
-        }
-    }
 
 
     /**
@@ -71,7 +52,6 @@ public class BillboardAdmin {
         // get all current entries
         ResultSet rs = st.executeQuery(query);
 
-
         // Loop through cursor
         while (rs.next()) {
             DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
@@ -80,7 +60,6 @@ public class BillboardAdmin {
                     "List");
             queryList.add(dbBillboard);
         }
-
         return queryList;
     }
 
@@ -184,23 +163,33 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public String createBillboard(String userName,
-                                  String billboard,
-                                  String xmlCode) throws IOException, SQLException, illegalBillboardNameException {
+    public static String createBillboard(String userName,
+                                         String billboard,
+                                         String xmlCode) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
-            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
-            createBillboard.setString(1,billboard);
-            createBillboard.setString(2,userName);
-            createBillboard.setString(3, xmlCode);
-            ResultSet rs = createBillboard.executeQuery();
-        } else {
-            throw new illegalBillboardNameException("Fail: Billboard Name Contains Illegal Characters");
-        }
+            countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
+            countFilterBillboard.setString(1,billboard);
+            ResultSet rs = countFilterBillboard.executeQuery();
+            rs.next();
+            String count = rs.getString(1);
+            if (count.equals("1")){
+                resultMessage = "Fail: Billboard Already Exists";
+            }else {
+                connection = DbConnection.getInstance();
+                createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+                createBillboard.setString(1,billboard);
+                createBillboard.setString(2,userName);
+                createBillboard.setString(3, xmlCode);
+                rs = createBillboard.executeQuery();
+                resultMessage = "Pass: Billboard Created";
+            }
 
-        resultMessage = "Pass: Billboard Created";
+        } else {
+            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
+        }
         return resultMessage;
     }
 
@@ -214,7 +203,7 @@ public class BillboardAdmin {
      * @return
      */
     public String editBillboard(String billboard,
-                                String xmlCode) throws IOException, SQLException, illegalBillboardNameException, BillboardNotExistException {
+                                String xmlCode) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -229,14 +218,14 @@ public class BillboardAdmin {
                 editBillboard.setString(1,xmlCode);
                 editBillboard.setString(2,billboard);
                 rs = editBillboard.executeQuery();
+                resultMessage = "Pass: Billboard Edited";
             }else {
-                throw new BillboardNotExistException("Fail: Billboard Does not Exist");
+                resultMessage = "Fail: Billboard Does not Exist";
             }
         } else {
-            throw new illegalBillboardNameException("Fail: Billboard Name Contains Illegal Characters");
+            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
         }
 
-        resultMessage = "Pass: Billboard Edited";
         return resultMessage;
     }
 
@@ -248,7 +237,7 @@ public class BillboardAdmin {
      * @param  billboard A String which provides Billboard Name to store into database
      * @return
      */
-    public String deleteBillboard(String billboard) throws IOException, SQLException, illegalBillboardNameException, BillboardNotExistException {
+    public String deleteBillboard(String billboard) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -262,14 +251,13 @@ public class BillboardAdmin {
                 deleteBillboard = connection.prepareStatement(DELETE_BILLBOARD_SQL);
                 deleteBillboard.setString(1,billboard);
                 rs = deleteBillboard.executeQuery();
+                resultMessage = "Pass: Billboard Deleted";
             }else {
-                throw new BillboardNotExistException("Fail: Billboard Does not Exist");
+                resultMessage = "Fail: Billboard Does not Exist";
             }
         } else {
-            throw new illegalBillboardNameException("Fail: Billboard Name Contains Illegal Characters");
+            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
         }
-
-        resultMessage = "Pass: Billboard Deleted";
         return resultMessage;
     }
 
@@ -280,7 +268,7 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public String deleteAllBillboard() throws IOException, SQLException, emptyBillboardTable {
+    public String deleteAllBillboard() throws IOException, SQLException {
         String resultMessage;
         connection = DbConnection.getInstance();
         Statement countBillboard = connection.createStatement();
@@ -288,7 +276,7 @@ public class BillboardAdmin {
         rs.next();
         String count = rs.getString(1);
         if (count.equals("0")){
-            throw new emptyBillboardTable("Fail: No Billboard Exists");
+            resultMessage = "Fail: No Billboard Exists";
         }else {
             connection = DbConnection.getInstance();
             Statement deleteAllBillboard = connection.createStatement();
@@ -307,7 +295,7 @@ public class BillboardAdmin {
      * @return
      */
     //     LIST_BILLBOARD_SQL,COUNT_BILLBOARD_SQL
-    public BillboardList listBillboard() throws IOException, SQLException, emptyBillboardTable {
+    public BillboardList listBillboard() throws IOException, SQLException {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
 
         connection = DbConnection.getInstance();
@@ -319,7 +307,6 @@ public class BillboardAdmin {
         if (count.equals("0")) {
             serverResponse = "Fail: No Billboard Exists";
             retrievedBillboard.add("0");
-            throw new emptyBillboardTable("Fail: No Billboard Exists");
         } else {
             connection = DbConnection.getInstance();
             Statement listBillboard = connection.createStatement();
@@ -346,7 +333,7 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException, illegalBillboardNameException, BillboardNotExistException {
+    public DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -367,10 +354,12 @@ public class BillboardAdmin {
                         "Pass: Billboard Info Returned");
                 return dbBillboard;
             }else {
-                throw new BillboardNotExistException("Fail: Billboard Does not Exist");
+                DbBillboard dbBillboard = new DbBillboard("0","0","0","Fail: Billboard Does not Exist");
+                return dbBillboard;
             }
         } else {
-            throw new illegalBillboardNameException("Fail: Billboard Name Contains Illegal Characters");
+            DbBillboard dbBillboard = new DbBillboard("0","0","0","Fail: Billboard Name Contains Illegal Characters");
+            return dbBillboard;
         }
     }
 
