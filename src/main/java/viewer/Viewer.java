@@ -592,7 +592,6 @@ public class Viewer extends JFrame implements Runnable {
      * @param picture - a string which stores the picture to display, in the form of a url or data attribute
      * @param pictureType - a string which specifies the type of picture, either url or data
      * @param information - a string which stores the information to display
-     * TODO: CHECK - What is the maximum height of the information?
      */
     public void pictureInformationBillboard(String picture, String pictureType, String information) {
         // Define the maximum image dimensions based on the screen dimensions
@@ -633,7 +632,6 @@ public class Viewer extends JFrame implements Runnable {
      * @param picture - a string which stores the picture to display, in the form of a url or data attribute
      * @param pictureType - a string which specifies the type of picture, either url or data
      * @param information - a string which stores the information to display
-     * TODO: CHECK - What is the maximum height of the information?
      */
     public void allFeaturesBillboard (String message, String picture, String pictureType, String information) {
         // Define the maximum image dimensions based on the screen dimensions
