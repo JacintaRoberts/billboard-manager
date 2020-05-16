@@ -10,6 +10,8 @@ import java.util.ArrayList;
 
 import static controlPanel.UserControl.hash;
 import static org.junit.jupiter.api.Assertions.*;
+import static server.Server.*;
+import static server.Server.ServerAcknowledge.*;
 import static server.Server.generateToken;
 
 class UserAdminTest {
@@ -96,9 +98,9 @@ class UserAdminTest {
         String testUsername = "Jacinta";
         String dummyHashedPassword = "794b258f6780a0606f35aeac1d1b747bc81658f276a12b1fa58009a8a2bcf23c";
         String sessionToken = MockSessionTokens.generateMockToken("testUser");
-        String dbResponse = mockUserTable.createUser(sessionToken, testUsername, dummyHashedPassword,
+        ServerAcknowledge dbResponse = mockUserTable.createUser(sessionToken, testUsername, dummyHashedPassword,
                 true, true, true, true);
-        assertEquals("Pass: User Created", dbResponse);
+        assertEquals(Success, dbResponse);
         // Check that the user is actually added to the DB
         assertTrue(mockUserTable.userExists(testUsername));
     }
@@ -700,8 +702,8 @@ class UserAdminTest {
             userAdmin.deleteUser(testToken, testUsername);
         }
         // Check return value
-        String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
-        assertEquals("Pass: User Created", dbResponse);
+        ServerAcknowledge dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
+        assertEquals(Success, dbResponse);
         // Check that the user is actually added to the DB
         assertTrue(userAdmin.userExists(testUsername));
     }
@@ -726,8 +728,8 @@ class UserAdminTest {
             userAdmin.deleteUser(testToken, callingUsername);
         }
         // Check return value
-        String dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
-        assertEquals("Fail: Invalid Session Token", dbResponse);
+        ServerAcknowledge dbResponse = userAdmin.createUser(testToken, testUsername, hashedPassword, true, true, true, true);
+        assertEquals(InvalidToken, dbResponse);
         // Check that the user to be created is not added to the DB anyway
         assertFalse(userAdmin.userExists(testUsername));
     }

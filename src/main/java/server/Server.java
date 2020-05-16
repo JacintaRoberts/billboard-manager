@@ -19,6 +19,7 @@ import java.util.Random;
 import static helpers.Helpers.bytesToString;
 import static helpers.Helpers.networkPropsFilePath;
 import static java.lang.Boolean.parseBoolean;
+import static server.Server.ServerAcknowledge.*;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
@@ -36,6 +37,16 @@ public class Server {
         EditBillboard,
         ScheduleBillboard,
         EditUser
+    }
+
+    // Different server acknowledgments that are available
+    public enum ServerAcknowledge {
+        Success,
+        InsufficientPermission,
+        InvalidToken,
+        PrimaryKeyClash, // DB issue
+        BadPassword, // Login
+        NoSuchUser // Login
     }
 
     /**
@@ -169,16 +180,11 @@ public class Server {
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
     private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
-        System.out.println(clientRequest);
         String [] clientArgs = clientRequest.split(",");
-        System.out.println(clientArgs);
-        System.out.println("length is " + clientArgs.length);
         if (clientArgs.length >= 3) { additionalArgs = Arrays.copyOfRange(clientArgs, 2, clientArgs.length); }
         if (clientArgs.length >= 2) { sessionToken = clientArgs[1]; } // Second argument is the session token (optional)
         if (clientArgs.length >= 1) { method = clientArgs[0]; } // First argument is the method
         // Determine which method to execute
-        System.out.println("method is...");
-        System.out.println(method);
         switch (method) {
             case "Viewer":
                 return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
@@ -208,7 +214,6 @@ public class Server {
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
             case "CreateBillboard":
-                System.out.println("here");
                 String billboardName = additionalArgs[0];
                 String xmlCode = additionalArgs[1];
                 return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
@@ -223,12 +228,12 @@ public class Server {
      * @param sessionToken The session token of the login to be terminated
      * @return String acknowledgement from server which determines whether the expiration was successful
      */
-    public static String logout(String sessionToken) {
+    public static ServerAcknowledge logout(String sessionToken) {
         if (validSessionTokens.containsKey(sessionToken)) {
             validSessionTokens.remove(sessionToken);
-            return "Pass: Logout Successful";  // Session token existed and was successfully expired
+            return Success;  // Session token existed and was successfully expired
         }
-        return "Fail: Already Logged Out"; // Session token was already expired/did not exist
+        return InvalidToken; // Session token was already expired/did not exist
     }
 
 
@@ -245,9 +250,9 @@ public class Server {
             if (UserAdmin.checkPassword(username, hashedPassword)) {
                 return generateToken(username); // 1. Good password, generate session token
             }
-            return "Fail: Incorrect Password"; // 2. User exists, but bad password
+            return BadPassword; // 2. User exists, but bad password
         }
-        return "Fail: No Such User"; // 3. No such user
+        return NoSuchUser; // 3. No such user
     }
 
 
