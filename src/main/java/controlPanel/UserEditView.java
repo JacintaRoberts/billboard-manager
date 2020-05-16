@@ -22,24 +22,15 @@ public class UserEditView extends AbstractUserView
     {
         super("Edit User");
         view_type = VIEW_TYPE.USER_EDIT;
-        setEditable();
+        setEditable(true);
         addSubmitButton();
     }
 
     protected void addSubmitButton()
     {
-        submitButton = new JButton("Submit Changes");
+        submitButton = new JButton("Submit");
         JPanel navPanel = getNavPanel();
         navPanel.add(submitButton);
-    }
-
-    protected void setEditable()
-    {
-        passwordText.setEditable(true);
-        usernameText.setEditable(true);
-        editBBPermission.setEnabled(true);
-        editSchedulePermission.setEnabled(true);
-        editUsersPermission.setEnabled(true);
     }
 
     protected ArrayList<Object> getUserInfo()
@@ -48,11 +39,10 @@ public class UserEditView extends AbstractUserView
         userInfoArray.add(usernameText.getText());
         userInfoArray.add(passwordText.getText());
         userInfoArray.add(editBBPermission.isSelected());
-        userInfoArray.add(editSchedulePermission.isSelected());
+        userInfoArray.add(scheduleBBPermission.isSelected());
         userInfoArray.add(editUsersPermission.isSelected());
         return userInfoArray;
     }
-
 
     public void addSubmitButtonListener(MouseListener listener)
     {

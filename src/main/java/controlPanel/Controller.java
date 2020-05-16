@@ -145,7 +145,7 @@ public class Controller
         // add listeners
         userProfileView.addHomeButtonListener(new HomeButtonListener());
         userProfileView.addBackButtonListener(new BackButtonListener());
-        // FIXME: addEditButton??
+        userProfileView.addEditButtonListener(new EditProfileButtonListener());
         views.put(USER_PROFILE, userProfileView);
     }
 
@@ -415,8 +415,8 @@ public class Controller
             // set username and password text on GUI
             // FIXME: get password and user permissions from Control/Server
             userView.setUsername(model.getUsername());
-            userView.setPasswordText("Password");
-            userView.setUserPermissions("Edit All Users");
+            userView.setPassword("Password");
+            userView.setPermissions(new boolean[]{false,true,true, true});
             views.put(USER_VIEW, userView);
 
             // navigate to home screen
@@ -477,9 +477,11 @@ public class Controller
      * request is sent to server to check validity of user. If response is true, username is stored in model and user
      * is navigated to home screen. If invalid credentials, error is displayed.
      */
-    private class SubmitButtonListener extends MouseAdapter {
+    private class SubmitButtonListener extends MouseAdapter
+    {
         @Override
-        public void mouseClicked(MouseEvent e) {
+        public void mouseClicked(MouseEvent e)
+        {
             System.out.println("CONTROLLER LEVEL: Submit button clicked");
             // get LOGIN GUI
             LogInView logInView = (LogInView) views.get(VIEW_TYPE.LOGIN);
@@ -504,34 +506,35 @@ public class Controller
 
             // if successful, store info in model, hide error and navigate to home screen
             if (sessionTokenCreationSuccess()) {
-                System.out.println("CONTROLLER LEVEL - Correct Credentials");
-                // store username and session token in model
-                model.storeUsername(username);
-                model.storeSessionToken(sessionToken);
+                    System.out.println("CONTROLLER LEVEL - Correct Credentials");
+                    // store username and session token in model
+                    model.storeUsername(username);
+                    model.storeSessionToken(sessionToken);
 
-                // hide error string
-                logInView.setErrorVisibility(false);
-                views.put(VIEW_TYPE.LOGIN, logInView);
+                    // hide error string
+                    logInView.setErrorVisibility(false);
+                    views.put(VIEW_TYPE.LOGIN, logInView);
 
-                // nav user to home screen
-                updateView(VIEW_TYPE.HOME);
+                    // nav user to home screen
+                    updateView(VIEW_TYPE.HOME);
+                }
+                // if unsuccessful, show error and do not allow log in
+                else {
+                    System.out.println("CONTROLLER LEVEL - Incorrect Credentials");
+                    System.out.println(sessionToken);
+                    //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
+
+                    // show error message
+                    logInView.setErrorVisibility(true);
+                    views.put(VIEW_TYPE.LOGIN, logInView);
+                }
             }
-            // if unsuccessful, show error and do not allow log in
-            else {
-                System.out.println("CONTROLLER LEVEL - Incorrect Credentials");
-                System.out.println(sessionToken);
-                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
-
-                // show error message
-                logInView.setErrorVisibility(true);
-                views.put(VIEW_TYPE.LOGIN, logInView);
-            }
-        }
 
         //TODO: MAY WANT TO REWORK THIS
 
         // Determines whether there was a successful creation of the session token
-        private Boolean sessionTokenCreationSuccess() {
+        private Boolean sessionTokenCreationSuccess()
+        {
             if (sessionToken.startsWith("Fail:")) { // An Exception occurred on the server-side
                 return false;
             } return true;
@@ -573,7 +576,7 @@ public class Controller
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             userEditView.setUsername(button.getName());
             userEditView.setPassword("password123");
-            userEditView.setPermissions(new boolean[]{false,true,true});
+            userEditView.setPermissions(new boolean[]{false,true,true,false});
             views.put(USER_EDIT, userEditView);
 
             // navigate to user edit screen
@@ -682,7 +685,7 @@ public class Controller
             UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
             userPreviewView.setUsername(button.getName());
             userPreviewView.setPassword("password123");
-            userPreviewView.setPermissions(new boolean[]{false,true,true});
+            userPreviewView.setPermissions(new boolean[]{false,true,true,true});
             views.put(USER_VIEW, userPreviewView);
 
             updateView(USER_VIEW);
@@ -707,6 +710,22 @@ public class Controller
 
             // navigate to users list screen
             updateView(USER_LIST);
+        }
+    }
+
+
+    /**
+     * Listener to handle Edit Profile Button mouse clicks.
+     */
+    private class EditProfileButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Edit Profile button clicked");
+
+            // navigate to edit user
+            updateView(USER_EDIT);
         }
     }
 
@@ -1052,16 +1071,26 @@ public class Controller
 
             switch (buttonName) {
                 case "daily":
+                    scheduleUpdateView.showDailyMessage();
                     scheduleUpdateView.checkAllDayButtons(true);
                     scheduleUpdateView.enableMinuteSelector(false);
                 break;
                 case "hourly":
+                    scheduleUpdateView.showHourlyMessage();
+                    scheduleUpdateView.enableMinuteSelector(false);
+                    break;
+                case "no repeats":
+                    scheduleUpdateView.showNoRepeatMessage();
                     scheduleUpdateView.enableMinuteSelector(false);
                     break;
                 case "minute":
+                    scheduleUpdateView.showMinuteMessage();
                     scheduleUpdateView.enableMinuteSelector(true);
                     int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                    scheduleUpdateView.setMinuteLabel(minuteRepeat);
+                    if (minuteRepeat>0)
+                    {
+                        scheduleUpdateView.setMinuteLabel(minuteRepeat);
+                    }
                     break;
             }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
@@ -1141,18 +1170,21 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-            boolean validDuration = scheduleUpdateView.checkValidDuration();
-            ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-            if (!validDuration)
+            if (!scheduleUpdateView.checkValidDuration())
             {
                 scheduleUpdateView.raiseDurationError();
             }
-            else if (scheduleInfo.isEmpty())
+            else if (!scheduleUpdateView.checkValidDaySelected())
             {
-                scheduleUpdateView.raiseScheduleError();
+                scheduleUpdateView.raiseDayError();
+            }
+            else if (!scheduleUpdateView.checkValidBB())
+            {
+                scheduleUpdateView.raiseBBError();
             }
             else
             {
+                ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
                 System.out.println("SEND INFO TO DB "+scheduleInfo);
                 scheduleUpdateView.showConfirmationDialog();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
