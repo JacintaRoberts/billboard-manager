@@ -39,7 +39,6 @@ public class Viewer extends JFrame implements Runnable {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private static double screenHeight = screenSize.height;
     private static double screenWidth = screenSize.width;
-    private static double screenWidthBorder = 75;               // Horizontal spacing on borders
 
 
     /**
@@ -51,8 +50,8 @@ public class Viewer extends JFrame implements Runnable {
     }
 
     /**
-     * Extracts the xml file that we want to display.
-     * TODO: Remove or change this function to extract the XML file from the database
+     * Extracts the xml file that we want to display from the given test xml files stored in resources.
+     * TODO: This function is used to extract an xml file from a mock "database" of provided xml files for testing.
      */
     public static File extractXMLFile(int fileNum) {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
@@ -155,26 +154,11 @@ public class Viewer extends JFrame implements Runnable {
             }
 
         } catch (Exception e) {
+            // TODO: Display error message on screen saying xml file could not be read.
             e.printStackTrace();
         }
 
         return billboardData;
-    }
-
-
-    /**
-     * Setups the basics of the billboard regardless of what is being displayed
-     */
-    public void setupBillboard() {
-        // Create a border layout and aff the main panel to the billboard
-        setLayout(new BorderLayout());
-
-        // Add the central panel to the center of the billboard
-        add(mainPanel, BorderLayout.CENTER);
-
-        // Create a grid bag layout
-        mainPanel.setLayout(new GridBagLayout());
-        mainPanel.setBackground(Color.WHITE);
     }
 
 
@@ -196,6 +180,7 @@ public class Viewer extends JFrame implements Runnable {
                 pictureImage = ImageIO.read(pictureURL);
 
             } catch (Exception e) {
+                // TODO: Display an error message where the picture should be.
                 e.printStackTrace();
             }
         }
@@ -207,6 +192,7 @@ public class Viewer extends JFrame implements Runnable {
                 pictureImage = ImageIO.read(new ByteArrayInputStream(pictureByteArray));
 
             } catch (Exception e) {
+                // TODO: Display an error message where the picture should be.
                 e.printStackTrace();
             }
         }
@@ -292,13 +278,16 @@ public class Viewer extends JFrame implements Runnable {
         int currentFontSize = messageLabel.getFont().getSize();
         int fontSize = currentFontSize;
 
+        // Horizontal spacing on borders
+        double screenWidthBorder = 75;
+
         // Calculate what the width of the string would be based on the current font size
         FontMetrics fontMetrics = messageLabel.getFontMetrics(new Font(messageLabel.getFont().getName(), Font.BOLD,
                 currentFontSize));
         double stringWidth = fontMetrics.stringWidth(message);
 
         // While the current width of the string is less than the screen width minus some threshold for the border
-        while (stringWidth < (screenWidth - screenWidthBorder*2)) {
+        while (stringWidth < (screenWidth - screenWidthBorder *2)) {
             // Increase the font size
             fontSize = fontSize + 1;
 
@@ -352,10 +341,6 @@ public class Viewer extends JFrame implements Runnable {
 
             // Update the size of the label
             informationLabel.setSize((int) currentWidth, (int) currentHeight);
-
-            // Testing
-//            System.out.println("Size of label: " + currentWidth + " x " + currentHeight);
-//            System.out.println("Font Size: " + fontSize);
         }
     }
 
@@ -745,14 +730,20 @@ public class Viewer extends JFrame implements Runnable {
 
     }
 
+
     /**
-     * If there are no billboards to display, display a message for the user.
+     * Setups the basics of the billboard regardless of what is being displayed
      */
-    public void noBillboardToDisplay() {
-        // Set up the message to display and add it to the main panel
-        String noBillboardMessage = "There are no billboards to display right now.";
-        setUpMessage(noBillboardMessage);
-        mainPanel.add(messageLabel);
+    public void setupBillboard() {
+        // Create a border layout and aff the main panel to the billboard
+        setLayout(new BorderLayout());
+
+        // Add the central panel to the center of the billboard
+        add(mainPanel, BorderLayout.CENTER);
+
+        // Create a grid bag layout
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(Color.WHITE);
     }
 
 
@@ -801,17 +792,21 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Displays the billboards
-     * @param serverResponse
+     * @param serverResponse - a File extracted from the database which can be examined to display the billboard
      */
-    public void displayBillboard(Object serverResponse) {
-        // TODO: Do something with serverResponse
+    public void displayBillboard(File serverResponse) {
+        // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
+        // Testing from the provided xml files
+        // TODO: Remove (or comment out) the testing of provided xml files.
         File fileToDisplay = extractXMLFile(6);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
 
-        formatBillboard(billboardData);
-//        noBillboardToDisplay();
+        // Display the billboard using the server's response
+        HashMap<String, String> billboardDataServer = extractDataFromXML(serverResponse);
+
+        formatBillboard(billboardDataServer);
 
         listenEscapeKey();
         listenMouseClick();
@@ -819,14 +814,15 @@ public class Viewer extends JFrame implements Runnable {
     }
 
     /**
-     * Displays an error if the viewer cannot connect to the server
+     * Displays a special message on the billboard e.g. an error message.
+     * @param message - the message to display on the screen
      */
-    public void displayError() {
+    public void displaySpecialMessage(String message) {
+        // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
-        // Set up and add an error message label to the main panel
-        String errorMessage = "Error: Cannot connect to server. Trying again now...";
-        setUpMessage(errorMessage);
+        // Set up the message to display and add it to the main panel
+        setUpMessage(message);
         mainPanel.add(messageLabel);
 
         listenEscapeKey();
@@ -835,30 +831,35 @@ public class Viewer extends JFrame implements Runnable {
     }
 
 
-
-    // Determines whether a billboard xml was received from the server
+    /**
+     * Determines whether a billboard xml was received from the server
+     * @return - a boolean which tells us if we received an xml (true) or an empty string (false)
+     */
     private Boolean noBillboard() {
         if ( serverResponse.toString().isEmpty() ) { return true; }
         else { return false; }
     }
 
+
     // Contains the server's response (Billboard XML)
-    private Object serverResponse;
+    private File serverResponse;
+
 
     @Override
     public void run() {
         try {
-            //TODO: May want to cast the return type to XML - probably Alan and Kanu figure this out.
-            serverResponse = Helpers.initClient("Viewer");
+            // TODO: Check the cast to File works
+            serverResponse = (File) Helpers.initClient("Viewer");
             System.out.println("Received from server: " + serverResponse.toString());
             displayBillboard(serverResponse);
             if (noBillboard()) {
-                noBillboardToDisplay(); // Show no billboard screen
+                displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             }
         } catch (IOException | ClassNotFoundException e) {
-            displayError(); // Error in receiving content
+            displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
         }
     }
+
 
     public static void main(String[] args ) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
