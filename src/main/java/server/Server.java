@@ -169,11 +169,16 @@ public class Server {
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
     private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
+        System.out.println(clientRequest);
         String [] clientArgs = clientRequest.split(",");
+        System.out.println(clientArgs);
+        System.out.println("length is " + clientArgs.length);
         if (clientArgs.length >= 3) { additionalArgs = Arrays.copyOfRange(clientArgs, 2, clientArgs.length); }
         if (clientArgs.length >= 2) { sessionToken = clientArgs[1]; } // Second argument is the session token (optional)
         if (clientArgs.length >= 1) { method = clientArgs[0]; } // First argument is the method
         // Determine which method to execute
+        System.out.println("method is...");
+        System.out.println(method);
         switch (method) {
             case "Viewer":
                 return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
@@ -203,8 +208,9 @@ public class Server {
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
             case "CreateBillboard":
-                String billboardName = additionalArgs[2];
-                String xmlCode = additionalArgs[3];
+                System.out.println("here");
+                String billboardName = additionalArgs[0];
+                String xmlCode = additionalArgs[1];
                 return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
             default:
                 return "No server method requested";

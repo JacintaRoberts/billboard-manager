@@ -30,6 +30,7 @@ public class BillboardControl
             sessionToken,
             billboardName,
             xmlCode);
+    System.out.println(message);
     return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
