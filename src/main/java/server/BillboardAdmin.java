@@ -202,8 +202,8 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public String editBillboard(String billboard,
-                                String xmlCode) throws IOException, SQLException {
+    public static String editBillboard(String billboard,
+                                       String xmlCode) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -237,7 +237,7 @@ public class BillboardAdmin {
      * @param  billboard A String which provides Billboard Name to store into database
      * @return
      */
-    public String deleteBillboard(String billboard) throws IOException, SQLException {
+    public static String deleteBillboard(String billboard) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {

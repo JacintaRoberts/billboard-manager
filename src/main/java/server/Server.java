@@ -208,10 +208,16 @@ public class Server {
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
             case "CreateBillboard":
-                System.out.println("here");
                 String billboardName = additionalArgs[0];
                 String xmlCode = additionalArgs[1];
                 return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
+            case "EditBillboard":
+                String originalBillboardName = additionalArgs[0];
+                String newXmlCode = additionalArgs[1];
+                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
+            case "DeleteBillboard":
+                String deleteBillboardName = additionalArgs[0];
+                return BillboardAdmin.deleteBillboard(deleteBillboardName);
             default:
                 return "No server method requested";
         }
