@@ -20,7 +20,6 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
     public static ServerAcknowledge logoutRequest(String sessionToken) throws IOException, ClassNotFoundException {
-        //String message = "Logout," + sessionToken; // TODO: CHECK THIS ORIGINAL IS NOT NEEDED
         String message = String.format("Logout,%s", sessionToken);
         return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
@@ -52,7 +51,6 @@ public class UserControl {
     public static Object loginRequest(String username, String passwordFromControlPanel) throws IOException,
             ClassNotFoundException, NoSuchAlgorithmException {
         String hashedPassword = hash(passwordFromControlPanel); // Hash password
-        //String message = "Login," + username + "," + hashedPassword; // TODO: CHECK THIS ORIGINAL IS NOT NEEDED
         String message = String.format("Login,%s,%s", username, hashedPassword);
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
