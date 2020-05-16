@@ -27,6 +27,7 @@ public class Server {
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
+    private static String module = null;
     private static String method = null;
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
@@ -181,44 +182,92 @@ public class Server {
      */
     private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
         String [] clientArgs = clientRequest.split(",");
-        if (clientArgs.length >= 3) { additionalArgs = Arrays.copyOfRange(clientArgs, 2, clientArgs.length); }
-        if (clientArgs.length >= 2) { sessionToken = clientArgs[1]; } // Second argument is the session token (optional)
-        if (clientArgs.length >= 1) { method = clientArgs[0]; } // First argument is the method
+        if (clientArgs.length >= 4) { additionalArgs = Arrays.copyOfRange(clientArgs, 3, clientArgs.length); }
+        if (clientArgs.length >= 3) { sessionToken = clientArgs[2]; } // Third argument is the session token
+        if (clientArgs.length >= 2) { method = clientArgs[1]; } // Second argument is the method
+        if (clientArgs.length >= 1) { module = clientArgs[0]; } // First argument is the module
         // Determine which method to execute
-        switch (method) {
+        switch (module) {
             case "Viewer":
                 return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
+            case "User":
+                return callUserAdminMethod();
+            case "Billboard":
+                return callBillboardAdminMethod();
+            case "Schedule":
+                return callScheduleAdminMethod();
             case "Logout":
                 return logout(sessionToken); // Returns string acknowledgement
             case "Login":
-                String username = clientArgs[1]; // Overwrite as this only method that doesn't send session token
-                String hashedPassword = clientArgs[2];
+                String username = clientArgs[1]; // Overwrites method position
+                String hashedPassword = clientArgs[2]; // Overwrites session token position (does not require)
                 return login(username, hashedPassword); // Returns session token or fail message
+            default:
+                return "No server method requested";
+        }
+    }
+
+
+    /**
+     * callUserAdminMethod calls the corresponding method from the UserAdmin class which fetches/updates data from
+     * the database as necessary.
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callUserAdminMethod() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Determine which method from UserAdmin to execute
+        switch (method) {
             case "CreateUser":
-                //TODO: Remove the print lines when completed.
-                username = additionalArgs[0];
-                System.out.println("Username is: " + username);
-                hashedPassword = additionalArgs[1];
+                String username = additionalArgs[0];
+                String hashedPassword = additionalArgs[1];
                 boolean createBillboard = parseBoolean(additionalArgs[2]);
-                System.out.println("createBillboard boolean value: " + createBillboard);
                 boolean editBillboard = parseBoolean(additionalArgs[3]);
-                System.out.println("editBillboard boolean value: " + editBillboard);
                 boolean scheduleBillboard = parseBoolean(additionalArgs[4]);
-                System.out.println("scheduleBillboard boolean value: " + scheduleBillboard);
                 boolean editUser = parseBoolean(additionalArgs[5]);
-                System.out.println("editUser boolean value: " + editUser);
-                System.out.println("Calling create user method.");
                 return UserAdmin.createUser(sessionToken, username, hashedPassword, createBillboard, editBillboard,
                         scheduleBillboard, editUser); // Returns session token or fail message
             case "DeleteUser":
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
+            default:
+                return "No UserAdmin method requested";
+        }
+    }
+
+
+    /**
+     * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
+     * the database as necessary.
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callBillboardAdminMethod() throws IOException, SQLException {
+        // Determine which method from BillboardAdmin to execute
+        switch (module) {
             case "CreateBillboard":
                 String billboardName = additionalArgs[0];
                 String xmlCode = additionalArgs[1];
                 return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
             default:
-                return "No server method requested";
+                return "No BillboardAdmin method requested";
+        }
+    }
+
+
+
+    /**
+     * callScheduleAdminMethod calls the corresponding method from the server which fetches/updates data from
+     * the database as necessary.
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callScheduleAdminMethod() {
+        // Determine which method from ScheduleAdmin to execute
+        switch (module) {
+            case "CreateSchedule":
+                //TODO: POPULATE WITH METHOD CALLS
+                //String billboardName = additionalArgs[0];
+                //String xmlCode = additionalArgs[1];
+                return true; // BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
+            default:
+                return "No ScheduleAdmin method requested";
         }
     }
 
