@@ -2,6 +2,8 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.xml.sax.SAXException;
+import server.Server;
+import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -15,6 +17,7 @@ import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
+import static server.Server.ServerAcknowledge.*;
 import static viewer.Viewer.extractXMLFile;
 import static controlPanel.UserControl.logoutRequest;
 
@@ -27,7 +30,7 @@ public class Controller
     // store model and view
     private Model model;
     private HashMap<VIEW_TYPE, AbstractView> views;
-    private String serverResponse;
+    private Object serverResponse;
     private String sessionToken;
 
     /*
@@ -439,8 +442,8 @@ public class Controller
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
                 // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
-                // 1. "Pass: Logout Successful"; // Occurs when session token existed and was successfully expired
-                // 2. "Fail: Already Logged Out"; // Occurs when session token was already expired
+                // 1. ServerAcknowledgement.Success; // Occurs when session token existed and was successfully expired
+                // 2. ServerAcknowledgment.InvalidToken; // Occurs when session token was already expired
                 // If successful, let the user know, navigate to login screen
                 if (sessionTokenExpirationSuccess()) {
                     System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
@@ -461,7 +464,7 @@ public class Controller
 
         // Determines whether the session token was successfully expired
         private boolean sessionTokenExpirationSuccess() {
-            if ( serverResponse.equals("Pass: Logout Successful") ) {
+            if ( serverResponse.equals(Success) ) {
                 return true;
             }
             return false;
@@ -490,54 +493,67 @@ public class Controller
             String username = logInView.getUsername();
             String password = logInView.getPassword();
             try {
-                sessionToken = loginRequest(username, password); // CP Backend method call
+                serverResponse = loginRequest(username, password); // CP Backend call
+                //sessionToken = (String) loginRequest(username, password); // CP Backend method call
                 //TODO: RETURN CUSTOM MESSAGE TO USER VIA GUI
                 // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
                 // 1. VALID SESSION TOKEN
-                // 2. "Fail: Incorrect Password" -> User exists, but bad password
-                // 3. "Fail: No Such User"; -> No such user
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
-            } catch (NoSuchAlgorithmException ex) {
-                ex.printStackTrace();
-            }
+                // 2. ServerAcknowledgment.BadPassword
+                // 3. ServerAcknowledgment.NoSuchUser
+                // if successful, store info in model, hide error and navigate to home screen
 
-            // if successful, store info in model, hide error and navigate to home screen
-            if (sessionTokenCreationSuccess()) {
-                    System.out.println("CONTROLLER LEVEL - Correct Credentials");
-                    // store username and session token in model
-                    model.storeUsername(username);
-                    model.storeSessionToken(sessionToken);
-
-                    // hide error string
-                    logInView.setErrorVisibility(false);
-                    views.put(VIEW_TYPE.LOGIN, logInView);
-
-                    // nav user to home screen
-                    updateView(VIEW_TYPE.HOME);
-                }
                 // if unsuccessful, show error and do not allow log in
-                else {
-                    System.out.println("CONTROLLER LEVEL - Incorrect Credentials");
-                    System.out.println(sessionToken);
+                if (loginFailedBadPassword()) {
+                    System.out.println("CONTROLLER LEVEL - Incorrect Password");
+                    System.out.println("Please try another password");
                     //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
+                    //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
 
                     // show error message
                     logInView.setErrorVisibility(true);
                     views.put(VIEW_TYPE.LOGIN, logInView);
+                } else if (loginFailedNoSuchUser()) {
+                    System.out.println("CONTROLLER LEVEL - No Such User");
+                    System.out.println("Please try another username");
+                    //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
+                    //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USER
+
+                    // show error message
+                    logInView.setErrorVisibility(true);
+                    views.put(VIEW_TYPE.LOGIN, logInView);
+                } else { // Success
+                    System.out.println("CONTROLLER LEVEL - Correct Credentials");
+                    // store username and session token in model
+                    model.storeUsername(username);
+                    sessionToken = (String) serverResponse; // Store as a session token
+                    model.storeSessionToken(sessionToken);
+                    // hide error string
+                    logInView.setErrorVisibility(false);
+                    views.put(VIEW_TYPE.LOGIN, logInView);
+                    // nav user to home screen
+                    updateView(VIEW_TYPE.HOME);
                 }
+            } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
             }
+        }
 
         //TODO: MAY WANT TO REWORK THIS
 
         // Determines whether there was a successful creation of the session token
-        private Boolean sessionTokenCreationSuccess()
+        private Boolean loginFailedBadPassword()
         {
-            if (sessionToken.startsWith("Fail:")) { // An Exception occurred on the server-side
-                return false;
-            } return true;
+            if (serverResponse.equals(BadPassword)) { // An Exception occurred on the server-side
+                return true;
+            } return false;
+        }
+
+        // Determines whether there was a successful creation of the session token
+        private Boolean loginFailedNoSuchUser()
+        {
+            if (serverResponse.equals(NoSuchUser)) { // An Exception occurred on the server-side
+                return true;
+            } return false;
         }
     }
 
@@ -610,10 +626,30 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
 
             // update information in EDIT USER view
+            //TODO: MOVE THE LOCATION OF THE CREATE USER BUTTON AND RETURN THE
+            // CREATE USER PERMISSION IN THE .getUserInfo() method
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             ArrayList<Object> userArray = userEditView.getUserInfo();
-            // FIXME: send userArray to Server/DB
             System.out.println(userArray);
+            // Parsing elements from user array for the UserControl method to create the request to server
+            String username = (String) userArray.get(0);
+            String password = (String) userArray.get(1);
+            Boolean createBillboards = true; // TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
+            Boolean editBillboards = (Boolean) userArray.get(2);
+            Boolean editSchedules = (Boolean) userArray.get(3);
+            Boolean editUsers = (Boolean) userArray.get(4);
+
+            // TODO: HANDLE EXCEPTIONS IN GUI
+            try {
+                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
+            }
+
             views.put(USER_EDIT, userEditView);
 
             // navigate to edit menu screen
@@ -648,10 +684,10 @@ public class Controller
                 if (deleteUserSuccess()) {
                     System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
                     //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse == "Fail: Insufficient User Permission") { // Session token was already expired
+                } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
                     System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
                     //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse == "Fail: Invalid Session Token") { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
+                } else if (serverResponse.equals(InvalidToken)) { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
                     //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
                 }
             } catch (IOException ex) {
@@ -663,7 +699,7 @@ public class Controller
 
         // Determines whether the user deletion was successful
         private boolean deleteUserSuccess() {
-            if ( serverResponse.equals("Pass: User Deleted") ) {
+            if ( serverResponse.equals(Success) ) {
                 return true;
             } return false;
         }
