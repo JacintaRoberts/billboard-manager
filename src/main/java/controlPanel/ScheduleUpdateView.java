@@ -57,9 +57,13 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JRadioButton hourlyButton;
     private JRadioButton minuteButton;
     private JRadioButton dailyButton;
+    private JRadioButton noRepeatButton;
     private JButton submitButton;
 
     private int duration;
+    private GridBagConstraints gbc_timeName;
+    private GridBagConstraints gbc_days;
+    private GridBagConstraints gbc_recurrence;
 
     private ArrayList<JCheckBox> weekdayArray;
 
@@ -88,9 +92,10 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // create time/name panel
         timeNamePanel = new JPanel();
-        timeNamePanel.setLayout(new GridLayout(6,2));
+        timeNamePanel.setLayout(new GridBagLayout());
         // create labels
-        timePanelDescription = new JLabel("Billboard Details:");
+        timePanelDescription = new JLabel("BILLBOARD DETAILS:");
+        timePanelDescription.setForeground(Color.WHITE);
         bbNameLabel = new JLabel("Billboard Name: ");
         bbNameComboBox = new JComboBox<>(new String[]{""});
         // define hours and minute selection
@@ -103,6 +108,8 @@ public class ScheduleUpdateView extends AbstractGenericView
             // add minutes to array, pad single digits with a 0
             min[minute] = String.format("%02d",minute);
         }
+        // --- day selector ---
+        String[] days = {"Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"};
 
         // define AM and PM
         // --- String ---
@@ -143,16 +150,17 @@ public class ScheduleUpdateView extends AbstractGenericView
         durationTimeLabel = new JLabel("0 minutes");
 
         // -------------- ADD ITEMS TO PANEL ------------------
-        timeNamePanel.add(timePanelDescription);
-        timeNamePanel.add(new JLabel(""));
-        timeNamePanel.add(bbNameLabel);
-        timeNamePanel.add(bbNameComboBox);
-        timeNamePanel.add(startTimeLabel);
-        timeNamePanel.add(startTimePanel);
-        timeNamePanel.add(endTimeLabel);
-        timeNamePanel.add(endTimePanel);
-        timeNamePanel.add(durationLabel);
-        timeNamePanel.add(durationTimeLabel);
+        gbc_timeName = new GridBagConstraints();
+        gbc_timeName.insets = new Insets(50,10,50,10);
+        timeNamePanel.add(timePanelDescription, setGBC(gbc_timeName, 1,1,1,1));
+        timeNamePanel.add(bbNameLabel, setGBC(gbc_timeName, 1,2,1,1));
+        timeNamePanel.add(bbNameComboBox, setGBC(gbc_timeName, 2,2,1,1));
+        timeNamePanel.add(startTimeLabel, setGBC(gbc_timeName, 1,3,1,1));
+        timeNamePanel.add(startTimePanel, setGBC(gbc_timeName, 2,3,1,1));
+        timeNamePanel.add(endTimeLabel, setGBC(gbc_timeName, 1,4,1,1));
+        timeNamePanel.add(endTimePanel, setGBC(gbc_timeName, 2,4,1,1));
+        timeNamePanel.add(durationLabel, setGBC(gbc_timeName, 1,5,1,1));
+        timeNamePanel.add(durationTimeLabel, setGBC(gbc_timeName, 2,5,1,1));
 
         // -------------- ADD TIME PANEL TO FRAME ------------------
         getContentPane().add(timeNamePanel, BorderLayout.WEST);
@@ -165,7 +173,8 @@ public class ScheduleUpdateView extends AbstractGenericView
         weekdayPanel.setLayout(new GridLayout(8,1));
 
         // create labels
-        weekdayPanelDescription = new JLabel("Select Days:");
+        weekdayPanelDescription = new JLabel("SELECT DAYS:");
+        weekdayPanelDescription.setForeground(Color.WHITE);
         monCheckBox = new JCheckBox("Monday");
         tuesCheckBox = new JCheckBox("Tuesday");
         wedCheckBox = new JCheckBox("Wednesday");
@@ -185,14 +194,16 @@ public class ScheduleUpdateView extends AbstractGenericView
         weekdayArray.add(sunCheckBox);
 
         // add labels to panel
-        weekdayPanel.add(weekdayPanelDescription);
-        weekdayPanel.add(monCheckBox);
-        weekdayPanel.add(tuesCheckBox);
-        weekdayPanel.add(wedCheckBox);
-        weekdayPanel.add(thurCheckBox);
-        weekdayPanel.add(friCheckBox);
-        weekdayPanel.add(satCheckBox);
-        weekdayPanel.add(sunCheckBox);
+        gbc_days = new GridBagConstraints();
+        gbc_days.insets = new Insets(30,0,30,10);
+        weekdayPanel.add(weekdayPanelDescription, setGBC(gbc_days, 1,1,1,1));
+        weekdayPanel.add(monCheckBox, setGBC(gbc_days, 1,2,1,1));
+        weekdayPanel.add(tuesCheckBox, setGBC(gbc_days, 1,3,1,1));
+        weekdayPanel.add(wedCheckBox, setGBC(gbc_days, 1,4,1,1));
+        weekdayPanel.add(thurCheckBox, setGBC(gbc_days, 1,5,1,1));
+        weekdayPanel.add(friCheckBox, setGBC(gbc_days, 1,6,1,1));
+        weekdayPanel.add(satCheckBox, setGBC(gbc_days, 1,7,1,1));
+        weekdayPanel.add(sunCheckBox, setGBC(gbc_days, 1,8,1,1));
 
         // add panel to frame
         getContentPane().add(weekdayPanel, BorderLayout.CENTER);
@@ -203,17 +214,20 @@ public class ScheduleUpdateView extends AbstractGenericView
         // -------------- RECURRENCE PATTERNS ------------------
         recurrencePanel = new JPanel();
         recurrencePanel.setLayout(new GridLayout(7,1));
-        recurrencePanelDescription = new JLabel("Select Recurrence:");
+        recurrencePanelDescription = new JLabel("SELECT RECURRENCE:");
+        recurrencePanelDescription.setForeground(Color.WHITE);
 
         // create radio buttons
         hourlyButton = new JRadioButton("Hourly");
         dailyButton = new JRadioButton("Daily");
         minuteButton = new JRadioButton("Minutes");
+        noRepeatButton = new JRadioButton("No Repetition");
 
         // set name of radio buttons
         hourlyButton.setName("hourly");
         dailyButton.setName("daily");
         minuteButton.setName("minute");
+        noRepeatButton.setName("no repeats");
 
         // add buttons to group such that only 1 can be selected
         // --- Group ---
@@ -221,6 +235,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         group.add(hourlyButton);
         group.add(dailyButton);
         group.add(minuteButton);
+        group.add(noRepeatButton);
 
         // create labels
         repeatMinutesLabel = new JLabel("Repeat every X minute/s: ");
@@ -239,11 +254,14 @@ public class ScheduleUpdateView extends AbstractGenericView
         repeatMinutesPanel.add(minutesLabel);
 
         // add items to panel
-        recurrencePanel.add(recurrencePanelDescription);
-        recurrencePanel.add(hourlyButton);
-        recurrencePanel.add(dailyButton);
-        recurrencePanel.add(minuteButton);
-        recurrencePanel.add(repeatMinutesPanel);
+        gbc_recurrence = new GridBagConstraints();
+        gbc_recurrence.insets = new Insets(30,10,30,10);
+        recurrencePanel.add(recurrencePanelDescription, setGBC(gbc_recurrence,1,1,1,1));
+        recurrencePanel.add(hourlyButton, setGBC(gbc_recurrence,1,2,1,1));
+        recurrencePanel.add(dailyButton, setGBC(gbc_recurrence,1,3,1,1));
+        recurrencePanel.add(minuteButton, setGBC(gbc_recurrence,1,4,1,1));
+        recurrencePanel.add(repeatMinutesPanel, setGBC(gbc_recurrence,5,1,1,1));
+        recurrencePanel.add(noRepeatButton, setGBC(gbc_recurrence,1,6,1,1));
 
         // add panel to frame
         getContentPane().add(recurrencePanel, BorderLayout.EAST);
@@ -253,8 +271,11 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         submitButton = new JButton("Submit");
         JPanel navPanel = getNavPanel();
-        navPanel.add(submitButton);
+        GridBagConstraints gbc_nav = getNavGBCPanel();
+        navPanel.add(submitButton, setGBC(gbc_nav, 3,1,1,1));
     }
+
+
 
     @Override
     void cleanUp() {
@@ -267,7 +288,8 @@ public class ScheduleUpdateView extends AbstractGenericView
     }
 
     @Override
-    public void update(Subject s) {
+    public void update(Subject s)
+    {
 
     }
 
@@ -332,9 +354,23 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         repeatMinutesComboBox.removeAllItems();
 
-        for (int minute = (duration+1); minute <= 1440; minute++)
+        if (!durationTimeLabel.equals("Invalid"))
         {
-            repeatMinutesComboBox.addItem(minute);
+            int hoursLeftInDay;
+            if (endAM_PM.equals("AM"))
+            {
+                hoursLeftInDay = (24-endHour)*60;
+            }
+            else
+            {
+                hoursLeftInDay = (12-endHour)*60;
+            }
+            int endPossibleMinutes = hoursLeftInDay + (0-endMinute);
+
+            for (int minute = (duration+1); minute <= endPossibleMinutes; minute++)
+            {
+                repeatMinutesComboBox.addItem(minute);
+            }
         }
     }
 
@@ -362,9 +398,37 @@ public class ScheduleUpdateView extends AbstractGenericView
         minutesLabel.setEnabled(true);
     }
 
+    protected void showHourlyMessage()
+    {
+        JOptionPane.showMessageDialog(null,"HOURLY: the Billboard will repeat hourly from the Start Time until 11.59pm on the days selected.");
+    }
+
+    protected void showMinuteMessage()
+    {
+        JOptionPane.showMessageDialog(null,"MINUTES: the Billboard will repeat every X minutes from the Start Time until 11.59pm on the days selected.");
+    }
+
+    protected void showDailyMessage()
+    {
+        JOptionPane.showMessageDialog(null,"DAILY: the Billboard will repeat every day at the Start Time until the End Time.");
+    }
+
+    protected void showNoRepeatMessage()
+    {
+        JOptionPane.showMessageDialog(null,"NO REPETITION: the Billboard will only show at the Start Time and End Time on the days selected.");
+    }
+
+
     protected int getMinuteRepeat()
     {
-        return (int)repeatMinutesComboBox.getSelectedItem();
+        if (repeatMinutesComboBox.getSelectedItem() == null)
+        {
+            return -1;
+        }
+        else
+        {
+            return (int)repeatMinutesComboBox.getSelectedItem();
+        }
     }
 
     private void setDuration(int newDuration)
@@ -410,6 +474,10 @@ public class ScheduleUpdateView extends AbstractGenericView
                 dailyButton.setSelected(true);
                 enableMinuteSelector(false);
                 break;
+            case "no repeats":
+                noRepeatButton.setSelected(true);
+                enableMinuteSelector(false);
+                break;
         }
     }
 
@@ -418,7 +486,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         JOptionPane.showMessageDialog(null,"You have just scheduled  " + bbNameComboBox.getSelectedItem() + " billboard.");
     }
 
-    private boolean checkRequiredFields()
+    protected boolean checkValidDaySelected()
     {
         boolean isDaySelected = false;
         for (JCheckBox checkBox: weekdayArray)
@@ -432,17 +500,20 @@ public class ScheduleUpdateView extends AbstractGenericView
         return isDaySelected;
     }
 
+    protected boolean checkValidBB()
+    {
+        String name = (String) bbNameComboBox.getSelectedItem();
+        return !name.equals("");
+    }
+
     protected ArrayList<Object> getScheduleInfo()
     {
         ArrayList<Object> scheduleInfo = new ArrayList();
-        if (checkRequiredFields())
-        {
-            String name = (String) bbNameComboBox.getSelectedItem();
-            int min_repeat = (int) repeatMinutesComboBox.getSelectedItem();
+        String name = (String) bbNameComboBox.getSelectedItem();
+        int min_repeat = (int) repeatMinutesComboBox.getSelectedItem();
 
-            scheduleInfo.add(name);
-            scheduleInfo.add(min_repeat);
-        }
+        scheduleInfo.add(name);
+        scheduleInfo.add(min_repeat);
         return scheduleInfo;
     }
 
@@ -451,9 +522,14 @@ public class ScheduleUpdateView extends AbstractGenericView
         return duration > 0;
     }
 
-    protected void raiseScheduleError()
+    protected void raiseDayError()
     {
         JOptionPane.showMessageDialog(null, "Please select at least one day");
+    }
+
+    protected void raiseBBError()
+    {
+        JOptionPane.showMessageDialog(null, "Please select a valid billboard");
     }
 
     protected void raiseDurationError()

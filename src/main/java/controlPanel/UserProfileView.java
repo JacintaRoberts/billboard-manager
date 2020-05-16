@@ -1,90 +1,62 @@
 package controlPanel;
 
-import observer.Subject;
 import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
-import java.awt.*;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
 
 /**
- * View designed for viewing Users.
+ * View designed for editing users.
  */
-public class UserProfileView extends AbstractGenericView
+public class UserProfileView extends AbstractUserView
 {
     // *** DECLARE VARIABLES**
-    // --- Panels ---
-    private JPanel userDetailsPane;
-    // --- Labels ---
-    private JLabel usernameText;
-    private JLabel passwordText;
-    private JLabel userPermissionsLabel;
-    private JLabel userPermissionsText;
-    private JLabel errorText;
-    private JLabel usernameLabel;
-    private JLabel passwordLabel;
     // --- ENUM ---
     private VIEW_TYPE view_type;
+    // --- Buttons ---
+    private JButton editButton;
 
 
     public UserProfileView()
     {
-        super("User Profile View");
+        super("Profile View");
         view_type = VIEW_TYPE.USER_PROFILE;
+        setEditable(false);
+        addEditButton();
     }
 
-    @Override
-    void createComponents()
+    protected void addEditButton()
     {
-        userDetailsPane = new JPanel();
-        userDetailsPane.setLayout(new GridLayout(4,2));
-        usernameLabel = new JLabel("Username");
-        usernameText = new JLabel("");
-        passwordLabel = new JLabel("Password");
-        passwordText = new JLabel("");
-        userPermissionsLabel = new JLabel("User Permissions");
-        userPermissionsText = new JLabel("");
-        errorText = new JLabel("Incorrect Credentials");
-        userDetailsPane.add(usernameLabel);
-        userDetailsPane.add(usernameText);
-        userDetailsPane.add(passwordLabel);
-        userDetailsPane.add(passwordText);
-        userDetailsPane.add(userPermissionsLabel);
-        userDetailsPane.add(userPermissionsText);
-        userDetailsPane.add(errorText);
-
-        errorText.setVisible(false);
-        getContentPane().add(userDetailsPane, BorderLayout.CENTER);
+        editButton = new JButton("Edit Profile");
+        JPanel navPanel = getNavPanel();
+        navPanel.add(editButton);
     }
 
-    @Override
-    void cleanUp() {
+//    protected ArrayList<Object> getUserInfo()
+//    {
+//        ArrayList<Object> userInfoArray = new ArrayList<>();
+//        userInfoArray.add(usernameText.getText());
+//        userInfoArray.add(passwordText.getText());
+//        userInfoArray.add(editBBPermission.isSelected());
+//        userInfoArray.add(scheduleBBPermission.isSelected());
+//        userInfoArray.add(editUsersPermission.isSelected());
+//        return userInfoArray;
+//    }
 
-    }
 
-    protected void setUsername(String username)
+    public void addEditButtonListener(MouseListener listener)
     {
-        usernameText.setText(username);
-    }
-
-    protected void setPasswordText(String password)
-    {
-        passwordText.setText(password);
-    }
-
-    // FIXME: may arg could be array of ENUM, bool array
-    protected void setUserPermissions(String permissions)
-    {
-        userPermissionsText.setText(permissions);
-    }
-
-    @Override
-    public void update(Subject s) {
-
+        editButton.addMouseListener(listener);
     }
 
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
+    }
+
+    @Override
+    void cleanUp() {
+
     }
 }

@@ -3,16 +3,12 @@ package controlPanel;
 import observer.Observer;
 
 import javax.swing.*;
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
 import java.awt.*;
 import java.awt.Font;
 
 public abstract class AbstractView extends JFrame implements Observer
 {
     // *** DECLARE VARIABLES**
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 800;
 
     public AbstractView(String frame_name)
     {
@@ -52,6 +48,11 @@ public abstract class AbstractView extends JFrame implements Observer
         UIManager.put("RadioButton.background", navyColour);
         UIManager.put("RadioButton.foreground",Color.WHITE);
 
+        // radio menu item buttons
+        UIManager.put("RadioButtonMenuItem.font", font);
+        UIManager.put("RadioButtonMenuItem.background", navyColour);
+        UIManager.put("RadioButtonMenuItem.foreground",Color.WHITE);
+
         // combobox
         UIManager.put("ComboBox.font", font);
         UIManager.put("ComboBox.foreground",Color.BLACK);
@@ -61,6 +62,28 @@ public abstract class AbstractView extends JFrame implements Observer
         UIManager.put("CheckBox.background", navyColour);
         UIManager.put("CheckBox.foreground",Color.WHITE);
 
+        // scroll pane
+        UIManager.put("ScrollPane.font", font);
+        UIManager.put("ScrollPane.background", navyColour);
+        UIManager.put("ScrollPane.foreground",Color.WHITE);
+
+        // table
+        Font tableFont = new Font("Garamond",  Font.BOLD, 20);
+        UIManager.put("Table.font", tableFont);
+        UIManager.put("Table.background", navyColour);
+        UIManager.put("Table.foreground",Color.WHITE);
+
+        // table header
+        Font tableHeaderFont = new Font("Garamond",  Font.BOLD, 25);
+        UIManager.put("TableHeader.font", tableHeaderFont);
+        UIManager.put("TableHeader.background", Color.WHITE);
+        UIManager.put("TableHeader.foreground",pinkColour);
+
+        UIManager.put("TitledBorder.font",font);
+        UIManager.put("TitledBorder.titleColor",Color.WHITE);
+
+
+        // panel colour
         UIManager.put("Panel.background", navyColour);
 
         setupFrame();

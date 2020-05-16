@@ -20,8 +20,8 @@ public abstract class AbstractUserView extends AbstractGenericView
     // --- CheckBox ---
     protected JCheckBox editUsersPermission;
     protected JCheckBox editBBPermission;
-    protected JCheckBox editSchedulePermission;
-
+    protected JCheckBox scheduleBBPermission;
+    protected JCheckBox createBBPermission;
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
      * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
@@ -45,13 +45,15 @@ public abstract class AbstractUserView extends AbstractGenericView
         passwordText = new JTextField("");
         userPermissionsLabel = new JLabel("User Permissions");
 
-        editBBPermission = new JCheckBox("Edit Billboards");
-        editSchedulePermission = new JCheckBox("Edit Schedules");
-        editUsersPermission = new JCheckBox("Edit All Users");
+        editBBPermission = new JCheckBox("Edit All Billboards");
+        scheduleBBPermission = new JCheckBox("Edit Schedules");
+        editUsersPermission = new JCheckBox("Edit Users");
+        createBBPermission = new JCheckBox("Create Billboards");
         userPermissionsPanel = new JPanel();
-        userPermissionsPanel.setLayout(new GridLayout(3,1));
+        userPermissionsPanel.setLayout(new GridLayout(4,1));
         userPermissionsPanel.add(editBBPermission);
-        userPermissionsPanel.add(editSchedulePermission);
+        userPermissionsPanel.add(scheduleBBPermission);
+        userPermissionsPanel.add(createBBPermission);
         userPermissionsPanel.add(editUsersPermission);
 
         userDetailsPane.add(usernameLabel);
@@ -63,12 +65,6 @@ public abstract class AbstractUserView extends AbstractGenericView
 
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
     }
-
-
-//    protected JPanel getUserDetailsPanel()
-//    {
-//        return userDetailsPane;
-//    }
 
     protected void setUsername(String username)
     {
@@ -83,11 +79,20 @@ public abstract class AbstractUserView extends AbstractGenericView
     protected void setPermissions(boolean[] permissions)
     {
         editUsersPermission.setSelected(permissions[0]);
-        editSchedulePermission.setSelected(permissions[1]);
+        scheduleBBPermission.setSelected(permissions[1]);
         editBBPermission.setSelected(permissions[2]);
+        createBBPermission.setSelected(permissions[3]);
     }
 
-    abstract void setEditable();
+    protected void setEditable(boolean editable)
+    {
+        passwordText.setEditable(editable);
+        usernameText.setEditable(editable);
+        editBBPermission.setEnabled(editable);
+        scheduleBBPermission.setEnabled(editable);
+        editUsersPermission.setEnabled(editable);
+        createBBPermission.setEnabled(editable);
+    }
 
     @Override
     public void update(Subject s) {
