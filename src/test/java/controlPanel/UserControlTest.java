@@ -4,6 +4,7 @@ package controlPanel;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import server.Server;
+import server.Server.ServerAcknowledge;
 
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +12,7 @@ import java.sql.SQLException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static server.Server.ServerAcknowledge.*;
 import static server.Server.generateToken;
 
 class UserControlTest {
@@ -36,8 +38,8 @@ class UserControlTest {
      */
     @Test
     public void logOut() throws IOException, ClassNotFoundException {
-      String serverResponse = userControl.logoutRequest("sessionToken");
-      assertEquals(serverResponse, "Pass: Logout Successful");
+      ServerAcknowledge serverResponse = userControl.logoutRequest("sessionToken");
+      assertEquals(Success, serverResponse);
     }
 
 
@@ -480,9 +482,9 @@ class UserControlTest {
         String callingUsername = "testUser";
         String testToken = generateToken(callingUsername);
         assertTrue(Server.validateToken(testToken));
-        String serverResponse = userControl.createUserRequest(testToken, "NewUser1",
+        ServerAcknowledge serverResponse = userControl.createUserRequest(testToken, "NewUser1",
                 "myPass", true, true, true, true);
-        assertEquals("Success: User Created", serverResponse);
+        assertEquals(serverResponse, Success);
     }
 
 

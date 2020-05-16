@@ -108,7 +108,7 @@ public class Helpers {
         oos.flush();
         System.out.println("Sent message to server: " + message);
         Object serverResponse = ois.readObject();
-        //System.out.println("Received from server: " + serverResponse);
+        System.out.println("Received from server: " + serverResponse);
 
         // Cleanup
         ois.close();
