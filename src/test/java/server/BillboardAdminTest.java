@@ -309,9 +309,9 @@ class BillboardAdminTest {
 
     @Test
     public void testsql() throws IOException, SQLException {
+        String dbResponse2 = billboardAdmin.deleteAllBillboard();
         String dbResponse3 = billboardAdmin.createBillboardTable();
         String dbResponse4 = DbUser.createUsersTable();
-//        String dbResponse2 = billboardAdmin.deleteAllBillboard();
 //        String dbResponse = billboardAdmin.createBillboardTable();
 //        String dbResponse = billboardAdmin.dropBillboardTable();
 //        System.out.println(dbResponse);
