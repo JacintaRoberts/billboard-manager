@@ -34,8 +34,9 @@ class BillboardControlTest {
      */
     @Test
     public void createABillboardRequest() throws IOException, ClassNotFoundException {
-        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
-        assertEquals(serverResponse, "Pass: Billboard Created");
+        //TODO: ENSURE THE BILLBOARD DOES NOT ALREADY EXIST IN DB FOR INTEGRATED TESTING :)
+        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "newBillboard1", "xmlCode");
+        assertEquals( "Pass: Billboard Created", serverResponse);
     }
 
 
