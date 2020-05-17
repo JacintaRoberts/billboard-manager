@@ -26,7 +26,7 @@ public class BillboardControl
     public String createBillboardRequest(String sessionToken,
                                               String billboardName,
                                               String xmlCode) throws IOException, ClassNotFoundException {
-    String message = String.format("CreateBillboard,%s,%s,%s",
+    String message = String.format("Billboard,CreateBillboard,%s,%s,%s",
             sessionToken,
             billboardName,
             xmlCode);

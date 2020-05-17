@@ -9,7 +9,9 @@ import java.util.Random;
 
 import static controlPanel.UserControl.hash;
 import static helpers.Helpers.bytesToString;
+import static server.Server.*;
 import static server.Server.Permission.EditUser;
+import static server.Server.ServerAcknowledge.*;
 import static server.Server.checkPermission;
 import static server.Server.validateToken;
 
@@ -60,7 +62,7 @@ public class UserAdmin {
     }
 
     /**
-     *
+     * Creates User in the database
      * @param sessionToken
      * @param username
      * @param hashedPassword
@@ -73,8 +75,8 @@ public class UserAdmin {
      * @throws IOException
      * @throws SQLException
      */
-    public static String createUser(String sessionToken, String username, String hashedPassword, boolean createBillboard,
-                                    boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException, IOException, SQLException {
+    public static ServerAcknowledge createUser(String sessionToken, String username, String hashedPassword, boolean createBillboard,
+                                                      boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException, IOException, SQLException {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
             if (checkPermission(sessionToken, EditUser)) {
@@ -89,17 +91,17 @@ public class UserAdmin {
                     System.out.println("The salted, hashed password is: " + saltedHashedPassword);
                     DbUser.addUser(username, saltedHashedPassword, saltString, createBillboard,
                             editBillboard, scheduleBillboard, editUser);
-                    return "Pass: User Created"; // 1. User Created - Valid token, sufficient permission and valid user to create
+                    return Success; // 1. User Created - Valid token, sufficient permission and valid user to create
                 } catch (SQLIntegrityConstraintViolationException e) {
-                    return "Fail: Username Already Taken"; // 2. A user already exists with that username - primary key issue
+                    return PrimaryKeyClash; // 2. A user already exists with that username - primary key issue
                 }
             } else {
                 System.out.println("Permissions were not sufficient, no user was deleted");
-                return "Fail: Insufficient User Permission"; // 3. Valid token but insufficient permission
+                return InsufficientPermission; // 3. Valid token but insufficient permission
             }
         } else {
             System.out.println("Session was not valid");
-            return "Fail: Invalid Session Token"; // 4. Invalid token
+            return InvalidToken; // 4. Invalid token
         }
     }
 
@@ -112,20 +114,20 @@ public class UserAdmin {
      * @throws SQLException
      * @throws IOException
      */
-    public static String deleteUser(String sessionToken, String username) throws SQLException, IOException {
+    public static ServerAcknowledge deleteUser(String sessionToken, String username) throws SQLException, IOException {
         if ( validateToken(sessionToken) ) {
             System.out.println("Session is valid");
             if ( checkPermission(sessionToken, EditUser) ) { // Ensures the user has the edit user permission
                 DbUser.deleteUser(username);
                 System.out.println("Username was deleted: " + username);
-                return "Pass: User Deleted"; // 1. User Deleted - Valid token and sufficient permission
+                return Success; // 1. User Deleted - Valid token and sufficient permission
             } else {
                 System.out.println("Permissions were not sufficient, no user was deleted");
-                return "Fail: Insufficient User Permission"; // 2. Valid token but insufficient permission
+                return InsufficientPermission; // 2. Valid token but insufficient permission
             }
         } else {
             System.out.println("Session was not valid, no user was deleted");
-            return "Fail: Invalid Session Token"; // 3. Invalid token
+            return InvalidToken; // 3. Invalid token
         }
     }
 }

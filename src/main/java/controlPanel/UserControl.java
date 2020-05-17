@@ -8,6 +8,7 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 import static helpers.Helpers.bytesToString;
+import static server.Server.*;
 
 public class UserControl {
 
@@ -18,10 +19,9 @@ public class UserControl {
      * @throws IOException Thrown if unknown server host when communicating through sockets
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
-    public static String logoutRequest(String sessionToken) throws IOException, ClassNotFoundException {
-        //String message = "Logout," + sessionToken; // TODO: CHECK THIS ORIGINAL IS NOT NEEDED
+    public static ServerAcknowledge logoutRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Logout,%s", sessionToken);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
     /**
@@ -48,12 +48,11 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      * @throws NoSuchAlgorithmException If the hashing algorithm does not exist
      */
-    public static String loginRequest(String username, String passwordFromControlPanel) throws IOException,
+    public static Object loginRequest(String username, String passwordFromControlPanel) throws IOException,
             ClassNotFoundException, NoSuchAlgorithmException {
         String hashedPassword = hash(passwordFromControlPanel); // Hash password
-        //String message = "Login," + username + "," + hashedPassword; // TODO: CHECK THIS ORIGINAL IS NOT NEEDED
         String message = String.format("Login,%s,%s", username, hashedPassword);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
     /**
@@ -71,12 +70,12 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      * @throws NoSuchAlgorithmException If the hashing algorithm does not exist
      */
-    public static String createUserRequest(String sessionToken, String username, String passwordFromControlPanel, boolean createBillboard, boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException,
+    public static ServerAcknowledge createUserRequest(String sessionToken, String username, String passwordFromControlPanel, boolean createBillboard, boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException,
             ClassNotFoundException, NoSuchAlgorithmException {
         String hashedPassword = hash(passwordFromControlPanel); // Hash password entered by the user
-        String message = String.format("CreateUser,%s,%s,%s,%s,%s,%s,%s", sessionToken, username, hashedPassword,
+        String message = String.format("User,CreateUser,%s,%s,%s,%s,%s,%s,%s", sessionToken, username, hashedPassword,
                                         createBillboard, editBillboard, scheduleBillboard, editUser);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 
@@ -90,9 +89,9 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      * @throws NoSuchAlgorithmException If the hashing algorithm does not exist
      */
-    public static String deleteUserRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
-        String message = String.format("DeleteUser,%s,%s", sessionToken, username);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    public static ServerAcknowledge deleteUserRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
+        String message = String.format("User,DeleteUser,%s,%s", sessionToken, username);
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 
