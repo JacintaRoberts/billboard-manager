@@ -46,6 +46,7 @@ public class Server {
         InsufficientPermission,
         InvalidToken,
         PrimaryKeyClash, // DB issue
+        CannotDeleteSelf, // Delete user exception
         BadPassword, // Login
         NoSuchUser // Login
     }
@@ -78,13 +79,23 @@ public class Server {
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
         System.out.println("All keys: " + validSessionTokens.keySet());
-        String username = (String) validSessionTokens.get(sessionToken).get(0);
+        String username = getUsername(sessionToken);
         System.out.println("Username of the session token: " + username);
         if (UserAdmin.userExists(username)) {
             return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
         }
         return false; // Return false as the user does not exist anymore
     }
+
+    /**
+     * Retrieves the username of the provided session token
+     * @param sessionToken to have the name retrieved from
+     * @return String username stored with the session token
+     */
+    public static String getUsername(String sessionToken) {
+        return (String) validSessionTokens.get(sessionToken).get(0);
+    }
+
 
     /**
      * Checks whether the provided username has the required permissions to invoke a particular function

@@ -110,24 +110,35 @@ public class UserAdmin {
      * Method to delete user from database
      * @param sessionToken Session token from the calling user
      * @param username Username to be deleted
-     * @return String server acknowledgement
+     * @return String server acknowledgement - 5 are possible
      * @throws SQLException
      * @throws IOException
      */
+    // TODO: THIS IS QUITE A MESSY METHOD AND THE IF STATEMENTS SHOULD BE CLEANED...
     public static ServerAcknowledge deleteUser(String sessionToken, String username) throws SQLException, IOException {
         if ( validateToken(sessionToken) ) {
             System.out.println("Session is valid");
             if ( checkPermission(sessionToken, EditUser) ) { // Ensures the user has the edit user permission
-                DbUser.deleteUser(username);
-                System.out.println("Username was deleted: " + username);
-                return Success; // 1. User Deleted - Valid token and sufficient permission
+                if (userExists(username)) { // Ensures that the user to be deleted exists
+                    if (username.equals(getUsername(sessionToken))) { // Ensures that you're not deleting yourself
+                        System.out.println("Username provided matches the calling user - cannot delete yourself.");
+                        return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
+                    } else {
+                        DbUser.deleteUser(username);
+                        System.out.println("Username was deleted: " + username);
+                        return Success; // 2. User Deleted - Valid user, token and sufficient permission
+                    }
+                } else {
+                    System.out.println("Requested user to be deleted does not exist, no user was deleted");
+                    return NoSuchUser; // 3. Requested user to be deleted does not exist in DB - Valid token and sufficient permission
+                }
             } else {
                 System.out.println("Permissions were not sufficient, no user was deleted");
-                return InsufficientPermission; // 2. Valid token but insufficient permission
+                return InsufficientPermission; // 4. Valid token but insufficient permission
             }
         } else {
             System.out.println("Session was not valid, no user was deleted");
-            return InvalidToken; // 3. Invalid token
+            return InvalidToken; // 5. Invalid token
         }
     }
 }
