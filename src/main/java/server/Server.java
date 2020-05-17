@@ -11,10 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static helpers.Helpers.bytesToString;
 import static helpers.Helpers.networkPropsFilePath;
@@ -79,13 +77,17 @@ public class Server {
      * @return boolean true if the session token exists, false otherwise
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
-        System.out.println("All keys: " + validSessionTokens.keySet());
-        String username = getUsername(sessionToken);
-        System.out.println("Username of the session token: " + username);
-        if (UserAdmin.userExists(username)) {
-            return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+        try {
+            System.out.println("All keys: " + validSessionTokens.keySet());
+            String username = getUsernameFromToken(sessionToken);
+            System.out.println("Username of the session token: " + username);
+            if (UserAdmin.userExists(username)) {
+                return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+            }
+        } catch (NullPointerException err) {
+            return false;
         }
-        return false; // Return false as the user does not exist anymore
+        return false; // Return false as the user does not exist anymore or never did
     }
 
     /**
@@ -93,10 +95,10 @@ public class Server {
      * @param sessionToken to have the name retrieved from
      * @return String username stored with the session token
      */
-    public static String getUsername(String sessionToken) {
+    public static String getUsernameFromToken(String sessionToken) {
         return (String) validSessionTokens.get(sessionToken).get(0);
     }
-    
+
 
     /**
      * listenforConnections creates a ServerSocket that is bound on the specified port
@@ -259,6 +261,29 @@ public class Server {
             return Success;  // Session token existed and was successfully expired
         }
         return InvalidToken; // Session token was already expired/did not exist
+    }
+
+    // Expires all session tokens with an associated user
+    public static ServerAcknowledge expireTokens(String username){
+        // Collect Session Tokens to be expired
+        ServerAcknowledge serverAcknowledge = NoSuchUser;
+        System.out.println("All keys: " + validSessionTokens.keySet());
+        // Get the iterator over the HashMap
+        Iterator<Map.Entry<String, ArrayList<Object>>> iterator = validSessionTokens.entrySet().iterator();
+        // Iterate over the HashMap of valid session tokens
+        while (iterator.hasNext()) {
+            // Get the entry at this iteration
+            Map.Entry<String, ArrayList<Object>> entry = iterator.next();
+            System.out.println("Value being checked: " + entry.getValue().get(0));
+            // Check if this value is the required value
+            if (username.equals(entry.getValue().get(0))) {
+                // Remove this entry from HashMap
+                iterator.remove();
+                System.out.println("A session token associated with: " + username + " was deleted");
+                serverAcknowledge = Success;
+            }
+        }
+        return serverAcknowledge;
     }
 
 

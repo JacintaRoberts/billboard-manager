@@ -115,15 +115,18 @@ public class UserAdmin {
      */
     // TODO: THIS IS QUITE A MESSY METHOD AND THE IF STATEMENTS SHOULD BE CLEANED...
     public static ServerAcknowledge deleteUser(String sessionToken, String username) throws SQLException, IOException {
-        if ( validateToken(sessionToken) ) {
+        if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
-            if ( checkPermission(sessionToken, EditUser) ) { // Ensures the user has the edit user permission
-                if (userExists(username)) { // Ensures that the user to be deleted exists
-                    if (username.equals(getUsername(sessionToken))) { // Ensures that you're not deleting yourself
+            if (checkPermission(sessionToken, EditUser)) { // Ensures the user has the edit user permission
+                if (userExists(username)) { // Ensures that the user to be deleted
+                    if (username.equals(getUsernameFromToken(sessionToken))) { // Ensures that you're not deleting yourself
                         System.out.println("Username provided matches the calling user - cannot delete yourself.");
                         return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
                     } else {
                         DbUser.deleteUser(username);
+                        //TODO: EXPIRE ANY TOKENS WHERE THEY NAME WAS
+                        ServerAcknowledge expirationMessage = Server.expireTokens(username);
+                        System.out.println("Message from expiring session tokens: " + expirationMessage);
                         System.out.println("Username was deleted: " + username);
                         return Success; // 2. User Deleted - Valid user, token and sufficient permission
                     }
@@ -142,6 +145,7 @@ public class UserAdmin {
     }
 
 
+
     /**
      * Checks whether the provided username has the required permissions to invoke a particular function
      * @param sessionToken with the username to be checked
@@ -150,8 +154,8 @@ public class UserAdmin {
      */
     public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
         String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
-        System.out.println("Username of the session token: " + username);
         if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
+            System.out.println("The calling username " + username + " has the required permissions!");
             return true; // User has required permission
         }
         return false; // Return false as the user does not have the required permission
@@ -159,7 +163,6 @@ public class UserAdmin {
 
     // Helper method to determine whether the retrieved user has the required permission
     private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
-        System.out.println("Checking if the user has the permissions...");
         switch (requiredPermission) {
             case CreateBillboard:
                 if ( retrievedUser.get(3).equals("1") ) return true;
