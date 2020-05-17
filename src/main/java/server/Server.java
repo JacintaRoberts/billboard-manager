@@ -55,7 +55,7 @@ public class Server {
      * @param username that was successfully validated and logged in
      * @return a session token key that is a random 32-bit integer and stored in the HashMap of valid session tokens
      */
-    public static String generateToken(String username) {
+    private static String generateToken(String username) {
         LocalDateTime creationTime = LocalDateTime.now(); // Generate current date time
         ArrayList<Object> values = new ArrayList<>();
         values.add(username);
