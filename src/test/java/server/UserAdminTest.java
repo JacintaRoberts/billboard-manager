@@ -21,30 +21,31 @@ class UserAdminTest {
      */
     UserAdmin userAdmin;
     MockUserTable mockUserTable;
-    String sessionToken;
-    String callingUser = "testUser";
-    String dummySalt;
-    String dummyPasswordFromCp;
-    String dummyHashedPassword;
-    String dummyHashedSaltedPassword;
-    Boolean createBillboard;
-    Boolean editBillboard;
-    Boolean scheduleBillboard;
-    Boolean editUser;
-    ArrayList<Object> dummyValues;
+    // Declaration and initialisation of testing variables
+    private String sessionToken;
+    private String callingUser = "testUser";
+    private String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
+    private String dummyPasswordFromCp = "password";
+    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash(dummyPasswordFromCp);
+    private String dummyHashedSaltedPassword = "6df8615d2bf6d4a2f43287b0061682ffad743230739fba51c97777d6a51545ce"; // hash(dummyHashedPassword + dummySalt);
+    private Boolean createBillboard = true;
+    private Boolean editBillboard = true;
+    private Boolean scheduleBillboard = true;
+    private Boolean editUser = true;
+    private ArrayList<Object> dummyValues;
     // Defining additional testing users
-    String basicUser = "basicUser";
-    String testUser = "test";
-    String createBillboardUser = "createBillboardUser";
-    String editBillboardUser = "editBillboardUser";
-    String editScheduleUser = "editScheduleUser";
-    String editUserUser = "editUserUser";
+    private String basicUser = "basicUser";
+    private String testUser = "test";
+    private String createBillboardUser = "createBillboardUser";
+    private String editBillboardUser = "editBillboardUser";
+    private String editScheduleUser = "editScheduleUser";
+    private String editUserUser = "editUserUser";
     // Defining permissions to be tested
-    ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
-    ArrayList<Boolean> createBillboardPermission = new ArrayList<>(Arrays.asList(true, false, false, false));
-    ArrayList<Boolean> editBillboardPermission = new ArrayList<>(Arrays.asList(false, true, false, false));
-    ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
-    ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
+    private ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
+    private ArrayList<Boolean> createBillboardPermission = new ArrayList<>(Arrays.asList(true, false, false, false));
+    private ArrayList<Boolean> editBillboardPermission = new ArrayList<>(Arrays.asList(false, true, false, false));
+    private ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
+    private ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
 
 
     /* Test 1: Constructing a UserAdmin and Mock User Table object
@@ -56,18 +57,9 @@ class UserAdminTest {
         userAdmin = new UserAdmin();
         mockUserTable = new MockUserTable();
 
-        // Populate Mock User Table - For Unit Testing
+        // Populate Mock User Table and Generate Values as required - For Unit Testing
         sessionToken = MockSessionTokens.generateMockToken(callingUser);
         dummyValues = new ArrayList<>();
-        //TODO: HARDCODE THESE HASH VALUES
-        dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
-        dummyPasswordFromCp = "password";
-        dummyHashedPassword = hash(dummyPasswordFromCp);
-        dummyHashedSaltedPassword = hash(dummyHashedPassword + dummySalt);
-        createBillboard = true;
-        editBillboard = true;
-        scheduleBillboard = true;
-        editUser = true;
         dummyValues.add(dummyHashedSaltedPassword);
         dummyValues.add(dummySalt);
         dummyValues.add(createBillboard);
@@ -75,11 +67,11 @@ class UserAdminTest {
         dummyValues.add(scheduleBillboard);
         dummyValues.add(editUser);
         MockUserTable.populateDummyData(callingUser, dummyValues);
-        
+
         // Populate Database Table - For Integrated Testing
-        // Start with a fresh test user
+        // Start with a fresh test user each test
         if (!DbUser.retrieveUser(callingUser).isEmpty()) {
-            DbUser.deleteUser(callingUser); // clean user
+            DbUser.deleteUser(callingUser);
         }
         DbUser.addUser(callingUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
         sessionToken = (String) login(callingUser, dummyHashedPassword); // generate a test token to be used by other functions
