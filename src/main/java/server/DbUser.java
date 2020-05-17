@@ -75,23 +75,28 @@ public class DbUser {
      * @throws SQLException
      */
     public static ArrayList<String> retrieveUser(String username) throws IOException, SQLException {
-        connection = DbConnection.getInstance();
-        selectUser = connection.prepareStatement(SELECT_USER_SQL);
-        selectUser.setString(1, username);
-        ResultSet rs = selectUser.executeQuery();
-        // Use metadata to get the number of columns
-        int columnCount = rs.getMetaData().getColumnCount();
-        ArrayList<String> retrievedUser = new ArrayList<>();
-        // Fetch each row
-        while (rs.next()) {
-            for (int i = 0; i < columnCount; i++) {
-                String value = rs.getString(i + 1);
-                retrievedUser.add(value);
-                System.out.printf("%-20s",value);
+        try {
+            connection = DbConnection.getInstance();
+            selectUser = connection.prepareStatement(SELECT_USER_SQL);
+            selectUser.setString(1, username);
+            ResultSet rs = selectUser.executeQuery();
+            // Use metadata to get the number of columns
+            int columnCount = rs.getMetaData().getColumnCount();
+            ArrayList<String> retrievedUser = new ArrayList<>();
+            // Fetch each row
+            while (rs.next()) {
+                for (int i = 0; i < columnCount; i++) {
+                    String value = rs.getString(i + 1);
+                    retrievedUser.add(value);
+                    System.out.printf("%-20s", value);
+                }
             }
+            System.out.println(""); // newline
+            return retrievedUser;
+        } catch (SQLIntegrityConstraintViolationException err) {
+            ArrayList<String> empty = new ArrayList<>();
+            return empty;
         }
-        System.out.println(""); // newline
-        return retrievedUser;
     }
 
 
