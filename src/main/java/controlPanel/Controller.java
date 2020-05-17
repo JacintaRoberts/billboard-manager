@@ -687,8 +687,12 @@ public class Controller
                 } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
                     System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
                     //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse.equals(InvalidToken)) { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
+                } else if (serverResponse.equals(InvalidToken)) {
                     //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(CannotDeleteSelf)) {
+                    //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
