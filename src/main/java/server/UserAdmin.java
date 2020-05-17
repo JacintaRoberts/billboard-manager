@@ -153,8 +153,8 @@ public class UserAdmin {
      * @return boolean true if the session token exists and the user has the required permission, false otherwise
      */
     public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
-        String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
-        if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
+        String username = getUsernameFromToken(sessionToken); // Extract username from session token
+        if (hasPermission(username, requiredPermission)) {
             System.out.println("The calling username " + username + " has the required permissions!");
             return true; // User has required permission
         }
@@ -162,19 +162,20 @@ public class UserAdmin {
     }
 
     // Helper method to determine whether the retrieved user has the required permission
-    private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
+    private static boolean hasPermission(String username, Permission requiredPermission) throws IOException, SQLException {
+        ArrayList<Boolean> userPermissions = getUserPermissions(username);
         switch (requiredPermission) {
             case CreateBillboard:
-                if ( retrievedUser.get(3).equals("1") ) return true;
+                if ( userPermissions.get(0) ) return true;
                 return false;
             case EditBillboard:
-                if ( retrievedUser.get(4).equals("1") ) return true;
+                if ( userPermissions.get(1) ) return true;
                 return false;
             case ScheduleBillboard:
-                if ( retrievedUser.get(5).equals("1") ) return true;
+                if ( userPermissions.get(2) ) return true;
                 return false;
             case EditUser:
-                if ( retrievedUser.get(6).equals("1") ) return true;
+                if ( userPermissions.get(3) ) return true;
                 return false;
             default:
                 return false; // Default to false if permission cannot be identified
@@ -182,6 +183,32 @@ public class UserAdmin {
     }
 
 
+    /**
+     * Method to retrieve a particular users permissions and to return it an array list of booleans
+     * @param username Username to be retrieve from the database
+     * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
+     * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
+     */
+    public static ArrayList<Boolean> getUserPermissions(String username) throws IOException, SQLException {
+        ArrayList<Boolean> userPermissions = new ArrayList<>();
+        ArrayList<String> retrievedUser = DbUser.retrieveUser(username);
+        userPermissions.add(0, stringToBoolean(retrievedUser.get(3)));
+        userPermissions.add(1, stringToBoolean(retrievedUser.get(4)));
+        userPermissions.add(2, stringToBoolean(retrievedUser.get(5)));
+        userPermissions.add(3, stringToBoolean(retrievedUser.get(6)));
+        return userPermissions;
+    }
+
+
+    // Converts a string representation of an integer such as "0" or "1" to a boolean
+    private static boolean stringToBoolean(String value) {
+        if (value.equals("1")) {
+            return true;
+        }
+        else {
+            return false;
+        }
+    }
 }
 
 
