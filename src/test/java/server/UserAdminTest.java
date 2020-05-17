@@ -136,32 +136,44 @@ class UserAdminTest {
     }
 
 
-    /* Test 3: Get Other User's Permissions
+    /* Test 3: View Other User's Permissions
      * Description: Check that only users with "Edit Permissions" can see any user's permissions
      * Order - Create Billboards, Edit All Billboards, Schedule Billboards, Edit Users
      * Expected Output: Given the requested username, the method should return associated permissions.
      */
     @Test
-    public void getOtherUserPermissions() {
-        ArrayList<Boolean> permissions = new ArrayList<>(Arrays.asList(false, false, false, false));
+    public void getOtherUserPermissions() throws IOException, SQLException {
+        ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
+        ArrayList<Boolean> createBillboardPermission = new ArrayList<>(Arrays.asList(true, false, false, false));
+        ArrayList<Boolean> editBillboardPermission = new ArrayList<>(Arrays.asList(false, true, false, false));
+        ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
+        ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
+        if (DbUser.retrieveUser(basicUser).isEmpty()) {
+            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
+        }
+        String createBillboardUser = "createBillboardUser";
+        if (DbUser.retrieveUser(createBillboardUser).isEmpty()) {
+            DbUser.addUser(createBillboardUser, dummyHashedSaltedPassword, dummySalt, true, false, false, false);
+        }
+        String editBillboardUser = "editBillboardUser";
+        if (DbUser.retrieveUser(editBillboardUser).isEmpty()) {
+            DbUser.addUser(editBillboardUser, dummyHashedSaltedPassword, dummySalt, false, true, false, false);
+        }
+        String editScheduleUser = "editScheduleUser";
+        if (DbUser.retrieveUser(editScheduleUser).isEmpty()) {
+            DbUser.addUser(editScheduleUser, dummyHashedSaltedPassword, dummySalt, false, false, true, false);
+        }
+        String editUserUser = "editUserUser";
+        if (DbUser.retrieveUser(editUserUser).isEmpty()) {
+            DbUser.addUser(editUserUser, dummyHashedSaltedPassword, dummySalt, false, false, false, true);
+        }
         assertAll("Check for a few Possible User Permission Combinations",
-        ()-> assertEquals(new ArrayList<Boolean>(), userAdmin.getUserPermissions("sessionToken", "test0")),
-        ()-> assertEquals({1,0,0,0}, userAdmin.getUserPermissions("sessionToken", "test1")),
-        ()-> assertEquals({0,1,0,0}, userAdmin.getUserPermissions("sessionToken", "test2")),
-        ()-> assertEquals({0,0,1,0}, userAdmin.getUserPermissions("sessionToken", "test3")),
-        ()-> assertEquals({0,0,0,1}, userAdmin.getUserPermissions("sessionToken", "test4")),
-        ()-> assertEquals({1,1,0,0}, userAdmin.getUserPermissions("sessionToken", "test5")),
-        ()-> assertEquals({1,0,1,0}, userAdmin.getUserPermissions("sessionToken", "test6")),
-        ()-> assertEquals({1,0,0,1}, userAdmin.getUserPermissions("sessionToken", "test7")),
-        ()-> assertEquals({0,1,1,0}, userAdmin.getUserPermissions("sessionToken", "test8")),
-        ()-> assertEquals({0,1,0,1}, userAdmin.getUserPermissions("sessionToken", "test9")),
-        ()-> assertEquals({0,0,1,1}, userAdmin.getUserPermissions("sessionToken", "test10)),
-        ()-> assertEquals({1,1,1,0}, userAdmin.getUserPermissions("sessionToken", "test11)),
-        ()-> assertEquals({1,1,0,1}, userAdmin.getUserPermissions("sessionToken", "test12)),
-        ()-> assertEquals({1,0,1,1}, userAdmin.getUserPermissions("sessionToken", "test13)),
-        ()-> assertEquals({0,1,1,1}, userAdmin.getUserPermissions("sessionToken", "test14)),
-        ()-> assertEquals({1,1,1,1}, userAdmin.getUserPermissions("sessionToken", "root"))
-      );
+            ()-> assertEquals(basicPermissions, userAdmin.viewUserPermissions(sessionToken, basicUser)),
+            ()-> assertEquals(createBillboardPermission, userAdmin.viewUserPermissions(sessionToken, createBillboardUser)),
+            ()-> assertEquals(editBillboardPermission, userAdmin.viewUserPermissions(sessionToken, editBillboardUser)),
+            ()-> assertEquals(editSchedulePermission, userAdmin.viewUserPermissions(sessionToken, editScheduleUser)),
+            ()-> assertEquals(editUserPermission, userAdmin.viewUserPermissions(sessionToken, editUserUser))
+        );
     }
 
 
@@ -659,7 +671,8 @@ class UserAdminTest {
             System.out.println("The basic user does not exists, so it will be created.");
             userAdmin.createUser(sessionToken, basicUser, dummyHashedSaltedPassword, false, false, false, false);
         }
-        // Check return value - calling username should have insufficient permissions now
+        // Check return value - calling username should have insufficient permissions now'
+        System.out.println("HEERERERERERER!");
         String basicToken = generateToken(basicUser);
         ServerAcknowledge dbResponse = UserAdmin.deleteUser(basicToken, testUser);
         assertEquals(InsufficientPermission, dbResponse);
@@ -756,8 +769,8 @@ class UserAdminTest {
     public void createUserInsufficientPermissions() throws NoSuchAlgorithmException, IOException, SQLException {
         // Test setup - Ensure the user to be created does not already exist
         // Ensure the user to be added does not already exist
-        if (userAdmin.userExists(testUser)) {
-            userAdmin.deleteUser(sessionToken, testUser);
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser);
         }
         // Add a basic user for permission testing
         if (DbUser.retrieveUser(basicUser).isEmpty()) {
@@ -781,7 +794,7 @@ class UserAdminTest {
     public void createUserDuplicateUsername() throws IOException, SQLException, NoSuchAlgorithmException {
       // Test Setup - Add the user to the DB if not already in existence
       String duplicateUsername = "duplicateUser";
-      if (!userAdmin.userExists(duplicateUsername)) {
+      if (DbUser.retrieveUser(duplicateUsername).isEmpty()) {
           DbUser.addUser(duplicateUsername, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
       }
       // Attempt to add duplicate username

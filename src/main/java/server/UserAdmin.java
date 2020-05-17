@@ -78,7 +78,7 @@ public class UserAdmin {
                                                       boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException, IOException, SQLException {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
-            if (checkPermission(sessionToken, EditUser)) {
+            if (checkSinglePermission(sessionToken, EditUser)) {
                 try {
                     // Prepare parameters for storage in the database
                     Random rng = new Random();
@@ -117,7 +117,7 @@ public class UserAdmin {
     public static ServerAcknowledge deleteUser(String sessionToken, String username) throws SQLException, IOException {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
-            if (checkPermission(sessionToken, EditUser)) { // Ensures the user has the edit user permission
+            if (checkSinglePermission(sessionToken, EditUser)) { // Ensures the user has the edit user permission
                 if (userExists(username)) { // Ensures that the user to be deleted
                     if (username.equals(getUsernameFromToken(sessionToken))) { // Ensures that you're not deleting yourself
                         System.out.println("Username provided matches the calling user - cannot delete yourself.");
@@ -152,7 +152,7 @@ public class UserAdmin {
      * @param requiredPermission required permission to execute the server method
      * @return boolean true if the session token exists and the user has the required permission, false otherwise
      */
-    public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
+    public static boolean checkSinglePermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
         String username = getUsernameFromToken(sessionToken); // Extract username from session token
         if (hasPermission(username, requiredPermission)) {
             System.out.println("The calling username " + username + " has the required permissions!");
@@ -164,39 +164,59 @@ public class UserAdmin {
     // Helper method to determine whether the retrieved user has the required permission
     private static boolean hasPermission(String username, Permission requiredPermission) throws IOException, SQLException {
         ArrayList<Boolean> userPermissions = getUserPermissions(username);
-        switch (requiredPermission) {
-            case CreateBillboard:
-                if ( userPermissions.get(0) ) return true;
-                return false;
-            case EditBillboard:
-                if ( userPermissions.get(1) ) return true;
-                return false;
-            case ScheduleBillboard:
-                if ( userPermissions.get(2) ) return true;
-                return false;
-            case EditUser:
-                if ( userPermissions.get(3) ) return true;
-                return false;
-            default:
-                return false; // Default to false if permission cannot be identified
-        }
+            switch (requiredPermission) {
+                case CreateBillboard:
+                    if (userPermissions.get(0)) return true;
+                    return false;
+                case EditBillboard:
+                    if (userPermissions.get(1)) return true;
+                    return false;
+                case ScheduleBillboard:
+                    if (userPermissions.get(2)) return true;
+                    return false;
+                case EditUser:
+                    if (userPermissions.get(3)) return true;
+                    return false;
+                default:
+                    return false; // Default to false if permission cannot be identified
+            }
     }
 
 
     /**
-     * Method to retrieve a particular users permissions and to return it an array list of booleans
-     * @param username Username to be retrieve from the database
+     * Method to retrieve view users permissions and to return it an array list of booleans
+     * @param username Username's permissions to be retrieved from the database
      * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
      */
     public static ArrayList<Boolean> getUserPermissions(String username) throws IOException, SQLException {
         ArrayList<Boolean> userPermissions = new ArrayList<>();
         ArrayList<String> retrievedUser = DbUser.retrieveUser(username);
-        userPermissions.add(0, stringToBoolean(retrievedUser.get(3)));
-        userPermissions.add(1, stringToBoolean(retrievedUser.get(4)));
-        userPermissions.add(2, stringToBoolean(retrievedUser.get(5)));
-        userPermissions.add(3, stringToBoolean(retrievedUser.get(6)));
+        userPermissions.add(0, stringToBoolean(retrievedUser.get(3))); // Create billboard
+        userPermissions.add(1, stringToBoolean(retrievedUser.get(4))); // Edit billboard
+        userPermissions.add(2, stringToBoolean(retrievedUser.get(5))); // Edit schedule
+        userPermissions.add(3, stringToBoolean(retrievedUser.get(6))); // Edit User
         return userPermissions;
+    }
+
+
+    /**
+     * Method to retrieve view users permissions and to return it an array list of booleans or as a server acknowledgement
+     * @param sessionToken sessionToken of the calling user to determine whether Edit User permissions are required
+     * @param username Username's permissions to be retrieved from the database
+     * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
+     * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser) or an enum to indicate
+     * insufficient permission to view.
+     */
+    public static Object viewUserPermissions(String sessionToken, String username) throws IOException, SQLException {
+        String callingUsername = getUsernameFromToken(sessionToken);
+        if (!callingUsername.equals(username)) {
+            // Require edit user permission if calling user trying to view others permissions
+            if (!hasPermission(callingUsername, EditUser)) {
+                return InsufficientPermission;
+            }
+        } // Do not require permission
+        return getUserPermissions(username);
     }
 
 
@@ -209,6 +229,7 @@ public class UserAdmin {
             return false;
         }
     }
+
 }
 
 
