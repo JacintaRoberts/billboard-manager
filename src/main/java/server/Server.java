@@ -11,10 +11,8 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static helpers.Helpers.bytesToString;
 import static helpers.Helpers.networkPropsFilePath;
@@ -23,7 +21,7 @@ import static server.Server.ServerAcknowledge.*;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
-    private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
@@ -31,6 +29,7 @@ public class Server {
     private static String method = null;
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
+    private static final int TOKEN_SIZE = 32; // Constant for the number of bytes in a session token
 
     // Different permissions that are available
     public enum Permission {
@@ -46,6 +45,7 @@ public class Server {
         InsufficientPermission,
         InvalidToken,
         PrimaryKeyClash, // DB issue
+        CannotDeleteSelf, // Delete user exception
         BadPassword, // Login
         NoSuchUser // Login
     }
@@ -62,7 +62,7 @@ public class Server {
         values.add(creationTime);
         // Generate session token key
         Random rng = new Random();
-        byte[] sessionTokenBytes = new byte[32]; // Technically there is a very small chance the same token could be generated (primary key clash)
+        byte[] sessionTokenBytes = new byte[TOKEN_SIZE]; // Technically there is a very small chance the same token could be generated (primary key clash)
         rng.nextBytes(sessionTokenBytes);
         String sessionToken = bytesToString(sessionTokenBytes);
         System.out.println("Before keys: " + validSessionTokens.keySet());
@@ -77,50 +77,28 @@ public class Server {
      * @return boolean true if the session token exists, false otherwise
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
-        System.out.println("All keys: " + validSessionTokens.keySet());
-        String username = (String) validSessionTokens.get(sessionToken).get(0);
-        System.out.println("Username of the session token: " + username);
-        if (UserAdmin.userExists(username)) {
-            return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+        try {
+            System.out.println("All keys: " + validSessionTokens.keySet());
+            String username = getUsernameFromToken(sessionToken);
+            System.out.println("Username of the session token: " + username);
+            if (UserAdmin.userExists(username)) {
+                return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+            }
+        } catch (NullPointerException err) {
+            return false;
         }
-        return false; // Return false as the user does not exist anymore
+        return false; // Return false as the user does not exist anymore or never did
     }
 
     /**
-     * Checks whether the provided username has the required permissions to invoke a particular function
-     * @param sessionToken with the username to be checked
-     * @param requiredPermission required permission to execute the server method
-     * @return boolean true if the session token exists and the user has the required permission, false otherwise
+     * Retrieves the username of the provided session token
+     * @param sessionToken to have the name retrieved from
+     * @return String username stored with the session token
      */
-    public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
-        String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
-        System.out.println("Username of the session token: " + username);
-        if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
-            return true; // User has required permission
-        }
-        return false; // Return false as the user does not have the required permission
+    public static String getUsernameFromToken(String sessionToken) {
+        return (String) validSessionTokens.get(sessionToken).get(0);
     }
 
-    // Helper method to determine whether the retrieved user has the required permission
-    private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
-        System.out.println("Checking if the user has the permissions...");
-        switch (requiredPermission) {
-            case CreateBillboard:
-                if ( retrievedUser.get(3).equals("1") ) return true;
-                return false;
-            case EditBillboard:
-                if ( retrievedUser.get(4).equals("1") ) return true;
-                return false;
-            case ScheduleBillboard:
-                if ( retrievedUser.get(5).equals("1") ) return true;
-                return false;
-            case EditUser:
-                if ( retrievedUser.get(6).equals("1") ) return true;
-                return false;
-            default:
-                return false; // Default to false if permission cannot be identified
-        }
-    }
 
     /**
      * listenforConnections creates a ServerSocket that is bound on the specified port
@@ -283,6 +261,29 @@ public class Server {
             return Success;  // Session token existed and was successfully expired
         }
         return InvalidToken; // Session token was already expired/did not exist
+    }
+
+    // Expires all session tokens with an associated user
+    public static ServerAcknowledge expireTokens(String username){
+        // Collect Session Tokens to be expired
+        ServerAcknowledge serverAcknowledge = NoSuchUser;
+        System.out.println("All keys: " + validSessionTokens.keySet());
+        // Get the iterator over the HashMap
+        Iterator<Map.Entry<String, ArrayList<Object>>> iterator = validSessionTokens.entrySet().iterator();
+        // Iterate over the HashMap of valid session tokens
+        while (iterator.hasNext()) {
+            // Get the entry at this iteration
+            Map.Entry<String, ArrayList<Object>> entry = iterator.next();
+            System.out.println("Value being checked: " + entry.getValue().get(0));
+            // Check if this value is the required value
+            if (username.equals(entry.getValue().get(0))) {
+                // Remove this entry from HashMap
+                iterator.remove();
+                System.out.println("A session token associated with: " + username + " was deleted");
+                serverAcknowledge = Success;
+            }
+        }
+        return serverAcknowledge;
     }
 
 
