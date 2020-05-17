@@ -23,7 +23,7 @@ import static server.Server.ServerAcknowledge.*;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
-    private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
@@ -31,6 +31,7 @@ public class Server {
     private static String method = null;
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
+    private static final int TOKEN_SIZE = 32; // Constant for the number of bytes in a session token
 
     // Different permissions that are available
     public enum Permission {
@@ -63,7 +64,7 @@ public class Server {
         values.add(creationTime);
         // Generate session token key
         Random rng = new Random();
-        byte[] sessionTokenBytes = new byte[32]; // Technically there is a very small chance the same token could be generated (primary key clash)
+        byte[] sessionTokenBytes = new byte[TOKEN_SIZE]; // Technically there is a very small chance the same token could be generated (primary key clash)
         rng.nextBytes(sessionTokenBytes);
         String sessionToken = bytesToString(sessionTokenBytes);
         System.out.println("Before keys: " + validSessionTokens.keySet());
@@ -95,43 +96,7 @@ public class Server {
     public static String getUsername(String sessionToken) {
         return (String) validSessionTokens.get(sessionToken).get(0);
     }
-
-
-    /**
-     * Checks whether the provided username has the required permissions to invoke a particular function
-     * @param sessionToken with the username to be checked
-     * @param requiredPermission required permission to execute the server method
-     * @return boolean true if the session token exists and the user has the required permission, false otherwise
-     */
-    public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
-        String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
-        System.out.println("Username of the session token: " + username);
-        if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
-            return true; // User has required permission
-        }
-        return false; // Return false as the user does not have the required permission
-    }
-
-    // Helper method to determine whether the retrieved user has the required permission
-    private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
-        System.out.println("Checking if the user has the permissions...");
-        switch (requiredPermission) {
-            case CreateBillboard:
-                if ( retrievedUser.get(3).equals("1") ) return true;
-                return false;
-            case EditBillboard:
-                if ( retrievedUser.get(4).equals("1") ) return true;
-                return false;
-            case ScheduleBillboard:
-                if ( retrievedUser.get(5).equals("1") ) return true;
-                return false;
-            case EditUser:
-                if ( retrievedUser.get(6).equals("1") ) return true;
-                return false;
-            default:
-                return false; // Default to false if permission cannot be identified
-        }
-    }
+    
 
     /**
      * listenforConnections creates a ServerSocket that is bound on the specified port

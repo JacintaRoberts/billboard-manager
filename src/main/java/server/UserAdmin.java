@@ -12,7 +12,6 @@ import static helpers.Helpers.bytesToString;
 import static server.Server.*;
 import static server.Server.Permission.EditUser;
 import static server.Server.ServerAcknowledge.*;
-import static server.Server.checkPermission;
 import static server.Server.validateToken;
 
 // SERVER SIDE USER ADMIN CONTROLS
@@ -141,6 +140,45 @@ public class UserAdmin {
             return InvalidToken; // 5. Invalid token
         }
     }
+
+
+    /**
+     * Checks whether the provided username has the required permissions to invoke a particular function
+     * @param sessionToken with the username to be checked
+     * @param requiredPermission required permission to execute the server method
+     * @return boolean true if the session token exists and the user has the required permission, false otherwise
+     */
+    public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
+        String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
+        System.out.println("Username of the session token: " + username);
+        if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
+            return true; // User has required permission
+        }
+        return false; // Return false as the user does not have the required permission
+    }
+
+    // Helper method to determine whether the retrieved user has the required permission
+    private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
+        System.out.println("Checking if the user has the permissions...");
+        switch (requiredPermission) {
+            case CreateBillboard:
+                if ( retrievedUser.get(3).equals("1") ) return true;
+                return false;
+            case EditBillboard:
+                if ( retrievedUser.get(4).equals("1") ) return true;
+                return false;
+            case ScheduleBillboard:
+                if ( retrievedUser.get(5).equals("1") ) return true;
+                return false;
+            case EditUser:
+                if ( retrievedUser.get(6).equals("1") ) return true;
+                return false;
+            default:
+                return false; // Default to false if permission cannot be identified
+        }
+    }
+
+
 }
 
 
