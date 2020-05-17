@@ -211,15 +211,27 @@ public class UserAdmin {
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser) or an enum to indicate
      * insufficient permission to view requested user.
      */
-    public static Object viewUserPermissions(String sessionToken, String username) throws IOException, SQLException {
-        String callingUsername = getUsernameFromToken(sessionToken);
-        if (!callingUsername.equals(username)) {
-            // Require edit user permission if calling user trying to view others permissions
-            if (!hasPermission(callingUsername, EditUser)) {
-                return InsufficientPermission;
+    public static Object getUserPermissions(String sessionToken, String username) throws IOException, SQLException {
+        if (validateToken(sessionToken)) {
+            String callingUsername = getUsernameFromToken(sessionToken);
+            if (!callingUsername.equals(username)) {
+                // Require edit user permission if calling user trying to view others permissions
+                if (!hasPermission(callingUsername, EditUser)) {
+                    System.out.println("Insufficient permissions, no permissions were retrieved");
+                    return InsufficientPermission; // 1. Valid token but insufficient permission
+                }
+            } // Do not require permission
+            if (userExists(username)) {
+                System.out.println("Session and permission requirements were valid, permissions were retrieved");
+                return retrieveUserPermissionsFromDb(username); // 2. Success, permissions returned
+            } else {
+                System.out.println("Session and permission requirements were valid, however request user does not exist");
+                return NoSuchUser; // 3. Valid token and permissions, user requested does not exist
             }
-        } // Do not require permission
-        return retrieveUserPermissionsFromDb(username);
+        } else {
+            System.out.println("Session was not valid, no permissions were retrieved");
+            return InvalidToken; // 3. Invalid Token
+        }
     }
 
 
