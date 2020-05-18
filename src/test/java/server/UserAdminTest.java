@@ -295,18 +295,22 @@ class UserAdminTest {
      * (e.g. if someone else deleted you whilst logged in).
      * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
-//    @Test
-//    public void listUserscallingUserDeleted() {
-//      ArrayList<String> dbResponse = userAdmin.listUsers("unknownSessionToken");
-// // TODO: SOMEHOW MAKE THE RETURN TYPE CHANGE DYNAMICALLY AND HAVE CONTROL PANEL UNDERSTAND...
-//      MAYBE READ FIRST ELEMENT AND IF IT STARTS WITH "ERROR" THEN WE KNOWN TO THROW EXCEPTION?
-//      WE ALSO KNOW THERE SHOULD ALWAYS BE >= 1 USERS IN DB SO SEEMS SAFE?
-//      // Check return message and that no other results get appended
+    @Test
+    public void listUsersCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Create another admin user to delete the calling user
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        System.out.println("The test user does not exists, so it will be created.");
+        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
 
-//      // Check return value
-//      assertEquals("Fail: Invalid Session Token", dbResponse.get(0));
-//      assertEquals(1, dbResponse.size());
-//    }
+        // Use other admin to delete the actual calling user
+        String otherToken = (String) login(testUser, dummyHashedPassword);
+        UserAdmin.deleteUser(otherToken, callingUser); // Should expire all tokens associated with the user deleted
+        ServerAcknowledge dbResponse = (ServerAcknowledge) userAdmin.listUsers(sessionToken);
+        // Check return value
+        assertEquals(dbResponse, InvalidToken);
+    }
 
 
     /* Test 10: List Users (Exception Handling)
@@ -315,13 +319,19 @@ class UserAdminTest {
      * e.g. [1,1,1,0] can't call the method.
      * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Insufficient User Permission"
      */
-//    @Test
-//    public void listUsersInsufficientPermissions() {
-//      userAdmin.listUsers("basicToken");
-//      // Check return value
-//      assertEquals("Fail: Insufficient User Permission", dbResponse.get(0));
-//      assertEquals(1, dbResponse.size());
-//    }
+    @Test
+    public void listUsersInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Ensure basic user exists with desired password
+        if (!UserAdmin.userExists(basicUser)) {
+            System.out.println("The basic user does not exists, so it will be created.");
+            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
+        }
+        // Check return value - calling username should have insufficient permissions now
+        String basicToken = (String) login(basicUser, dummyHashedPassword);
+        ServerAcknowledge dbResponse = (ServerAcknowledge) userAdmin.listUsers(basicToken);
+        // Check return value
+        assertEquals(InsufficientPermission, dbResponse);
+    }
 
 
     /* Test 11: Set Own User Permissions (Pass)
@@ -706,7 +716,7 @@ class UserAdminTest {
             System.out.println("The basic user does not exists, so it will be created.");
             DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
         }
-        // Check return value - calling username should have insufficient permissions now'
+        // Check return value - calling username should have insufficient permissions now
         String basicToken = (String) login(basicUser, dummyHashedPassword);
         ServerAcknowledge dbResponse = UserAdmin.deleteUser(basicToken, testUser);
         assertEquals(InsufficientPermission, dbResponse);

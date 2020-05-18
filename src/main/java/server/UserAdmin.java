@@ -245,6 +245,7 @@ public class UserAdmin {
         }
     }
 
+
     /**
      * List all the users from the database
      * Requires the edit users permission
@@ -253,10 +254,17 @@ public class UserAdmin {
      */
     public Object listUsers(String sessionToken) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
-            // TODO: IMPLEMENT DB METHOD SELECT USERNAMES FROM DB.
-            return DbUser.listUsers();
+            String callingUsername = getUsernameFromToken(sessionToken);
+            if (!hasPermission(callingUsername, EditUser)) { // Require edit users permission
+                System.out.println("Insufficient permissions, no list of users was retrieved");
+                return InsufficientPermission; // 1. Valid token but insufficient permission
+            } else {
+                System.out.println("Session and permission requirements were valid, list of users was retrieved");
+                return DbUser.listUsers(); // 2. Success, list of users returned
+            }
         } else {
-            return InvalidToken;
+            System.out.println("Session was not valid, no list of users was retrieved");
+            return InvalidToken; // 4. Invalid Token
         }
     }
 }
