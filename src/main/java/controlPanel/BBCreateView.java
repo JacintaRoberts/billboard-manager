@@ -696,7 +696,7 @@ public class BBCreateView extends AbstractGenericView
         billboardNameButton.addActionListener(listener);
     }
 
-    protected void addBBCreateListener(MouseListener listener)
+    protected void addBBCreationListener(MouseListener listener)
     {
         createButton.addMouseListener(listener);
     }

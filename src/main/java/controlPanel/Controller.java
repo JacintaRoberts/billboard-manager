@@ -221,7 +221,7 @@ public class Controller
         bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
         bbCreateView.addXMLExportListener(new BBXMLExportListener());
         bbCreateView.addBBNameListener(new NameListener());
-        bbCreateView.addBBCreateListener(new BBCreateListener());
+        bbCreateView.addBBCreationListener(new BBCreateListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
