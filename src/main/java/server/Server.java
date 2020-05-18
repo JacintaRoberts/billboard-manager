@@ -45,9 +45,10 @@ public class Server {
         InsufficientPermission,
         InvalidToken,
         PrimaryKeyClash, // DB issue
-        CannotDeleteSelf, // Delete user exception
+        CannotDeleteSelf, // Delete user handling
+        CannotRemoveOwnAdminPermission, // Set user permissions handling
         BadPassword, // Login
-        NoSuchUser // Login
+        NoSuchUser; // Login
     }
 
     /**

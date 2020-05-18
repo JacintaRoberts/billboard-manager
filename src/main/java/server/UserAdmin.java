@@ -81,10 +81,7 @@ public class UserAdmin {
             if (checkSinglePermission(sessionToken, EditUser)) {
                 try {
                     // Prepare parameters for storage in the database
-                    Random rng = new Random();
-                    byte[] saltBytes = new byte[32];
-                    rng.nextBytes(saltBytes);
-                    String saltString = bytesToString(saltBytes); // Generate salt
+                    String saltString = generateSaltString();
                     System.out.println("The salt string is: " + saltString);
                     String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
                     System.out.println("The salted, hashed password is: " + saltedHashedPassword);
@@ -124,7 +121,6 @@ public class UserAdmin {
                         return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
                     } else {
                         DbUser.deleteUser(username);
-                        //TODO: EXPIRE ANY TOKENS WHERE THEY NAME WAS
                         ServerAcknowledge expirationMessage = Server.expireTokens(username);
                         System.out.println("Message from expiring session tokens: " + expirationMessage);
                         System.out.println("Username was deleted: " + username);
@@ -189,7 +185,7 @@ public class UserAdmin {
      * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
      */
-    public static ArrayList<Boolean> retrieveUserPermissionsFromDb(String username) throws IOException, SQLException {
+    private static ArrayList<Boolean> retrieveUserPermissionsFromDb(String username) throws IOException, SQLException {
         ArrayList<Boolean> userPermissions = new ArrayList<>();
         ArrayList<String> retrievedUser = DbUser.retrieveUser(username);
         userPermissions.add(0, stringToBoolean(retrievedUser.get(3))); // Create billboard
@@ -207,7 +203,7 @@ public class UserAdmin {
      * If viewing other's details, editUser permission required
      * @param sessionToken sessionToken of the calling user to determine whether Edit User permissions are required
      * @param username Username of the user details to be retrieved from the database
-     * @return userPermissions an ArrayList of size 4 that contains a boolean value for whether the requested user has
+     * @return userPermissions - a boolean ArrayList of size 4 that indicates whether the requested user has
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser) or an enum to indicate
      * insufficient permission to view requested user.
      */
@@ -245,6 +241,7 @@ public class UserAdmin {
         }
     }
 
+
     /**
      * List all the users from the database
      * Requires the edit users permission
@@ -253,11 +250,78 @@ public class UserAdmin {
      */
     public Object listUsers(String sessionToken) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
-            // TODO: IMPLEMENT DB METHOD SELECT USERNAMES FROM DB.
-            return DbUser.listUsers();
+            String callingUsername = getUsernameFromToken(sessionToken);
+            if (!hasPermission(callingUsername, EditUser)) { // Require edit users permission
+                System.out.println("Insufficient permissions, no list of users was retrieved");
+                return InsufficientPermission; // 1. Valid token but insufficient permission
+            } else {
+                System.out.println("Session and permission requirements were valid, list of users was retrieved");
+                return DbUser.listUsers(); // 2. Success, list of users returned
+            }
         } else {
-            return InvalidToken;
+            System.out.println("Session was not valid, no list of users was retrieved");
+            return InvalidToken; // 4. Invalid Token
         }
+    }
+
+
+    public ServerAcknowledge setUserPermissions(String sessionToken, String username, boolean createBillboards,
+                                     boolean editBillboards, boolean editSchedules, boolean editUsers) throws IOException, SQLException {
+        if (validateToken(sessionToken)) {
+            String callingUsername = getUsernameFromToken(sessionToken);
+            if (!hasPermission(callingUsername, EditUser)) {
+                System.out.println("Calling user does not have EditUser permissions, no permissions were set");
+                return InsufficientPermission; // 1. Valid token but insufficient permission
+            }
+            if (userExists(username)) {
+                if (callingUsername.equals(username) && !editUsers) {
+                    System.out.println("Session, permissions and username were valid, however cannot remove own edit users permission");
+                    return CannotRemoveOwnAdminPermission; // 2. Cannot remove own edit users permission
+                } else {
+                    DbUser.updatePermissions(username, createBillboards, editBillboards, editSchedules, editUsers);
+                    System.out.println("Session and permission requirements were valid, permissions were set");
+                    return Success; // 3. Success, permissions returned
+                }
+            } else {
+                System.out.println("Requested user does not exist, permissions were not set");
+                return NoSuchUser; // 4. Valid token and permissions, user requested does not exist
+            }
+        } else {
+            System.out.println("Session was not valid, permissions were not set");
+            return InvalidToken; // 5. Invalid Token
+        }
+    }
+
+    public ServerAcknowledge setPassword(String sessionToken, String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
+        if (validateToken(sessionToken)) {
+            String callingUsername = getUsernameFromToken(sessionToken);
+            if (!callingUsername.equals(username) & !hasPermission(callingUsername, EditUser)) {
+                System.out.println("Calling user does not have EditUser permission to set other user password - password was not updated");
+                return InsufficientPermission; // 1. Valid token but insufficient permission
+            }
+            if (userExists(username)) {
+                // Store updated password in database
+                String saltString = generateSaltString();
+                String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
+                DbUser.updatePassword(username, saltedHashedPassword, saltString);
+                System.out.println("Session and permission requirements were valid - password was updated");
+                return Success; // 2. Success
+            } else {
+                System.out.println("Requested user does not exist - password was not updated");
+                return NoSuchUser; // 3. Valid token and permissions, user requested does not exist
+            }
+        } else {
+            System.out.println("Session was not valid - password was not updated");
+            return InvalidToken; // 4. Invalid Token
+        }
+    }
+
+    /* Method to generate a salt string for storing/updating password */
+    private static String generateSaltString() {
+        Random rng = new Random();
+        byte[] saltBytes = new byte[32];
+        rng.nextBytes(saltBytes);
+        return bytesToString(saltBytes);
     }
 }
 

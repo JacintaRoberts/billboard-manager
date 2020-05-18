@@ -20,10 +20,15 @@ public class DbUser {
     public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
     public static final String LIST_USERS_SQL = "SELECT username FROM users;";
+    public static final String UPDATE_PERMISSIONS_SQL = "UPDATE users SET CreateBillboard=?, EditBillboard=?, ScheduleBillboard=?, EditUser=? WHERE Username = ?";
+    public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, RandomSalt=? WHERE Username = ?";
     private static Connection connection;
     private static PreparedStatement selectUser;
     private static PreparedStatement addUser;
     private static PreparedStatement deleteUser;
+    private static PreparedStatement listUsers;
+    private static PreparedStatement updatePermissions;
+    private static PreparedStatement updatePassword;
 
     public DbUser(String Username, String Password, String Salt, String CreateBillboard,
                   String EditBillboard, String ScheduleBillboard, String EditUser) {
@@ -37,6 +42,7 @@ public class DbUser {
     }
 
 
+    // TODO: REDUNDANT METHOD - CAN ALAN HAVE A LOOK AT THE WAY I HAVE DONE THIS INSTEAD...
     /**
      * Stores Database Queries: Users. This is a generic method which stores any query sent to the database.
      * <p>
@@ -133,6 +139,8 @@ public class DbUser {
     }
 
 
+
+    //TODO: REDUNDANT METHOD - NOT SURE WHERE/IF ITS NEEDED
     /**
      * Tidy up connections
      */
@@ -156,8 +164,8 @@ public class DbUser {
             ArrayList<String> usernameList = new ArrayList<>();
             try {
                 connection = DbConnection.getInstance();
-                selectUser = connection.prepareStatement(LIST_USERS_SQL);
-                ResultSet rs = selectUser.executeQuery();
+                listUsers = connection.prepareStatement(LIST_USERS_SQL);
+                ResultSet rs = listUsers.executeQuery();
                 int rowCount = 0;
                 // Fetch each row
                 while (rs.next()) {
@@ -172,4 +180,25 @@ public class DbUser {
                 return usernameList;
             }
         }
- }
+
+    public static void updatePermissions(String username, Boolean createBillboard, Boolean editBillboard,
+                                         Boolean scheduleBillboard, Boolean editUser) throws SQLException, IOException {
+        connection = DbConnection.getInstance();
+        updatePermissions = connection.prepareStatement(UPDATE_PERMISSIONS_SQL);
+        updatePermissions.setBoolean(1, createBillboard);
+        updatePermissions.setBoolean(2, editBillboard);
+        updatePermissions.setBoolean(3, scheduleBillboard);
+        updatePermissions.setBoolean(4, editUser);
+        updatePermissions.setString(5, username);
+        ResultSet rs = updatePermissions.executeQuery();
+    }
+
+    public static void updatePassword(String username, String password, String randomSalt) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        updatePassword = connection.prepareStatement(UPDATE_PASSWORD_SQL);
+        updatePassword.setString(1, password);
+        updatePassword.setString(2, randomSalt);
+        updatePassword.setString(3, username);
+        ResultSet rs = updatePassword.executeQuery();
+    }
+}
