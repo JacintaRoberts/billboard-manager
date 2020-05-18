@@ -327,6 +327,13 @@ class ScheduleAdminTest {
 //    }
 
 
+
+    //TODO: ===================================================
+    //TODO: The following section is depricated
+    //TODO: New tests will include Edit and return Day schedule
+    //TODO: ===================================================
+
+
 //TODO: Discuss whether "END TIME" is needed to be returned
 //TODO: Implement the tests for calculating which billboard needs to be displayed at a particular time
 // (e.g. need to check every entry in the Schedules table for "repeats" field).

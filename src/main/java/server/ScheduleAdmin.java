@@ -47,6 +47,7 @@ public class ScheduleAdmin {
     private static Connection connection;
     private static PreparedStatement countFilterSchedule;
     private static PreparedStatement deleteSchedule;
+    private static PreparedStatement editSchedule;
     private static PreparedStatement createSchedule;
 
 
@@ -333,7 +334,60 @@ public class ScheduleAdmin {
     }
 
 
+    /**
+     * Stores Database Queries: Schedule. This is a generic method which edits Schedule in the database.
+     * <p>
+     * This method always returns immediately.
+     * @param  billboard A String which provides Billboard Name to store into database
+     * @param  StartTime A String which provides xmlCode to store into database
+     * @param  Duration A String which provides Billboard Name to store into database
+     * @param  CreationDateTime A String which provides xmlCode to store into database
+     * @param  Repeat A Integer representing how often the schedule is repeated (in minutes)
+     * @param  Sunday A Boolean to see if the schedule is to be run during Sunday
+     * @param  Monday A Boolean to see if the schedule is to be run during Monday
+     * @param  Tuesday A Boolean to see if the schedule is to be run during Tuesday
+     * @param  Wednesday A Boolean to see if the schedule is to be run during Wednesday
+     * @param  Thursday A Boolean to see if the schedule is to be run during Thursday
+     * @param  Friday A Boolean to see if the schedule is to be run during Friday
+     * @param  Saturday A Boolean to see if the schedule is to be run during Saturday
+     * @return
+     */
+    public static String editSchedule(String billboard,
+                                       String StartTime,
+                                       String Duration,
+                                       String CreationDateTime,
+                                       String Repeat,
+                                       String Sunday,
+                                       String Monday,
+                                       String Tuesday,
+                                       String Wednesday,
+                                       String Thursday,
+                                       String Friday,
+                                       String Saturday) throws IOException, SQLException {
+        String resultMessage;
+        String validCharacters = "([A-Za-z0-9-_]+)";
+        if (billboard.matches(validCharacters)) {
+            connection = DbConnection.getInstance();
+            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+            countFilterSchedule.setString(1,billboard);
+            ResultSet rs = countFilterSchedule.executeQuery();
+            rs.next();
+            String count = rs.getString(1);
+            if (count.equals("1")){
+                editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+                editSchedule.setString(1,"sdsds");
+                editSchedule.setString(2,billboard);
+                rs = editSchedule.executeQuery();
+                resultMessage = "Pass: Schedule Edited";
+            }else {
+                resultMessage = "Fail: Schedule Does not Exist";
+            }
+        } else {
+            resultMessage = "Fail: Scheduled Billboard Name Contains Illegal Characters";
+        }
 
+        return resultMessage;
+    }
 
 
 }
