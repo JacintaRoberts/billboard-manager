@@ -309,13 +309,14 @@ class BillboardAdminTest {
 
     @Test
     public void testsql() throws IOException, SQLException {
-//        String dbResponse3 = billboardAdmin.createBillboardTable();
-//        String dbResponse2 = billboardAdmin.deleteAllBillboard();
+        String dbResponse2 = billboardAdmin.deleteAllBillboard();
+        String dbResponse3 = billboardAdmin.createBillboardTable();
+        String dbResponse4 = DbUser.createUsersTable();
 //        String dbResponse = billboardAdmin.createBillboardTable();
 //        String dbResponse = billboardAdmin.dropBillboardTable();
 //        System.out.println(dbResponse);
 //        System.out.println(dbResponse2);
-//        System.out.println(dbResponse3);
+        System.out.println(dbResponse3);
     }
 
 

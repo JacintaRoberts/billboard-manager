@@ -29,11 +29,11 @@ public class BillboardAdmin {
     // Custom Parameters for connection
     private static Connection connection;
     private static PreparedStatement createBillboard;
-    private static PreparedStatement deleteBillboard;
+    public static PreparedStatement deleteBillboard;
     private static PreparedStatement dropBillboard;
-    private static PreparedStatement countFilterBillboard;
     private static PreparedStatement editBillboard;
     private static PreparedStatement listaBillboard;
+    public static PreparedStatement countFilterBillboard;
 
 
     /**
@@ -202,8 +202,8 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public String editBillboard(String billboard,
-                                String xmlCode) throws IOException, SQLException {
+    public static String editBillboard(String billboard,
+                                       String xmlCode) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -237,7 +237,7 @@ public class BillboardAdmin {
      * @param  billboard A String which provides Billboard Name to store into database
      * @return
      */
-    public String deleteBillboard(String billboard) throws IOException, SQLException {
+    public static String deleteBillboard(String billboard) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -268,7 +268,7 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public String deleteAllBillboard() throws IOException, SQLException {
+    public static String deleteAllBillboard() throws IOException, SQLException {
         String resultMessage;
         connection = DbConnection.getInstance();
         Statement countBillboard = connection.createStatement();
@@ -287,14 +287,12 @@ public class BillboardAdmin {
     }
 
 
-
     /**
      * Stores Database Queries: Billboard. This is a generic method which returns a list of billboards stored into database.
      * <p>
      * This method always returns immediately.
      * @return
      */
-    //     LIST_BILLBOARD_SQL,COUNT_BILLBOARD_SQL
     public BillboardList listBillboard() throws IOException, SQLException {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
 
@@ -324,13 +322,11 @@ public class BillboardAdmin {
     }
 
 
-
     /**
      * Stores Database Queries: Billboard. This is a generic method which edits billboard xmlCode in the database.
      * <p>
      * This method always returns immediately.
      * @param  billboard A String which provides Billboard Name to store into database
-     * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
     public DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException {

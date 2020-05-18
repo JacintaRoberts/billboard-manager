@@ -369,7 +369,7 @@ class DbConnectionTest {
     public void checkBillboardsTable2() throws IOException, SQLException {
 
         // Set SQL Query
-        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Billboards ";
+        final String SHOW_BILLBOARD_CONTENT = "SELECT BillboardName FROM Billboards ";
 
         // Set predetermined test cases
         String BillboardName = "BillboardName";
