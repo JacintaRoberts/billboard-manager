@@ -254,13 +254,6 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // add panel to frame
         getContentPane().add(recurrencePanel, BorderLayout.EAST);
-
-        submitButton = new JButton("Submit");
-        clearScheduleButton = new JButton("Clear Schedule");
-        JPanel navPanel = getNavPanel();
-        GridBagConstraints gbc_nav = getNavGBCPanel();
-        navPanel.add(submitButton, setGBC(gbc_nav, 3,1,1,1));
-        navPanel.add(clearScheduleButton, setGBC(gbc_nav, 4,1,1,1));
     }
 
     /**
