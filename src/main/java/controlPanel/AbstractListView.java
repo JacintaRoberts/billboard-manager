@@ -82,6 +82,7 @@ public abstract class AbstractListView extends AbstractGenericView
     @Override
     void cleanUp()
     {
-
+        jPanels.clear();
+        listPanel.removeAll();
     }
 }

@@ -8,6 +8,7 @@ import server.Server.ServerAcknowledge;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -257,11 +258,12 @@ public class Controller
     {
         addGenericListeners(SCHEDULE_UPDATE);
         ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-        scheduleUpdateView.addDurationListener(new ScheduleDurationListener());
-        scheduleUpdateView.addDailyRadioButtonListener(new ScheduleRadioButtonListener());
+        scheduleUpdateView.addScheduleTimeListener(new ScheduleDurationListener());
+        scheduleUpdateView.addRadioButtonListener(new ScheduleRadioButtonListener());
         scheduleUpdateView.addPopulateScheduleListener(new SchedulePopulateListener());
         scheduleUpdateView.addScheduleSubmitButtonListener(new ScheduleSubmitButtonListener());
         scheduleUpdateView.addMinuteRepeatListener(new ScheduleMinuteRepeatListener());
+        scheduleUpdateView.addScheduleClearButtonListener(new ScheduleClearButtonListener());
         views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
 
@@ -361,6 +363,7 @@ public class Controller
                 // FIXME: call to server: get BB names
                 String[] names = {"Myer", "Anaconda", "David Jones"};
                 scheduleUpdateView.setBBNamesFromDB(names);
+                scheduleUpdateView.showInstructionMessage();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
@@ -473,7 +476,6 @@ public class Controller
 
 
     //---------------------------------- LOG IN LISTENER ------------------------------
-
 
     /**
      * Listener to handle user's log in attempt. The username and password is retrieved from the GUI input and a
@@ -772,6 +774,11 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: BB Create button clicked");
+            // set BB Name to enabled
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.setBBNameEnabled(true);
+            views.put(BB_CREATE, bbCreateView);
+
             // navigate to home screen
             updateView(BB_CREATE);
         }
@@ -836,9 +843,12 @@ public class Controller
 
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
-            String[] stringArray = {"Myer's Biggest Sale","Kathmandu Summer Sale", "Quilton's Covid Special", "Macca's New Essentials Range"};
-            //TODO: Change ADDContent method below to handle arrayList<String>
-            //bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+            ArrayList<String> stringArray = new ArrayList<>();
+            stringArray.add("Myer's Biggest Sale");
+            stringArray.add("Kathmandu Summer Sale");
+            stringArray.add("Quilton's Covid Special");
+            stringArray.add("Macca's New Essentials Range");
+            bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
             // navigate to bb list screen
@@ -867,10 +877,10 @@ public class Controller
     /**
      * Listener to handle name BB mouse clicks.
      */
-    private class NameListener extends MouseAdapter
+    private class NameListener implements ActionListener
     {
         @Override
-        public void mouseClicked(MouseEvent e)
+        public void actionPerformed(ActionEvent e)
         {
             System.out.println("CONTROLLER LEVEL: BB Name button clicked");
 
@@ -1062,6 +1072,8 @@ public class Controller
         @Override
         public void itemStateChanged(ItemEvent e) {
 
+            System.out.println("Time Item changed");
+            System.out.println(e.getStateChange());
             int eventId = e.getStateChange();
             if (eventId == ItemEvent.SELECTED)
             {
@@ -1088,11 +1100,6 @@ public class Controller
             String buttonName = button.getName();
 
             switch (buttonName) {
-                case "daily":
-                    scheduleUpdateView.showDailyMessage();
-                    scheduleUpdateView.checkAllDayButtons(true);
-                    scheduleUpdateView.enableMinuteSelector(false);
-                break;
                 case "hourly":
                     scheduleUpdateView.showHourlyMessage();
                     scheduleUpdateView.enableMinuteSelector(false);
@@ -1105,7 +1112,7 @@ public class Controller
                     scheduleUpdateView.showMinuteMessage();
                     scheduleUpdateView.enableMinuteSelector(true);
                     int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                    if (minuteRepeat>0)
+                    if (minuteRepeat > 0)
                     {
                         scheduleUpdateView.setMinuteLabel(minuteRepeat);
                     }
@@ -1137,6 +1144,25 @@ public class Controller
     }
 
     /**
+     * Listener to handle Schedule Clear mouse clicks.
+     */
+    private class ScheduleClearButtonListener extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Schedule Clear button clicked");
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            int clear = scheduleUpdateView.showScheduleClearConfirmation();
+//            if (clear)
+//            {
+//                // TODO: remove schedule from DB
+//            }
+            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+        }
+    }
+
+    /**
      * Listener to handle BB Schedules to populate information
      */
     private class SchedulePopulateListener implements ItemListener {
@@ -1157,11 +1183,11 @@ public class Controller
                 {
                     boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
                     int startHour = 5;
-                    int startMin = 6;
+                    int startMin = 06;
                     int duration = 30;
                     int minRepeat = 220;
                     String recurrenceButton = "minute";
-                    scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
                 }
                 else if (bbName.equals("Anaconda"))
                 {
@@ -1170,8 +1196,8 @@ public class Controller
                     int startMin = 0;
                     int duration = 30;
                     int minRepeat = -1;
-                    String recurrenceButton = "daily";
-                    scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                    String recurrenceButton = "hourly";
+                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
                 }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
