@@ -29,7 +29,7 @@ public class BillboardAdmin {
     // Custom Parameters for connection
     private static Connection connection;
     private static PreparedStatement createBillboard;
-    private static PreparedStatement deleteBillboard;
+    public static PreparedStatement deleteBillboard;
     private static PreparedStatement dropBillboard;
     private static PreparedStatement editBillboard;
     private static PreparedStatement listaBillboard;
@@ -268,7 +268,7 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public String deleteAllBillboard() throws IOException, SQLException {
+    public static String deleteAllBillboard() throws IOException, SQLException {
         String resultMessage;
         connection = DbConnection.getInstance();
         Statement countBillboard = connection.createStatement();
@@ -285,7 +285,6 @@ public class BillboardAdmin {
         resultMessage = "Pass: All Billboards Deleted";
         return resultMessage;
     }
-
 
 
     /**
@@ -321,7 +320,6 @@ public class BillboardAdmin {
 
         return billboardList;
     }
-
 
 
     /**
