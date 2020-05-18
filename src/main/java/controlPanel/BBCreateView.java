@@ -359,6 +359,16 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
+     * Show Successful BB Created Message to user
+     * @return
+     */
+    protected void showBBCreatedSuccessMessage()
+    {
+        String message = "You have successfully created the BB " + BBNameLabel.getText() + ". You are able to schedule the Billboard at a later time.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
      * Browse Photos to add to BB
      * @return BB Image (icon format)
      * @throws IOException
