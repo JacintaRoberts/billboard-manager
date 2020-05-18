@@ -274,7 +274,7 @@ public class UserAdmin {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
             if (!hasPermission(callingUsername, EditUser)) {
-                System.out.println("Insufficient permissions, no permissions were retrieved");
+                System.out.println("Calling user does not have EditUser permissions, no permissions were set");
                 return InsufficientPermission; // 1. Valid token but insufficient permission
             }
             if (userExists(username)) {
@@ -287,11 +287,11 @@ public class UserAdmin {
                     return Success; // 3. Success, permissions returned
                 }
             } else {
-                System.out.println("Session and permission requirements were valid, however requested user does not exist");
+                System.out.println("Requested user does not exist, permissions were not set");
                 return NoSuchUser; // 4. Valid token and permissions, user requested does not exist
             }
         } else {
-            System.out.println("Session was not valid, permissions were set");
+            System.out.println("Session was not valid, permissions were not set");
             return InvalidToken; // 5. Invalid Token
         }
     }
