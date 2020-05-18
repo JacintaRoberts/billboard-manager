@@ -31,9 +31,9 @@ public class BillboardAdmin {
     private static PreparedStatement createBillboard;
     private static PreparedStatement deleteBillboard;
     private static PreparedStatement dropBillboard;
-    private static PreparedStatement countFilterBillboard;
     private static PreparedStatement editBillboard;
     private static PreparedStatement listaBillboard;
+    public static PreparedStatement countFilterBillboard;
 
 
     /**

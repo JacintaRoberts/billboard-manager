@@ -3,8 +3,12 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ScheduleAdminTest {
     /* Test 0: Declaring ScheduleAdmin object
@@ -60,14 +64,18 @@ class ScheduleAdminTest {
      * Description: Receive create schedule request from CP, will require a session token, billboard name,
      *              start date, duration (mins) and repeats (daily, hourly, or every ___ mins)
      *              Assume sessionToken is valid.
+     *              Date time is assumed to be already formatted from the control panel.
      * Expected Output: A schedule is added to the table and returns "Pass: Billboard Scheduled"
      */
-//    @Test
-//    public void scheduleBillboard(){
-//      String dbResponse = scheduleAdmin.scheduleBillboard("sampleToken", "Billboard1",
-//                                                                       "2020-04-14 05:00:00", "01:00:00", "24:00:00");
-//      assertEquals(dbResponse, "Pass: Billboard Scheduled");
-//    }
+    @Test
+    public void scheduleBillboard() throws IOException, SQLException {
+        scheduleAdmin.deleteAllSchedules();
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
+      String dbResponse = scheduleAdmin.createSchedule("ScheduledBillboard",
+              "05:00", "30", "2020-05-18 12:55", "120",
+              "0","0","1","1","0","0","0");
+      assertEquals(dbResponse, "Pass: Billboard Scheduled");
+    }
 
 
     /* Test 5: Create Schedule - Billboard Does Not Exist (Exception Handling)
@@ -77,14 +85,14 @@ class ScheduleAdminTest {
      *              This test is for when the billboard does not exist
      * Expected Output: A schedule is not added to the table and returns "Fail: Billboard does not Exist"
      */
-//    @Test
-//    public void scheduleBillboardNoBillboard(){
-//      String dbResponse = scheduleAdmin.scheduleBillboard("sampleToken", "BillboardNOTEXISTS",
-//                                                                       "2020-04-14 05:00:00", "01:00:00", "24:00:00");
-//      assertEquals(dbResponse, "Fail: Billboard does not Exist");
-//      // Check DB throws an SQL Exception for Billboard Name not found in Schedule table
-//      assertThrows(SQLException);
-//    }
+    @Test
+    public void scheduleBillboardNoBillboard() throws IOException, SQLException {
+        scheduleAdmin.deleteAllSchedules();
+        String dbResponse = scheduleAdmin.createSchedule("BADBILLBOARDYOUDONTBELONGHERE",
+                "05:00", "30", "2020-05-18 12:55", "120",
+                "0","0","1","1","0","0","0");
+      assertEquals(dbResponse, "Fail: Billboard does not Exist");
+    }
 
 
     /* Test 6: Create Schedule - Insufficient Permissions (Exception Handling)
@@ -103,23 +111,25 @@ class ScheduleAdminTest {
 //    }
 
 
-    /* Test 7: Create Schedule - Duplicate Start DateTime (Exception Handling)
+    /* Test 7: Create Schedule - Duplicate Billboard Schedules (Exception Handling)
      * Description: Receive create schedule request from CP, will require a session token, billboard name,
      *              start date and the duration (mins) and repeats (daily, hourly, or every ___ mins)
      *              Assume sessionToken is valid.
-     *              This tests when the there is a duplicate start date time (primary key error).
+     *              This tests when the there is a duplicate billboard (primary key error).
      * Expected Output: A schedule is not added to the table and returns "Fail: Duplicate Start Date Time"
      */
-//    @Test
-//    public void scheduleBillboardNoPermission(){
-//      billboardAdmin.createBillboard("sampleToken", "Billboard1", xmlCode);
-//      // There should already be a schedule with the same start date time in the Schedules table
-//      String dbResponse = scheduleAdmin.scheduleBillboard("sampleToken", "Billboard1",
-//                                                                       "2020-04-14 09:30:00", "200", "01:00:00");
-//      assertEquals(dbResponse, "Fail: Duplicate Start Date Time");
-//      // Check DB throws an SQL Exception for Duplicate Primary Key (Start Date)
-//      assertThrows(SQLException);
-//    }
+    @Test
+    public void scheduleBillboardNoPermission() throws IOException, SQLException {
+        scheduleAdmin.deleteAllSchedules();
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
+        scheduleAdmin.createSchedule("ScheduledBillboard",
+                "05:00", "30", "2020-05-18 12:55", "120",
+                "0","0","1","1","0","0","0");
+        String dbResponse = scheduleAdmin.createSchedule("ScheduledBillboard",
+                "05:00", "30", "2020-05-18 12:55", "120",
+                "0","0","1","1","0","0","0");
+        assertEquals(dbResponse, "Fail: Schedule Already Exists");
+    }
 
 
     /* Test 8: Remove Schedule from Schedule Table (Success)
@@ -300,5 +310,11 @@ class ScheduleAdminTest {
 //      BillboardSchedules billboardSchedules = scheduleAdmin.viewSchedule("basicToken");
 //      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: Insufficient User Permission");
 //    }
+
+
+    @Test
+    public void testScheduleTableCommands() throws IOException, SQLException {
+        ScheduleAdmin.createScheduleTable();
+    }
 
 }

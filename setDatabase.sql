@@ -31,7 +31,7 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
 
   CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Schedules` (
       `BillboardName` varchar(255) NOT NULL default '',
-      `StartTime` TIME NOT NULL default CURRENT_TIMESTAMP,
+      `StartTime` DATETIME NOT NULL default CURRENT_TIMESTAMP,
       `Duration` INT NOT NULL default 1,
       `CreationDateTime` DATETIME NOT NULL default CURRENT_TIMESTAMP,
       `Repeat` INT default NULL,

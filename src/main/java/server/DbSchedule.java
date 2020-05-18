@@ -22,15 +22,15 @@ public class DbSchedule {
                       String Wednesday, String Thursday, String Friday, String Saturday) {
         this.BillboardName = BillboardName;
         this.Duration = Duration;
-        this.CreationDateTime;
-        this.Repeat;
-        this.Sunday;
-        this.Monday;
-        this.Tuesday;
-        this.Wednesday;
-        this.Thursday;
-        this.Friday;
-        this.Saturday;
+        this.CreationDateTime = CreationDateTime;
+        this.Repeat = Repeat;
+        this.Sunday = Sunday;
+        this.Monday = Monday;
+        this.Tuesday = Tuesday;
+        this.Wednesday = Wednesday;
+        this.Thursday = Thursday;
+        this.Friday = Friday;
+        this.Saturday = Saturday;
     }
 
 
