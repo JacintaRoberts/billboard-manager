@@ -84,10 +84,9 @@ public class UserControl {
      * Receives a string acknowledgement from the server if user deletion is successful
      * @param sessionToken Session token for the current log in (contains calling user)
      * @param username String username of the user that is to be deleted
-     * @return String server acknowledgement if user creation is successful, otherwise error message occurred.
+     * @return String server acknowledgement if user deletion is successful, otherwise error message occurred.
      * @throws IOException Thrown if unknown server host when communicating through sockets.
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
-     * @throws NoSuchAlgorithmException If the hashing algorithm does not exist
      */
     public static ServerAcknowledge deleteUserRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
         String message = String.format("User,DeleteUser,%s,%s", sessionToken, username);
@@ -96,4 +95,16 @@ public class UserControl {
 
 
 
+    /**
+     * Sends a user's request to delete a user to the server
+     * Receives a string acknowledgement from the server if user deletion is successful
+     * @param sessionToken Session token for the current log in (contains calling user)
+     * @return ArrayList of all usernames, or ServerAcknowledge for error message occurred.
+     * @throws IOException Thrown if unknown server host when communicating through sockets.
+     * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     */
+    public static Object listUsersRequest(String sessionToken) throws IOException, ClassNotFoundException {
+        String message = String.format("User,ListUsers,%s", sessionToken);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
 }
