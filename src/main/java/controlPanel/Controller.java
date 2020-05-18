@@ -221,6 +221,7 @@ public class Controller
         bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
         bbCreateView.addXMLExportListener(new BBXMLExportListener());
         bbCreateView.addBBNameListener(new NameListener());
+        bbCreateView.addBBCreationListener(new BBCreateListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -896,6 +897,25 @@ public class Controller
     }
 
     /**
+     * Listener to handle BB create button mouse clicks.
+     */
+    private class BBCreateListener extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: BB Create button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            int optionSelected = bbCreateView.showSchedulingOption();
+            System.out.println(optionSelected);
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
+
+    /**
      * Listener to handle title BB mouse clicks.
      */
     private class TitleListener extends MouseAdapter
@@ -1238,7 +1258,6 @@ public class Controller
         }
     }
 }
-
 
 //    /**
 //     * Listener to handle Schedule Day mouse clicks.

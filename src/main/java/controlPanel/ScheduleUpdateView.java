@@ -83,16 +83,16 @@ public class ScheduleUpdateView extends AbstractGenericView
     @Override
     void createComponents()
     {
-        createTimeNamePanel();
-        createWeekDayPanel();
-        createRecurrenceSettingsPanel();
+        createPanels();
         createAdditionalButtons();
     }
 
     /**
-     * Time Panel contains BB Name, Start and End Time and Duration Fields
+     * Time Panel contains BB Name, Start and End Time and Duration Fields.
+     * Weekday Panel contains days of week selection.
+     * Recurrence Panel contains Hourly, Minutes or No Repetition options.
      */
-    private void createTimeNamePanel()
+    private void createPanels()
     {
         // create time/name panel
         timeNamePanel = new JPanel();
@@ -162,13 +162,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // -------------- ADD TIME PANEL TO FRAME ------------------
         getContentPane().add(timeNamePanel, BorderLayout.WEST);
-    }
 
-    /**
-     * Weekday Panel contains days of week selection
-     */
-    private void createWeekDayPanel()
-    {
         // -------------- WEEK DAY SELECTION ------------------
         weekdayPanel = new JPanel();
         weekdayPanel.setLayout(new GridLayout(8,1));
@@ -208,13 +202,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // add panel to frame
         getContentPane().add(weekdayPanel, BorderLayout.CENTER);
-    }
 
-    /**
-     * Recurrence Panel contains Hourly, Minutes or No Repetition options.
-     */
-    private void createRecurrenceSettingsPanel()
-    {
         // create panel and set layout
         recurrencePanel = new JPanel();
         recurrencePanel.setLayout(new GridLayout(7,1));

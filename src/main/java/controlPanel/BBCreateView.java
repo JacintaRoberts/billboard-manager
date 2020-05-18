@@ -350,6 +350,15 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
+     * Show Dialog to allow user to set Schedule
+     * @return
+     */
+    protected int showSchedulingOption()
+    {
+        return JOptionPane.showConfirmDialog(null, "Would you like to create a Schedule for the Billboard now?");
+    }
+
+    /**
      * Browse Photos to add to BB
      * @return BB Image (icon format)
      * @throws IOException
@@ -685,5 +694,10 @@ public class BBCreateView extends AbstractGenericView
     protected void addBBNameListener(ActionListener listener)
     {
         billboardNameButton.addActionListener(listener);
+    }
+
+    protected void addBBCreationListener(MouseListener listener)
+    {
+        createButton.addMouseListener(listener);
     }
 }
