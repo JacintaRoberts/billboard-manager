@@ -230,7 +230,7 @@ public class UserAdmin {
             }
         } else {
             System.out.println("Session was not valid, no permissions were retrieved");
-            return InvalidToken; // 3. Invalid Token
+            return InvalidToken; // 4. Invalid Token
         }
     }
 
@@ -245,6 +245,20 @@ public class UserAdmin {
         }
     }
 
+    /**
+     * List all the users from the database
+     * Requires the edit users permission
+     * @param sessionToken the session token of the calling user
+     * @return an array list of the usernames of all users in the database
+     */
+    public Object listUsers(String sessionToken) throws IOException, SQLException {
+        if (validateToken(sessionToken)) {
+            // TODO: IMPLEMENT DB METHOD SELECT USERNAMES FROM DB.
+            return DbUser.listUsers();
+        } else {
+            return InvalidToken;
+        }
+    }
 }
 
 

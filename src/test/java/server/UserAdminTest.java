@@ -283,11 +283,11 @@ class UserAdminTest {
      * Note: The calling username is retrieved as a private field from this UserAdmin Class
      * Expected Output: All of the users in the database are able to be listed.
      */
-//    @Test(expected = Test.None.class /* no exception expected */
-//    public void listUsers() {
-//      ArrayList<String> dbResponse = userAdmin.listUsers("sessionToken");
-//      assertTrue(dbResponse instanceof ArrayList<String>);
-//    }
+    @Test
+    public void listUsers() throws IOException, SQLException {
+      ArrayList<String> dbResponse = (ArrayList<String>) userAdmin.listUsers(sessionToken);
+      assertTrue(dbResponse.contains(callingUser));
+    }
 
 
     /* Test 9: List Users (Exception Handling)

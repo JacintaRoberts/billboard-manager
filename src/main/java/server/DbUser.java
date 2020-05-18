@@ -19,6 +19,7 @@ public class DbUser {
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
     public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
+    public static final String LIST_USERS_SQL = "SELECT username FROM users;";
     private static Connection connection;
     private static PreparedStatement selectUser;
     private static PreparedStatement addUser;
@@ -69,12 +70,13 @@ public class DbUser {
 
 
     /**
-     * Method to fetch a user from the database - feel free to change this just wanted it to work!
-     * @return
+     * Method to fetch a specific user's details from the database - feel free to change this just wanted it to work!
+     * @return An array list of the user details (username, hashedSaltedPassword, randomSalt, permissions)
      * @throws IOException
      * @throws SQLException
      */
     public static ArrayList<String> retrieveUser(String username) throws IOException, SQLException {
+        ArrayList<String> retrievedUser = new ArrayList<>();
         try {
             connection = DbConnection.getInstance();
             selectUser = connection.prepareStatement(SELECT_USER_SQL);
@@ -82,7 +84,6 @@ public class DbUser {
             ResultSet rs = selectUser.executeQuery();
             // Use metadata to get the number of columns
             int columnCount = rs.getMetaData().getColumnCount();
-            ArrayList<String> retrievedUser = new ArrayList<>();
             // Fetch each row
             while (rs.next()) {
                 for (int i = 0; i < columnCount; i++) {
@@ -92,10 +93,9 @@ public class DbUser {
                 }
             }
             System.out.println(""); // newline
-            return retrievedUser;
+            return retrievedUser; // populated
         } catch (SQLIntegrityConstraintViolationException err) {
-            ArrayList<String> empty = new ArrayList<>();
-            return empty;
+            return retrievedUser; // empty
         }
     }
 
@@ -146,5 +146,30 @@ public class DbUser {
 
     }
 
-
-}
+    /**
+    * Method to fetch a list of users from the database - feel free to change this just wanted it to work!
+    * @return An array list of all the usernames in the database
+    * @throws IOException
+    * @throws SQLException
+    */
+        public static ArrayList<String> listUsers() throws IOException, SQLException {
+            ArrayList<String> usernameList = new ArrayList<>();
+            try {
+                connection = DbConnection.getInstance();
+                selectUser = connection.prepareStatement(LIST_USERS_SQL);
+                ResultSet rs = selectUser.executeQuery();
+                int rowCount = 0;
+                // Fetch each row
+                while (rs.next()) {
+                    rowCount++;
+                    String value = rs.getString("username");
+                    usernameList.add(value);
+                    System.out.println(value + " was found in the database");
+                }
+                System.out.println(rowCount + " users were found in the database");
+                return usernameList;
+            } catch (SQLIntegrityConstraintViolationException err) {
+                return usernameList;
+            }
+        }
+ }
