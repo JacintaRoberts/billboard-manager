@@ -42,6 +42,7 @@ class UserAdminTest {
     private String editScheduleUser = "editScheduleUser";
     private String editUserUser = "editUserUser";
     // Defining permissions to be tested
+    private ArrayList<Boolean> fullPermissions = new ArrayList<>(Arrays.asList(true,true,true,true));
     private ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
     private ArrayList<Boolean> createBillboardPermission = new ArrayList<>(Arrays.asList(true, false, false, false));
     private ArrayList<Boolean> editBillboardPermission = new ArrayList<>(Arrays.asList(false, true, false, false));
@@ -340,21 +341,20 @@ class UserAdminTest {
      * Expected Output: User permissions updated in the DB and returns string "Pass: Own Permissions Updated"
      */
     @Test
-    public void setOwnUserPermissions() throws IOException, SQLException {
-        // Initial permissions for the user are true, true, true, true
+    public void setOwnUserPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure that the user starts with all permissions
         if (!DbUser.retrieveUser(testUser).isEmpty()) {
             DbUser.deleteUser(testUser); // Clean user
         }
         System.out.println("The test user does not exists, so it will be created.");
         DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
-
+        String testToken = (String) login(testUser, dummyHashedPassword); // calling user
         // Attempt to remove own CreateBillboardsPermission (first element in permissions boolean array list)
-        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(sessionToken, testUser, false, false, false, true);
+        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(testToken, testUser, false, false, false, true);
         // Check return value
         assertEquals(Success, dbResponse);
         // Check that the user permissions are actually updated in the DB
-        // Result should be false, false, false, true (just has the edit permissions leftover)
-        assertEquals(editUserPermission, userAdmin.getUserPermissions(sessionToken, testUser));
+        assertEquals(editUserPermission, userAdmin.getUserPermissions(testToken, testUser));
     }
 
 
@@ -363,19 +363,22 @@ class UserAdminTest {
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * Expected Output: User permissions not updated in DB and returns "Fail: Cannot Remove Own Edit Users Permission"
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void setOwnUserEditUsersPermission() {
-//      // Test setup - Ensure that the user starts with all permissions
-//      if (userAdmin.getUserPermissions("sessionToken", "root") !== {1,1,1,1} ) {
-//          userAdmin.setUserPermissions("sessionToken", "root", {1,1,1,1});
-//      }
-//      // Attempt to remove own EditUsersPermission (last element in array)
-//      String dbResponse = userAdmin.setUserPermissions("sessionToken", "root", {0,1,1,0});
-//      // Check return value
-//      assertEquals("Fail: Cannot Remove Own Edit Users Permission", dbResponse);
-//      // Check that the user permissions are not updated in the DB
-//      assertEquals({1,1,1,1}, userAdmin.getUserPermissions("root"));
-//    }
+    @Test
+    public void removeOwnUserEditUsersPermission() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure that the user starts with all permissions
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        System.out.println("The test user does not exists, so it will be created.");
+        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+        String testToken = (String) login(testUser, dummyHashedPassword); // calling user
+        // Attempt to remove own EditUsersPermission (last element)
+        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(testToken, testUser, true,true,true,false);
+        // Check return value
+        assertEquals(CannotRemoveOwnAdminPermission, dbResponse);
+        // Check that the user permissions are not updated in the DB
+        assertEquals(fullPermissions, userAdmin.getUserPermissions(testToken,testUser));
+    }
 
 
     /* Test 13: Set Own User Permissions (Exception Handling)

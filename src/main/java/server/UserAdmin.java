@@ -273,25 +273,26 @@ public class UserAdmin {
                                      boolean editBillboards, boolean editSchedules, boolean editUsers) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
-            //if (!callingUsername.equals(username)) {
-                // Require edit user permission if calling user trying to view others permissions
             if (!hasPermission(callingUsername, EditUser)) {
                 System.out.println("Insufficient permissions, no permissions were retrieved");
                 return InsufficientPermission; // 1. Valid token but insufficient permission
             }
-            //} // Do not require permission
             if (userExists(username)) {
-                //TODO: UPDATE DBUSER
-                DbUser.updatePermissions(username, createBillboards, editBillboards, editSchedules, editUsers);
-                System.out.println("Session and permission requirements were valid, permissions were set");
-                return Success; // 2. Success, permissions returned
+                if (callingUsername.equals(username) && !editUsers) {
+                    System.out.println("Session, permissions and username were valid, however cannot remove own edit users permission");
+                    return CannotRemoveOwnAdminPermission; // 2. Cannot remove own edit users permission
+                } else {
+                    DbUser.updatePermissions(username, createBillboards, editBillboards, editSchedules, editUsers);
+                    System.out.println("Session and permission requirements were valid, permissions were set");
+                    return Success; // 3. Success, permissions returned
+                }
             } else {
-                System.out.println("Session and permission requirements were valid, however request user does not exist");
-                return NoSuchUser; // 3. Valid token and permissions, user requested does not exist
+                System.out.println("Session and permission requirements were valid, however requested user does not exist");
+                return NoSuchUser; // 4. Valid token and permissions, user requested does not exist
             }
         } else {
             System.out.println("Session was not valid, permissions were set");
-            return InvalidToken; // 4. Invalid Token
+            return InvalidToken; // 5. Invalid Token
         }
     }
 }
