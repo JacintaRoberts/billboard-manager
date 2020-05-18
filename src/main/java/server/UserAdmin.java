@@ -124,7 +124,6 @@ public class UserAdmin {
                         return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
                     } else {
                         DbUser.deleteUser(username);
-                        //TODO: EXPIRE ANY TOKENS WHERE THEY NAME WAS
                         ServerAcknowledge expirationMessage = Server.expireTokens(username);
                         System.out.println("Message from expiring session tokens: " + expirationMessage);
                         System.out.println("Username was deleted: " + username);
@@ -293,6 +292,33 @@ public class UserAdmin {
         } else {
             System.out.println("Session was not valid, permissions were not set");
             return InvalidToken; // 5. Invalid Token
+        }
+    }
+
+    public ServerAcknowledge setPassword(String sessionToken, String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
+        if (validateToken(sessionToken)) {
+            String callingUsername = getUsernameFromToken(sessionToken);
+            if (!callingUsername.equals(username) & !hasPermission(callingUsername, EditUser)) {
+                System.out.println("Calling user does not have EditUser permission to set other user password - password was not updated");
+                return InsufficientPermission; // 1. Valid token but insufficient permission
+            }
+            if (userExists(username)) {
+                // Generate salt
+                Random rng = new Random();
+                byte[] saltBytes = new byte[32];
+                rng.nextBytes(saltBytes);
+                String saltString = bytesToString(saltBytes);
+                String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
+                DbUser.updatePassword(username, saltedHashedPassword, saltString);
+                System.out.println("Session and permission requirements were valid - password was updated");
+                return Success; // 2. Success
+            } else {
+                System.out.println("Requested user does not exist - password was not updated");
+                return NoSuchUser; // 3. Valid token and permissions, user requested does not exist
+            }
+        } else {
+            System.out.println("Session was not valid - password was not updated");
+            return InvalidToken; // 4. Invalid Token
         }
     }
 }

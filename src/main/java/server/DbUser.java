@@ -21,12 +21,14 @@ public class DbUser {
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
     public static final String LIST_USERS_SQL = "SELECT username FROM users;";
     public static final String UPDATE_PERMISSIONS_SQL = "UPDATE users SET CreateBillboard=?, EditBillboard=?, ScheduleBillboard=?, EditUser=? WHERE Username = ?";
+    public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, RandomSalt=? WHERE Username = ?";
     private static Connection connection;
     private static PreparedStatement selectUser;
     private static PreparedStatement addUser;
     private static PreparedStatement deleteUser;
     private static PreparedStatement listUsers;
     private static PreparedStatement updatePermissions;
+    private static PreparedStatement updatePassword;
 
     public DbUser(String Username, String Password, String Salt, String CreateBillboard,
                   String EditBillboard, String ScheduleBillboard, String EditUser) {
@@ -191,4 +193,12 @@ public class DbUser {
         ResultSet rs = updatePermissions.executeQuery();
     }
 
+    public static void updatePassword(String username, String password, String randomSalt) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        updatePassword = connection.prepareStatement(UPDATE_PASSWORD_SQL);
+        updatePassword.setString(1, password);
+        updatePassword.setString(2, randomSalt);
+        updatePassword.setString(3, username);
+        ResultSet rs = updatePassword.executeQuery();
+    }
 }
