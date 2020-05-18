@@ -1,12 +1,9 @@
 package controlPanel;
 
-import observer.Subject;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public abstract class AbstractListView extends AbstractGenericView
 {

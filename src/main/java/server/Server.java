@@ -11,24 +11,25 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.Random;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import static helpers.Helpers.bytesToString;
 import static helpers.Helpers.networkPropsFilePath;
 import static java.lang.Boolean.parseBoolean;
+import static server.Server.ServerAcknowledge.*;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
-    private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
+    private static String module = null;
     private static String method = null;
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
+    private static final int TOKEN_SIZE = 32; // Constant for the number of bytes in a session token
 
     // Different permissions that are available
     public enum Permission {
@@ -38,19 +39,31 @@ public class Server {
         EditUser
     }
 
+    // Different server acknowledgments that are available
+    public enum ServerAcknowledge {
+        Success,
+        InsufficientPermission,
+        InvalidToken,
+        PrimaryKeyClash, // DB issue
+        CannotDeleteSelf, // Delete user handling
+        CannotRemoveOwnAdminPermission, // Set user permissions handling
+        BadPassword, // Login
+        NoSuchUser; // Login
+    }
+
     /**
      * Generates a sessionToken and adds it to the HashMap of valid session tokens
      * @param username that was successfully validated and logged in
      * @return a session token key that is a random 32-bit integer and stored in the HashMap of valid session tokens
      */
-    public static String generateToken(String username) {
+    private static String generateToken(String username) {
         LocalDateTime creationTime = LocalDateTime.now(); // Generate current date time
         ArrayList<Object> values = new ArrayList<>();
         values.add(username);
         values.add(creationTime);
         // Generate session token key
         Random rng = new Random();
-        byte[] sessionTokenBytes = new byte[32]; // Technically there is a very small chance the same token could be generated (primary key clash)
+        byte[] sessionTokenBytes = new byte[TOKEN_SIZE]; // Technically there is a very small chance the same token could be generated (primary key clash)
         rng.nextBytes(sessionTokenBytes);
         String sessionToken = bytesToString(sessionTokenBytes);
         System.out.println("Before keys: " + validSessionTokens.keySet());
@@ -65,50 +78,28 @@ public class Server {
      * @return boolean true if the session token exists, false otherwise
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
-        System.out.println("All keys: " + validSessionTokens.keySet());
-        String username = (String) validSessionTokens.get(sessionToken).get(0);
-        System.out.println("Username of the session token: " + username);
-        if (UserAdmin.userExists(username)) {
-            return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+        try {
+            System.out.println("All keys: " + validSessionTokens.keySet());
+            String username = getUsernameFromToken(sessionToken);
+            System.out.println("Username of the session token: " + username);
+            if (UserAdmin.userExists(username)) {
+                return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+            }
+        } catch (NullPointerException err) {
+            return false;
         }
-        return false; // Return false as the user does not exist anymore
+        return false; // Return false as the user does not exist anymore or never did
     }
 
     /**
-     * Checks whether the provided username has the required permissions to invoke a particular function
-     * @param sessionToken with the username to be checked
-     * @param requiredPermission required permission to execute the server method
-     * @return boolean true if the session token exists and the user has the required permission, false otherwise
+     * Retrieves the username of the provided session token
+     * @param sessionToken to have the name retrieved from
+     * @return String username stored with the session token
      */
-    public static boolean checkPermission(String sessionToken, Permission requiredPermission) throws IOException, SQLException {
-        String username = (String) validSessionTokens.get(sessionToken).get(0); // Extract username from session token
-        System.out.println("Username of the session token: " + username);
-        if (hasPermission(DbUser.retrieveUser(username), requiredPermission)) {
-            return true; // User has required permission
-        }
-        return false; // Return false as the user does not have the required permission
+    public static String getUsernameFromToken(String sessionToken) {
+        return (String) validSessionTokens.get(sessionToken).get(0);
     }
 
-    // Helper method to determine whether the retrieved user has the required permission
-    private static boolean hasPermission(ArrayList<String> retrievedUser, Permission requiredPermission) {
-        System.out.println("Checking if the user has the permissions...");
-        switch (requiredPermission) {
-            case CreateBillboard:
-                if ( retrievedUser.get(3).equals("1") ) return true;
-                return false;
-            case EditBillboard:
-                if ( retrievedUser.get(4).equals("1") ) return true;
-                return false;
-            case ScheduleBillboard:
-                if ( retrievedUser.get(5).equals("1") ) return true;
-                return false;
-            case EditUser:
-                if ( retrievedUser.get(6).equals("1") ) return true;
-                return false;
-            default:
-                return false; // Default to false if permission cannot be identified
-        }
-    }
 
     /**
      * listenforConnections creates a ServerSocket that is bound on the specified port
@@ -170,44 +161,94 @@ public class Server {
      */
     private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
         String [] clientArgs = clientRequest.split(",");
-        if (clientArgs.length >= 3) { additionalArgs = Arrays.copyOfRange(clientArgs, 2, clientArgs.length); }
-        if (clientArgs.length >= 2) { sessionToken = clientArgs[1]; } // Second argument is the session token (optional)
-        if (clientArgs.length >= 1) { method = clientArgs[0]; } // First argument is the method
+        if (clientArgs.length >= 4) { additionalArgs = Arrays.copyOfRange(clientArgs, 3, clientArgs.length); }
+        if (clientArgs.length >= 3) { sessionToken = clientArgs[2]; } // Third argument is the session token
+        if (clientArgs.length >= 2) { method = clientArgs[1]; } // Second argument is the method
+        if (clientArgs.length >= 1) { module = clientArgs[0]; } // First argument is the module
         // Determine which method to execute
-        switch (method) {
+        switch (module) {
             case "Viewer":
                 return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
+            case "User":
+                return callUserAdminMethod();
+            case "Billboard":
+                return callBillboardAdminMethod();
+            case "Schedule":
+                return callScheduleAdminMethod();
             case "Logout":
                 return logout(sessionToken); // Returns string acknowledgement
             case "Login":
-                String username = clientArgs[1]; // Overwrite as this only method that doesn't send session token
-                String hashedPassword = clientArgs[2];
+                String username = clientArgs[1]; // Overwrites method position
+                String hashedPassword = clientArgs[2]; // Overwrites session token position (does not require)
                 return login(username, hashedPassword); // Returns session token or fail message
+            default:
+                return "No server method requested";
+        }
+    }
+
+
+    /**
+     * callUserAdminMethod calls the corresponding method from the UserAdmin class which fetches/updates data from
+     * the database as necessary.
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callUserAdminMethod() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Determine which method from UserAdmin to execute
+        switch (method) {
             case "CreateUser":
-                //TODO: Remove the print lines when completed.
-                username = additionalArgs[0];
-                System.out.println("Username is: " + username);
-                hashedPassword = additionalArgs[1];
+                String username = additionalArgs[0];
+                String hashedPassword = additionalArgs[1];
                 boolean createBillboard = parseBoolean(additionalArgs[2]);
-                System.out.println("createBillboard boolean value: " + createBillboard);
                 boolean editBillboard = parseBoolean(additionalArgs[3]);
-                System.out.println("editBillboard boolean value: " + editBillboard);
                 boolean scheduleBillboard = parseBoolean(additionalArgs[4]);
-                System.out.println("scheduleBillboard boolean value: " + scheduleBillboard);
                 boolean editUser = parseBoolean(additionalArgs[5]);
-                System.out.println("editUser boolean value: " + editUser);
-                System.out.println("Calling create user method.");
                 return UserAdmin.createUser(sessionToken, username, hashedPassword, createBillboard, editBillboard,
                         scheduleBillboard, editUser); // Returns session token or fail message
             case "DeleteUser":
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
+            case "ListUsers":
+                return UserAdmin.listUsers(sessionToken); // Returns string array list of usernames or server acknowledge error
+            default:
+                return "No UserAdmin method requested";
+        }
+    }
+
+
+    /**
+     * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
+     * the database as necessary.
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callBillboardAdminMethod() throws IOException, SQLException {
+        // Determine which method from BillboardAdmin to execute
+        switch (module) {
             case "CreateBillboard":
-                String billboardName = additionalArgs[2];
-                String xmlCode = additionalArgs[3];
+                String billboardName = additionalArgs[0];
+                String xmlCode = additionalArgs[1];
                 return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
             default:
-                return "No server method requested";
+                return "No BillboardAdmin method requested";
+        }
+    }
+
+
+
+    /**
+     * callScheduleAdminMethod calls the corresponding method from the server which fetches/updates data from
+     * the database as necessary.
+     * @return Server's response (Object which contains data from database/acknowledgement)
+     */
+    private static Object callScheduleAdminMethod() {
+        // Determine which method from ScheduleAdmin to execute
+        switch (module) {
+            case "CreateSchedule":
+                //TODO: POPULATE WITH METHOD CALLS
+                //String billboardName = additionalArgs[0];
+                //String xmlCode = additionalArgs[1];
+                return true; // BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
+            default:
+                return "No ScheduleAdmin method requested";
         }
     }
 
@@ -217,12 +258,35 @@ public class Server {
      * @param sessionToken The session token of the login to be terminated
      * @return String acknowledgement from server which determines whether the expiration was successful
      */
-    public static String logout(String sessionToken) {
+    public static ServerAcknowledge logout(String sessionToken) {
         if (validSessionTokens.containsKey(sessionToken)) {
             validSessionTokens.remove(sessionToken);
-            return "Pass: Logout Successful";  // Session token existed and was successfully expired
+            return Success;  // Session token existed and was successfully expired
         }
-        return "Fail: Already Logged Out"; // Session token was already expired/did not exist
+        return InvalidToken; // Session token was already expired/did not exist
+    }
+
+    // Expires all session tokens with an associated user
+    public static ServerAcknowledge expireTokens(String username){
+        // Collect Session Tokens to be expired
+        ServerAcknowledge serverAcknowledge = NoSuchUser;
+        System.out.println("All keys: " + validSessionTokens.keySet());
+        // Get the iterator over the HashMap
+        Iterator<Map.Entry<String, ArrayList<Object>>> iterator = validSessionTokens.entrySet().iterator();
+        // Iterate over the HashMap of valid session tokens
+        while (iterator.hasNext()) {
+            // Get the entry at this iteration
+            Map.Entry<String, ArrayList<Object>> entry = iterator.next();
+            System.out.println("Value being checked: " + entry.getValue().get(0));
+            // Check if this value is the required value
+            if (username.equals(entry.getValue().get(0))) {
+                // Remove this entry from HashMap
+                iterator.remove();
+                System.out.println("A session token associated with: " + username + " was deleted");
+                serverAcknowledge = Success;
+            }
+        }
+        return serverAcknowledge;
     }
 
 
@@ -239,9 +303,9 @@ public class Server {
             if (UserAdmin.checkPassword(username, hashedPassword)) {
                 return generateToken(username); // 1. Good password, generate session token
             }
-            return "Fail: Incorrect Password"; // 2. User exists, but bad password
+            return BadPassword; // 2. User exists, but bad password
         }
-        return "Fail: No Such User"; // 3. No such user
+        return NoSuchUser; // 3. No such user
     }
 
 

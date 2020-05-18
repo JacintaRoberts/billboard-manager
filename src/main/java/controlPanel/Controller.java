@@ -2,6 +2,8 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.xml.sax.SAXException;
+import server.Server;
+import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,6 +18,7 @@ import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
+import static server.Server.ServerAcknowledge.*;
 import static viewer.Viewer.extractXMLFile;
 import static controlPanel.UserControl.logoutRequest;
 
@@ -28,7 +31,7 @@ public class Controller
     // store model and view
     private Model model;
     private HashMap<VIEW_TYPE, AbstractView> views;
-    private String serverResponse;
+    private Object serverResponse;
     private String sessionToken;
 
     /*
@@ -442,8 +445,8 @@ public class Controller
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
                 // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
-                // 1. "Pass: Logout Successful"; // Occurs when session token existed and was successfully expired
-                // 2. "Fail: Already Logged Out"; // Occurs when session token was already expired
+                // 1. ServerAcknowledgement.Success; // Occurs when session token existed and was successfully expired
+                // 2. ServerAcknowledgment.InvalidToken; // Occurs when session token was already expired
                 // If successful, let the user know, navigate to login screen
                 if (sessionTokenExpirationSuccess()) {
                     System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
@@ -464,7 +467,7 @@ public class Controller
 
         // Determines whether the session token was successfully expired
         private boolean sessionTokenExpirationSuccess() {
-            if ( serverResponse.equals("Pass: Logout Successful") ) {
+            if ( serverResponse.equals(Success) ) {
                 return true;
             }
             return false;
@@ -492,54 +495,38 @@ public class Controller
             String username = logInView.getUsername();
             String password = logInView.getPassword();
             try {
-                sessionToken = loginRequest(username, password); // CP Backend method call
-                //TODO: RETURN CUSTOM MESSAGE TO USER VIA GUI
-                // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
-                // 1. VALID SESSION TOKEN
-                // 2. "Fail: Incorrect Password" -> User exists, but bad password
-                // 3. "Fail: No Such User"; -> No such user
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
-            } catch (NoSuchAlgorithmException ex) {
-                ex.printStackTrace();
-            }
+                serverResponse = loginRequest(username, password); // CP Backend call
+                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
 
-            // if successful, store info in model, hide error and navigate to home screen
-            if (sessionTokenCreationSuccess()) {
+                // NOTE: loginRequest will return 1 of 3 serverAcknowledgments
+                // if unsuccessful, show error and do not allow log in
+                if (serverResponse.equals(BadPassword)) {
+                    System.out.println("CONTROLLER LEVEL - Incorrect Password");
+                    System.out.println("Please try another password");
+                    // show error message
+                    logInView.setErrorVisibility(true);
+                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    System.out.println("CONTROLLER LEVEL - No Such User");
+                    System.out.println("Please try another username");
+                    // show error message
+                    logInView.setErrorVisibility(true);
+                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
+                } else { // login request success
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
                     // store username and session token in model
                     model.storeUsername(username);
+                    sessionToken = (String) serverResponse; // Store as a session token
                     model.storeSessionToken(sessionToken);
-
                     // hide error string
                     logInView.setErrorVisibility(false);
                     views.put(VIEW_TYPE.LOGIN, logInView);
-
                     // nav user to home screen
                     updateView(VIEW_TYPE.HOME);
                 }
-                // if unsuccessful, show error and do not allow log in
-                else {
-                    System.out.println("CONTROLLER LEVEL - Incorrect Credentials");
-                    System.out.println(sessionToken);
-                    //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
-
-                    // show error message
-                    logInView.setErrorVisibility(true);
-                    views.put(VIEW_TYPE.LOGIN, logInView);
-                }
+            } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
             }
-
-        //TODO: MAY WANT TO REWORK THIS
-
-        // Determines whether there was a successful creation of the session token
-        private Boolean sessionTokenCreationSuccess()
-        {
-            if (sessionToken.startsWith("Fail:")) { // An Exception occurred on the server-side
-                return false;
-            } return true;
         }
     }
 
@@ -596,6 +583,8 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Create User button clicked");
 
+            //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
+
             // navigate to edit user screen
             updateView(USER_EDIT);
         }
@@ -612,10 +601,30 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
 
             // update information in EDIT USER view
+            //TODO: MOVE THE LOCATION OF THE CREATE USER BUTTON AND RETURN THE
+            // CREATE USER PERMISSION IN THE .getUserInfo() method
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             ArrayList<Object> userArray = userEditView.getUserInfo();
-            // FIXME: send userArray to Server/DB
             System.out.println(userArray);
+            // Parsing elements from user array for the UserControl method to create the request to server
+            String username = (String) userArray.get(0);
+            String password = (String) userArray.get(1);
+            Boolean createBillboards = true; // TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
+            Boolean editBillboards = (Boolean) userArray.get(2);
+            Boolean editSchedules = (Boolean) userArray.get(3);
+            Boolean editUsers = (Boolean) userArray.get(4);
+
+            // TODO: HANDLE EXCEPTIONS IN GUI
+            try {
+                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
+            }
+
             views.put(USER_EDIT, userEditView);
 
             // navigate to edit menu screen
@@ -642,32 +651,26 @@ public class Controller
                 serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-                // NOTE: THIS deleteUserRequest METHOD WILL EITHER RETURN:
-                // 1. "Pass: User Deleted"; // Session token existed and requested user was successfully deleted
-                // 2. "Fail: Insufficient User Permission"; // Valid token but insufficient permission
-                // 3. "Fail: Invalid Session Token"; // Invalid token
+                // NOTE: deleteUserRequest will return 1 of 5 ServerAcknowledgements
                 // If successful, let the user know, navigate to login screen
-                if (deleteUserSuccess()) {
+                if (serverResponse.equals(Success)) {
                     System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
                     //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse == "Fail: Insufficient User Permission") { // Session token was already expired
+                } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
                     System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
                     //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse == "Fail: Invalid Session Token") { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
+                } else if (serverResponse.equals(InvalidToken)) {
                     //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(CannotDeleteSelf)) {
+                    //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
-        }
-
-        // Determines whether the user deletion was successful
-        private boolean deleteUserSuccess() {
-            if ( serverResponse.equals("Pass: User Deleted") ) {
-                return true;
-            } return false;
         }
     }
 
@@ -700,19 +703,28 @@ public class Controller
     private class ListUsersListener extends MouseAdapter
     {
         @Override
-        public void mouseClicked(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
 
             // get LIST USER view
             UserListView userListView = (UserListView) views.get(USER_LIST);
-            ArrayList<String> stringArray = new ArrayList();
-            stringArray.add("Alan");
-            stringArray.add("Patrice");
-            stringArray.add("Jacinta");
-            stringArray.add("Kanu");
+            Object serverResponse = null;
+            ArrayList<String> usernames = null;
+            ServerAcknowledge errorMessage = null;
+            try {
+                serverResponse = UserControl.listUsersRequest(sessionToken);
+                // Attempt to cast to ArrayList
+                usernames = (ArrayList<String>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (ClassCastException ex) {
+                errorMessage = (ServerAcknowledge) serverResponse;
+            }
 
-            userListView.addContent(stringArray, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
+            // TODO: DO STUFF WITH ERROR MESSAGE POSSIBILITIES
+            //TODO: FOR SOME REASON THIS IS SOMEHOW DUPLICATING/CHANGING THE VIEW USERS AFTER A FEW CLICKS AWAY AND BACK
+            //TODO: CHANGE ADD CONTENT USAGE TO HANDLE ARRAY LIST
+            userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
             views.put(USER_LIST, userListView);
 
             // navigate to users list screen
