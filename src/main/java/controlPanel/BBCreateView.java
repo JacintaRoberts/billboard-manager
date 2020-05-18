@@ -12,6 +12,7 @@ import javax.xml.transform.*;
 import javax.xml.transform.dom.DOMSource;
 import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
+import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -24,7 +25,6 @@ import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
-import viewer.Viewer;
 
 import static viewer.Viewer.*;
 
@@ -77,25 +77,41 @@ public class BBCreateView extends AbstractGenericView
     @Override
     void createComponents()
     {
-        // Drawing Pad Panel
+        createDrawingPanel();
+        createDrawingToolbar();
+        createBBOptionsMenu();
+    }
+
+    private void createDrawingPanel()
+    {
+        // -------- DRAWING PANEL -----------
         drawingPadPanel = new JPanel();
-        drawingPadPanel.setLayout(new FlowLayout());
-        titleLabel = new JTextArea("");
-        titleLabel.setFont(titleLabel.getFont().deriveFont(80f));
+        titleLabel = new JTextArea();
+        titleLabel.setPreferredSize(new Dimension(1000,100));
+        titleLabel.setLineWrap(true);
+        titleLabel.setWrapStyleWord(true);
+        titleLabel.setFont(titleLabel.getFont().deriveFont(40f));
         titleLabel.setForeground(Color.white);
         titleLabel.setOpaque(false);
-        BBTextField = new JTextArea("");
-        BBTextField.setFont(BBTextField.getFont().deriveFont(50f));
+        BBTextField = new JTextArea();
+        BBTextField.setPreferredSize(new Dimension(1000,180));
+        BBTextField.setLineWrap(true);
+        BBTextField.setWrapStyleWord(true);
+        BBTextField.setFont(BBTextField.getFont().deriveFont(40f));
         BBTextField.setForeground(Color.white);
         BBTextField.setOpaque(false);
         photoLabel = new JLabel();
+        photoLabel.setPreferredSize(new Dimension(450,450));
 
         drawingPadPanel.add(titleLabel);
         drawingPadPanel.add(BBTextField);
         drawingPadPanel.add(photoLabel);
         getContentPane().add(drawingPadPanel, BorderLayout.CENTER);
+    }
 
-        // Drawing Tool Bar Panel
+    private void createDrawingToolbar()
+    {
+        // -------- DRAWING TOOLBAR PANEL -----------
         drawingToolsPanel = new JPanel();
         drawingToolsPanel.setLayout(new GridLayout(6,1));
         billboardNameButton = new JButton("Billboard Name");
@@ -124,8 +140,11 @@ public class BBCreateView extends AbstractGenericView
         drawingToolsPanel.add(textButton);
         drawingToolsPanel.add(photoButton);
         getContentPane().add(drawingToolsPanel, BorderLayout.WEST);
+    }
 
-        // Billboard Options Menu Panel
+    private void createBBOptionsMenu()
+    {
+        // -------- BB OPTIONS MENU -----------
         billboardMenuPanel = new JPanel();
         billboardMenuPanel.setLayout(new GridLayout(3,1));
         importXMLButton = new JButton("Import XML");
@@ -160,30 +179,110 @@ public class BBCreateView extends AbstractGenericView
         xmlFolderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }
 
-    private static String toHexString(Color c) {
-        StringBuilder sb = new StringBuilder("#");
+    // ###################### CLEAN UP, ENUM & UPDATE ######################
 
-        if (c.getRed() < 16) sb.append('0');
-        sb.append(Integer.toHexString(c.getRed()));
+    @Override
+    void cleanUp()
+    {
 
-        if (c.getGreen() < 16) sb.append('0');
-        sb.append(Integer.toHexString(c.getGreen()));
-
-        if (c.getBlue() < 16) sb.append('0');
-        sb.append(Integer.toHexString(c.getBlue()));
-
-        return sb.toString();
     }
 
+    @Override
+    public void update(Subject s)
+    {
+
+    }
+
+    @Override
+    VIEW_TYPE getEnum()
+    {
+        return view_type;
+    }
+
+    // ###################### SET BB VALUES ######################
+
+    /**
+     * Set text in BB Text field in Drawing Panel
+     * @param text string to set in text field
+     */
     protected void setBBText(String text)
     {
         BBTextField.setText(text);
     }
 
+    /**
+     * Set colour of text in BB Text field in Drawing Panel
+     * @param colour colour to set in text field (hexadecimal)
+     */
     protected void setBBTextColour(String colour)
     {
         infoColour = colour;
         BBTextField.setForeground(Color.decode(infoColour));
+    }
+
+    /**
+     * Set text colour in BB Title Field in Drawing Panel
+     * @param colour colour to set in text field (hexadecimal)
+     */
+    protected void setBBTitleColour(String colour)
+    {
+        titleColour = colour;
+        titleLabel.setForeground(Color.decode(titleColour));
+    }
+
+    /**
+     * Set text in BB Title Field in Drawing Panel
+     * @param titleString text of BB Title
+     */
+    protected void setBBTitle(String titleString)
+    {
+        titleLabel.setText(titleString);
+    }
+
+    /**
+     * Set BB name
+     * @param name name of BB
+     */
+    protected void setBBName(String name)
+    {
+        BBNameLabel.setText(name);
+    }
+
+    /**
+     * Set background colour of Drawing Panel to reflect BB colour set by user
+     * @param colour colour to set drawing panel in hexadecimal
+     */
+    protected void setBackgroundColour(String colour)
+    {
+        backgroundColour = colour;
+        drawingPadPanel.setBackground(Color.decode(backgroundColour));
+    }
+
+    /**
+     * Set Photo in the Drawing Panel
+     * @param icon BB image in icon format
+     */
+    protected void setPhoto(ImageIcon icon)
+    {
+        photoLabel.setIcon(icon);
+    }
+
+    /**
+     * Set BB Name button enabled so user can set a BB Name when creating new BB.
+     * Disable BB Name button when updating existing BB.
+     */
+    protected void setBBNameEnabled(boolean enabled)
+    {
+        billboardNameButton.setEnabled(enabled);
+    }
+
+
+
+    // ###################### GET BB VALUES ######################
+
+    protected String getBBTitleColour(String colour)
+    {
+        return titleColour;
     }
 
     protected String getBBTextColour(String colour)
@@ -191,96 +290,79 @@ public class BBCreateView extends AbstractGenericView
         return infoColour;
     }
 
-    protected void setBBTitleColour(String colour)
-    {
-        titleColour = colour;
-        titleLabel.setForeground(Color.decode(titleColour));
-    }
+    // ###################### BROWSE FOR BB SETTINGS ######################
 
-    protected String getBBTitleColour(String colour)
-    {
-        return titleColour;
-    }
-
-    protected void setBBName(String name)
-    {
-        BBNameLabel.setText(name);
-    }
-
-    protected void setBackgroundColour(String colour)
-    {
-        backgroundColour = colour;
-        drawingPadPanel.setBackground(Color.decode(backgroundColour));
-    }
-
-    protected void setBBTitle(String titleString)
-    {
-        titleLabel.setText(titleString);
-    }
-
+    /**
+     * Show Dialog to allow user to select Title Colour
+     * @return colour selected by user (hexadecimal format)
+     */
     protected String browseTitleColour()
     {
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Colour for Title", drawingPadPanel.getForeground());
         return toHexString(colorSelect);
     }
 
+    /**
+     * Show Dialog to allow user to set BB information text
+     * @return text provided by user (String format)
+     */
     protected String browseTextColour()
     {
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Colour for Text", drawingPadPanel.getForeground());
         return toHexString(colorSelect);
     }
 
-//    private void setPhoto(String url)
-//    {
-//         new ImageIcon(this.getClass().getResource(url));
-//    }
-
-    private void setInfoColour(String colour)
-    {
-        System.out.println("info c: " + colour);
-        titleLabel.setForeground(Color.decode(colour));
-    }
-
-    private void setTitleColour(String colour)
-    {
-        System.out.println("title c: " + colour);
-        titleLabel.setForeground(Color.decode(colour));
-    }
-
-
-    @Override
-    void cleanUp() {
-
-    }
-
-    @Override
-    public void update(Subject s) {
-
-    }
-
-    @Override
-    VIEW_TYPE getEnum() {
-        return view_type;
-    }
-
+    /**
+     * Show Dialog to allow user to set background colour of BB
+     * @return background colour provided by user (hexadecimal format)
+     */
     protected String showColorChooser()
     {
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Color", drawingPadPanel.getForeground());
         return toHexString(colorSelect);
     }
 
-    protected String showBBNameChooser() { return JOptionPane.showInputDialog(null, "Provide Billboard Name");}
+    /**
+     * Show Dialog to allow user to set bb name
+     * @return bb name (String)
+     */
+    protected String showBBNameChooser()
+    {
+        return JOptionPane.showInputDialog(null, "Provide Billboard Name");
+    }
 
+    /**
+     * Show Dialog to allow user to set bb title
+     * @return bb name (String)
+     */
     protected String showBBTitleChooser()
     {
         return JOptionPane.showInputDialog(null, "Provide Billboard Title");
     }
 
+    /**
+     * Show Dialog to allow user to set bb text
+     * @return bb text (String)
+     */
     protected String showBBTextChooser()
     {
         return JOptionPane.showInputDialog(null, "Set Billboard Text");
     }
 
+    /**
+     * Show Dialog to allow user to set Schedule
+     * @return
+     */
+    protected int showSchedulingOption()
+    {
+        return JOptionPane.showConfirmDialog(null, "Would you like to create a Schedule for the Billboard now?");
+    }
+
+    /**
+     * Browse Photos to add to BB
+     * @return BB Image (icon format)
+     * @throws IOException
+     */
     protected ImageIcon browsePhotos() throws IOException
     {
         icon = null;
@@ -294,11 +376,12 @@ public class BBCreateView extends AbstractGenericView
         return icon;
     }
 
-    protected void setPhoto(ImageIcon icon)
-    {
-        photoLabel.setIcon(icon);
-    }
-
+    /**
+     * Browse File Chooser to select BB XML file
+     * @throws IOException
+     * @throws SAXException
+     * @throws ParserConfigurationException
+     */
     protected void browseXMLImport() throws IOException, SAXException, ParserConfigurationException {
         int value = xmlChooser.showSaveDialog(null);
         if (value == JFileChooser.APPROVE_OPTION)
@@ -308,6 +391,63 @@ public class BBCreateView extends AbstractGenericView
         }
     }
 
+    /**
+     * Show Input Dialog to set FileName text
+     * @return filename (string)
+     */
+    protected String enterXMLFileName()
+    {
+        return JOptionPane.showInputDialog(null, "Provide XML name:");
+    }
+
+    /**
+     * Allow users to browse folders in order to select one to save the XML BB file
+     * @throws TransformerException
+     * @throws ParserConfigurationException
+     */
+    protected void browseExportFolder() throws TransformerException, ParserConfigurationException {
+        String XMLFileName = enterXMLFileName();
+        if (!XMLFileName.isEmpty())
+        {
+            int value = xmlFolderChooser.showSaveDialog(null);
+            if(value == JFileChooser.APPROVE_OPTION)
+            {
+                xmlExportPath = xmlFolderChooser.getSelectedFile().getAbsolutePath();
+                xmlExport(xmlExportPath + "\\" + XMLFileName + ".xml");
+            }
+        }
+    }
+
+    /**
+     * Convert Java Colour object to a Hexidecimal String
+     * @param colour Colour Object
+     * @return colour in hexidecimal string
+     */
+    private static String toHexString(Color colour) {
+        StringBuilder stringBuilder = new StringBuilder("#");
+
+        // append red hexidecimal value to string builder
+        if (colour.getRed() < 16) stringBuilder.append('0');
+        stringBuilder.append(Integer.toHexString(colour.getRed()));
+
+        // append green hexidecimal value to string builder
+        if (colour.getGreen() < 16) stringBuilder.append('0');
+        stringBuilder.append(Integer.toHexString(colour.getGreen()));
+
+        // append blue hexidecimal value to string builder
+        if (colour.getBlue() < 16) stringBuilder.append('0');
+        stringBuilder.append(Integer.toHexString(colour.getBlue()));
+
+        return stringBuilder.toString();
+    }
+
+    /**
+     * Import BB XML file from personal files and set title, text and photo on Drawing Panel
+     * @param xmlImportPath String path to xml file
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
     private void xmlImport(String xmlImportPath) throws ParserConfigurationException, IOException, SAXException {
         //creating a constructor of file class and parsing an XML file
         File file = new File(xmlImportPath);
@@ -328,43 +468,29 @@ public class BBCreateView extends AbstractGenericView
         NodeList titleList = doc.getElementsByTagName("message");
         Element titleNode = (Element) titleList.item(0);
         setBBTitle(titleNode.getTextContent());
-        setTitleColour(titleNode.getAttribute("colour"));
+        setBBTitleColour(titleNode.getAttribute("colour"));
 
         NodeList infoList = doc.getElementsByTagName("information");
         Element infoNode = (Element) infoList.item(0);
         setBBText(infoNode.getTextContent());
-        setInfoColour(infoNode.getAttribute("colour"));
+        setBBTextColour(infoNode.getAttribute("colour"));
 
         NodeList photoList = doc.getElementsByTagName("picture");
         Element photoNode = (Element) photoList.item(0);
         photoPath = photoNode.getAttribute("url");
-        System.out.println(photoPath);
+
         Image photoImage = ImageIO.read(new File(photoPath)).getScaledInstance(500,500,Image.SCALE_DEFAULT);
         setPhoto(new ImageIcon(photoImage));
     }
 
-    protected String enterXMLFileName()
-    {
-        return JOptionPane.showInputDialog(null, "Provide XML name:");
-    }
-
-
-    protected void browseExportFolder() throws TransformerException, ParserConfigurationException {
-        String XMLFileName = enterXMLFileName();
-        if (!XMLFileName.isEmpty())
-        {
-            int value = xmlFolderChooser.showSaveDialog(null);
-            if(value == JFileChooser.APPROVE_OPTION)
-            {
-                xmlExportPath = xmlFolderChooser.getSelectedFile().getAbsolutePath();
-                xmlExport(xmlExportPath + "\\" + XMLFileName + ".xml");
-            }
-        }
-    }
-
+    /**
+     * Create XML and export to user's personal file explorer based on specified file path
+     * @param xmlExportPath
+     * @throws ParserConfigurationException
+     * @throws TransformerException
+     */
     private void xmlExport(String xmlExportPath) throws ParserConfigurationException, TransformerException
     {
-
         // create doc builder factory to build a new document
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder = factory.newDocumentBuilder();
@@ -378,7 +504,6 @@ public class BBCreateView extends AbstractGenericView
         doc.appendChild(root);
 
         // append three child elements to the root element
-
         root.appendChild(createMessage(doc, titleColour, titleLabel.getText()));
         root.appendChild(createPicture(doc, photoPath));
         root.appendChild(createInfo(doc, infoColour,BBTextField.getText()));
@@ -407,6 +532,13 @@ public class BBCreateView extends AbstractGenericView
         JOptionPane.showMessageDialog(null, messageDialog);
     }
 
+    /**
+     * In XML document, set Message text and colour
+     * @param doc XML document representing BB
+     * @param colour colour of message
+     * @param message text of message
+     * @return
+     */
     private Node createMessage(Document doc, String colour, String message) {
 
         Element user = doc.createElement("message");
@@ -415,6 +547,12 @@ public class BBCreateView extends AbstractGenericView
         return user;
     }
 
+    /**
+     * In XML document, set image URL
+     * @param doc XML document representing BB
+     * @param url file path to image
+     * @return
+     */
     private Node createPicture(Document doc, String url) {
 
         Element user = doc.createElement("picture");
@@ -422,6 +560,13 @@ public class BBCreateView extends AbstractGenericView
         return user;
     }
 
+    /**
+     * In XML document, set information text and colour
+     * @param doc XML document representing BB
+     * @param colour colour of info text
+     * @param info text of info
+     * @return
+     */
     private Node createInfo(Document doc, String colour, String info) {
 
         Element user = doc.createElement("information");
@@ -430,6 +575,10 @@ public class BBCreateView extends AbstractGenericView
         return user;
     }
 
+    /**
+     * Display BB details, upon Editing the BB selected
+     * @param fileToDisplay path to BB XML
+     */
     protected void addBBXML(File fileToDisplay)
     {
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
@@ -463,6 +612,7 @@ public class BBCreateView extends AbstractGenericView
                 setBBTextColour(messageColour);
             }
             else {
+                // FIXME: CHANGE THIS
                 setBBTextColour("#fff");
             }
         }
@@ -473,36 +623,81 @@ public class BBCreateView extends AbstractGenericView
                 setBBTextColour(informationColour);
             }
             else {
+                // FIXME: CHANGE THIS
                 setBBTextColour("#fff");
             }
         }
+        // disable billboard name button
+        setBBNameEnabled(false);
     }
 
+    // ###################### LISTENERS ######################
 
-    protected void addBBBackgroundColourListener(MouseListener listener){backgroundColourButton.addMouseListener(listener);}
+    /**
+     * Add listener to Background Colour button
+     * @param listener mouse listener
+     */
+    protected void addBBBackgroundColourListener(MouseListener listener)
+    {
+        backgroundColourButton.addMouseListener(listener);
+    }
 
+    /**
+     * Add listener to title button
+     * @param listener mouse listener
+     */
     protected void addBBTitleListener(MouseListener listener)
     {
         titleButton.addMouseListener(listener);
     }
 
+    /**
+     * Add listener to Text button
+     * @param listener mouse listener
+     */
     protected void addBBTextListener(MouseListener listener)
     {
         textButton.addMouseListener(listener);
     }
 
+    /**
+     * Add listener to Photo button
+     * @param listener mouse listener
+     */
     protected void addBBPhotoListener(MouseListener listener)
     {
         photoButton.addMouseListener(listener);
     }
 
+    /**
+     * Add listener to XML Import Button
+     * @param listener mouse listener
+     */
     protected void addBBXMLImportListener(MouseListener listener)
     {
         importXMLButton.addMouseListener(listener);
     }
 
-    protected void addXMLExportListener(MouseListener listener) {exportButton.addMouseListener(listener);}
+    /**
+     * Add listener to Export XML button
+     * @param listener mouse listener
+     */
+    protected void addXMLExportListener(MouseListener listener)
+    {
+        exportButton.addMouseListener(listener);
+    }
 
-    protected void addBBNameListener(MouseListener listener) {billboardNameButton.addMouseListener(listener);}
+    /**
+     * Add listener to BB Name button
+     * @param listener mouse listener
+     */
+    protected void addBBNameListener(ActionListener listener)
+    {
+        billboardNameButton.addActionListener(listener);
+    }
 
+    protected void addBBCreationListener(MouseListener listener)
+    {
+        createButton.addMouseListener(listener);
+    }
 }

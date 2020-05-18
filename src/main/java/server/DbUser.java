@@ -19,24 +19,16 @@ public class DbUser {
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
     public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
-    public static final String DELETE_ALL_USER_SQL = "DELETE FROM users";
-    public static final String COUNT_USERS_SQL = "SELECT COUNT(*) FROM Users";
-    public static final String CREATE_USERS_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (\n" +
-            "    `Username` varchar(255) NOT NULL default '',\n" +
-            "    `Password` varchar(255) NOT NULL default '',\n" +
-            "    `RandomSalt` varchar(255) NOT NULL default '',\n" +
-            "    `CreateBillboard` bool default 0,\n" +
-            "    `EditBillboard` bool default 0,\n" +
-            "    `ScheduleBillboard` bool default 0,\n" +
-            "    `EditUser` bool default 0,\n" +
-            "    PRIMARY KEY (`Username`)\n" +
-            ")";
-    public static final String DROP_USERS_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Users`";
-
+    public static final String LIST_USERS_SQL = "SELECT username FROM users;";
+    public static final String UPDATE_PERMISSIONS_SQL = "UPDATE users SET CreateBillboard=?, EditBillboard=?, ScheduleBillboard=?, EditUser=? WHERE Username = ?";
+    public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, RandomSalt=? WHERE Username = ?";
     private static Connection connection;
     private static PreparedStatement selectUser;
     private static PreparedStatement addUser;
     private static PreparedStatement deleteUser;
+    private static PreparedStatement listUsers;
+    private static PreparedStatement updatePermissions;
+    private static PreparedStatement updatePassword;
 
     public DbUser(String Username, String Password, String Salt, String CreateBillboard,
                   String EditBillboard, String ScheduleBillboard, String EditUser) {
@@ -50,106 +42,7 @@ public class DbUser {
     }
 
 
-
-    /**
-     * Stores Database Queries: Users. This is a generic method which Make sures users is made with default data.
-     * <p>
-     * This method always returns immediately.
-     * @return
-     */
-    public static String createGenericUsers() throws IOException, SQLException{
-        String resultMessage;
-
-        connection = DbConnection.getInstance();
-        Statement countUsers = connection.createStatement();
-        ResultSet rs = countUsers.executeQuery(COUNT_USERS_SQL);
-        rs.next();
-        String count = rs.getString(1);
-        if (count.equals("0")){
-            addUser("testUser","goodPass","randomSalt",true,true,true,true);
-            resultMessage = "Pass: User Database Created";
-
-        } else {
-            resultMessage = "Pass: User Database Already Created";
-        }
-        return resultMessage;
-    }
-
-    /**
-     * Delete Table: User. This is a generic method which deletes the table.
-     * <p>
-     * This method always returns immediately.
-     * @return
-     */
-    public String dropUserTable() throws IOException, SQLException{
-        String resultMessage;
-
-        connection = DbConnection.getInstance();
-        Statement dropBillboard = connection.createStatement();
-        ResultSet rs = dropBillboard.executeQuery(DROP_USERS_TABLE);
-        resultMessage = "User Table Dropped";
-        return resultMessage;
-    }
-
-    /**
-     * Stores Database Queries: Billboard. This is a generic method which deletes all billboards stored into database.
-     * <p>
-     * This method always returns immediately.
-     * @return
-     */
-    public String deleteAllUsers() throws IOException, SQLException {
-        String resultMessage;
-        connection = DbConnection.getInstance();
-        Statement countUsers = connection.createStatement();
-        ResultSet rs = countUsers.executeQuery(COUNT_USERS_SQL);
-        rs.next();
-        String count = rs.getString(1);
-        if (count.equals("0")){
-            resultMessage = "Fail: No Users Exists";
-        }else {
-            connection = DbConnection.getInstance();
-            Statement deleteAllUsers = connection.createStatement();
-            rs = deleteAllUsers.executeQuery(DELETE_ALL_USER_SQL);
-            resultMessage = "Pass: All Users Deleted";
-        }
-        return resultMessage;
-    }
-
-
-
-    /**
-     * Stores Database Queries: Users. This is a generic method which Make sures billboard is made with default data.
-     * <p>
-     * This method always returns immediately.
-     * @return
-     */
-    public static String createUsersTable() throws IOException, SQLException{
-        String resultMessage;
-
-        connection = DbConnection.getInstance();
-        Statement countUsers = connection.createStatement();
-        ResultSet rs = null;
-        try {
-            rs = countUsers.executeQuery(COUNT_USERS_SQL);
-            rs.next();
-            String count = rs.getString(1);
-            if (count.equals("0")){
-                createGenericUsers();
-                resultMessage = "Data Filled";
-            } else {
-                resultMessage = "Data Exists";
-            }
-        } catch (SQLSyntaxErrorException throwables) {
-            rs = countUsers.executeQuery(CREATE_USERS_TABLE);
-            createGenericUsers();
-            resultMessage = "Table Created";
-        }
-        return resultMessage;
-    }
-
-
-
-
+    // TODO: REDUNDANT METHOD - CAN ALAN HAVE A LOOK AT THE WAY I HAVE DONE THIS INSTEAD...
     /**
      * Stores Database Queries: Users. This is a generic method which stores any query sent to the database.
      * <p>
@@ -183,28 +76,33 @@ public class DbUser {
 
 
     /**
-     * Method to fetch a user from the database - feel free to change this just wanted it to work!
-     * @return
+     * Method to fetch a specific user's details from the database - feel free to change this just wanted it to work!
+     * @return An array list of the user details (username, hashedSaltedPassword, randomSalt, permissions)
      * @throws IOException
      * @throws SQLException
      */
     public static ArrayList<String> retrieveUser(String username) throws IOException, SQLException {
-        connection = DbConnection.getInstance();
-        selectUser = connection.prepareStatement(SELECT_USER_SQL);
-        selectUser.setString(1, username);
-        ResultSet rs = selectUser.executeQuery();
-        // Use metadata to get the number of columns
-        int columnCount = rs.getMetaData().getColumnCount();
         ArrayList<String> retrievedUser = new ArrayList<>();
-        // Fetch each row
-        while (rs.next()) {
-            for (int i = 0; i < columnCount; i++) {
-                String value = rs.getString(i + 1);
-                retrievedUser.add(value);
-                System.out.printf("%-20s",value);
+        try {
+            connection = DbConnection.getInstance();
+            selectUser = connection.prepareStatement(SELECT_USER_SQL);
+            selectUser.setString(1, username);
+            ResultSet rs = selectUser.executeQuery();
+            // Use metadata to get the number of columns
+            int columnCount = rs.getMetaData().getColumnCount();
+            // Fetch each row
+            while (rs.next()) {
+                for (int i = 0; i < columnCount; i++) {
+                    String value = rs.getString(i + 1);
+                    retrievedUser.add(value);
+                    System.out.printf("%-20s", value);
+                }
             }
+            System.out.println(""); // newline
+            return retrievedUser; // populated
+        } catch (SQLIntegrityConstraintViolationException err) {
+            return retrievedUser; // empty
         }
-        return retrievedUser;
     }
 
 
@@ -241,6 +139,8 @@ public class DbUser {
     }
 
 
+
+    //TODO: REDUNDANT METHOD - NOT SURE WHERE/IF ITS NEEDED
     /**
      * Tidy up connections
      */
@@ -254,5 +154,51 @@ public class DbUser {
 
     }
 
+    /**
+    * Method to fetch a list of users from the database - feel free to change this just wanted it to work!
+    * @return An array list of all the usernames in the database
+    * @throws IOException
+    * @throws SQLException
+    */
+        public static ArrayList<String> listUsers() throws IOException, SQLException {
+            ArrayList<String> usernameList = new ArrayList<>();
+            try {
+                connection = DbConnection.getInstance();
+                listUsers = connection.prepareStatement(LIST_USERS_SQL);
+                ResultSet rs = listUsers.executeQuery();
+                int rowCount = 0;
+                // Fetch each row
+                while (rs.next()) {
+                    rowCount++;
+                    String value = rs.getString("username");
+                    usernameList.add(value);
+                    System.out.println(value + " was found in the database");
+                }
+                System.out.println(rowCount + " users were found in the database");
+                return usernameList;
+            } catch (SQLIntegrityConstraintViolationException err) {
+                return usernameList;
+            }
+        }
 
+    public static void updatePermissions(String username, Boolean createBillboard, Boolean editBillboard,
+                                         Boolean scheduleBillboard, Boolean editUser) throws SQLException, IOException {
+        connection = DbConnection.getInstance();
+        updatePermissions = connection.prepareStatement(UPDATE_PERMISSIONS_SQL);
+        updatePermissions.setBoolean(1, createBillboard);
+        updatePermissions.setBoolean(2, editBillboard);
+        updatePermissions.setBoolean(3, scheduleBillboard);
+        updatePermissions.setBoolean(4, editUser);
+        updatePermissions.setString(5, username);
+        ResultSet rs = updatePermissions.executeQuery();
+    }
+
+    public static void updatePassword(String username, String password, String randomSalt) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        updatePassword = connection.prepareStatement(UPDATE_PASSWORD_SQL);
+        updatePassword.setString(1, password);
+        updatePassword.setString(2, randomSalt);
+        updatePassword.setString(3, username);
+        ResultSet rs = updatePassword.executeQuery();
+    }
 }

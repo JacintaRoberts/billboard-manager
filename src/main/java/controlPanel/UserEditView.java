@@ -41,6 +41,7 @@ public class UserEditView extends AbstractUserView
         userInfoArray.add(editBBPermission.isSelected());
         userInfoArray.add(scheduleBBPermission.isSelected());
         userInfoArray.add(editUsersPermission.isSelected());
+        userInfoArray.add(createBBPermission.isSelected());
         return userInfoArray;
     }
 

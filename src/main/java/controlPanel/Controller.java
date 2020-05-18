@@ -8,6 +8,7 @@ import server.Server.ServerAcknowledge;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -220,6 +221,7 @@ public class Controller
         bbCreateView.addBBXMLImportListener(new BBXMLImportListener());
         bbCreateView.addXMLExportListener(new BBXMLExportListener());
         bbCreateView.addBBNameListener(new NameListener());
+        bbCreateView.addBBCreationListener(new BBCreateListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -257,11 +259,12 @@ public class Controller
     {
         addGenericListeners(SCHEDULE_UPDATE);
         ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-        scheduleUpdateView.addDurationListener(new ScheduleDurationListener());
-        scheduleUpdateView.addDailyRadioButtonListener(new ScheduleRadioButtonListener());
+        scheduleUpdateView.addScheduleTimeListener(new ScheduleDurationListener());
+        scheduleUpdateView.addRadioButtonListener(new ScheduleRadioButtonListener());
         scheduleUpdateView.addPopulateScheduleListener(new SchedulePopulateListener());
         scheduleUpdateView.addScheduleSubmitButtonListener(new ScheduleSubmitButtonListener());
         scheduleUpdateView.addMinuteRepeatListener(new ScheduleMinuteRepeatListener());
+        scheduleUpdateView.addScheduleClearButtonListener(new ScheduleClearButtonListener());
         views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
 
@@ -361,6 +364,7 @@ public class Controller
                 // FIXME: call to server: get BB names
                 String[] names = {"Myer", "Anaconda", "David Jones"};
                 scheduleUpdateView.setBBNamesFromDB(names);
+                scheduleUpdateView.showInstructionMessage();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
@@ -474,7 +478,6 @@ public class Controller
 
     //---------------------------------- LOG IN LISTENER ------------------------------
 
-
     /**
      * Listener to handle user's log in attempt. The username and password is retrieved from the GUI input and a
      * request is sent to server to check validity of user. If response is true, username is stored in model and user
@@ -494,34 +497,23 @@ public class Controller
             String password = logInView.getPassword();
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
-                //sessionToken = (String) loginRequest(username, password); // CP Backend method call
-                //TODO: RETURN CUSTOM MESSAGE TO USER VIA GUI
-                // NOTE: THIS loginRequest METHOD WILL EITHER RETURN:
-                // 1. VALID SESSION TOKEN
-                // 2. ServerAcknowledgment.BadPassword
-                // 3. ServerAcknowledgment.NoSuchUser
-                // if successful, store info in model, hide error and navigate to home screen
+                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
 
+                // NOTE: loginRequest will return 1 of 3 serverAcknowledgments
                 // if unsuccessful, show error and do not allow log in
-                if (loginFailedBadPassword()) {
+                if (serverResponse.equals(BadPassword)) {
                     System.out.println("CONTROLLER LEVEL - Incorrect Password");
                     System.out.println("Please try another password");
-                    //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
-                    //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
-
                     // show error message
                     logInView.setErrorVisibility(true);
-                    views.put(VIEW_TYPE.LOGIN, logInView);
-                } else if (loginFailedNoSuchUser()) {
+                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
+                } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User");
                     System.out.println("Please try another username");
-                    //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
-                    //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USER
-
                     // show error message
                     logInView.setErrorVisibility(true);
-                    views.put(VIEW_TYPE.LOGIN, logInView);
-                } else { // Success
+                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
+                } else { // login request success
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
                     // store username and session token in model
                     model.storeUsername(username);
@@ -536,24 +528,6 @@ public class Controller
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                 ex.printStackTrace();
             }
-        }
-
-        //TODO: MAY WANT TO REWORK THIS
-
-        // Determines whether there was a successful creation of the session token
-        private Boolean loginFailedBadPassword()
-        {
-            if (serverResponse.equals(BadPassword)) { // An Exception occurred on the server-side
-                return true;
-            } return false;
-        }
-
-        // Determines whether there was a successful creation of the session token
-        private Boolean loginFailedNoSuchUser()
-        {
-            if (serverResponse.equals(NoSuchUser)) { // An Exception occurred on the server-side
-                return true;
-            } return false;
         }
     }
 
@@ -609,6 +583,8 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Create User button clicked");
+
+            //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
 
             // navigate to edit user screen
             updateView(USER_EDIT);
@@ -676,32 +652,26 @@ public class Controller
                 serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-                // NOTE: THIS deleteUserRequest METHOD WILL EITHER RETURN:
-                // 1. "Pass: User Deleted"; // Session token existed and requested user was successfully deleted
-                // 2. "Fail: Insufficient User Permission"; // Valid token but insufficient permission
-                // 3. "Fail: Invalid Session Token"; // Invalid token
+                // NOTE: deleteUserRequest will return 1 of 5 ServerAcknowledgements
                 // If successful, let the user know, navigate to login screen
-                if (deleteUserSuccess()) {
+                if (serverResponse.equals(Success)) {
                     System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
                     //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
                 } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
                     System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
                     //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse.equals(InvalidToken)) { // TODO: IMPLEMENT ENUMS FOR ALL OF THESE...
+                } else if (serverResponse.equals(InvalidToken)) {
                     //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(CannotDeleteSelf)) {
+                    //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
-        }
-
-        // Determines whether the user deletion was successful
-        private boolean deleteUserSuccess() {
-            if ( serverResponse.equals(Success) ) {
-                return true;
-            } return false;
         }
     }
 
@@ -734,14 +704,28 @@ public class Controller
     private class ListUsersListener extends MouseAdapter
     {
         @Override
-        public void mouseClicked(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
 
             // get LIST USER view
             UserListView userListView = (UserListView) views.get(USER_LIST);
-            String[] stringArray = {"Alan","Kanu", "Jacinta", "Patrice"};
-            userListView.addContent(stringArray, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
+            Object serverResponse = null;
+            ArrayList<String> usernames = null;
+            ServerAcknowledge errorMessage = null;
+            try {
+                serverResponse = UserControl.listUsersRequest(sessionToken);
+                // Attempt to cast to ArrayList
+                usernames = (ArrayList<String>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (ClassCastException ex) {
+                errorMessage = (ServerAcknowledge) serverResponse;
+            }
+
+            // TODO: DO STUFF WITH ERROR MESSAGE POSSIBILITIES
+            //TODO: FOR SOME REASON THIS IS SOMEHOW DUPLICATING/CHANGING THE VIEW USERS AFTER A FEW CLICKS AWAY AND BACK
+            //TODO: CHANGE ADD CONTENT USAGE TO HANDLE ARRAY LIST
+            userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
             views.put(USER_LIST, userListView);
 
             // navigate to users list screen
@@ -791,6 +775,11 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: BB Create button clicked");
+            // set BB Name to enabled
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            bbCreateView.setBBNameEnabled(true);
+            views.put(BB_CREATE, bbCreateView);
+
             // navigate to home screen
             updateView(BB_CREATE);
         }
@@ -855,7 +844,11 @@ public class Controller
 
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
-            String[] stringArray = {"Myer's Biggest Sale","Kathmandu Summer Sale", "Quilton's Covid Special", "Macca's New Essentials Range"};
+            ArrayList<String> stringArray = new ArrayList<>();
+            stringArray.add("Myer's Biggest Sale");
+            stringArray.add("Kathmandu Summer Sale");
+            stringArray.add("Quilton's Covid Special");
+            stringArray.add("Macca's New Essentials Range");
             bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
@@ -885,10 +878,10 @@ public class Controller
     /**
      * Listener to handle name BB mouse clicks.
      */
-    private class NameListener extends MouseAdapter
+    private class NameListener implements ActionListener
     {
         @Override
-        public void mouseClicked(MouseEvent e)
+        public void actionPerformed(ActionEvent e)
         {
             System.out.println("CONTROLLER LEVEL: BB Name button clicked");
 
@@ -902,6 +895,25 @@ public class Controller
             views.put(BB_CREATE, bbCreateView);
         }
     }
+
+    /**
+     * Listener to handle BB create button mouse clicks.
+     */
+    private class BBCreateListener extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: BB Create button clicked");
+
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            int optionSelected = bbCreateView.showSchedulingOption();
+            System.out.println(optionSelected);
+            views.put(BB_CREATE, bbCreateView);
+        }
+    }
+
 
     /**
      * Listener to handle title BB mouse clicks.
@@ -1080,6 +1092,8 @@ public class Controller
         @Override
         public void itemStateChanged(ItemEvent e) {
 
+            System.out.println("Time Item changed");
+            System.out.println(e.getStateChange());
             int eventId = e.getStateChange();
             if (eventId == ItemEvent.SELECTED)
             {
@@ -1106,11 +1120,6 @@ public class Controller
             String buttonName = button.getName();
 
             switch (buttonName) {
-                case "daily":
-                    scheduleUpdateView.showDailyMessage();
-                    scheduleUpdateView.checkAllDayButtons(true);
-                    scheduleUpdateView.enableMinuteSelector(false);
-                break;
                 case "hourly":
                     scheduleUpdateView.showHourlyMessage();
                     scheduleUpdateView.enableMinuteSelector(false);
@@ -1123,7 +1132,7 @@ public class Controller
                     scheduleUpdateView.showMinuteMessage();
                     scheduleUpdateView.enableMinuteSelector(true);
                     int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                    if (minuteRepeat>0)
+                    if (minuteRepeat > 0)
                     {
                         scheduleUpdateView.setMinuteLabel(minuteRepeat);
                     }
@@ -1155,6 +1164,25 @@ public class Controller
     }
 
     /**
+     * Listener to handle Schedule Clear mouse clicks.
+     */
+    private class ScheduleClearButtonListener extends MouseAdapter {
+
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Schedule Clear button clicked");
+            ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            int clear = scheduleUpdateView.showScheduleClearConfirmation();
+//            if (clear)
+//            {
+//                // TODO: remove schedule from DB
+//            }
+            views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+        }
+    }
+
+    /**
      * Listener to handle BB Schedules to populate information
      */
     private class SchedulePopulateListener implements ItemListener {
@@ -1175,11 +1203,11 @@ public class Controller
                 {
                     boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
                     int startHour = 5;
-                    int startMin = 6;
+                    int startMin = 06;
                     int duration = 30;
                     int minRepeat = 220;
                     String recurrenceButton = "minute";
-                    scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
                 }
                 else if (bbName.equals("Anaconda"))
                 {
@@ -1188,8 +1216,8 @@ public class Controller
                     int startMin = 0;
                     int duration = 30;
                     int minRepeat = -1;
-                    String recurrenceButton = "daily";
-                    scheduleUpdateView.setValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                    String recurrenceButton = "hourly";
+                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
                 }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
@@ -1230,7 +1258,6 @@ public class Controller
         }
     }
 }
-
 
 //    /**
 //     * Listener to handle Schedule Day mouse clicks.
