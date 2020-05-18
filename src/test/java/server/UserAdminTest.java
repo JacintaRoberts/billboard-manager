@@ -339,15 +339,23 @@ class UserAdminTest {
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * Expected Output: User permissions updated in the DB and returns string "Pass: Own Permissions Updated"
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void setOwnUserPermissions() {
-//      // Attempt to remove own CreateBillboardsPermission
-//      String dbResponse = userAdmin.setUserPermissions("root", {0,1,1,1}, "sessionToken");
-//      // Check return value
-//      assertEquals("Pass: Own Permissions Updated", dbResponse);
-//      // Check that the user permissions are actually updated in the DB
-//      assertEquals({0,1,1,1}, userAdmin.getUserPermissions("root"));
-//    }
+    @Test
+    public void setOwnUserPermissions() throws IOException, SQLException {
+        // Initial permissions for the user are true, true, true, true
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        System.out.println("The test user does not exists, so it will be created.");
+        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+
+        // Attempt to remove own CreateBillboardsPermission (first element in permissions boolean array list)
+        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(sessionToken, testUser, false, false, false, true);
+        // Check return value
+        assertEquals(Success, dbResponse);
+        // Check that the user permissions are actually updated in the DB
+        // Result should be false, false, false, true (just has the edit permissions leftover)
+        assertEquals(editUserPermission, userAdmin.getUserPermissions(sessionToken, testUser));
+    }
 
 
     /* Test 12: Set Own User Permissions (Exception Handling)
@@ -393,7 +401,7 @@ class UserAdminTest {
 
 
     /* Test 14: Set Own User Permissions (Exception Handling)
-     * Description: Attempt to set user permissions however calling user does not "EditUser" Permission
+     * Description: Attempt to set user permissions however calling user does not have "EditUser" Permission
      * Expected Output: User permissions not updated in DB and returns "Fail: Insufficient User Permission"
      */
 //    @Test

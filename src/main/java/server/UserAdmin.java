@@ -189,7 +189,7 @@ public class UserAdmin {
      * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
      */
-    public static ArrayList<Boolean> retrieveUserPermissionsFromDb(String username) throws IOException, SQLException {
+    private static ArrayList<Boolean> retrieveUserPermissionsFromDb(String username) throws IOException, SQLException {
         ArrayList<Boolean> userPermissions = new ArrayList<>();
         ArrayList<String> retrievedUser = DbUser.retrieveUser(username);
         userPermissions.add(0, stringToBoolean(retrievedUser.get(3))); // Create billboard
@@ -207,7 +207,7 @@ public class UserAdmin {
      * If viewing other's details, editUser permission required
      * @param sessionToken sessionToken of the calling user to determine whether Edit User permissions are required
      * @param username Username of the user details to be retrieved from the database
-     * @return userPermissions an ArrayList of size 4 that contains a boolean value for whether the requested user has
+     * @return userPermissions - a boolean ArrayList of size 4 that indicates whether the requested user has
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser) or an enum to indicate
      * insufficient permission to view requested user.
      */
@@ -264,6 +264,33 @@ public class UserAdmin {
             }
         } else {
             System.out.println("Session was not valid, no list of users was retrieved");
+            return InvalidToken; // 4. Invalid Token
+        }
+    }
+
+
+    public ServerAcknowledge setUserPermissions(String sessionToken, String username, boolean createBillboards,
+                                     boolean editBillboards, boolean editSchedules, boolean editUsers) throws IOException, SQLException {
+        if (validateToken(sessionToken)) {
+            String callingUsername = getUsernameFromToken(sessionToken);
+            //if (!callingUsername.equals(username)) {
+                // Require edit user permission if calling user trying to view others permissions
+            if (!hasPermission(callingUsername, EditUser)) {
+                System.out.println("Insufficient permissions, no permissions were retrieved");
+                return InsufficientPermission; // 1. Valid token but insufficient permission
+            }
+            //} // Do not require permission
+            if (userExists(username)) {
+                //TODO: UPDATE DBUSER
+                DbUser.updatePermissions(username, createBillboards, editBillboards, editSchedules, editUsers);
+                System.out.println("Session and permission requirements were valid, permissions were set");
+                return Success; // 2. Success, permissions returned
+            } else {
+                System.out.println("Session and permission requirements were valid, however request user does not exist");
+                return NoSuchUser; // 3. Valid token and permissions, user requested does not exist
+            }
+        } else {
+            System.out.println("Session was not valid, permissions were set");
             return InvalidToken; // 4. Invalid Token
         }
     }
