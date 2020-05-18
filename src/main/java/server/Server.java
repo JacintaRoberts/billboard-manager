@@ -207,6 +207,8 @@ public class Server {
             case "DeleteUser":
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
+            case "ListUsers":
+                return UserAdmin.listUsers(sessionToken); // Returns string array list of usernames or server acknowledge error
             default:
                 return "No UserAdmin method requested";
         }

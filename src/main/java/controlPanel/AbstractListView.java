@@ -1,12 +1,9 @@
 package controlPanel;
 
-import observer.Subject;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 public abstract class AbstractListView extends AbstractGenericView
 {
@@ -34,7 +31,7 @@ public abstract class AbstractListView extends AbstractGenericView
     }
 
     // add content dynamically to the list panel. It's design is to associate the added buttons with the correct listeners.
-    protected void addContent(String[] contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
+    protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
     {
         for (String contentName : contentArray)
         {

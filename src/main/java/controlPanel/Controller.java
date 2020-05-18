@@ -701,15 +701,28 @@ public class Controller
     private class ListUsersListener extends MouseAdapter
     {
         @Override
-        public void mouseClicked(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
 
             // get LIST USER view
             UserListView userListView = (UserListView) views.get(USER_LIST);
-            String[] stringArray = {"Alan","Kanu", "Jacinta", "Patrice"};
+            Object serverResponse = null;
+            ArrayList<String> usernames = null;
+            ServerAcknowledge errorMessage = null;
+            try {
+                serverResponse = UserControl.listUsersRequest(sessionToken);
+                // Attempt to cast to ArrayList
+                usernames = (ArrayList<String>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (ClassCastException ex) {
+                errorMessage = (ServerAcknowledge) serverResponse;
+            }
+
+            // TODO: DO STUFF WITH ERROR MESSAGE POSSIBILITIES
             //TODO: FOR SOME REASON THIS IS SOMEHOW DUPLICATING/CHANGING THE VIEW USERS AFTER A FEW CLICKS AWAY AND BACK
-            userListView.addContent(stringArray, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
+            //TODO: CHANGE ADD CONTENT USAGE TO HANDLE ARRAY LIST
+            userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
             views.put(USER_LIST, userListView);
 
             // navigate to users list screen
@@ -824,7 +837,8 @@ public class Controller
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
             String[] stringArray = {"Myer's Biggest Sale","Kathmandu Summer Sale", "Quilton's Covid Special", "Macca's New Essentials Range"};
-            bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+            //TODO: Change ADDContent method below to handle arrayList<String>
+            //bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
             // navigate to bb list screen

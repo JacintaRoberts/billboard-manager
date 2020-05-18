@@ -248,7 +248,7 @@ public class UserAdmin {
      * @param sessionToken the session token of the calling user
      * @return an array list of the usernames of all users in the database
      */
-    public Object listUsers(String sessionToken) throws IOException, SQLException {
+    public static Object listUsers(String sessionToken) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
             if (!hasPermission(callingUsername, EditUser)) { // Require edit users permission
