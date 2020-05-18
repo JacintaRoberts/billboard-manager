@@ -67,6 +67,7 @@ class ServerTest {
     public void loginResponse() throws IOException, SQLException, NoSuchAlgorithmException {
         // Ensure this test user exists with this password in the fake DB where this method is implemented
         String serverResponse = (String) Server.login(callingUser, dummyHashedPassword);
+        assertTrue(serverResponse != null);
         assertEquals(64, serverResponse.length());
     }
 

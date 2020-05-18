@@ -81,10 +81,7 @@ public class UserAdmin {
             if (checkSinglePermission(sessionToken, EditUser)) {
                 try {
                     // Prepare parameters for storage in the database
-                    Random rng = new Random();
-                    byte[] saltBytes = new byte[32];
-                    rng.nextBytes(saltBytes);
-                    String saltString = bytesToString(saltBytes); // Generate salt
+                    String saltString = generateSaltString();
                     System.out.println("The salt string is: " + saltString);
                     String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
                     System.out.println("The salted, hashed password is: " + saltedHashedPassword);
@@ -303,11 +300,8 @@ public class UserAdmin {
                 return InsufficientPermission; // 1. Valid token but insufficient permission
             }
             if (userExists(username)) {
-                // Generate salt
-                Random rng = new Random();
-                byte[] saltBytes = new byte[32];
-                rng.nextBytes(saltBytes);
-                String saltString = bytesToString(saltBytes);
+                // Store updated password in database
+                String saltString = generateSaltString();
                 String saltedHashedPassword = hash(hashedPassword + saltString); // Generate new hashed password
                 DbUser.updatePassword(username, saltedHashedPassword, saltString);
                 System.out.println("Session and permission requirements were valid - password was updated");
@@ -320,6 +314,14 @@ public class UserAdmin {
             System.out.println("Session was not valid - password was not updated");
             return InvalidToken; // 4. Invalid Token
         }
+    }
+
+    /* Method to generate a salt string for storing/updating password */
+    private static String generateSaltString() {
+        Random rng = new Random();
+        byte[] saltBytes = new byte[32];
+        rng.nextBytes(saltBytes);
+        return bytesToString(saltBytes);
     }
 }
 

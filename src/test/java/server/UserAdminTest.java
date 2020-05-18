@@ -26,8 +26,8 @@ class UserAdminTest {
     private String sessionToken;
     private String callingUser = "testUser";
     private String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
-    private String dummyPasswordFromCp = "password";
-    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash(dummyPasswordFromCp);
+    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash(password);
+    private String newHashedPassword = "05da7dd57905dca05ed787d6f1be93bc0e4d279bee43553c2e08874f38fda93b"; // hash("newpass");
     private String dummyHashedSaltedPassword = "6df8615d2bf6d4a2f43287b0061682ffad743230739fba51c97777d6a51545ce"; // hash(dummyHashedPassword + dummySalt);
     private Boolean createBillboard = true;
     private Boolean editBillboard = true;
@@ -482,31 +482,10 @@ class UserAdminTest {
         ServerAcknowledge dbResponse = userAdmin.setPassword(testToken, testUser, newHashedPassword);
         // Check return value
         assertEquals(Success, dbResponse);
-        // Check that the new password works on login and the old one returns BadPassword Server Acknowledgement
-        assertTrue(login(testUser, newHashedPassword) instanceof String);
-        assertEquals(BadPassword, login(testUser, dummyHashedPassword)); // Old password should no longer work
+        // Check that the password has changed
+        assertTrue(checkPassword(testUser, newHashedPassword));
+        assertFalse(checkPassword(testUser, dummyHashedPassword)); // Old password should no longer work
     }
-
-
-
-
-    /* Test 21: Set Own Password (Pass)
-     * Description: Find corresponding username in db (if it exists) and then modify to the hashed password and
-     *              return acknowledgement string to Control Panel.
-     * Expected Output: Hashed password updated in the DB and returns string "Pass: Own Password Updated"
-     */
-//    @Test
-//    public void setOwnPassword() {
-//     // Test setup - Ensure the user's original password is different
-//     if (userAdmin.getPassword("sessionToken", "newUser") == "changedPass") {
-//          userAdmin.setPassword("sessionToken", "newUser", "pass");
-//      }
-//      string dbResponse = userAdmin.setPassword("basicToken", "Joe", "changedPass");
-//      // Check return value
-//      assertEquals("Pass: Own Password Updated", dbResponse);
-//      // Check that the user pass is actually updated in the DB
-//      assertEquals("changedPass",userAdmin.getPassword("sessionToken","Joe"));
-//    }
 
 
     /* Test 22: Set Own Password (Exception Handling)
@@ -514,20 +493,24 @@ class UserAdminTest {
      * (e.g. if someone else deleted you whilst logged in).
      * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
      */
-//    @Test
-//    public void setOwnPasswordcallingUserDeleted() {
-//      // Test setup - Ensure the user exists with the expected password in the DB
-//      if (userAdmin.userExists("non-existent")) {
-//          userAdmin.deleteUser("sessionToken", "non-existent");
-//      }
-//      string dbResponse = userAdmin.setPassword("unknownSessionToken", "non-existent", "changedPass");
-//      // Check return value
-//      assertEquals("Fail: Invalid Session Token", dbResponse);
-//      // Check for Exception that the password cannot be obtained for user that does not exist in DB
-//      assertThrows(UsernameNotFoundException.class, () -> {
-//          string dbResponse = userAdmin.getPassword("sessionToken", "non-existent");
-//      });
-//    }
+    @Test
+    public void setOwnPasswordCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Temporarily change calling username to something unknown (via the session token)
+        // Test setup - Create another admin user to delete the calling user
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        System.out.println("The test user does not exists, so it will be created.");
+        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+
+        // Test setup - Ensure that the calling user does not exist
+        String otherToken = (String) login(testUser, dummyHashedPassword);
+        UserAdmin.deleteUser(otherToken, callingUser); // Should expire all tokens (sessionToken) associated with the user deleted
+
+        ServerAcknowledge dbResponse = userAdmin.setPassword(sessionToken, callingUser, newHashedPassword);
+        // Check return value
+        assertEquals(InvalidToken, dbResponse);
+    }
 
 
     /* Test 23: Set Other User Password (Pass)
@@ -535,39 +518,48 @@ class UserAdminTest {
      * (if it exists) and then modify to the hashed password and return acknowledgement (String) to Control Panel.
      * Expected Output: Hashed password updated in the DB and returns string "Pass: Other User Password Updated"
      */
-//    @Test(expected = Test.None.class /* no exception expected */)
-//    public void setOtherPassword() {
-//     // Test setup - Ensure the user's original password is different
-//     if (userAdmin.getPassword("sessionToken", "newUser") == "changedPass") {
-//          userAdmin.setPassword("sessionToken", "newUser", "pass");
-//      }
-//      String dbResponse = userAdmin.setPassword("sessionToken", "newUser", "changedPass");
-//      // Check return value
-//      assertEquals("Pass: Other User Password Updated", dbResponse);
-//      // Check that the user pass is actually updated in the DB
-//      assertEquals("changedPass", userAdmin.getPassword("sessionToken", "newUser"));
-//    }
+    @Test
+    public void setOtherPassword() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure that the user starts with all permissions
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        System.out.println("The test user does not exists, so it will be created.");
+        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+        // Attempt to set other password (sessionToken used rather than testToken)
+        ServerAcknowledge dbResponse = userAdmin.setPassword(sessionToken, testUser, newHashedPassword);
+        // Check return value
+        assertEquals(Success, dbResponse);
+        // Check that the password has changed
+        assertTrue(checkPassword(testUser, newHashedPassword));
+        assertFalse(checkPassword(testUser, dummyHashedPassword)); // Old password should no longer work
+    }
 
 
     /* Test 24: Set Other User Password (Exception Handling)
      * Description: Check that the calling user still exists in the DB before setting user password.
      * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
      */
-//    @Test
-//    public void setOtherPasswordcallingUserDeleted() {
-//      // Test setup - Ensure the user exists with the expected password in the DB
-//      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
-//      }
-//      if (userAdmin.getPassword("sessionToken", "Jenny") !== "pass") {
-//          userAdmin.setPassword("sessionToken", "Jenny", "pass");
-//      }
-//      String dbResponse = userAdmin.setPassword("unknownSessionToken", "Jenny", "changedPass");
-//      // Check return value
-//      assertEquals("Fail: Invalid Session Token", dbResponse);
-//      // Check that the user pass is not actually still updated in the DB
-//      assertEquals("pass",userAdmin.getPassword("sessionToken", "Jenny"));
-//    }
+    @Test
+    public void setOtherPasswordCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Temporarily change calling username to something unknown (via the session token)
+        // Test setup - Create another admin user to delete the calling user
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        System.out.println("The test user does not exists, so it will be created.");
+        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+
+        // Test setup - Ensure that the calling user does not exist
+        String otherToken = (String) login(testUser, dummyHashedPassword);
+        UserAdmin.deleteUser(otherToken, callingUser); // Should expire all tokens (sessionToken) associated with the user deleted
+
+        ServerAcknowledge dbResponse = userAdmin.setPassword(sessionToken, testUser, newHashedPassword);
+        // Check return value
+        assertEquals(InvalidToken, dbResponse);
+        // Check that the password has not changed
+        assertTrue(checkPassword(testUser, dummyHashedPassword)); // Old password should still work
+    }
 
 
     /* Test 25: Set Other User Password (Exception Handling)
@@ -575,21 +567,26 @@ class UserAdminTest {
      * modify password of other users.
      * Expected Output: Hashed password not updated in the DB and returns string "Fail: Insufficient User Permission"
      */
-//    @Test
-//    public void setOtherPasswordInsufficientPermissions() {
-//      // Test setup - Ensure the user exists with the expected password in the DB
-//      if (!userAdmin.userExists("Jenny")) {
-//          userAdmin.createUser("sessionToken", "Jenny", {0,0,0,0}, "pass");
-//      }
-//      if (userAdmin.getPassword("sessionToken", "Jenny") !== "pass") {
-//          userAdmin.setPassword("sessionToken", "Jenny", "pass");
-//      }
-//      String dbResponse = userAdmin.setPassword("basicToken", "Jenny", "changedPass");
-//      // Check return value
-//      assertEquals("Fail: Insufficient User Permission", dbResponse);
-//      // Check that the user pass is not actually still updated in the DB
-//      assertEquals("pass",userAdmin.getPassword("sessionToken", "Jenny"));
-//    }
+    @Test
+    public void setOtherPasswordInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure the user to have password changed exists in DB
+        if (!UserAdmin.userExists(testUser)) {
+            System.out.println("The test user does not exists, so it will be created.");
+            DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+        }
+        // Ensure basic user exists with desired password
+        if (!UserAdmin.userExists(basicUser)) {
+            System.out.println("The basic user does not exists, so it will be created.");
+            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
+        }
+        // Check return value - calling username should have insufficient permissions now
+        String basicToken = (String) login(basicUser, dummyHashedPassword);
+        ServerAcknowledge dbResponse = userAdmin.setPassword(basicToken, testUser, newHashedPassword);
+        // Check return value
+        assertEquals(InsufficientPermission, dbResponse);
+        // Check that the password has not changed
+        assertTrue(checkPassword(testUser, dummyHashedPassword)); // Old password should still work
+    }
 
 
     /* Test 26: Set Other User Password (Exception Handling)
@@ -597,19 +594,19 @@ class UserAdminTest {
      * the password should not be updated and an exception should be thrown.
      * Expected Output: Hashed password not updated in the DB and returns string "Fail: Username Does Not Exist"
      */
-//    @Test
-//    public void setOtherPasswordNoUsernameInDb() {
-//      // Test setup - Ensure the user to have password updated does not exist in DB
-//      if (userAdmin.userExists("unknownUser")) {
-//          userAdmin.deleteUser("sessionToken", "unknownUser");
-//      }
-//      String dbResponse = userAdmin.setPassword("sessionToken", "unknownUser", "changedPass");
-//      // Check return value
-//      assertEquals("Fail: Username Does Not Exist", dbResponse);
-//      // Check for Exception that the password cannot be obtained for user that does not exist in DB
-//      assertThrows(UsernameNotFoundException.class, () -> {
-//          string dbResponse = userAdmin.getPassword("sessionToken", "unknownUser");
-//      });//    }
+    @Test
+    public void setOtherPasswordNoUsernameInDb() throws IOException, SQLException, NoSuchAlgorithmException {
+        // Test setup - Ensure the user to be deleted does not exist in DB
+        if (UserAdmin.userExists(testUser)) {
+            System.out.println("The test user exists, so it will be deleted for this test.");
+            UserAdmin.deleteUser(sessionToken, testUser);
+            assertFalse(UserAdmin.userExists(testUser));
+        }
+        // Check return value - user should now not exist
+        ServerAcknowledge dbResponse = userAdmin.setPassword(sessionToken, testUser, newHashedPassword);
+        // Check return value
+        assertEquals(NoSuchUser, dbResponse);
+    }
 
 
     /* Test 27: Delete User (Pass)
