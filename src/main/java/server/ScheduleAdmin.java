@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Vector;
 
 public class ScheduleAdmin {
 
@@ -28,24 +30,43 @@ public class ScheduleAdmin {
             "      `Saturday` bool NOT NULL default 0,\n" +
             "      PRIMARY KEY (`BillboardName`))";
     public static final String EDIT_SCHEDULE_SQL = "UPDATE Schedules " +
-            "SET StartTime = ?" +
-            "SET Duration = ?" +
-            "SET CreationDateTime = ?" +
-            "SET Repeat = ?" +
-            "SET Sunday = ?" +
-            "SET Monday = ?" +
-            "SET Tuesday = ?" +
-            "SET Thursday = ?" +
-            "SET Friday = ?" +
-            "SET Saturday = ?" +
-            "WHERE BillboardName = ?";
+            "SET `StartTime` = ?," +
+            "`Duration` = ?," +
+            "`CreationDateTime` = ?," +
+            "`Repeat` = ?," +
+            "`Sunday` = ?," +
+            "`Monday` = ?," +
+            "`Tuesday` = ?," +
+            "`Wednesday` = ?," +
+            "`Thursday` = ?," +
+            "`Friday` = ?," +
+            "`Saturday` = ?" +
+            "WHERE `BillboardName` = ?";
     public static final String STORE_SCHEDULE_SQL = "INSERT INTO Schedules VALUES (?,?,?,?,?,?,?,?,?,?,?,?) ";
     public static final String LIST_SCHEDULE_SQL = "SELECT * FROM Schedules";
+
+    public static final String MONDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Monday = 1";
+    public static final String MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Monday = 1";
+    public static final String TUESDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Tuesday = 1";
+    public static final String TUESDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Tuesday = 1";
+    public static final String WEDNESDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Wednesday = 1";
+    public static final String WEDNESDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Wednesday = 1";
+    public static final String THURSDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Thursday = 1";
+    public static final String THURSDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Thursday = 1";
+    public static final String FRIDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Friday = 1";
+    public static final String FRIDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Friday = 1";
+    public static final String SATURDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Saturday = 1";
+    public static final String SATURDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Saturday = 1";
+    public static final String SUNDAY_LIST_FILTERED_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE Sunday = 1";
+    public static final String SUNDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE Sunday = 1";
+
 
 
     // Custom Parameters for connection
     private static Connection connection;
     private static PreparedStatement countFilterSchedule;
+    private static PreparedStatement listFilterSchedule;
+    private static PreparedStatement countListFilterSchedule;
     private static PreparedStatement deleteSchedule;
     private static PreparedStatement editSchedule;
     private static PreparedStatement createSchedule;
@@ -368,19 +389,40 @@ public class ScheduleAdmin {
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
-            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-            countFilterSchedule.setString(1,billboard);
-            ResultSet rs = countFilterSchedule.executeQuery();
+            BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
+            BillboardAdmin.countFilterBillboard.setString(1,billboard);
+            ResultSet rs = BillboardAdmin.countFilterBillboard.executeQuery();
             rs.next();
-            String count = rs.getString(1);
-            if (count.equals("1")){
-                editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
-                editSchedule.setString(1,"sdsds");
-                editSchedule.setString(2,billboard);
-                rs = editSchedule.executeQuery();
-                resultMessage = "Pass: Schedule Edited";
-            }else {
-                resultMessage = "Fail: Schedule Does not Exist";
+            String count2 = rs.getString(1);
+            if (count2.equals(0)){
+                resultMessage = "Fail: Billboard Does Not Exist";
+            } else{
+                connection = DbConnection.getInstance();
+                countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+                countFilterSchedule.setString(1,billboard);
+                rs = countFilterSchedule.executeQuery();
+                rs.next();
+                String count = rs.getString(1);
+                if (count.equals("1")){
+                    connection = DbConnection.getInstance();
+                    editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+                    editSchedule.setString(1,StartTime);
+                    editSchedule.setString(2,Duration);
+                    editSchedule.setString(3,CreationDateTime);
+                    editSchedule.setString(4,Repeat);
+                    editSchedule.setString(5,Sunday);
+                    editSchedule.setString(6,Monday);
+                    editSchedule.setString(7,Tuesday);
+                    editSchedule.setString(8,Wednesday);
+                    editSchedule.setString(9,Thursday);
+                    editSchedule.setString(10,Friday);
+                    editSchedule.setString(11,Saturday);
+                    editSchedule.setString(12,billboard);
+                    editSchedule.executeQuery();
+                    resultMessage = "Pass: Schedule Edited";
+                }else {
+                    resultMessage = "Fail: Schedule Does not Exist";
+                }
             }
         } else {
             resultMessage = "Fail: Scheduled Billboard Name Contains Illegal Characters";
@@ -388,6 +430,175 @@ public class ScheduleAdmin {
 
         return resultMessage;
     }
+
+    /**
+     * Stores Database Queries: Schedule. This is a generic method which returns a list of billboard Schedules for a day
+     * stored into database.
+     * <p>
+     * This method always returns immediately.
+     * @param day  String to filter by day
+     * @return
+     */
+    public static ScheduleList listFilteredScheduleInformation(String day) throws IOException, SQLException {
+
+        // Initialise Variable
+        ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedStartTime = new ArrayList<>();
+        ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+        ArrayList<String> retrievedRepeat = new ArrayList<>();
+        ArrayList<String> retrievedSunday = new ArrayList<>();
+        ArrayList<String> retrievedMonday = new ArrayList<>();
+        ArrayList<String> retrievedTueseday = new ArrayList<>();
+        ArrayList<String> retrievedWednesday = new ArrayList<>();
+        ArrayList<String> retrievedThursday = new ArrayList<>();
+        ArrayList<String> retrievedFriday = new ArrayList<>();
+        ArrayList<String> retrievedSaturday = new ArrayList<>();
+
+        String serverResponse = null;
+        Integer dayCheckPass = 0;
+
+        connection = DbConnection.getInstance();
+        Statement st = null;
+        ResultSet rs = null;
+        String count = "0";
+        if (day.matches("Sunday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else if (day.matches("Monday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else if (day.matches("Tuesday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else if (day.matches("Wednesday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else if (day.matches("Thursday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else if (day.matches("Friday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else if (day.matches("Saturday")){
+            st = connection.createStatement();
+            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+            dayCheckPass = 1;
+            rs.next();
+            count = rs.getString(1);
+        } else {
+            serverResponse = "Fail: Not a Valid Day";
+            retrievedBillboard.add("0");
+            retrievedStartTime.add("0");
+            retrievedDuration.add("0");
+            retrievedCreationDateTime.add("0");
+            retrievedRepeat.add("0");
+            retrievedSunday.add("0");
+            retrievedMonday.add("0");
+            retrievedTueseday.add("0");
+            retrievedWednesday.add("0");
+            retrievedThursday.add("0");
+            retrievedFriday.add("0");
+            retrievedSaturday.add("0");
+            dayCheckPass = 0;
+            count = "0";
+        }
+
+        if (dayCheckPass.equals(0)){
+
+        } else if (count.equals("0") & dayCheckPass.equals(1)) {
+            serverResponse = "Fail: No Schedule Exists";
+            retrievedBillboard.add("0");
+            retrievedStartTime.add("0");
+            retrievedDuration.add("0");
+            retrievedCreationDateTime.add("0");
+            retrievedRepeat.add("0");
+            retrievedSunday.add("0");
+            retrievedMonday.add("0");
+            retrievedTueseday.add("0");
+            retrievedWednesday.add("0");
+            retrievedThursday.add("0");
+            retrievedFriday.add("0");
+            retrievedSaturday.add("0");
+        } else {
+            connection = DbConnection.getInstance();
+            if (day.matches("Sunday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(SUNDAY_LIST_FILTERED_SCHEDULE_SQL);
+            } else if (day.matches("Monday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(MONDAY_LIST_FILTERED_SCHEDULE_SQL);
+            } else if (day.matches("Tuesday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(TUESDAY_LIST_FILTERED_SCHEDULE_SQL);
+            } else if (day.matches("Wednesday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(WEDNESDAY_LIST_FILTERED_SCHEDULE_SQL);
+            } else if (day.matches("Thursday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(THURSDAY_LIST_FILTERED_SCHEDULE_SQL);
+            } else if (day.matches("Friday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(FRIDAY_LIST_FILTERED_SCHEDULE_SQL);
+            } else if (day.matches("Saturday")){
+                st = connection.createStatement();
+                rs = st.executeQuery(SATURDAY_LIST_FILTERED_SCHEDULE_SQL);
+            }
+
+            while (rs.next()) {
+                retrievedBillboard.add(rs.getString(1));
+                retrievedStartTime.add(rs.getString(2));
+                retrievedDuration.add(rs.getString(3));
+                retrievedCreationDateTime.add(rs.getString(4));
+                retrievedRepeat.add(rs.getString(5));
+                retrievedSunday.add(rs.getString(6));
+                retrievedMonday.add(rs.getString(7));
+                retrievedTueseday.add(rs.getString(8));
+                retrievedWednesday.add(rs.getString(9));
+                retrievedThursday.add(rs.getString(10));
+                retrievedFriday.add(rs.getString(11));
+                retrievedSaturday.add(rs.getString(12));
+            }
+            serverResponse = "Pass: Schedule Detail List Returned";
+
+        }
+    ScheduleList scheduleList = new ScheduleList(serverResponse,
+            retrievedBillboard,
+            retrievedStartTime,
+            retrievedDuration,
+            retrievedCreationDateTime,
+            retrievedRepeat,
+            retrievedSunday,
+            retrievedMonday,
+            retrievedTueseday,
+            retrievedWednesday,
+            retrievedThursday,
+            retrievedFriday,
+            retrievedSaturday
+    );
+
+    return scheduleList;
+    }
+
+
 
 
 }
