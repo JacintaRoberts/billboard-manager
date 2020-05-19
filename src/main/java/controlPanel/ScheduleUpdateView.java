@@ -464,13 +464,13 @@ public class ScheduleUpdateView extends AbstractGenericView
      * Set values from the server on the GUI. These values include: the selected days, start hour, start min,
      * duration, button selected, minute repetition
      */
-    protected void setScheduleValues(boolean[] selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat)
+    protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat)
     {
         // ------------- SELECTED DAYS -------------
         // set selected days on the GUI
-        for (int dayIndex = 0; dayIndex < selectedDays.length ;dayIndex++)
+        for (int dayIndex = 0; dayIndex < selectedDays.size() ;dayIndex++)
         {
-            weekdayArray.get(dayIndex).setSelected(selectedDays[dayIndex]);
+            weekdayArray.get(dayIndex).setSelected(selectedDays.get(dayIndex));
         }
 
         // ------------- DURATION -------------
@@ -524,7 +524,6 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void setBBSelected(String bbName)
     {
-        System.out.println(bbName);
         bbNameComboBox.setSelectedItem(bbName);
     }
 
@@ -659,7 +658,6 @@ public class ScheduleUpdateView extends AbstractGenericView
      * Array list.
      * @return schedule info array
      */
-    // FIXME: return MORE information about the schedule
     protected ArrayList<Object> getScheduleInfo()
     {
         ArrayList<Object> scheduleInfo = new ArrayList();
@@ -667,21 +665,54 @@ public class ScheduleUpdateView extends AbstractGenericView
         // --- GET USER INPUT ---
         // get BB name
         String name = (String) bbNameComboBox.getSelectedItem();
-        // get start hour
-        new Time();
+        // get times selected
+        Integer startHour = (Integer)startHourSelector.getSelectedItem();
+        String startMin = (String)startMinSelector.getSelectedItem();
 
-        // get minute repeat (this may be empty)
-        int min_repeat = (int) repeatMinutesComboBox.getSelectedItem();
+        // selected days
+        ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+        daysOfWeek.add(monCheckBox.isSelected());
+        daysOfWeek.add(tuesCheckBox.isSelected());
+        daysOfWeek.add(wedCheckBox.isSelected());
+        daysOfWeek.add(thurCheckBox.isSelected());
+        daysOfWeek.add(friCheckBox.isSelected());
+        daysOfWeek.add(satCheckBox.isSelected());
+        daysOfWeek.add(sunCheckBox.isSelected());
 
-
-
-
+        String recurrenceButton = "";
+        Integer min_repeat = null;
+        // get recurrence selection
+        if(hourlyButton.isSelected())
+        {
+            recurrenceButton = "hourly";
+        }
+        if (minuteButton.isSelected())
+        {
+            recurrenceButton = "minute";
+            // get minute repeat (this may be empty)
+            min_repeat = (Integer) repeatMinutesComboBox.getSelectedItem();
+        }
+        if (noRepeatButton.isSelected())
+        {
+            recurrenceButton = "no repeats";
+        }
 
         // --- ADD INPUT TO ARRAY ---
         // add info to the array
-        scheduleInfo.add(name);
+        scheduleInfo.add(daysOfWeek);
+        scheduleInfo.add(startHour);
+        scheduleInfo.add(startMin);
+        scheduleInfo.add(duration);
+        scheduleInfo.add(recurrenceButton);
         scheduleInfo.add(min_repeat);
-        // return array
+
+        // FIXME: remove later after debugging
+//        for (Object object : scheduleInfo)
+//        {
+//            System.out.println("item scheduled " + object);
+//        }
+
+        // return schedule information
         return scheduleInfo;
     }
 
