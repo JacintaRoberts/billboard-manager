@@ -6,6 +6,7 @@ import observer.Subject;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.sql.Time;
 import java.util.ArrayList;
 
 import static java.lang.Integer.parseInt;
@@ -58,6 +59,9 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JRadioButton noRepeatButton;
     private JButton submitButton;
     private JButton clearScheduleButton;
+
+    // --- Group ---
+    private ButtonGroup group;
 
     // --- GBC ---
     private GridBagConstraints gbc_timeName;
@@ -222,7 +226,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         noRepeatButton.setName("no repeats");
 
         // add buttons to group such that only 1 can be selected
-        ButtonGroup group = new ButtonGroup();
+        group = new ButtonGroup();
         group.add(hourlyButton);
         group.add(minuteButton);
         group.add(noRepeatButton);
@@ -276,7 +280,11 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // remove all names as these will be re-populated upon entering screen
         bbNameComboBox.removeAllItems();
+        removeScheduleSelection();
+    }
 
+    protected void removeScheduleSelection()
+    {
         // deselect all weekday checkboxes
         for (JCheckBox day : weekdayArray)
         {
@@ -284,7 +292,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         }
 
         // deselect all recurrence radio buttons
-        hourlyButton.setSelected(false);
+        hourlyButton.setSelected(true);
         minuteButton.setSelected(false);
         noRepeatButton.setSelected(false);
 
@@ -293,9 +301,18 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // reset duration label
         durationTimeLabel.setText("0 minutes");
+
+        // reset minute repeat label
+        minutesLabel.setText("");
+
+        // reset time selectors
+        endHourSelector.setSelectedItem(1);
+        endMinSelector.setSelectedItem("00");
+        startHourSelector.setSelectedItem(1);
+        startMinSelector.setSelectedItem("00");
+        startAMPMSelector.setSelectedItem("AM");
+        endAMPMSelector.setSelectedItem("AM");
     }
-
-
 
     @Override
     VIEW_TYPE getEnum() {
@@ -355,7 +372,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void showInstructionMessage()
     {
-        JOptionPane.showMessageDialog(null,"Please Select a Billboard to Schedule.");
+        JOptionPane.showMessageDialog(null,"Please Select your Billboard to Schedule.");
     }
 
     /**
@@ -388,6 +405,17 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         JOptionPane.showMessageDialog(null,"You have just scheduled  " + bbNameComboBox.getSelectedItem() + " billboard.");
     }
+
+    /**
+     * Show Ask User for confirmation of schedule creation
+     * @return response of user (int)
+     */
+    protected int showConfirmationCreateSchedule()
+    {
+        String message = "Are you sure you want to publish the Schedule?";
+        return JOptionPane.showConfirmDialog(null, message);
+    }
+
     /**
      * Upon submitting schedule, raise error if at least one day is not selected
      */
@@ -413,13 +441,20 @@ public class ScheduleUpdateView extends AbstractGenericView
     }
 
     /**
+     * Upon selecting a BB that does not currently have a schedule, alert user of this through a message dialog
+     */
+    protected void showNoExistingScheduleMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Please note: No schedule currently exists for this Billboard.");
+    }
+
+    /**
      * Upon attempting to clear schedule, ask user to confirm schedule removal
      * @return
      */
     protected int showScheduleClearConfirmation()
     {
         int result =  JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the Schedule? Please note this will be removed from the database.");
-        System.out.println("result " + result);
         return result;
     }
 
@@ -441,7 +476,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         // ------------- DURATION -------------
         // set duration of the BB
         setDuration(BBduration);
-        System.out.println("Set duration");
 
         // ------------- TIMES -------------
         // set start time
@@ -455,7 +489,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         // set end time
         endHourSelector.getModel().setSelectedItem(endHour);
         endMinSelector.getModel().setSelectedItem(String.valueOf(endMin));
-        System.out.println("Set time selected item");
 
         // ------------- RECURRENCE -------------
         // set radio button selection for recurrence
@@ -484,6 +517,15 @@ public class ScheduleUpdateView extends AbstractGenericView
                 enableMinuteSelector(false);
                 break;
         }
+    }
+
+    /**
+     * Set the duration of the BB
+     */
+    protected void setBBSelected(String bbName)
+    {
+        System.out.println(bbName);
+        bbNameComboBox.setSelectedItem(bbName);
     }
 
     /**
@@ -621,10 +663,21 @@ public class ScheduleUpdateView extends AbstractGenericView
     protected ArrayList<Object> getScheduleInfo()
     {
         ArrayList<Object> scheduleInfo = new ArrayList();
+
+        // --- GET USER INPUT ---
         // get BB name
         String name = (String) bbNameComboBox.getSelectedItem();
+        // get start hour
+        new Time();
+
         // get minute repeat (this may be empty)
         int min_repeat = (int) repeatMinutesComboBox.getSelectedItem();
+
+
+
+
+
+        // --- ADD INPUT TO ARRAY ---
         // add info to the array
         scheduleInfo.add(name);
         scheduleInfo.add(min_repeat);

@@ -19,6 +19,10 @@ public class ScheduleMenuView extends AbstractGenericView
     private JButton createScheduleButton;
     // --- ENUM ---
     private VIEW_TYPE view_type;
+    // --- GBC ---
+    private GridBagConstraints gbc;
+    // --- Label ---
+    private JLabel title;
 
     /**
      * Constructor to create schedule view, use parent constructor.
@@ -47,12 +51,21 @@ public class ScheduleMenuView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        gbc = new GridBagConstraints();
         optionsPanel = new JPanel();
-        optionsPanel.setLayout(new FlowLayout());
+        optionsPanel.setLayout(new GridBagLayout());
         viewScheduleButton = new JButton("View Schedule");
-        createScheduleButton = new JButton("Create Schedule");
-        optionsPanel.add(viewScheduleButton);
-        optionsPanel.add(createScheduleButton);
+        createScheduleButton = new JButton("Create/Update Schedule");
+        title = new JLabel("SCHEDULE MENU");
+        title.setForeground(Color.WHITE);
+        title.setFont(title.getFont().deriveFont(60f));
+
+        gbc.insets = new Insets(1,10,1,10);
+        optionsPanel.add(viewScheduleButton, setGBC(gbc,1,1,1,1));
+        optionsPanel.add(createScheduleButton,  setGBC(gbc,3,1,1,1));
+        gbc.insets = new Insets(250,1,1,1);
+        optionsPanel.add(title, setGBC(gbc, 1,2,3,1));
+
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 

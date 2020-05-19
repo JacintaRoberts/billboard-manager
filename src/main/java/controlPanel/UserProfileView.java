@@ -3,8 +3,8 @@ package controlPanel;
 import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseListener;
-import java.util.ArrayList;
 
 /**
  * View designed for editing users.
@@ -24,13 +24,15 @@ public class UserProfileView extends AbstractUserView
         view_type = VIEW_TYPE.USER_PROFILE;
         setEditable(false);
         addEditButton();
+        setBBFrameTitle("PROFILE");
     }
 
     protected void addEditButton()
     {
         editButton = new JButton("Edit Profile");
         JPanel navPanel = getNavPanel();
-        navPanel.add(editButton);
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(editButton, setGBC(gbc,3,1,1,1));
     }
 
 //    protected ArrayList<Object> getUserInfo()
@@ -44,7 +46,6 @@ public class UserProfileView extends AbstractUserView
 //        return userInfoArray;
 //    }
 
-
     public void addEditButtonListener(MouseListener listener)
     {
         editButton.addMouseListener(listener);
@@ -55,8 +56,5 @@ public class UserProfileView extends AbstractUserView
         return view_type;
     }
 
-    @Override
-    void cleanUp() {
 
-    }
 }

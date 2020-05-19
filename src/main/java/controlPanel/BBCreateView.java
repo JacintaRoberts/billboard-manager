@@ -82,6 +82,11 @@ public class BBCreateView extends AbstractGenericView
         createBBOptionsMenu();
     }
 
+    /**
+     * Create Drawing Panel which is where the BB will be displayed for the user to see.
+     * The panel will display the title, text information and the photo uploaded by the user. The colours selected are
+     * also shown.
+     */
     private void createDrawingPanel()
     {
         // -------- DRAWING PANEL -----------
@@ -101,7 +106,7 @@ public class BBCreateView extends AbstractGenericView
         BBTextField.setForeground(Color.white);
         BBTextField.setOpaque(false);
         photoLabel = new JLabel();
-        photoLabel.setPreferredSize(new Dimension(450,450));
+        photoLabel.setPreferredSize(new Dimension(380,380));
 
         drawingPadPanel.add(titleLabel);
         drawingPadPanel.add(BBTextField);
@@ -109,6 +114,9 @@ public class BBCreateView extends AbstractGenericView
         getContentPane().add(drawingPadPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Create the Drawing Toolbar which contains the BB Name, background colour, title, text and photo selection.
+     */
     private void createDrawingToolbar()
     {
         // -------- DRAWING TOOLBAR PANEL -----------
@@ -142,14 +150,17 @@ public class BBCreateView extends AbstractGenericView
         getContentPane().add(drawingToolsPanel, BorderLayout.WEST);
     }
 
+    /**
+     * Create the BB Options Menu which contains the Import XML, Export XML and preview button.
+     */
     private void createBBOptionsMenu()
     {
         // -------- BB OPTIONS MENU -----------
         billboardMenuPanel = new JPanel();
         billboardMenuPanel.setLayout(new GridLayout(3,1));
         importXMLButton = new JButton("Import XML");
-        exportButton = new JButton("Export");
-        previewButton = new JButton("Preview");
+        exportButton = new JButton("Export XML");
+        previewButton = new JButton("Preview Billboard");
         billboardMenuPanel.add(importXMLButton);
         billboardMenuPanel.add(exportButton);
         billboardMenuPanel.add(previewButton);
@@ -158,8 +169,9 @@ public class BBCreateView extends AbstractGenericView
         cancelButton = new JButton("Cancel");
         createButton = new JButton("Create");
         JPanel navPanel = getNavPanel();
-        navPanel.add(cancelButton);
-        navPanel.add(createButton);
+        GridBagConstraints gbc_nav = getNavGBCPanel();
+        navPanel.add(cancelButton, setGBC(gbc_nav,4,1,1,1));
+        navPanel.add(createButton, setGBC(gbc_nav,3,1,1,1));
 
         photoChooser = new JFileChooser();
         photoChooser.setCurrentDirectory(new java.io.File("."));
@@ -184,7 +196,12 @@ public class BBCreateView extends AbstractGenericView
     @Override
     void cleanUp()
     {
-
+        setBBName("");
+        setBBNameEnabled(true);
+        setBackgroundColour(toHexString(Color.CYAN));
+        setBBTitle("");
+        setBBText("");
+        setPhoto(null);
     }
 
     @Override
@@ -290,6 +307,8 @@ public class BBCreateView extends AbstractGenericView
         return infoColour;
     }
 
+    protected String getSelectedBBName() {return BBNameLabel.getText();}
+
     // ###################### BROWSE FOR BB SETTINGS ######################
 
     /**
@@ -319,7 +338,11 @@ public class BBCreateView extends AbstractGenericView
     protected String showColorChooser()
     {
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Color", drawingPadPanel.getForeground());
-        return toHexString(colorSelect);
+        if (colorSelect != null)
+        {
+            return toHexString(colorSelect);
+        }
+        return null;
     }
 
     /**
@@ -359,12 +382,31 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
+     * Ask User for confirmation of BB creation
+     * @return
+     */
+    protected int showConfirmationCreateBB()
+    {
+        String message = "Are you sure you want to create Billboard "+ BBNameLabel.getText() + "?";
+        return JOptionPane.showConfirmDialog(null, message);
+    }
+
+    /**
      * Show Successful BB Created Message to user
      * @return
      */
     protected void showBBCreatedSuccessMessage()
     {
         String message = "You have successfully created the BB " + BBNameLabel.getText() + ". You are able to schedule the Billboard at a later time.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Show Error Message as no BB name was provided
+     */
+    protected void showBBNameErrorMessage()
+    {
+        String message = "Please select a Billboard Name before creating the Billboard.";
         JOptionPane.showMessageDialog(null, message);
     }
 
@@ -380,7 +422,7 @@ public class BBCreateView extends AbstractGenericView
         if(value == JFileChooser.APPROVE_OPTION)
         {
             photoPath = photoChooser.getSelectedFile().getAbsolutePath();
-            image = ImageIO.read(new File(photoPath)).getScaledInstance(500,500,Image.SCALE_DEFAULT);
+            image = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
             icon = new ImageIcon(image);
         }
         return icon;
@@ -417,7 +459,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void browseExportFolder() throws TransformerException, ParserConfigurationException {
         String XMLFileName = enterXMLFileName();
-        if (!XMLFileName.isEmpty())
+        if (XMLFileName != null)
         {
             int value = xmlFolderChooser.showSaveDialog(null);
             if(value == JFileChooser.APPROVE_OPTION)
@@ -489,7 +531,7 @@ public class BBCreateView extends AbstractGenericView
         Element photoNode = (Element) photoList.item(0);
         photoPath = photoNode.getAttribute("url");
 
-        Image photoImage = ImageIO.read(new File(photoPath)).getScaledInstance(500,500,Image.SCALE_DEFAULT);
+        Image photoImage = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
         setPhoto(new ImageIcon(photoImage));
     }
 
@@ -609,15 +651,18 @@ public class BBCreateView extends AbstractGenericView
         setBBText(information);
 
         // Check if there's a specific background colour, else set it to be white
-        if (backgroundColour != null) {
+        if (backgroundColour != null)
+        {
             setBBTitleColour(backgroundColour);
         }
         else {
+                // FIXME: CHANGE THIS
             setBBTitleColour("#fff");
         }
 
         // Check if there's a specific message text colour, else set it to be black
-        if (message != null) {
+        if (message != null)
+        {
             if (messageColour != null) {
                 setBBTextColour(messageColour);
             }
@@ -628,8 +673,10 @@ public class BBCreateView extends AbstractGenericView
         }
 
         // Check if there's a specific information text colour, else set it to be black
-        if (information != null) {
-            if (informationColour != null) {
+        if (information != null)
+        {
+            if (informationColour != null)
+            {
                 setBBTextColour(informationColour);
             }
             else {
@@ -706,6 +753,10 @@ public class BBCreateView extends AbstractGenericView
         billboardNameButton.addActionListener(listener);
     }
 
+    /**
+     * Add listener to Create Button
+     * @param listener mouse listener
+     */
     protected void addBBCreationListener(MouseListener listener)
     {
         createButton.addMouseListener(listener);

@@ -17,6 +17,10 @@ public class BBMenuView extends AbstractGenericView
     private JButton createBillboardButton;
     // --- ENUM ---
     private VIEW_TYPE view_type;
+    // --- GBC ---
+    private GridBagConstraints gbc;
+    // --- Labels ---
+    private JLabel title;
 
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
@@ -30,12 +34,22 @@ public class BBMenuView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        gbc = new GridBagConstraints();
+
         optionsPanel = new JPanel();
-        optionsPanel.setLayout(new FlowLayout());
+        optionsPanel.setLayout(new GridBagLayout());
+
+        title = new JLabel("BILLBOARD MENU");
+        title.setForeground(Color.WHITE);
+        title.setFont(title.getFont().deriveFont(60f));
+
         billboardsButton = new JButton("List Billboards");
         createBillboardButton = new JButton("Create Billboard");
-        optionsPanel.add(billboardsButton);
-        optionsPanel.add(createBillboardButton);
+        gbc.insets = new Insets(1,10,1,10);
+        optionsPanel.add(billboardsButton, setGBC(gbc, 1,1,1,1));
+        optionsPanel.add(createBillboardButton, setGBC(gbc, 3,1,1,1));
+        gbc.insets = new Insets(250,1,1,1);
+        optionsPanel.add(title, setGBC(gbc, 1,2,3,1));
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 

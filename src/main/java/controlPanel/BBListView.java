@@ -18,8 +18,9 @@ public class BBListView extends AbstractListView
      */
     public BBListView()
     {
-        super("List Billboards View");
+        super("Billboards List");
         view_type = VIEW_TYPE.BB_LIST;
+        setListTitle("BILLBOARD LIST");
     }
 
 

@@ -28,7 +28,7 @@ public class ScheduleWeekView extends AbstractGenericView
      */
     public ScheduleWeekView()
     {
-        super("Schedule View");
+        super("Billboard Schedule");
         view_type = VIEW_TYPE.SCHEDULE_WEEK;
 
     }
@@ -64,6 +64,7 @@ public class ScheduleWeekView extends AbstractGenericView
             model.addColumn("Billboard");
             // create table with table model
             JTable dayTable = new JTable(model);
+            dayTable.setRowHeight(50);
             // ensure table is not editable by the user
             dayTable.setDefaultEditor(Object.class, null);
             // set name of table so it can be used in controller
@@ -72,6 +73,9 @@ public class ScheduleWeekView extends AbstractGenericView
             JScrollPane scrollPane = new JScrollPane(dayTable);
             // set title of table
             scrollPane.setBorder(BorderFactory.createTitledBorder(days));
+            // set colour of scroll pane
+            scrollPane.setForeground(Color.WHITE);
+            scrollPane.setBackground(Color.BLACK);
             // add scroll pane to the array so this can be populated later
             dayScheduleMap.put(days, model);
             // add table to calendar panel

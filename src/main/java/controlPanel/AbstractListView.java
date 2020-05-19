@@ -1,6 +1,7 @@
 package controlPanel;
 
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
@@ -9,12 +10,16 @@ public abstract class AbstractListView extends AbstractGenericView
 {
     // *** VARIABLES**
     // --- Panels ---
-    private JPanel listPanel;
+    private JScrollPane scrollPane;
+    private JPanel mainPanel;
     // --- Label ---
-    private static JLabel label;
     private static JLabel text;
+    private static JLabel titleScreen;
     // --- Array ---
     public static ArrayList<JPanel> jPanels = new ArrayList<>();
+    // --- GBC ---
+    private GridBagConstraints gbc;
+    private GridBagConstraints gbc_main;
 
 
     public AbstractListView(String frame_name)
@@ -25,19 +30,39 @@ public abstract class AbstractListView extends AbstractGenericView
     @Override
     void createComponents()
     {
-        listPanel = new JPanel();
-        listPanel.setLayout(new GridLayout(10,1));
-        getContentPane().add(listPanel, BorderLayout.CENTER);
+        mainPanel = new JPanel();
+        scrollPane = new JScrollPane(mainPanel);
+
+        mainPanel.setLayout(new GridBagLayout());
+
+        gbc_main = new GridBagConstraints();
+
+        titleScreen = new JLabel("LIST BILLBOARDS");
+        titleScreen.setForeground(Color.WHITE);
+        titleScreen.setFont(titleScreen.getFont().deriveFont(60f));
+
+        mainPanel.add(titleScreen, setGBC(gbc_main,1,1,1,1));
+
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
+    }
+
+    protected void setListTitle(String titleName)
+    {
+        titleScreen.setText(titleName);
     }
 
     // add content dynamically to the list panel. It's design is to associate the added buttons with the correct listeners.
-    protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
-    {
-        for (String contentName : contentArray)
-        {
+            protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
+            {
+                int index = 1;
+                for (String contentName : contentArray)
+                {
+                    index ++;
+                    gbc = new GridBagConstraints();
+
             // create one panel per piece of information (i.e. User or BB)
             JPanel contentPanel = new JPanel();
-            contentPanel.setLayout(new GridLayout(1,4));
+            contentPanel.setLayout(new GridBagLayout());
 
             // add Edit, Delete and View Button
             JButton editButton = new JButton("Edit");
@@ -49,29 +74,27 @@ public abstract class AbstractListView extends AbstractGenericView
             deleteButton.setName(contentName);
             viewButton.setName(contentName);
 
-            // TODO: Check that this is OK - I have put listener in here which is referenced in the control panel by
-            // TODO: another listener. This was due to the fact that the panels are created dynamically and hence listeners
-            // TODO: are required to be attached to the buttons dynamically - this is the only solution I found!!
             // add listener
             editButton.addMouseListener(editMouseListener);
             deleteButton.addMouseListener(deleteMouseListener);
             viewButton.addMouseListener(viewMouseListener);
 
             // create name and label
-            label = new JLabel("Name:");
             text = new JLabel(contentName);
+            text.setPreferredSize(new Dimension(500, 60));
 
             // add to content panel
-            contentPanel.add(label);
-            contentPanel.add(text);
-            contentPanel.add(editButton);
-            contentPanel.add(deleteButton);
-            contentPanel.add(viewButton);
+            gbc.insets = new Insets(5,50,5,50);
+            contentPanel.add(text, setGBC(gbc, 2,1,10,1));
+            gbc.insets = new Insets(5,10,5,10);
+            contentPanel.add(editButton, setGBC(gbc, 12,1,2,1));
+            contentPanel.add(deleteButton, setGBC(gbc, 14,1,2,1));
+            contentPanel.add(viewButton, setGBC(gbc, 16,1,2,1));
 
             jPanels.add(contentPanel);
 
             // add content panel to list panel
-            listPanel.add(contentPanel);
+            mainPanel.add(contentPanel, setGBC(gbc_main,1,index,1,1));
         }
     }
 
@@ -83,6 +106,9 @@ public abstract class AbstractListView extends AbstractGenericView
     void cleanUp()
     {
         jPanels.clear();
-        listPanel.removeAll();
+        for (JPanel jPanel : jPanels)
+        {
+            mainPanel.remove(jPanel);
+        }
     }
 }

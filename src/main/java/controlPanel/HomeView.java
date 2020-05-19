@@ -18,6 +18,8 @@ public class HomeView extends AbstractGenericView
     private JButton billboardButton;
     // --- ENUM ---
     private VIEW_TYPE view_type;
+    // --- Label ---
+    private JLabel title;
 
     private GridBagConstraints gbc;
 
@@ -36,13 +38,19 @@ public class HomeView extends AbstractGenericView
         gbc = new GridBagConstraints();
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new GridBagLayout());
+        title = new JLabel("HOME");
+        title.setForeground(Color.WHITE);
+        title.setFont(title.getFont().deriveFont(60f));
+
         usersButton = new JButton("Users");
         scheduleButton = new JButton("Schedule");
         billboardButton = new JButton("Billboard");
-        gbc.insets = new Insets(5,10,5,10);
+        gbc.insets = new Insets(5,20,5,20);
         optionsPanel.add(usersButton, setGBC(gbc, 1,1,1,1));
         optionsPanel.add(scheduleButton, setGBC(gbc, 2,1,1,1));
         optionsPanel.add(billboardButton, setGBC(gbc, 3,1,1,1));
+        gbc.insets = new Insets(250,1,1,1);
+        optionsPanel.add(title, setGBC(gbc, 2,2,1,1));
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 

@@ -3,6 +3,7 @@ package controlPanel;
 import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
+import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
@@ -30,7 +31,8 @@ public class UserEditView extends AbstractUserView
     {
         submitButton = new JButton("Submit");
         JPanel navPanel = getNavPanel();
-        navPanel.add(submitButton);
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
     }
 
     protected ArrayList<Object> getUserInfo()
@@ -54,9 +56,5 @@ public class UserEditView extends AbstractUserView
     VIEW_TYPE getEnum() {
         return view_type;
     }
-
-    @Override
-    void cleanUp() {
-
-    }
+    
 }
