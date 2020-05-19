@@ -440,40 +440,38 @@ public class Controller
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Log Out button clicked");
-//            try {
-//                String sessionToken = model.getSessionToken(); // Retrieve session token
-//                serverResponse = logoutRequest(sessionToken); // CP Backend method call
-//                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+            try {
+                String sessionToken = model.getSessionToken(); // Retrieve session token
+                serverResponse = logoutRequest(sessionToken); // CP Backend method call
+                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
             // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
             // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
             // 1. ServerAcknowledgement.Success; // Occurs when session token existed and was successfully expired
             // 2. ServerAcknowledgment.InvalidToken; // Occurs when session token was already expired
             // If successful, let the user know, navigate to login screen
-//                if (sessionTokenExpirationSuccess()) {
-//                    System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
-//                    //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
-//                } else { // Session token was already expired
-//                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
-//                    //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
-//                }
-//                // Navigate to log in screen for both cases
-//                updateView(LOGIN);
-//                //updateView(VIEW_TYPE.LOGIN); // n
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            } catch (ClassNotFoundException ex) {
-//                ex.printStackTrace();
-//            }
-//        }
-//
-//        // Determines whether the session token was successfully expired
-//        private boolean sessionTokenExpirationSuccess() {
-//            if ( serverResponse.equals(Success) ) {
-//                return true;
-//            }
-//            return false;
-//        }
-            updateView(LOGIN);
+                if (sessionTokenExpirationSuccess()) {
+                    System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
+                    //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
+                } else { // Session token was already expired
+                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                    //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
+                }
+                // Navigate to log in screen for both cases
+                updateView(LOGIN);
+                //updateView(VIEW_TYPE.LOGIN); // n
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+        }
+
+        // Determines whether the session token was successfully expired
+        private boolean sessionTokenExpirationSuccess() {
+            if ( serverResponse.equals(Success) ) {
+                return true;
+            }
+            return false;
         }
     }
 
@@ -491,49 +489,45 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Submit button clicked");
-//            // get LOGIN GUI
+            // get LOGIN GUI
             LogInView logInView = (LogInView) views.get(VIEW_TYPE.LOGIN);
-//
-//            // get username and password text from GUI
+
+            // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-            model.storeUsername(username);
-            model.storeSessionToken("");
+            try {
+                serverResponse = loginRequest(username, password); // CP Backend call
+                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
 
-//            try {
-//                serverResponse = loginRequest(username, password); // CP Backend call
-//                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
-//
-//                // NOTE: loginRequest will return 1 of 3 serverAcknowledgments
-//                // if unsuccessful, show error and do not allow log in
-//                if (serverResponse.equals(BadPassword)) {
-//                    System.out.println("CONTROLLER LEVEL - Incorrect Password");
-//                    System.out.println("Please try another password");
-//                    // show error message
-//                    logInView.setErrorVisibility(true);
-//                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
-//                } else if (serverResponse.equals(NoSuchUser)) {
-//                    System.out.println("CONTROLLER LEVEL - No Such User");
-//                    System.out.println("Please try another username");
-//                    // show error message
-//                    logInView.setErrorVisibility(true);
-//                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
-//                } else { // login request success
-//                    System.out.println("CONTROLLER LEVEL - Correct Credentials");
-//                    // store username and session token in model
-//                    model.storeUsername(username);
-//                    sessionToken = (String) serverResponse; // Store as a session token
-//                    model.storeSessionToken(sessionToken);
-//                    // hide error string
-//                    logInView.setErrorVisibility(false);
-//                    views.put(VIEW_TYPE.LOGIN, logInView);
-//                    // nav user to home screen
-//                    updateView(VIEW_TYPE.HOME);
-//                }
-//            } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
-//                ex.printStackTrace();
-//            }
-            updateView(HOME);
+                // NOTE: loginRequest will return 1 of 3 serverAcknowledgments
+                // if unsuccessful, show error and do not allow log in
+                if (serverResponse.equals(BadPassword)) {
+                    System.out.println("CONTROLLER LEVEL - Incorrect Password");
+                    System.out.println("Please try another password");
+                    // show error message
+                    logInView.setErrorVisibility(true);
+                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    System.out.println("CONTROLLER LEVEL - No Such User");
+                    System.out.println("Please try another username");
+                    // show error message
+                    logInView.setErrorVisibility(true);
+                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
+                } else { // login request success
+                    System.out.println("CONTROLLER LEVEL - Correct Credentials");
+                    // store username and session token in model
+                    model.storeUsername(username);
+                    sessionToken = (String) serverResponse; // Store as a session token
+                    model.storeSessionToken(sessionToken);
+                    // hide error string
+                    logInView.setErrorVisibility(false);
+                    views.put(VIEW_TYPE.LOGIN, logInView);
+                    // nav user to home screen
+                    updateView(VIEW_TYPE.HOME);
+                }
+            } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -619,24 +613,24 @@ public class Controller
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             ArrayList<Object> userArray = userEditView.getUserInfo();
             System.out.println(userArray);
-//            // Parsing elements from user array for the UserControl method to create the request to server
-//            String username = (String) userArray.get(0);
-//            String password = (String) userArray.get(1);
-//            Boolean createBillboards = true; // TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
-//            Boolean editBillboards = (Boolean) userArray.get(2);
-//            Boolean editSchedules = (Boolean) userArray.get(3);
-//            Boolean editUsers = (Boolean) userArray.get(4);
+            // Parsing elements from user array for the UserControl method to create the request to server
+            String username = (String) userArray.get(0);
+            String password = (String) userArray.get(1);
+            Boolean createBillboards = true; // TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
+            Boolean editBillboards = (Boolean) userArray.get(2);
+            Boolean editSchedules = (Boolean) userArray.get(3);
+            Boolean editUsers = (Boolean) userArray.get(4);
 
-//            // TODO: HANDLE EXCEPTIONS IN GUI
-//            try {
-//                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            } catch (ClassNotFoundException ex) {
-//                ex.printStackTrace();
-//            } catch (NoSuchAlgorithmException ex) {
-//                ex.printStackTrace();
-//            }
+            // TODO: HANDLE EXCEPTIONS IN GUI
+            try {
+                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (NoSuchAlgorithmException ex) {
+                ex.printStackTrace();
+            }
 
             views.put(USER_EDIT, userEditView);
 
@@ -658,32 +652,32 @@ public class Controller
             JButton button = (JButton) e.getSource();
             String username = button.getName();
             System.out.println("UserName :" + username);
-//            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
-//            try {
-//                String sessionToken = model.getSessionToken(); // Retrieve session token
-//                serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
-//                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
-//                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-//                // NOTE: deleteUserRequest will return 1 of 5 ServerAcknowledgements
-//                // If successful, let the user know, navigate to login screen
-//                if (serverResponse.equals(Success)) {
-//                    System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
-//                    //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
-//                } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
-//                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
-//                    //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
-//                } else if (serverResponse.equals(InvalidToken)) {
-//                    //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
-//                } else if (serverResponse.equals(NoSuchUser)) {
-//                    //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
-//                } else if (serverResponse.equals(CannotDeleteSelf)) {
-//                    //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
-//                }
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            } catch (ClassNotFoundException ex) {
-//                ex.printStackTrace();
-//            }
+            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
+            try {
+                String sessionToken = model.getSessionToken(); // Retrieve session token
+                serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
+                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
+                // NOTE: deleteUserRequest will return 1 of 5 ServerAcknowledgements
+                // If successful, let the user know, navigate to login screen
+                if (serverResponse.equals(Success)) {
+                    System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
+                    //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
+                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                    //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(InvalidToken)) {
+                    //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
+                } else if (serverResponse.equals(CannotDeleteSelf)) {
+                    //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            } catch (ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
@@ -723,36 +717,36 @@ public class Controller
             UserListView userListView = (UserListView) views.get(USER_LIST);
             Object serverResponse = null;
             ArrayList<String> usernames = new ArrayList<>();
-            usernames.add("user1");
-            usernames.add("user2");
-            usernames.add("user3");
-            usernames.add("user4");
-            usernames.add("user5");
-            usernames.add("user6");
-            usernames.add("user7");
-            usernames.add("user8");
-            usernames.add("user9");
-            usernames.add("user10");
-            usernames.add("user1");
-            usernames.add("user2");
-            usernames.add("user3");
-            usernames.add("user4");
-            usernames.add("user5");
-            usernames.add("user6");
-            usernames.add("user7");
-            usernames.add("user8");
-            usernames.add("user9");
-            usernames.add("user10");
-//            ServerAcknowledge errorMessage = null;
-//            try {
-//                serverResponse = UserControl.listUsersRequest(sessionToken);
-//                // Attempt to cast to ArrayList
-//                usernames = (ArrayList<String>) serverResponse;
-//            } catch (IOException | ClassNotFoundException ex) {
-//                ex.printStackTrace();
-//            } catch (ClassCastException ex) {
-//                errorMessage = (ServerAcknowledge) serverResponse;
-//            }
+//            usernames.add("user1");
+//            usernames.add("user2");
+//            usernames.add("user3");
+//            usernames.add("user4");
+//            usernames.add("user5");
+//            usernames.add("user6");
+//            usernames.add("user7");
+//            usernames.add("user8");
+//            usernames.add("user9");
+//            usernames.add("user10");
+//            usernames.add("user1");
+//            usernames.add("user2");
+//            usernames.add("user3");
+//            usernames.add("user4");
+//            usernames.add("user5");
+//            usernames.add("user6");
+//            usernames.add("user7");
+//            usernames.add("user8");
+//            usernames.add("user9");
+//            usernames.add("user10");
+            ServerAcknowledge errorMessage = null;
+            try {
+                serverResponse = UserControl.listUsersRequest(sessionToken);
+                // Attempt to cast to ArrayList
+                usernames = (ArrayList<String>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            } catch (ClassCastException ex) {
+                errorMessage = (ServerAcknowledge) serverResponse;
+            }
 
             // TODO: DO STUFF WITH ERROR MESSAGE POSSIBILITIES
             //TODO: FOR SOME REASON THIS IS SOMEHOW DUPLICATING/CHANGING THE VIEW USERS AFTER A FEW CLICKS AWAY AND BACK
