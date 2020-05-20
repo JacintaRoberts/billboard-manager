@@ -78,8 +78,8 @@ public class BBCreateView extends AbstractGenericView
     void createComponents()
     {
         createDrawingPanel();
-//        createDrawingToolbar();
-//        createBBOptionsMenu();
+        createDrawingToolbar();
+        createBBOptionsMenu();
     }
 
     /**
@@ -112,7 +112,13 @@ public class BBCreateView extends AbstractGenericView
         drawingPadPanel.add(BBTextField);
         drawingPadPanel.add(photoLabel);
         getContentPane().add(drawingPadPanel, BorderLayout.CENTER);
+    }
 
+    /**
+     * Create the Drawing Toolbar which contains the BB Name, background colour, title, text and photo selection.
+     */
+    private void createDrawingToolbar()
+    {
         // -------- DRAWING TOOLBAR PANEL -----------
         drawingToolsPanel = new JPanel();
         drawingToolsPanel.setLayout(new GridLayout(6,1));
@@ -142,7 +148,13 @@ public class BBCreateView extends AbstractGenericView
         drawingToolsPanel.add(textButton);
         drawingToolsPanel.add(photoButton);
         getContentPane().add(drawingToolsPanel, BorderLayout.WEST);
+    }
 
+    /**
+     * Create the BB Options Menu which contains the Import XML, Export XML and preview button.
+     */
+    private void createBBOptionsMenu()
+    {
         // -------- BB OPTIONS MENU -----------
         billboardMenuPanel = new JPanel();
         billboardMenuPanel.setLayout(new GridLayout(3,1));
