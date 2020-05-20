@@ -99,6 +99,15 @@ public abstract class AbstractListView extends AbstractGenericView
     }
 
     /**
+     * Show Dialog to ask user to confirm deleting object (either user or bb)
+     * @return
+     */
+    protected int showDeleteConfirmation()
+    {
+        return JOptionPane.showConfirmDialog(null, "Are you sure you want to Delete?");
+    }
+
+    /**
      * Remove everything in list panel upon re-entering screen. Each time the list of content may be different so this
      * information should not be persistent whilst hidden.
      */

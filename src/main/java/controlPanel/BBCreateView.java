@@ -17,6 +17,7 @@ import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
@@ -127,7 +128,7 @@ public class BBCreateView extends AbstractGenericView
         backgroundColourButton = new JButton("Background Colour");
 
         // set default background colour
-        backgroundColour = toHexString(Color.CYAN);
+        backgroundColour = toHexString(Color.WHITE);
         drawingPadPanel.setBackground(Color.decode(backgroundColour));
 
         titleColour = toHexString(Color.BLACK);
@@ -198,7 +199,7 @@ public class BBCreateView extends AbstractGenericView
     {
         setBBName("");
         setBBNameEnabled(true);
-        setBackgroundColour(toHexString(Color.CYAN));
+        setBackgroundColour(toHexString(Color.WHITE));
         setBBTitle("");
         setBBText("");
         setPhoto(null);
@@ -297,17 +298,30 @@ public class BBCreateView extends AbstractGenericView
 
     // ###################### GET BB VALUES ######################
 
-    protected String getBBTitleColour(String colour)
-    {
-        return titleColour;
-    }
-
-    protected String getBBTextColour(String colour)
-    {
-        return infoColour;
-    }
-
     protected String getSelectedBBName() {return BBNameLabel.getText();}
+
+    protected ArrayList<Object> getBBXML()
+    {
+        ArrayList<Object> BBInfo = new ArrayList<>();
+        // add BB name
+        BBInfo.add(getSelectedBBName());
+        // add background colour
+        BBInfo.add(backgroundColour);
+        // add title
+        BBInfo.add(titleLabel.getText());
+        // add title colour
+        BBInfo.add(titleColour);
+        // add text
+        BBInfo.add(BBTextField.getText());
+        // add text colour
+        BBInfo.add(infoColour);
+        // photo
+        BBInfo.add(photoLabel.getIcon());
+
+        return BBInfo;
+    }
+
+
 
     // ###################### BROWSE FOR BB SETTINGS ######################
 
@@ -397,7 +411,16 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showBBCreatedSuccessMessage()
     {
-        String message = "You have successfully created the BB " + BBNameLabel.getText() + ". You are able to schedule the Billboard at a later time.";
+        String message = "You have successfully created the Billboard " + BBNameLabel.getText() + ". You are able to schedule the Billboard at a later time.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Show Editing BB message
+     */
+    protected void showBBEditingMessage(String BBName)
+    {
+        String message = "You are editing Billboard: " + BBName;
         JOptionPane.showMessageDialog(null, message);
     }
 
@@ -633,9 +656,11 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void addBBXML(File fileToDisplay)
     {
+        // extract xml data into hash map using viewer code
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
 
         String backgroundColour = billboardData.get("Background Colour");
+        System.out.println("background colour " + backgroundColour);
         String message = billboardData.get("Message");
         String messageColour = billboardData.get("Message Colour");
         String picture = billboardData.get("Picture");
@@ -650,25 +675,23 @@ public class BBCreateView extends AbstractGenericView
         setBBTitle(message);
         setBBText(information);
 
-        // Check if there's a specific background colour, else set it to be white
+        // Check if there's a specific background colour & set, else set it to be white
         if (backgroundColour != null)
         {
-            setBBTitleColour(backgroundColour);
+            setBackgroundColour(backgroundColour);
         }
         else {
-                // FIXME: CHANGE THIS
-            setBBTitleColour("#fff");
+            setBackgroundColour(toHexString(Color.WHITE));
         }
 
         // Check if there's a specific message text colour, else set it to be black
         if (message != null)
         {
             if (messageColour != null) {
-                setBBTextColour(messageColour);
+                setBBTitleColour(messageColour);
             }
             else {
-                // FIXME: CHANGE THIS
-                setBBTextColour("#fff");
+                setBBTitleColour(toHexString(Color.BLACK));
             }
         }
 
@@ -680,11 +703,10 @@ public class BBCreateView extends AbstractGenericView
                 setBBTextColour(informationColour);
             }
             else {
-                // FIXME: CHANGE THIS
-                setBBTextColour("#fff");
+                setBBTextColour(toHexString(Color.BLACK));
             }
         }
-        // disable billboard name button
+        // disable billboard name button as user should not be able to change BB name
         setBBNameEnabled(false);
     }
 

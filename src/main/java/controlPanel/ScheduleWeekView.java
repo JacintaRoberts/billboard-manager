@@ -7,6 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 import controlPanel.Main.VIEW_TYPE;
 import java.awt.*;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,6 +22,7 @@ public class ScheduleWeekView extends AbstractGenericView
     public HashMap<String, DefaultTableModel> dayScheduleMap;
     // --- MISC ---
     int days_in_week;
+    ArrayList<String> dayLabels;
 
 
     /**
@@ -37,7 +39,7 @@ public class ScheduleWeekView extends AbstractGenericView
     void createComponents()
     {
         // create a array list of day labels (mon - sun)
-        ArrayList<String> dayLabels = new ArrayList<>();
+        dayLabels = new ArrayList<>();
         dayLabels.add("Monday");
         dayLabels.add("Tuesday");
         dayLabels.add("Wednesday");
@@ -109,19 +111,20 @@ public class ScheduleWeekView extends AbstractGenericView
 
     /**
      * Populate Schedule from the database
-     * @param bbScheduleArray
+     * @param schedule array containing weekly schedule
      */
-    // FIXME: update when we know what the BBInfoObject will look like!
-    protected void populateSchedule(String[][] bbScheduleArray)
+    protected void populateSchedule(ArrayList<ArrayList<ArrayList<String>>> schedule)
     {
-        // loop thru each day's model and populate information
-        for(DefaultTableModel model : dayScheduleMap.values())
+        int index = 0;
+        for (ArrayList<ArrayList<String>> daySchedule : schedule)
         {
-            // loop thru db info and add into models
-            for(String[] schedule: bbScheduleArray)
+            DefaultTableModel model = dayScheduleMap.get(dayLabels.get(index));
+            for(ArrayList<String> row : daySchedule)
             {
-                model.addRow(schedule);
+                // add info
+                model.addRow(row.toArray());
             }
+            index++;
         }
     }
 }
