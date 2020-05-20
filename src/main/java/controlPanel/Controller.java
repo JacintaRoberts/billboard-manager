@@ -1262,7 +1262,14 @@ public class Controller
 
                 if (bbName.equals("Myer"))
                 {
-                    boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
+                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
                     int startHour = 5;
                     int startMin = 6;
                     int duration = 30;
@@ -1272,7 +1279,14 @@ public class Controller
                 }
                 else if (bbName.equals("Anaconda"))
                 {
-                    boolean[] daysOfWeek = new boolean[]{true,true,true,true,true,true,true};
+                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
                     int startHour = 1;
                     int startMin = 0;
                     int duration = 30;
