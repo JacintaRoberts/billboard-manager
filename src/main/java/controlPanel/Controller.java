@@ -436,12 +436,14 @@ public class Controller
             // get PROFILE VIEW
             UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
 
-            // set profile information
-            // set username and password text on GUI
-            // FIXME: get password and user permissions from Control/Server
-            userProfileView.setUsername(model.getUsername());
+            String username = model.getUsername();
+
+            // set username, password and permissions in Profile View
+            userProfileView.setUsername(username);
+            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
             userProfileView.setPassword("Password");
-            userProfileView.setPermissions(new boolean[]{false,true,true, true});
+            userProfileView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
             views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
@@ -583,14 +585,16 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Edit User button clicked");
 
             JButton button = (JButton) e.getSource();
-            System.out.println("UserName :" + button.getName());
-            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionTocken, username, userRequest);
-
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            userEditView.setUsername(button.getName());
-            userEditView.setPassword("password123");
-            userEditView.setPermissions(new boolean[]{false,true,true,false});
+            // get selected user
+            String usernameSelected = button.getName();
+            // set username, password and permissions in User Edit View
+            userEditView.setUsername(usernameSelected);
+            // FIXME: SERVER CALL: getUserPassword(usernameSelected) return String, getPermissions(usernameSelected) return ArrayList<Boolean>
+            userEditView.setPassword("Password");
+            userEditView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+            // set Title of Screen
             userEditView.setBBFrameTitle("EDIT USER");
             views.put(USER_EDIT, userEditView);
 
@@ -632,37 +636,47 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
 
             // update information in EDIT USER view
-            //TODO: MOVE THE LOCATION OF THE CREATE USER BUTTON AND RETURN THE
-            // CREATE USER PERMISSION IN THE .getUserInfo() method
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            ArrayList<Object> userArray = userEditView.getUserInfo();
-            System.out.println(userArray);
-//            // Parsing elements from user array for the UserControl method to create the request to server
-//            String username = (String) userArray.get(0);
-//            String password = (String) userArray.get(1);
-//            Boolean createBillboards = true; // TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
-//            Boolean editBillboards = (Boolean) userArray.get(2);
-//            Boolean editSchedules = (Boolean) userArray.get(3);
-//            Boolean editUsers = (Boolean) userArray.get(4);
+            boolean validUserInput = userEditView.checkValidUser();
+            // if valid user input, ask user to confirm user creation
+            if (validUserInput)
+            {
+                int response = userEditView.showCreateUserConfirmation();
+                // add user to DB if user confirms user creation
+                if (response == 0)
+                {
+                    ArrayList<Object> userArray = userEditView.getUserInfo();
 
-//            // TODO: HANDLE EXCEPTIONS IN GUI
-//            try {
-//                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
-//            } catch (IOException ex) {
-//                ex.printStackTrace();
-//            } catch (ClassNotFoundException ex) {
-//                ex.printStackTrace();
-//            } catch (NoSuchAlgorithmException ex) {
-//                ex.printStackTrace();
-//            }
+        //            // Parsing elements from user array for the UserControl method to create the request to server
+        //            String username = (String) userArray.get(0);
+        //            String password = (String) userArray.get(1);
+        //            Boolean createBillboards = (Boolean) userArray.get(5); TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
+        //            Boolean editBillboards = (Boolean) userArray.get(2);
+        //            Boolean editSchedules = (Boolean) userArray.get(3);
+        //            Boolean editUsers = (Boolean) userArray.get(4);
 
-            views.put(USER_EDIT, userEditView);
+        //            // TODO: HANDLE EXCEPTIONS IN GUI
+        //            try {
+        //                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+        //            } catch (IOException ex) {
+        //                ex.printStackTrace();
+        //            } catch (ClassNotFoundException ex) {
+        //                ex.printStackTrace();
+        //            } catch (NoSuchAlgorithmException ex) {
+        //                ex.printStackTrace();
+        //            }
+                    views.put(USER_EDIT, userEditView);
 
-            // navigate to edit menu screen
-            updateView(USERS_MENU);
+                    // navigate to edit menu screen
+                    updateView(USERS_MENU);
+                }
+            }
+            else
+            {
+                userEditView.showErrorMessage();
+            }
         }
     }
-
 
     /**
      * Listener to handle Delete User Button mouse clicks.
@@ -725,13 +739,16 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: View User button clicked");
             JButton button = (JButton) e.getSource();
-            System.out.println("UserName :" + button.getName());
-
-            // update information in VIEW USER view
+            // update information in EDIT PREVIEW view
             UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
-            userPreviewView.setUsername(button.getName());
-            userPreviewView.setPassword("password123");
-            userPreviewView.setPermissions(new boolean[]{false,true,true,true});
+            // get selected user
+            String usernameSelected = button.getName();
+            // set username, password and permissions in User Edit View
+            userPreviewView.setUsername(usernameSelected);
+            // FIXME: SERVER CALL: getUserPassword(usernameSelected) return String, getPermissions(usernameSelected) return ArrayList<Boolean>
+            userPreviewView.setPassword("Password");
+            userPreviewView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
             views.put(USER_VIEW, userPreviewView);
 
             updateView(USER_VIEW);
@@ -803,8 +820,19 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit Profile button clicked");
+            // get USER EDIT VIEW
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            String username = model.getUsername();
 
-            // navigate to edit user
+            // set username, password and permissions in Profile View
+            userEditView.setUsername(username);
+            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
+            userEditView.setPassword("Password");
+            userEditView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
+            views.put(USER_EDIT, userEditView);
+
+            // navigate to edit users
             updateView(USER_EDIT);
         }
     }
@@ -1109,14 +1137,32 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Photo button clicked");
-
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            try {
-                ImageIcon icon = bbCreateView.browsePhotos();
-                bbCreateView.setPhoto(icon);
+            int response = bbCreateView.photoTypeSelection();
+            // URL selected
+            if (response == 0)
+            {
+                ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
+                if (photoData != null)
+                {
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, (String)photoData.get(1));
+                }
+                else
+                {
+                    bbCreateView.showURLErrorMessage();
+                }
             }
-            catch (IOException ex) { ex.printStackTrace(); }
+            else if (response == 1)
+            {
+                ArrayList<Object> photoData = bbCreateView.browsePhotos();
+
+                if (photoData != null)
+                {
+                    System.out.println("encoded img " + (String)photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, (String)photoData.get(1));
+                }
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -1298,10 +1344,17 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Schedule Clear button clicked");
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
             int clear = scheduleUpdateView.showScheduleClearConfirmation();
-//            if (clear)
-//            {
-//                // TODO: remove schedule from DB
-//            }
+            // if user confirms deletion of schedule
+            if (clear == 0)
+            {
+                String BBName = scheduleUpdateView.getSelectedBBName();
+
+                //FIXME: SERVER CALL: removeBBSchedule(BBName)
+                // Noting - this BB may not exist in the Schedule Table!
+
+                // navigate back to schedule menu
+                updateView(SCHEDULE_MENU);
+            }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
@@ -1321,6 +1374,7 @@ public class Controller
                 System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
 
                 // get bb name that has been selected
+                // TODO: check if this is the best way of getting the menu item selected
                 JComboBox menuItem = (JComboBox) e.getSource();
                 String bbName = (String)menuItem.getSelectedItem();
 

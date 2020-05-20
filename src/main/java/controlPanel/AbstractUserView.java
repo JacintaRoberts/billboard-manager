@@ -4,6 +4,8 @@ import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public abstract class AbstractUserView extends AbstractGenericView
 {
@@ -91,12 +93,12 @@ public abstract class AbstractUserView extends AbstractGenericView
         passwordText.setText(password);
     }
 
-    protected void setPermissions(boolean[] permissions)
+    protected void setPermissions(ArrayList<Boolean> permissions)
     {
-        editUsersPermission.setSelected(permissions[0]);
-        scheduleBBPermission.setSelected(permissions[1]);
-        editBBPermission.setSelected(permissions[2]);
-        createBBPermission.setSelected(permissions[3]);
+        editUsersPermission.setSelected(permissions.get(0));
+        scheduleBBPermission.setSelected(permissions.get(1));
+        editBBPermission.setSelected(permissions.get(2));
+        createBBPermission.setSelected(permissions.get(3));
     }
 
     protected void setBBFrameTitle(String titleName)
@@ -124,7 +126,7 @@ public abstract class AbstractUserView extends AbstractGenericView
     {
         setUsername("");
         setPassword("");
-        setPermissions(new boolean[]{false,false,false,false});
+        setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
     }
 
 }

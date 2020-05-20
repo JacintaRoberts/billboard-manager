@@ -235,12 +235,13 @@ public class ScheduleUpdateView extends AbstractGenericView
         repeatMinutesPanel = new JPanel();
         repeatMinutesPanel.setLayout(new GridLayout(3,1));
         repeatMinutesComboBox = new JComboBox(new Integer[]{});
-        repeatMinutesComboBox.setEnabled(false);
 
         // create labels for minutes panel
         repeatMinutesLabel = new JLabel("Repeat every X minute/s: ");
         minutesLabel = new JLabel("");
-        minutesLabel.setEnabled(false);
+
+        // disable minute labels and combobox
+        enableMinuteSelector(false);
 
         // add labels and combo box to panel
         repeatMinutesPanel.add(repeatMinutesLabel);
@@ -454,7 +455,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected int showScheduleClearConfirmation()
     {
-        int result =  JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the Schedule? Please note this will be removed from the database.");
+        int result =  JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the Schedule? Please note, an existing Schedule for this Billboard will be removed from the database.");
         return result;
     }
 
@@ -664,7 +665,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // --- GET USER INPUT ---
         // get BB name
-        String name = (String) bbNameComboBox.getSelectedItem();
+        String name = getSelectedBBName();
         // get times selected
         Integer startHour = (Integer)startHourSelector.getSelectedItem();
         String startMin = (String)startMinSelector.getSelectedItem();
@@ -714,6 +715,11 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // return schedule information
         return scheduleInfo;
+    }
+
+    protected String getSelectedBBName()
+    {
+        return (String) bbNameComboBox.getSelectedItem();
     }
 
     /**

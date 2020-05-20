@@ -35,17 +35,6 @@ public class UserProfileView extends AbstractUserView
         navPanel.add(editButton, setGBC(gbc,3,1,1,1));
     }
 
-//    protected ArrayList<Object> getUserInfo()
-//    {
-//        ArrayList<Object> userInfoArray = new ArrayList<>();
-//        userInfoArray.add(usernameText.getText());
-//        userInfoArray.add(passwordText.getText());
-//        userInfoArray.add(editBBPermission.isSelected());
-//        userInfoArray.add(scheduleBBPermission.isSelected());
-//        userInfoArray.add(editUsersPermission.isSelected());
-//        return userInfoArray;
-//    }
-
     public void addEditButtonListener(MouseListener listener)
     {
         editButton.addMouseListener(listener);

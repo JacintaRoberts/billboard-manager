@@ -52,6 +52,36 @@ public class UserEditView extends AbstractUserView
         submitButton.addMouseListener(listener);
     }
 
+    /**
+     * Show Ask User for confirmation of user creation
+     * @return response of user (int)
+     */
+    protected int showCreateUserConfirmation()
+    {
+        String message = "Are you sure you want to proceed?";
+        return JOptionPane.showConfirmDialog(null, message);
+    }
+
+    protected void showErrorMessage()
+    {
+        String message = "Please fill out all fields.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Check that user data is valid
+     * @return boolean true = valid, false = invalid
+     */
+    // TODO: check that user's do not need to have any permissions selected
+    protected boolean checkValidUser()
+    {
+        if (usernameText.getText().equals("") || passwordText.getText().equals(""))
+        {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     VIEW_TYPE getEnum() {
         return view_type;

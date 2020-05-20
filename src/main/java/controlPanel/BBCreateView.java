@@ -15,9 +15,17 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Base64;
 import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
@@ -27,6 +35,8 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
+import static javax.swing.JOptionPane.DEFAULT_OPTION;
+import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
 import static viewer.Viewer.*;
 
 public class BBCreateView extends AbstractGenericView
@@ -54,11 +64,11 @@ public class BBCreateView extends AbstractGenericView
     private VIEW_TYPE view_type;
 
     private String photoPath;
-    private Image image;
-    private ImageIcon icon;
     private String backgroundColour;
     private String titleColour;
     private String infoColour;
+
+    private PhotoType photoType;
 
     private JTextArea titleLabel;
     private JTextArea BBTextField;
@@ -140,7 +150,9 @@ public class BBCreateView extends AbstractGenericView
         titleButton = new JButton("Title");
         textButton = new JButton("Text");
         photoButton = new JButton("Photo");
+
         photoPath = null;
+        photoType = null;
 
         drawingToolsPanel.add(BBNameLabel);
         drawingToolsPanel.add(billboardNameButton);
@@ -177,14 +189,14 @@ public class BBCreateView extends AbstractGenericView
         photoChooser = new JFileChooser();
         photoChooser.setCurrentDirectory(new java.io.File("."));
         photoChooser.setDialogTitle("Select Photo to upload");
-        FileNameExtensionFilter photofilter = new FileNameExtensionFilter("image files (*.bmp, *jpg, *png)", "jpg","png", "bmp");
-        photoChooser.setFileFilter(photofilter);
+        FileNameExtensionFilter photoFilter = new FileNameExtensionFilter("image files (*.bmp, *jpg, *png)", "jpg","png", "bmp");
+        photoChooser.setFileFilter(photoFilter);
 
         xmlChooser = new JFileChooser();
         xmlChooser.setCurrentDirectory(new java.io.File("."));
         xmlChooser.setDialogTitle("Select XML File to upload");
-        FileNameExtensionFilter xmlfilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
-        xmlChooser.setFileFilter(xmlfilter);
+        FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
+        xmlChooser.setFileFilter(xmlFilter);
 
         xmlFolderChooser = new JFileChooser();
         xmlFolderChooser.setCurrentDirectory(new java.io.File("."));
@@ -202,7 +214,7 @@ public class BBCreateView extends AbstractGenericView
         setBackgroundColour(toHexString(Color.WHITE));
         setBBTitle("");
         setBBText("");
-        setPhoto(null);
+        setPhoto(null, null, null);
     }
 
     @Override
@@ -280,9 +292,17 @@ public class BBCreateView extends AbstractGenericView
      * Set Photo in the Drawing Panel
      * @param icon BB image in icon format
      */
-    protected void setPhoto(ImageIcon icon)
+    protected void setPhoto(ImageIcon icon, PhotoType imgType, String imgPath)
     {
+        // FIXME: handle when these are NULL
         photoLabel.setIcon(icon);
+        photoType = imgType;
+        photoPath = imgPath;
+
+
+        System.out.println("icon " + icon);
+        System.out.println("photo type " + photoType);
+        System.out.println("photo path " + photoPath);
     }
 
     /**
@@ -320,8 +340,6 @@ public class BBCreateView extends AbstractGenericView
 
         return BBInfo;
     }
-
-
 
     // ###################### BROWSE FOR BB SETTINGS ######################
 
@@ -436,19 +454,55 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Browse Photos to add to BB
      * @return BB Image (icon format)
-     * @throws IOException
      */
-    protected ImageIcon browsePhotos() throws IOException
+    protected ArrayList<Object> browsePhotos()
     {
-        icon = null;
         int value = photoChooser.showSaveDialog(null);
         if(value == JFileChooser.APPROVE_OPTION)
         {
-            photoPath = photoChooser.getSelectedFile().getAbsolutePath();
-            image = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-            icon = new ImageIcon(image);
+            try
+            {
+                ArrayList<Object> imageDetails = new ArrayList<>();
+                String photoPath = photoChooser.getSelectedFile().getAbsolutePath();
+                Image img = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                imageDetails.add(new ImageIcon(img));
+
+                byte[] fileContent = Files.readAllBytes(new File(photoPath).toPath());
+                String encodedString = Base64.getEncoder().encodeToString(fileContent);
+
+                imageDetails.add(encodedString);
+                return imageDetails;
+            }
+            catch (Exception e)
+            {
+                return null;
+            }
         }
-        return icon;
+        return null;
+    }
+
+    protected ArrayList<Object> showURLInputMessage() {
+        String pathProvided = JOptionPane.showInputDialog(null, "Provide URL to Image:");
+        try
+        {
+            ArrayList<Object> imageDetails = new ArrayList<>();
+            URL url = new URL(pathProvided);
+            Image image = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+            ImageIcon icon = new ImageIcon(image);
+            imageDetails.add(icon);
+            imageDetails.add(pathProvided);
+            return imageDetails;
+        }
+        catch(Exception e)
+        {
+            return null;
+        }
+    }
+
+    protected void showURLErrorMessage()
+    {
+        String message = "An invalid URL was provided. Please try again with a different URL.";
+        JOptionPane.showMessageDialog(null, message);
     }
 
     /**
@@ -491,6 +545,13 @@ public class BBCreateView extends AbstractGenericView
                 xmlExport(xmlExportPath + "\\" + XMLFileName + ".xml");
             }
         }
+    }
+
+    protected int photoTypeSelection()
+    {
+        String message = "Please select the Type of Image to add to the Billboard.";
+        String[] options = {"URL", "Browse Personal Photos", "Cancel"};
+        return JOptionPane.showOptionDialog(null, message, "Photo Type", DEFAULT_OPTION, INFORMATION_MESSAGE, null, options, null);
     }
 
     /**
@@ -552,10 +613,31 @@ public class BBCreateView extends AbstractGenericView
 
         NodeList photoList = doc.getElementsByTagName("picture");
         Element photoNode = (Element) photoList.item(0);
-        photoPath = photoNode.getAttribute("url");
-
-        Image photoImage = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-        setPhoto(new ImageIcon(photoImage));
+        String photoPathNode = null;
+        PhotoType photoPathType = null;
+        Image photoImage = null;
+        if (photoNode.hasAttribute("url"))
+        {
+            photoPathNode = photoNode.getAttribute("url");
+            photoPathType = PhotoType.URL;
+            if (photoPathNode != null)
+            {
+                URL url = new URL(photoPathNode);
+                photoImage = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                setPhoto(new ImageIcon(photoImage),photoPathType, photoPathNode);
+            }
+        }
+        else if(photoNode.hasAttribute("data"))
+        {
+            photoPathNode = photoNode.getAttribute("data");
+            photoPathType = PhotoType.DATA;
+            if (photoPathNode != null)
+            {
+                byte[] imgBytes = Base64.getDecoder().decode(photoPathNode);
+                photoImage =ImageIO.read(new ByteArrayInputStream(imgBytes)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                setPhoto(new ImageIcon(photoImage),photoPathType, photoPathNode);
+            }
+        }
     }
 
     /**
@@ -625,13 +707,22 @@ public class BBCreateView extends AbstractGenericView
     /**
      * In XML document, set image URL
      * @param doc XML document representing BB
-     * @param url file path to image
+     * @param image image as url or data
      * @return
      */
-    private Node createPicture(Document doc, String url) {
+    private Node createPicture(Document doc, String image) {
 
         Element user = doc.createElement("picture");
-        user.setAttribute("url", url);
+        if (photoType == PhotoType.URL)
+        {
+            user.setAttribute("url", image);
+        }
+        else if (photoType == PhotoType.DATA)
+        {
+            user.setAttribute("data", image);
+        }
+        // FIXME: ELSE CONDITION
+
         return user;
     }
 
@@ -670,7 +761,16 @@ public class BBCreateView extends AbstractGenericView
 
         // Read in the picture
         BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
-        setPhoto(new ImageIcon(pictureImage));
+        PhotoType photoType = null;
+        if (pictureType.equals("url"))
+        {
+            photoType = PhotoType.URL;
+        }
+        else if (pictureType.equals("data"))
+        {
+            photoType = PhotoType.DATA;
+        }
+        setPhoto(new ImageIcon(pictureImage),photoType, picture);
 
         setBBTitle(message);
         setBBText(information);
@@ -782,5 +882,11 @@ public class BBCreateView extends AbstractGenericView
     protected void addBBCreationListener(MouseListener listener)
     {
         createButton.addMouseListener(listener);
+    }
+
+    protected enum PhotoType
+    {
+        URL,
+        DATA
     }
 }
