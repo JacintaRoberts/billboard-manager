@@ -78,6 +78,8 @@ public class BBCreateView extends AbstractGenericView
     void createComponents()
     {
         createDrawingPanel();
+//        createDrawingToolbar();
+//        createBBOptionsMenu();
     }
 
     /**
