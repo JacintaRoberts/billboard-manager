@@ -40,13 +40,13 @@ public abstract class AbstractUserView extends AbstractGenericView
     @Override
     void createComponents()
     {
-        title = new JLabel("");
-        title.setForeground(Color.WHITE);
-        title.setFont(title.getFont().deriveFont(90f));
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(50,10,50,10);
         userDetailsPane = new JPanel();
         userDetailsPane.setLayout(new GridBagLayout());
+        title = new JLabel("");
+        title.setForeground(Color.WHITE);
+        title.setFont(title.getFont().deriveFont(90f));
         usernameLabel = new JLabel("Username");
         usernameText = new JTextField("");
         usernameText.setPreferredSize(new Dimension(100,100));
