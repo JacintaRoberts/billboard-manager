@@ -2,6 +2,8 @@ package server;
 
 import java.io.IOException;
 import java.sql.*;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -598,7 +600,166 @@ public class ScheduleAdmin {
     return scheduleList;
     }
 
+    /**
+     * Stores Database Queries: Schedule. This is a generic method which returns a list of billboard Schedules for a day
+     * stored into database.
+     * <p>
+     * This method always returns immediately.
+     * @param scheduleList  Variable scheduleList which is all billboards in a day
+     * @return
+     */
+    public static ScheduleList viewAllDaySchedule(ScheduleList scheduleList) throws IOException, SQLException {
+        ScheduleList allDaySchedule = null;
+        // Initialise Variable
+        ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedStartTime = new ArrayList<>();
+        ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+        ArrayList<String> retrievedRepeat = new ArrayList<>();
+        ArrayList<String> retrievedSunday = new ArrayList<>();
+        ArrayList<String> retrievedMonday = new ArrayList<>();
+        ArrayList<String> retrievedTuesday = new ArrayList<>();
+        ArrayList<String> retrievedWednesday = new ArrayList<>();
+        ArrayList<String> retrievedThursday = new ArrayList<>();
+        ArrayList<String> retrievedFriday = new ArrayList<>();
+        ArrayList<String> retrievedSaturday = new ArrayList<>();
 
+        int numBillboards = scheduleList.getScheduleBillboardName().size();
+        LocalTime endTime = LocalTime.parse("23:59");
+
+
+        LocalTime startTime ;
+        int repeatMinutes ;
+        int minTillEnd ;
+        int extraSched;
+        int duration ;
+        String billboardName;
+        String creationDateTime;
+        String Sunday;
+        String Monday;
+        String Tuesday;
+        String Wednesday;
+        String Thursday;
+        String Friday;
+        String Saturday;
+
+
+        // Repeats
+        for (int i = 0; i < numBillboards; i++) {
+            billboardName = scheduleList.getScheduleBillboardName().get(i);
+            startTime = LocalTime.parse(scheduleList.getStartTime().get(i)) ;
+            repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
+            duration = Integer.parseInt(scheduleList.getDuration().get(i));
+            creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
+            minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
+            extraSched = minTillEnd / repeatMinutes;
+            Sunday = scheduleList.getSunday().get(i);
+            Monday = scheduleList.getMonday().get(i);
+            Tuesday = scheduleList.getTuesday().get(i);
+            Wednesday = scheduleList.getWednesday().get(i);
+            Thursday = scheduleList.getThursday().get(i);
+            Friday = scheduleList.getFriday().get(i);
+            Saturday = scheduleList.getSaturday().get(i);
+            for (int j = 0; j <= extraSched; j++){
+                retrievedBillboard.add(billboardName);
+                retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes)));
+                retrievedDuration.add(String.valueOf(duration));
+                retrievedCreationDateTime.add(creationDateTime);
+                retrievedRepeat.add(String.valueOf(repeatMinutes));
+                retrievedSunday.add(Sunday);
+                retrievedMonday.add(Monday);
+                retrievedTuesday.add(Tuesday);
+                retrievedWednesday.add(Wednesday);
+                retrievedThursday.add(Thursday);
+                retrievedFriday.add(Friday);
+                retrievedSaturday.add(Saturday);
+            }
+        }
+        String serverResponse = "Pass: All Day Schedule Returned";
+
+        allDaySchedule = new ScheduleList(serverResponse,
+                retrievedBillboard,
+                retrievedStartTime,
+                retrievedDuration,
+                retrievedCreationDateTime,
+                retrievedRepeat,
+                retrievedSunday,
+                retrievedMonday,
+                retrievedTuesday,
+                retrievedWednesday,
+                retrievedThursday,
+                retrievedFriday,
+                retrievedSaturday
+        );
+
+        return allDaySchedule;
+    }
+
+    /**
+     * Stores Database Queries: Schedule. This is a generic method which returns a list of billboard that is currently
+     * scheduled.
+     * <p>
+     * This method always returns immediately.
+     * @param allDaySchedule  Variable scheduleList which is all billboards in a day
+     * @return
+     */
+    public static CurrentSchedule viewCurrentSchedule(ScheduleList allDaySchedule, LocalTime currentTime) throws IOException, SQLException {
+        CurrentSchedule currentSchedule = null;
+        // Initialise Variable
+        ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedStartTime = new ArrayList<>();
+        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+
+
+        int numBillboards = allDaySchedule.getScheduleBillboardName().size();
+
+        LocalTime startTime ;
+        LocalTime endTime ;
+        int repeatMinutes ;
+        int minTillEnd ;
+        int extraSched;
+        int duration ;
+        int counter = 0;
+        String billboardName;
+        String creationDateTime;
+        String serverResponse;
+
+        // Repeats
+        for (int i = 0; i < numBillboards; i++) {
+            billboardName = allDaySchedule.getScheduleBillboardName().get(i);
+            startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i)) ;
+            duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
+            endTime =  startTime.plusMinutes(duration);
+            creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
+            if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)){
+                retrievedBillboard.add(billboardName);
+                retrievedStartTime.add(String.valueOf(startTime));
+                retrievedCreationDateTime.add(creationDateTime);
+                counter++;
+            }
+        }
+        if (counter > 0){
+            serverResponse = "Pass: Current Active Schedule Returned";
+        } else {
+            serverResponse = "Pass: No current Active Schedule";
+            retrievedBillboard.add("0");
+            retrievedStartTime.add("0");
+            retrievedStartTime.add("0");
+        }
+
+        System.out.println(serverResponse);
+        System.out.println(retrievedBillboard);
+        System.out.println(retrievedStartTime);
+        System.out.println(retrievedCreationDateTime);
+
+        currentSchedule = new CurrentSchedule(serverResponse,
+                retrievedBillboard,
+                retrievedStartTime,
+                retrievedCreationDateTime
+        );
+
+        return currentSchedule;
+    }
 
 
 }
