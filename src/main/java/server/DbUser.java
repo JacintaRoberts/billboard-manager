@@ -113,7 +113,7 @@ public class DbUser {
      * @throws SQLException
      */
     public static void addUser(String username, String password, String randomSalt, boolean createBillboard,
-                               boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException, SQLException {
+                 boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException, SQLException {
         connection = DbConnection.getInstance();
         addUser = connection.prepareStatement(ADD_USER_SQL);
         addUser.setString(1, username);

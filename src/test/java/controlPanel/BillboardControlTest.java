@@ -45,11 +45,11 @@ class BillboardControlTest {
      *              Invalid Name (same name). Assume sessionToken is valid.
      * Expected Output: A negative reply from Server noting the failure of request
      */
-    @Test
-    public void createSameNameBillboardRequest() throws IOException, ClassNotFoundException {
-        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "newBillboard1", "xmlCode");
-        assertEquals(serverResponse, "Fail: Billboard Already Exists");
-    }
+//    @Test
+//    public void createSameNameBillboardRequest(){
+//        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        assertEquals(serverResponse, "Fail: Billboard Name Already Exists");
+//    }
 
 
     /* Test 4: Request to server to create Billboard (Exception Handling)
@@ -57,11 +57,11 @@ class BillboardControlTest {
      *              Invalid Name (Illegal Characters). Assume sessionToken is valid.
      * Expected Output: A negative reply from Server noting the failure of request
      */
-    @Test
-    public void createIllegalNameBillboardRequest() throws IOException, ClassNotFoundException {
-        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Billboard1#$@#%", "xmlCode");
-        assertEquals(serverResponse, "Fail: Billboard Name Contains Illegal Characters");
-    }
+//    @Test
+//    public void createIllegalNameBillboardRequest(){
+//        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        assertEquals(serverResponse, "Fail: Billboard Contains Illegal Character");
+//    }
 
 
     /* Test 5: Request to server to edit a billboard (Success)
@@ -69,11 +69,11 @@ class BillboardControlTest {
      *              board and user needs to provide a new xmlCode. Assume sessionToken is valid.
      * Expected Output: A positive reply from Server noting the success of request
      */
-    @Test
-    public void editABillboardRequest() throws IOException, ClassNotFoundException {
-        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "newBillboard1", "xmlCode2");
-        assertEquals(serverResponse, "Pass: Billboard Edited");
-    }
+//    @Test
+//    public void editABillboardRequest(){
+//        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        assertEquals(serverResponse, "Pass: Billboard Edited");
+//    }
 
 
     /* Test 6: Request to server to edit a billboard (Exception Handling)
@@ -83,8 +83,8 @@ class BillboardControlTest {
      * Expected Output: A negative reply from Server noting the failure of request
      */
 //    @Test
-//    public void editABillboardRequestNoPermission() throws IOException, ClassNotFoundException {
-//        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+//    public void editABillboardRequestNoPermission(){
+//        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", xmlCode);
 //        assertEquals(serverResponse, "Fail: Insufficient User Permission");
 //    }
 
@@ -95,11 +95,11 @@ class BillboardControlTest {
      *              board cannot be edited (does not exists).
      * Expected Output: A negative reply from Server noting the failure of request
      */
-    @Test
-    public void editABillboardRequestNoBillboard() throws IOException, ClassNotFoundException {
-        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard444", "xmlCode");
-        assertEquals(serverResponse, "Fail: Billboard Does not Exist");
-    }
+//    @Test
+//    public void editABillboardRequestNoBillboard(){
+//        String serverResponse = billboardControl.editBillboardRequest("sampleToken", "Billboard1", xmlCode);
+//        assertEquals(serverResponse, "Fail: Billboard Does not Exist");
+//    }
 
 
     /* Test 8: Request to server to delete a billboard (Success)
@@ -107,10 +107,9 @@ class BillboardControlTest {
      * Expected Output: A positive reply from server of successful deletion.
      */
 //    @Test
-//    public void deleteABillboardRequest() throws IOException, ClassNotFoundException {
-//        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "newBillboard1234", "xmlCode");
-//        String serverResponse2 = billboardControl.deleteBillboardRequest("sampleSessionToken","newBillboard1234");
-//        assertEquals(serverResponse2, "Pass: Billboard Deleted");
+//    public void deleteABillboardRequest(){
+//        String serverResponse = billboardControl.deleteBillboardRequest("sampleSessionToken","Billboard1");
+//        assertEquals(serverResponse, "Pass: Billboard Deleted");
 //    }
 
 
@@ -120,8 +119,8 @@ class BillboardControlTest {
      * Expected Output: A negative reply from server of failure to delete.
      */
 //    @Test
-//    public void deleteABillboardRequestNoBillboard() throws IOException, ClassNotFoundException {
-//        String serverResponse = billboardControl.deleteBillboardRequest("sampleSessionToken","nonexistBillboard");
+//    public void deleteABillboardRequestNoBillboard(){
+//        String serverResponse = billboardControl.deleteBillboardRequest("sampleSessionToken","Billboard1");
 //        assertEquals(serverResponse, "Fail: Billboard Does Not Exist");
 //    }
 
