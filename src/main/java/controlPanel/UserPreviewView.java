@@ -15,17 +15,7 @@ public class UserPreviewView extends AbstractUserView
     {
         super("Preview User");
         view_type = VIEW_TYPE.USER_VIEW;
-        setEditable();
-    }
-
-    @Override
-    void setEditable()
-    {
-        passwordText.setEditable(false);
-        usernameText.setEditable(false);
-        editBBPermission.setEnabled(false);
-        editSchedulePermission.setEnabled(false);
-        editUsersPermission.setEnabled(false);
+        setEditable(false);
     }
 
     @Override

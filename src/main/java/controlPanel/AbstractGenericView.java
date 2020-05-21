@@ -142,4 +142,13 @@ public abstract class AbstractGenericView extends AbstractView
     {
         return navPanel;
     }
+
+    /**
+     * Get nav panel GBC such that abstract classes can edit
+     * @return
+     */
+    protected GridBagConstraints getNavGBCPanel()
+    {
+        return gbc_nav;
+    }
 }
