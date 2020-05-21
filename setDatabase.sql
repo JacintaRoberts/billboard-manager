@@ -30,25 +30,36 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
 
 
   CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Schedules` (
-      `StartDateTime` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
       `BillboardName` varchar(255) NOT NULL default '',
-      `Duration` TIME NOT NULL DEFAULT '00:01:00',
-      PRIMARY KEY (`StartDateTime`)
+      `StartTime` DATETIME NOT NULL default CURRENT_TIMESTAMP,
+      `Duration` INT NOT NULL default 1,
+      `CreationDateTime` DATETIME NOT NULL default CURRENT_TIMESTAMP,
+      `Repeat` INT default NULL,
+      `Sunday` bool NOT NULL default 0,
+      `Monday` bool NOT NULL default 0,
+      `Tuesday` bool NOT NULL default 0,
+      `Wednesday` bool NOT NULL default 0,
+      `Thursday` bool NOT NULL default 0,
+      `Friday` bool NOT NULL default 0,
+      `Saturday` bool NOT NULL default 0,
+      PRIMARY KEY (`BillboardName`)
   );
 
 
+--
+--/*Initial admin user - login is root, pass*/
+--INSERT INTO Users
+--VALUES ("root", "a461ab9266dbbec4623de686f806a23e69337f524527e282bb325092159f0d87",
+--"8bca1326370a157d9c33acd5a173440d9475d3955ae559872f47cfe34aa793bd", true, true, true, true);
+--
+--
+--INSERT INTO Billboards
+--VALUES ("TestBillboard", "TestUser", "TestXMLCODE");
+--
+--INSERT INTO Billboards
+--VALUES ("TestBillboard2", "TestUser2", "TestXMLCODE2");
+--
+--INSERT INTO Billboards
+--VALUES ("TestBillboard3", "TestUser3", "TestXMLCODE3");
 
-/*Initial admin user - login is root, pass*/
-INSERT INTO Users
-VALUES ("root", "a461ab9266dbbec4623de686f806a23e69337f524527e282bb325092159f0d87",
-"8bca1326370a157d9c33acd5a173440d9475d3955ae559872f47cfe34aa793bd", true, true, true, true);
 
-
-INSERT INTO Billboards
-VALUES ("TestBillboard", "TestUser", "TestXMLCODE");
-
-INSERT INTO Billboards
-VALUES ("TestBillboard2", "TestUser2", "TestXMLCODE2");
-
-INSERT INTO Billboards
-VALUES ("TestBillboard3", "TestUser3", "TestXMLCODE3");

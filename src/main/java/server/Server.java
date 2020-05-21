@@ -227,6 +227,13 @@ public class Server {
                 String billboardName = additionalArgs[0];
                 String xmlCode = additionalArgs[1];
                 return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
+            case "EditBillboard":
+                String originalBillboardName = additionalArgs[0];
+                String newXmlCode = additionalArgs[1];
+                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
+            case "DeleteBillboard":
+                String deleteBillboardName = additionalArgs[0];
+                return BillboardAdmin.deleteBillboard(deleteBillboardName);
             default:
                 return "No BillboardAdmin method requested";
         }
