@@ -11,6 +11,7 @@ public class UserListView extends AbstractListView
     {
         super("User List");
         view_type = Main.VIEW_TYPE.USER_LIST;
+        setListTitle("USER LIST");
     }
 
     @Override

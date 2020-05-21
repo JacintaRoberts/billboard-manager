@@ -17,8 +17,10 @@ public class UsersMenuView extends AbstractGenericView
     private JButton createUsersButton;
     // --- ENUM ---
     private VIEW_TYPE view_type;
-
+    // --- GBC ---
     private GridBagConstraints gbc;
+    // --- Labels ---
+    private JLabel title;
 
     /**
      * Constructor to create home view, use parent constructor.
@@ -37,11 +39,15 @@ public class UsersMenuView extends AbstractGenericView
         optionsPanel.setLayout(new GridBagLayout());
         viewUsersButton = new JButton("View Users");
         createUsersButton = new JButton("Create User");
+        title = new JLabel("USER MENU");
+        title.setForeground(Color.WHITE);
+        title.setFont(title.getFont().deriveFont(60f));
 
-        gbc.insets = new Insets(5,10,5,10);
+        gbc.insets = new Insets(1,10,1,10);
         optionsPanel.add(viewUsersButton, setGBC(gbc, 1,1,1,1));
-        optionsPanel.add(createUsersButton, setGBC(gbc, 2,1,1,1));
-
+        optionsPanel.add(createUsersButton, setGBC(gbc, 3,1,1,1));
+        gbc.insets = new Insets(250,1,1,1);
+        optionsPanel.add(title, setGBC(gbc, 1,2,3,1));
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 

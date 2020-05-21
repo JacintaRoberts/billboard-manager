@@ -12,8 +12,10 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -207,13 +209,12 @@ public class Controller
 
     /**
      * BB CREATE LISTENERS: designed to add listeners to the BB CREATE VIEW.
-     * Listeners include: Home, Back and Profile, also FIXME: need to add a range of listeners!
+     * Listeners include: Home, Back and Profile
      */
     private void addBBCreateListener()
     {
         addGenericListeners(BB_CREATE);
         BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-        // FIXME: lots to come!
         bbCreateView.addBBBackgroundColourListener(new ColourListener());
         bbCreateView.addBBTitleListener(new TitleListener());
         bbCreateView.addBBTextListener(new BBTextListener());
@@ -351,13 +352,30 @@ public class Controller
                 System.out.println("Check LogIn permission");
                 break;
             case SCHEDULE_WEEK:
-                System.out.println("Check Schedule permission");
-                System.out.println("Populate Table");
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
-                // get information from the database (send username, session token) returns scheduleObject
+
+                // FIXME: SERVER CALL: getBillboardSchedule(Monday), getBillboardSchedule(Tuesday) which will return ArrayList<ArrayList<String>>
+
                 // Billboard Schedule: day, time, bb name
-                String[][] billboardSchedule = new String[][] {{"1-2pm", "Myer's Sale"},{"6-7am", "Spotlight Winter Sale"}};
-                scheduleWeekView.populateSchedule(billboardSchedule);
+                ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+
+                ArrayList<ArrayList<String>> billboardScheduleTuesday = new ArrayList<>();
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+
+                ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
+                schedule.add(billboardScheduleMonday);
+                schedule.add(billboardScheduleTuesday);
+
+                scheduleWeekView.populateSchedule(schedule);
                 break;
             case SCHEDULE_UPDATE:
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
@@ -416,18 +434,20 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Profile button clicked");
 
             // get PROFILE VIEW
-            UserProfileView userView = (UserProfileView) views.get(USER_PROFILE);
+            UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
 
-            // set profile information
-            // set username and password text on GUI
-            // FIXME: get password and user permissions from Control/Server
-            userView.setUsername(model.getUsername());
-            userView.setPassword("Password");
-            userView.setPermissions(new boolean[]{false,true,true, true});
-            views.put(USER_VIEW, userView);
+            String username = model.getUsername();
+
+            // set username, password and permissions in Profile View
+            userProfileView.setUsername(username);
+            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
+            userProfileView.setPassword("Password");
+            userProfileView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
+            views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
-            updateView(USER_VIEW);
+            updateView(USER_PROFILE);
         }
     }
 
@@ -444,11 +464,11 @@ public class Controller
                 String sessionToken = model.getSessionToken(); // Retrieve session token
                 serverResponse = logoutRequest(sessionToken); // CP Backend method call
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
-                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-                // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
-                // 1. ServerAcknowledgement.Success; // Occurs when session token existed and was successfully expired
-                // 2. ServerAcknowledgment.InvalidToken; // Occurs when session token was already expired
-                // If successful, let the user know, navigate to login screen
+            // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
+            // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
+            // 1. ServerAcknowledgement.Success; // Occurs when session token existed and was successfully expired
+            // 2. ServerAcknowledgment.InvalidToken; // Occurs when session token was already expired
+            // If successful, let the user know, navigate to login screen
                 if (sessionTokenExpirationSuccess()) {
                     System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
                     //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
@@ -495,6 +515,9 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
+            model.storeUsername(username);
+            model.storeSessionToken("");
+
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
                 //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
@@ -559,14 +582,17 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Edit User button clicked");
 
             JButton button = (JButton) e.getSource();
-            System.out.println("UserName :" + button.getName());
-            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionTocken, username, userRequest);
-
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            userEditView.setUsername(button.getName());
-            userEditView.setPassword("password123");
-            userEditView.setPermissions(new boolean[]{false,true,true,false});
+            // get selected user
+            String usernameSelected = button.getName();
+            // set username, password and permissions in User Edit View
+            userEditView.setUsername(usernameSelected);
+            // FIXME: SERVER CALL: getUserPassword(usernameSelected) return String, getPermissions(usernameSelected) return ArrayList<Boolean>
+            userEditView.setPassword("Password");
+            userEditView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+            // set Title of Screen
+            userEditView.setBBFrameTitle("EDIT USER");
             views.put(USER_EDIT, userEditView);
 
             // navigate to user edit screen
@@ -586,6 +612,11 @@ public class Controller
 
             //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
 
+            // update information in CREATE USER view
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            userEditView.setBBFrameTitle("CREATE USER");
+            views.put(USER_EDIT, userEditView);
+
             // navigate to edit user screen
             updateView(USER_EDIT);
         }
@@ -602,37 +633,47 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
 
             // update information in EDIT USER view
-            //TODO: MOVE THE LOCATION OF THE CREATE USER BUTTON AND RETURN THE
-            // CREATE USER PERMISSION IN THE .getUserInfo() method
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            ArrayList<Object> userArray = userEditView.getUserInfo();
-            System.out.println(userArray);
-            // Parsing elements from user array for the UserControl method to create the request to server
-            String username = (String) userArray.get(0);
-            String password = (String) userArray.get(1);
-            Boolean createBillboards = true; // TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
-            Boolean editBillboards = (Boolean) userArray.get(2);
-            Boolean editSchedules = (Boolean) userArray.get(3);
-            Boolean editUsers = (Boolean) userArray.get(4);
+            boolean validUserInput = userEditView.checkValidUser();
+            // if valid user input, ask user to confirm user creation
+            if (validUserInput)
+            {
+                int response = userEditView.showCreateUserConfirmation();
+                // add user to DB if user confirms user creation
+                if (response == 0)
+                {
+                    ArrayList<Object> userArray = userEditView.getUserInfo();
 
-            // TODO: HANDLE EXCEPTIONS IN GUI
-            try {
-                UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
-            } catch (NoSuchAlgorithmException ex) {
-                ex.printStackTrace();
+                    // Parsing elements from user array for the UserControl method to create the request to server
+                    String username = (String) userArray.get(0);
+                    String password = (String) userArray.get(1);
+                    Boolean createBillboards = (Boolean) userArray.get(5); //TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
+                    Boolean editBillboards = (Boolean) userArray.get(2);
+                    Boolean editSchedules = (Boolean) userArray.get(3);
+                    Boolean editUsers = (Boolean) userArray.get(4);
+
+                    // TODO: HANDLE EXCEPTIONS IN GUI
+                    try {
+                        UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    } catch (ClassNotFoundException ex) {
+                        ex.printStackTrace();
+                    } catch (NoSuchAlgorithmException ex) {
+                        ex.printStackTrace();
+                    }
+                    views.put(USER_EDIT, userEditView);
+
+                    // navigate to edit menu screen
+                    updateView(USERS_MENU);
+                }
             }
-
-            views.put(USER_EDIT, userEditView);
-
-            // navigate to edit menu screen
-            updateView(USERS_MENU);
+            else
+            {
+                userEditView.showErrorMessage();
+            }
         }
     }
-
 
     /**
      * Listener to handle Delete User Button mouse clicks.
@@ -645,7 +686,14 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Delete User button clicked");
             JButton button = (JButton) e.getSource();
             String username = button.getName();
-            System.out.println("UserName :" + username);
+            UserListView userListView = (UserListView) views.get(USER_LIST);
+            // ask user to confirm deletion of user
+            int response = userListView.showDeleteConfirmation();
+
+            // if confirmed response, delete from DB
+            if (response == 0)
+            {
+                System.out.println("Delete user from DB");
             // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
             try {
                 String sessionToken = model.getSessionToken(); // Retrieve session token
@@ -672,6 +720,9 @@ public class Controller
             } catch (ClassNotFoundException ex) {
                 ex.printStackTrace();
             }
+                // navigate back to the same page to refresh view
+                updateView(USER_LIST);
+            }
         }
     }
 
@@ -685,13 +736,16 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: View User button clicked");
             JButton button = (JButton) e.getSource();
-            System.out.println("UserName :" + button.getName());
-
-            // update information in VIEW USER view
+            // update information in EDIT PREVIEW view
             UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
-            userPreviewView.setUsername(button.getName());
-            userPreviewView.setPassword("password123");
-            userPreviewView.setPermissions(new boolean[]{false,true,true,true});
+            // get selected user
+            String usernameSelected = button.getName();
+            // set username, password and permissions in User Edit View
+            userPreviewView.setUsername(usernameSelected);
+            // FIXME: SERVER CALL: getUserPassword(usernameSelected) return String, getPermissions(usernameSelected) return ArrayList<Boolean>
+            userPreviewView.setPassword("Password");
+            userPreviewView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
             views.put(USER_VIEW, userPreviewView);
 
             updateView(USER_VIEW);
@@ -711,6 +765,27 @@ public class Controller
             UserListView userListView = (UserListView) views.get(USER_LIST);
             Object serverResponse = null;
             ArrayList<String> usernames = null;
+//            ArrayList<String> usernames = new ArrayList<>();
+//            usernames.add("user1");
+//            usernames.add("user2");
+//            usernames.add("user3");
+//            usernames.add("user4");
+//            usernames.add("user5");
+//            usernames.add("user6");
+//            usernames.add("user7");
+//            usernames.add("user8");
+//            usernames.add("user9");
+//            usernames.add("user10");
+//            usernames.add("user1");
+//            usernames.add("user2");
+//            usernames.add("user3");
+//            usernames.add("user4");
+//            usernames.add("user5");
+//            usernames.add("user6");
+//            usernames.add("user7");
+//            usernames.add("user8");
+//            usernames.add("user9");
+//            usernames.add("user10");
             ServerAcknowledge errorMessage = null;
             try {
                 serverResponse = UserControl.listUsersRequest(sessionToken);
@@ -743,8 +818,19 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit Profile button clicked");
+            // get USER EDIT VIEW
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            String username = model.getUsername();
 
-            // navigate to edit user
+            // set username, password and permissions in Profile View
+            userEditView.setUsername(username);
+            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
+            userEditView.setPassword("Password");
+            userEditView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
+            views.put(USER_EDIT, userEditView);
+
+            // navigate to edit users
             updateView(USER_EDIT);
         }
     }
@@ -794,14 +880,25 @@ public class Controller
         public void mousePressed(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit BB button clicked");
+            // get the BB name associated to the edit button
             JButton button = (JButton) e.getSource();
-            System.out.println("BB Name: " + button.getName());
+            String BBName = button.getName();
 
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+
+            bbCreateView.showBBEditingMessage(BBName);
+
             // FIXME: GET XML FILE FROM SERVER (VIEWER CLASS WILL NEED THE SAME METHOD)
+            // FIXME: SERVER CALL: getBBXML(bbName) returning a File
+
+            // TODO: remove once server call is working
             File fileToDisplay = extractXMLFile(6);
+
             bbCreateView.addBBXML(fileToDisplay);
+
+            // set BB Name based on selected button
             bbCreateView.setBBName(button.getName());
+
             views.put(BB_CREATE, bbCreateView);
 
             updateView(BB_CREATE);
@@ -817,6 +914,25 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Delete BB button clicked");
+
+            // get the BB name associated to the edit button
+            JButton button = (JButton) e.getSource();
+            String BBName = button.getName();
+
+            BBListView bbListView = (BBListView) views.get(BB_LIST);
+
+            // ask user to confirm deletion of BB
+            int response = bbListView.showDeleteConfirmation();
+
+            // if confirmed response, delete from DB
+            if (response == 0)
+            {
+                // FIXME: SERVER CALL: deleteBB(BBName)
+
+                // navigate to bb list screen to refresh screen
+                updateView(BB_LIST);
+            }
+            views.put(BB_LIST, bbListView);
         }
     }
 
@@ -844,11 +960,23 @@ public class Controller
 
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
+            // FIXME: SERVER CALL - getListOfBillboardNames() return an ArrayList<String> of all Billboard Names
             ArrayList<String> stringArray = new ArrayList<>();
             stringArray.add("Myer's Biggest Sale");
             stringArray.add("Kathmandu Summer Sale");
             stringArray.add("Quilton's Covid Special");
             stringArray.add("Macca's New Essentials Range");
+            stringArray.add("David Jones's Biggest Sale");
+            stringArray.add("BigW Summer Sale");
+            stringArray.add("Kmarts's Covid Special");
+            stringArray.add("Mecca's New Essentials Range");
+            stringArray.add("Peter Alexanders's Biggest Sale");
+            stringArray.add("Target Summer Sale");
+            stringArray.add("BigW Summer Sale");
+            stringArray.add("Kmarts's Covid Special");
+            stringArray.add("Mecca's New Essentials Range");
+            stringArray.add("Peter Alexanders's Biggest Sale");
+            stringArray.add("Target Summer Sale");
             bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
@@ -870,7 +998,10 @@ public class Controller
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             String newColor = bbCreateView.showColorChooser();
-            bbCreateView.setBackgroundColour(newColor);
+            if (newColor != null)
+            {
+                bbCreateView.setBackgroundColour(newColor);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -908,12 +1039,46 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            int optionSelected = bbCreateView.showSchedulingOption();
-            System.out.println(optionSelected);
-            views.put(BB_CREATE, bbCreateView);
+            String bbName = bbCreateView.getSelectedBBName();
+            // check that a BB name has been set, if not set raise error
+            if (!bbName.equals(""))
+            {
+                // raise confirmation to create BB
+                int confirmCreation = bbCreateView.showConfirmationCreateBB();
+                // if user confirms BB creation, show scheduling option
+                if (confirmCreation == 0)
+                {
+                    // show scheduling option - asking user if they want to schedule BB now
+                    int optionSelected = bbCreateView.showSchedulingOption();
+
+                    // FIXME: SERVER CALL: addBBXML(BBXMLFile) ADD BB TO DB!!!
+                    ArrayList<Object> BBXMLFile = bbCreateView.getBBXML();
+
+                    // User Selected YES to schedule BB
+                    if (optionSelected == 0)
+                    {
+                        // set BB name selected in schedule view to the newly added BB
+                        ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                        scheduleUpdateView.setBBSelected(bbName);
+                        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                        // navigate to schedule create view
+                        updateView(SCHEDULE_UPDATE);
+                    }
+                    // User Selected NO to skip scheduling the BB
+                    else if (optionSelected == 1)
+                    {
+                        // you have just created a bb message
+                        bbCreateView.showBBCreatedSuccessMessage();
+                    }
+                }
+            }
+            // if no bb name is provided, alert user to add one
+            else
+            {
+                bbCreateView.showBBNameErrorMessage();
+            }
         }
     }
-
 
     /**
      * Listener to handle title BB mouse clicks.
@@ -970,14 +1135,32 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Photo button clicked");
-
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            try {
-                ImageIcon icon = bbCreateView.browsePhotos();
-                bbCreateView.setPhoto(icon);
+            int response = bbCreateView.photoTypeSelection();
+            // URL selected
+            if (response == 0)
+            {
+                ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
+                if (photoData != null)
+                {
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, (String)photoData.get(1));
+                }
+                else
+                {
+                    bbCreateView.showURLErrorMessage();
+                }
             }
-            catch (IOException ex) { ex.printStackTrace(); }
+            else if (response == 1)
+            {
+                ArrayList<Object> photoData = bbCreateView.browsePhotos();
+
+                if (photoData != null)
+                {
+                    System.out.println("encoded img " + (String)photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, (String)photoData.get(1));
+                }
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -1042,22 +1225,6 @@ public class Controller
     }
 
     /**
-     * Listener to handle Edit Schedule Button mouse clicks.
-     */
-    private class ScheduleEditButtonListener extends MouseAdapter
-    {
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            System.out.println("CONTROLLER LEVEL: Edit Schedule button clicked");
-            JButton button = (JButton) e.getSource();
-            System.out.println("BB Name: " + button.getName());
-            // navigate to edit BB screen
-            updateView(SCHEDULE_UPDATE);
-        }
-    }
-
-    /**
      * Listener to handle View Schedule Button mouse clicks.
      */
     private class ScheduleViewButtonListener extends MouseAdapter
@@ -1088,7 +1255,8 @@ public class Controller
     /**
      * Listener to handle show duration in Schedule Create
      */
-    private class ScheduleDurationListener implements ItemListener {
+    private class ScheduleDurationListener implements ItemListener
+    {
         @Override
         public void itemStateChanged(ItemEvent e) {
 
@@ -1174,10 +1342,17 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Schedule Clear button clicked");
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
             int clear = scheduleUpdateView.showScheduleClearConfirmation();
-//            if (clear)
-//            {
-//                // TODO: remove schedule from DB
-//            }
+            // if user confirms deletion of schedule
+            if (clear == 0)
+            {
+                String BBName = scheduleUpdateView.getSelectedBBName();
+
+                //FIXME: SERVER CALL: removeBBSchedule(BBName)
+                // Noting - this BB may not exist in the Schedule Table!
+
+                // navigate back to schedule menu
+                updateView(SCHEDULE_MENU);
+            }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
@@ -1191,19 +1366,35 @@ public class Controller
         public void itemStateChanged(ItemEvent e)
         {
             int eventId = e.getStateChange();
+            // process event if BB Name has been SELECTED
             if (eventId == ItemEvent.SELECTED)
             {
                 System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
+
+                // get bb name that has been selected
+                // TODO: check if this is the best way of getting the menu item selected
                 JComboBox menuItem = (JComboBox) e.getSource();
                 String bbName = (String)menuItem.getSelectedItem();
-                System.out.println("selected " + bbName);
+
+                // set schedule values based on db info
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-                // FIXME: get BB Schedule for this menu item
+
+                // FIXME: SCHEDULE CONTROL - getBBSchedule(bbName)
+                // FIXME: IF AN OBJECT IS RETURNED, use SET SCHEDULE VALUES(SCHEDULE OBJECT)
+                // FIXME: IF NO OBJECT IS RETURNED, use SHOW NO EXISTING SCHEDULE MESSAGE() & REMOVE SCHEDULE SELECTION()
+
                 if (bbName.equals("Myer"))
                 {
-                    boolean[] daysOfWeek = new boolean[]{true,true,false,false,false,false,false};
+                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
                     int startHour = 5;
-                    int startMin = 06;
+                    int startMin = 6;
                     int duration = 30;
                     int minRepeat = 220;
                     String recurrenceButton = "minute";
@@ -1211,13 +1402,27 @@ public class Controller
                 }
                 else if (bbName.equals("Anaconda"))
                 {
-                    boolean[] daysOfWeek = new boolean[]{true,true,true,true,true,true,true};
+                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
+                    daysOfWeek.add(true);
                     int startHour = 1;
                     int startMin = 0;
                     int duration = 30;
                     int minRepeat = -1;
                     String recurrenceButton = "hourly";
                     scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                }
+                else
+                {
+                    // alert user that no schedule exists in db
+                    scheduleUpdateView.showNoExistingScheduleMessage();
+                    // clear the schedule
+                    scheduleUpdateView.removeScheduleSelection();
                 }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
@@ -1248,12 +1453,17 @@ public class Controller
             }
             else
             {
-                ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                System.out.println("SEND INFO TO DB "+scheduleInfo);
-                scheduleUpdateView.showConfirmationDialog();
-                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
-                // navigate to schedule menu
-                updateView(SCHEDULE_MENU);
+                int response = scheduleUpdateView.showConfirmationCreateSchedule();
+                // confirmation response
+                if (response == 0)
+                {
+                    ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
+                    // FIXME: SCHEDULE CONTROL: storeBBSchedule(scheduleInfo)
+                    scheduleUpdateView.showConfirmationDialog();
+                    views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                    // navigate to schedule menu
+                    updateView(SCHEDULE_MENU);
+                }
             }
         }
     }

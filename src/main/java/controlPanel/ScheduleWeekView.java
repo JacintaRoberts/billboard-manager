@@ -7,6 +7,7 @@ import javax.swing.table.DefaultTableModel;
 
 import controlPanel.Main.VIEW_TYPE;
 import java.awt.*;
+import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -21,6 +22,7 @@ public class ScheduleWeekView extends AbstractGenericView
     public HashMap<String, DefaultTableModel> dayScheduleMap;
     // --- MISC ---
     int days_in_week;
+    ArrayList<String> dayLabels;
 
 
     /**
@@ -28,7 +30,7 @@ public class ScheduleWeekView extends AbstractGenericView
      */
     public ScheduleWeekView()
     {
-        super("Schedule View");
+        super("Billboard Schedule");
         view_type = VIEW_TYPE.SCHEDULE_WEEK;
 
     }
@@ -37,7 +39,7 @@ public class ScheduleWeekView extends AbstractGenericView
     void createComponents()
     {
         // create a array list of day labels (mon - sun)
-        ArrayList<String> dayLabels = new ArrayList<>();
+        dayLabels = new ArrayList<>();
         dayLabels.add("Monday");
         dayLabels.add("Tuesday");
         dayLabels.add("Wednesday");
@@ -64,6 +66,7 @@ public class ScheduleWeekView extends AbstractGenericView
             model.addColumn("Billboard");
             // create table with table model
             JTable dayTable = new JTable(model);
+            dayTable.setRowHeight(50);
             // ensure table is not editable by the user
             dayTable.setDefaultEditor(Object.class, null);
             // set name of table so it can be used in controller
@@ -72,6 +75,9 @@ public class ScheduleWeekView extends AbstractGenericView
             JScrollPane scrollPane = new JScrollPane(dayTable);
             // set title of table
             scrollPane.setBorder(BorderFactory.createTitledBorder(days));
+            // set colour of scroll pane
+            scrollPane.setForeground(Color.WHITE);
+            scrollPane.setBackground(Color.BLACK);
             // add scroll pane to the array so this can be populated later
             dayScheduleMap.put(days, model);
             // add table to calendar panel
@@ -105,19 +111,20 @@ public class ScheduleWeekView extends AbstractGenericView
 
     /**
      * Populate Schedule from the database
-     * @param bbScheduleArray
+     * @param schedule array containing weekly schedule
      */
-    // FIXME: update when we know what the BBInfoObject will look like!
-    protected void populateSchedule(String[][] bbScheduleArray)
+    protected void populateSchedule(ArrayList<ArrayList<ArrayList<String>>> schedule)
     {
-        // loop thru each day's model and populate information
-        for(DefaultTableModel model : dayScheduleMap.values())
+        int index = 0;
+        for (ArrayList<ArrayList<String>> daySchedule : schedule)
         {
-            // loop thru db info and add into models
-            for(String[] schedule: bbScheduleArray)
+            DefaultTableModel model = dayScheduleMap.get(dayLabels.get(index));
+            for(ArrayList<String> row : daySchedule)
             {
-                model.addRow(schedule);
+                // add info
+                model.addRow(row.toArray());
             }
+            index++;
         }
     }
 }

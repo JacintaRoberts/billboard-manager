@@ -31,11 +31,11 @@ public abstract class AbstractView extends JFrame implements Observer
         UIManager.put("OptionPane.background", navyColour);
         // text field pane
         UIManager.put("TextField.font", font);
-        UIManager.put("TextField.background", Color.GRAY);
+        UIManager.put("TextField.background", Color.DARK_GRAY);
         UIManager.put("TextField.foreground", Color.WHITE);
         // password field pane
         UIManager.put("PasswordField.font", font);
-        UIManager.put("PasswordField.background", Color.GRAY);
+        UIManager.put("PasswordField.background", Color.DARK_GRAY);
         UIManager.put("PasswordField.foreground", Color.WHITE);
 
         // buttons
@@ -63,15 +63,15 @@ public abstract class AbstractView extends JFrame implements Observer
         UIManager.put("CheckBox.foreground",Color.WHITE);
 
         // scroll pane
-        UIManager.put("ScrollPane.font", font);
-        UIManager.put("ScrollPane.background", navyColour);
-        UIManager.put("ScrollPane.foreground",Color.WHITE);
+//        UIManager.put("ScrollPane.font", font);
+//        UIManager.put("ScrollPane.background", navyColour);
+//        UIManager.put("ScrollPane.foreground",Color.WHITE);
 
         // table
         Font tableFont = new Font("Garamond",  Font.BOLD, 20);
         UIManager.put("Table.font", tableFont);
-        UIManager.put("Table.background", navyColour);
-        UIManager.put("Table.foreground",Color.WHITE);
+        UIManager.put("Table.background", Color.WHITE);
+        UIManager.put("Table.foreground",Color.BLACK);
 
         // table header
         Font tableHeaderFont = new Font("Garamond",  Font.BOLD, 25);
@@ -81,7 +81,6 @@ public abstract class AbstractView extends JFrame implements Observer
 
         UIManager.put("TitledBorder.font",font);
         UIManager.put("TitledBorder.titleColor",Color.WHITE);
-
 
         // panel colour
         UIManager.put("Panel.background", navyColour);

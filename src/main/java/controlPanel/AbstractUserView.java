@@ -4,6 +4,8 @@ import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 public abstract class AbstractUserView extends AbstractGenericView
 {
@@ -17,11 +19,14 @@ public abstract class AbstractUserView extends AbstractGenericView
     private JLabel userPermissionsLabel;
     private JLabel usernameLabel;
     private JLabel passwordLabel;
+    private JLabel title;
     // --- CheckBox ---
     protected JCheckBox editUsersPermission;
     protected JCheckBox editBBPermission;
     protected JCheckBox scheduleBBPermission;
     protected JCheckBox createBBPermission;
+    // --- GBC ---
+    private GridBagConstraints gbc;
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
      * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
@@ -37,12 +42,19 @@ public abstract class AbstractUserView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        title = new JLabel("");
+        title.setForeground(Color.WHITE);
+        title.setFont(title.getFont().deriveFont(90f));
+        gbc = new GridBagConstraints();
+        gbc.insets = new Insets(50,10,50,10);
         userDetailsPane = new JPanel();
-        userDetailsPane.setLayout(new GridLayout(3,2));
+        userDetailsPane.setLayout(new GridBagLayout());
         usernameLabel = new JLabel("Username");
         usernameText = new JTextField("");
+        usernameText.setPreferredSize(new Dimension(100,100));
         passwordLabel = new JLabel("Password");
         passwordText = new JTextField("");
+        passwordText.setPreferredSize(new Dimension(100,100));
         userPermissionsLabel = new JLabel("User Permissions");
 
         editBBPermission = new JCheckBox("Edit All Billboards");
@@ -56,12 +68,17 @@ public abstract class AbstractUserView extends AbstractGenericView
         userPermissionsPanel.add(createBBPermission);
         userPermissionsPanel.add(editUsersPermission);
 
-        userDetailsPane.add(usernameLabel);
-        userDetailsPane.add(usernameText);
-        userDetailsPane.add(passwordLabel);
-        userDetailsPane.add(passwordText);
-        userDetailsPane.add(userPermissionsLabel);
-        userDetailsPane.add(userPermissionsPanel);
+        userDetailsPane.add(title, setGBC(gbc, 2,1,1,1));
+        userDetailsPane.add(usernameLabel, setGBC(gbc, 1,2,1,1));
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        userDetailsPane.add(usernameText, setGBC(gbc, 2,2,2,1));
+        gbc.fill = GridBagConstraints.NONE;
+        userDetailsPane.add(passwordLabel, setGBC(gbc, 1,3,1,1));
+        gbc.fill = GridBagConstraints.HORIZONTAL;
+        userDetailsPane.add(passwordText, setGBC(gbc, 2,3,2,1));
+        gbc.fill = GridBagConstraints.NONE;
+        userDetailsPane.add(userPermissionsLabel, setGBC(gbc, 1,4,1,1));
+        userDetailsPane.add(userPermissionsPanel, setGBC(gbc, 2,4,1,1));
 
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
     }
@@ -76,12 +93,17 @@ public abstract class AbstractUserView extends AbstractGenericView
         passwordText.setText(password);
     }
 
-    protected void setPermissions(boolean[] permissions)
+    protected void setPermissions(ArrayList<Boolean> permissions)
     {
-        editUsersPermission.setSelected(permissions[0]);
-        scheduleBBPermission.setSelected(permissions[1]);
-        editBBPermission.setSelected(permissions[2]);
-        createBBPermission.setSelected(permissions[3]);
+        editUsersPermission.setSelected(permissions.get(0));
+        scheduleBBPermission.setSelected(permissions.get(1));
+        editBBPermission.setSelected(permissions.get(2));
+        createBBPermission.setSelected(permissions.get(3));
+    }
+
+    protected void setBBFrameTitle(String titleName)
+    {
+        title.setText(titleName);
     }
 
     protected void setEditable(boolean editable)
@@ -98,4 +120,13 @@ public abstract class AbstractUserView extends AbstractGenericView
     public void update(Subject s) {
 
     }
+
+    @Override
+    void cleanUp()
+    {
+        setUsername("");
+        setPassword("");
+        setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
+    }
+
 }
