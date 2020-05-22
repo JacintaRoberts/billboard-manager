@@ -16,15 +16,11 @@ public class UserPreviewView extends AbstractUserView
         super("Preview User");
         view_type = VIEW_TYPE.USER_VIEW;
         setEditable(false);
+        setBBFrameTitle("VIEW USER");
     }
 
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
-    }
-
-    @Override
-    void cleanUp() {
-
     }
 }
