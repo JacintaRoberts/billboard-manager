@@ -292,7 +292,8 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public BillboardList listBillboard() throws IOException, SQLException {
+
+    public static BillboardList listBillboard() throws IOException, SQLException {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
 
         connection = DbConnection.getInstance();
@@ -328,7 +329,7 @@ public class BillboardAdmin {
      * @param  billboard A String which provides Billboard Name to store into database
      * @return
      */
-    public DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException {
+    public static DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
@@ -356,27 +357,6 @@ public class BillboardAdmin {
             DbBillboard dbBillboard = new DbBillboard("0","0","0","Fail: Billboard Name Contains Illegal Characters");
             return dbBillboard;
         }
-    }
-
-
-
-    /**
-     * Tidy up connections
-     */
-    public static void close() {
-        try {
-            createBillboard.close();
-            deleteBillboard.close();
-            countFilterBillboard.close();
-            editBillboard.close();
-            dropBillboard.close();
-            listaBillboard.close();
-            connection.close();
-
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-
     }
 
 }

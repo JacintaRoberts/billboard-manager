@@ -1,7 +1,9 @@
 package server;
 
 
-public class ScheduleInfo {
+import java.io.Serializable;
+
+public class ScheduleInfo implements Serializable {
     // Set Fields for DbSchedule
     private String serverResponse;
     private String BillboardName;

@@ -215,7 +215,7 @@ public class ScheduleAdmin {
      * a fail message if it dosent run
      * @return Delete Schedule Table Data if exists success string.
      */
-    public String deleteAllSchedules() throws IOException, SQLException {
+    public static String deleteAllSchedules() throws IOException, SQLException {
         String resultMessage;
         connection = DbConnection.getInstance();
         Statement countSchedule = connection.createStatement();
@@ -549,6 +549,23 @@ public class ScheduleAdmin {
 
 
 
+    /**
+     * This function will list all Schedules for billboards for a specific day. The day parameter is parsed into as a string
+     * and filters results to display raw schedules for the day and then the resultant object is then imputed for time. This
+     * function builds on listFilteredScheduleInformation and viewAllDaySchedule methods, and is called by control panel to server
+     * <p>
+     * This method always returns immediately. It will either return a success message or fail message if there is nothing
+     * to return for billboard schedules
+     * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
+     * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     */
+    public static ScheduleList listAllFilteredScheduleInformation(String day) throws IOException, SQLException {
+        // Get rawDaySched
+        ScheduleList rawDaySched = ScheduleAdmin.listFilteredScheduleInformation(day);
+        // Impute AlldaySched
+        ScheduleList allDaysched = ScheduleAdmin.viewAllDaySchedule(rawDaySched);
+        return  allDaysched;
+    }
 
     /**
      * This function will list Schedules for billboards for a specific day. The day parameter is parsed into as a string

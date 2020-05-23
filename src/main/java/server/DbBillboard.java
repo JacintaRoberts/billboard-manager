@@ -1,12 +1,13 @@
 package server;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-public class DbBillboard {
+public class DbBillboard implements Serializable {
 
     // Set Fields for DbBillboard
     private String BillboardName;
