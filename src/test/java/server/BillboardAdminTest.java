@@ -182,7 +182,6 @@ class BillboardAdminTest {
     String billboardName = "TestBillboard2";
     String dbResponse = billboardAdmin.deleteBillboard(billboardName);
     assertEquals(dbResponse, "Pass: Billboard Deleted");
-        billboardAdmin.close();
     }
 
 

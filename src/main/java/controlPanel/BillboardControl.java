@@ -1,14 +1,9 @@
 package controlPanel;
 
 import helpers.Helpers;
+import server.DbBillboard;
 
 import java.io.IOException;
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
-
-import static helpers.Helpers.bytesToString;
-import java.io.IOException;
-import java.sql.SQLException;
 
 public class BillboardControl
 {
@@ -44,7 +39,7 @@ public class BillboardControl
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public String editBillboardRequest(String sessionToken,
+    public static String editBillboardRequest(String sessionToken,
                                          String billboardName,
                                          String xmlCode) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,EditBillboard,%s,%s,%s",
@@ -65,14 +60,28 @@ public class BillboardControl
      * @param  billboardName A String which provides Billboard Name to store into database
      * @return
      */
-    public String deleteBillboardRequest(String sessionToken,
+    public static String deleteBillboardRequest(String sessionToken,
                                        String billboardName) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,DeleteBillboard,%s,%s",
                 sessionToken,
                 billboardName);
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
-
     }
+
+    /**
+     * Send Queries: Billboard. This is a generic method which sends a request to Delete all billboards
+     * from control panel to server.
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @return
+     */
+    public static String deleteAllBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
+        String message = String.format("Billboard,DeleteAllBillboard,%s",
+                sessionToken);
+        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
 
 
     /**
@@ -84,10 +93,10 @@ public class BillboardControl
      * @return
      * // TODO: CHECK RETURN
      */
-    public String listBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
+    public static Object listBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,ListBillboard,%s",
                 sessionToken);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 
@@ -100,12 +109,12 @@ public class BillboardControl
      * @param  billboardName A String which provides Billboard Name to store into database
      * @return
      */
-    public String getBillboardRequest(String sessionToken,
-                                      String billboardName) throws IOException, ClassNotFoundException {
+    public static Object getBillboardRequest(String sessionToken,
+                                           String billboardName) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,GetBillboard,%s,%s",
                 sessionToken,
                 billboardName);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 
