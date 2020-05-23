@@ -1,5 +1,12 @@
 package controlPanel;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+
+import java.io.IOException;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 class ScheduleControlTest {
 
     /* Test 0: Declaring ScheduleControl object
@@ -12,11 +19,11 @@ class ScheduleControlTest {
      * Description: ScheduleControl Object should be able to be created on logged in user request from control panel
      * Expected Output: ScheduleControl object is instantiated from ScheduleControl class
      */
-//    @BeforeEach
-//    @Test
-//    public void setUpScheduleControl() {
-//      scheduleControl = new ScheduleControl();
-//    }
+    @BeforeEach
+    @Test
+    public void setUpScheduleControl() {
+      scheduleControl = new ScheduleControl();
+    }
 
 
     /* Test 2: Request to server to Update Billboard Schedule (Success)
@@ -24,13 +31,14 @@ class ScheduleControlTest {
      *              name, the starting date of the method and also the duration .
      * Expected Output: An exception
      */
-//    @Test
-//    public void scheduleBillboardRequestTest(){
-//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//      String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
-//                                                                       "2020-04-14 09:30:00", "01:00:00", "24:00:00");
-//      assertEquals(serverResponse, "Pass: Billboard Scheduled");
-//    }
+    @Test
+    public void scheduleBillboardRequestTest() throws IOException, ClassNotFoundException {
+      BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+      String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
+              "09:30", 30, "2020-05-20 13:00", 40,0,0,
+              1,0,1,1,0);
+      assertEquals(serverResponse, "Pass: Billboard Scheduled");
+    }
 
 
     /* Test 3: Request to server to Update Billboard Schedule (Exception Handling)

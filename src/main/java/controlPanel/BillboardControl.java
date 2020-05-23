@@ -23,9 +23,9 @@ public class BillboardControl
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public String createBillboardRequest(String sessionToken,
-                                              String billboardName,
-                                              String xmlCode) throws IOException, ClassNotFoundException {
+    public static String createBillboardRequest(String sessionToken,
+                                                String billboardName,
+                                                String xmlCode) throws IOException, ClassNotFoundException {
     String message = String.format("Billboard,CreateBillboard,%s,%s,%s",
             sessionToken,
             billboardName,
@@ -47,7 +47,7 @@ public class BillboardControl
     public String editBillboardRequest(String sessionToken,
                                          String billboardName,
                                          String xmlCode) throws IOException, ClassNotFoundException {
-        String message = String.format("EditBillboard,%s,%s,%s",
+        String message = String.format("Billboard,EditBillboard,%s,%s,%s",
                 sessionToken,
                 billboardName,
                 xmlCode);
@@ -67,7 +67,7 @@ public class BillboardControl
      */
     public String deleteBillboardRequest(String sessionToken,
                                        String billboardName) throws IOException, ClassNotFoundException {
-        String message = String.format("DeleteBillboard,%s,%s",
+        String message = String.format("Billboard,DeleteBillboard,%s,%s",
                 sessionToken,
                 billboardName);
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
@@ -85,7 +85,7 @@ public class BillboardControl
      * // TODO: CHECK RETURN
      */
     public String listBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
-        String message = String.format("ListBillboard,%s",
+        String message = String.format("Billboard,ListBillboard,%s",
                 sessionToken);
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
@@ -102,7 +102,7 @@ public class BillboardControl
      */
     public String getBillboardRequest(String sessionToken,
                                       String billboardName) throws IOException, ClassNotFoundException {
-        String message = String.format("GetBillboard,%s,%s",
+        String message = String.format("Billboard,GetBillboard,%s,%s",
                 sessionToken,
                 billboardName);
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server

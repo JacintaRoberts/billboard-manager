@@ -25,16 +25,14 @@ public class BillboardAdmin {
     public static final String LIST_BILLBOARD_SQL = "SELECT BillboardName FROM Billboards";
     public static final String SHOW_BILLBOARD_SQL = "SELECT * FROM Billboards WHERE BillboardName = ?";
 
-
     // Custom Parameters for connection
-    private static Connection connection;
-    private static PreparedStatement createBillboard;
+    public static Connection connection;
+    public static PreparedStatement createBillboard;
     public static PreparedStatement deleteBillboard;
-    private static PreparedStatement dropBillboard;
-    private static PreparedStatement editBillboard;
-    private static PreparedStatement listaBillboard;
+    public static PreparedStatement dropBillboard;
+    public static PreparedStatement editBillboard;
+    public static PreparedStatement listaBillboard;
     public static PreparedStatement countFilterBillboard;
-
 
     /**
      * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database.
@@ -242,8 +240,9 @@ public class BillboardAdmin {
         String validCharacters = "([A-Za-z0-9-_]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
-            Statement countBillboard = connection.createStatement();
-            ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
+            countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
+            countFilterBillboard.setString(1,billboard);
+            ResultSet rs = countFilterBillboard.executeQuery();
             rs.next();
             String count = rs.getString(1);
             if (!count.equals("0")){
