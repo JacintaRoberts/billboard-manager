@@ -1,10 +1,17 @@
 package server;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.sql.*;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ScheduleAdmin {
 
@@ -895,6 +902,63 @@ public class ScheduleAdmin {
         );
         // Return currentSchedule
         return currentSchedule;
+    }
+
+
+    public static String getCurrentBillboardXML() throws IOException, SQLException {
+        // Initialise variable to store xml file
+        String billboardXML = "";
+
+        // Get the current date and time and get the current day of the week
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalTime currentTime = localDateTime.toLocalTime();
+        String currentDayOfWeek = localDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+
+        // Get today's schedule
+        ScheduleList todayScheduleList = listFilteredScheduleInformation(currentDayOfWeek);
+
+        // Get the current schedule (based on the time) and the billboard name
+        CurrentSchedule currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
+        ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
+        String currentBillboardName = "";
+
+        // TODO: Decide which billboard to display depending on how many billboards are currently scheduled
+        if (!currentScheduleBillboardNames.isEmpty()) {
+            if (currentScheduleBillboardNames.size() == 1) {
+                // There is only one billboard
+                currentBillboardName = String.valueOf(currentScheduleBillboardNames);
+            }
+            else{
+                // There is more than one billboard scheduled for right now, so get their creation date time
+                ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
+                ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
+
+                // Parse strings into LocalDateTime with the correct formatting
+                for (int i = 0; i < creationDateTimeStrings.size(); i++) {
+                    LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                    creationLocalDateTimes.set(i, dateTime);
+                }
+
+                for (int i = 0; i < creationLocalDateTimes.size(); i++) {
+                    for (int j = 0; j < creationLocalDateTimes.size(); j++) {
+                        // TODO: Compare each time with each other and return the correct one 
+                        // Return index from array list
+                    }
+                }
+
+
+                // TODO: Get billboard name from same index
+
+            }
+
+            // Get the chosen billboard's schedule and extract the xml code
+            DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
+            billboardXML = dbBillboardSchedule.getXMLCode();
+
+        }
+
+        return billboardXML;
     }
 
 

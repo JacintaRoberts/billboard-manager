@@ -949,7 +949,7 @@ public class Viewer extends JFrame implements Runnable {
     @Override
     public void run() {
         try {
-            // TODO: Check the cast to File works
+            // TODO: Update with new method from ScheduleAdmin class in server
             serverResponse = (File) Helpers.initClient("Viewer");
             System.out.println("Received from server: " + serverResponse.toString());
             displayBillboard(serverResponse);
