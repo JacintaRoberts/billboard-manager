@@ -16,7 +16,6 @@ public class MockBillboardDatabase {
 
     /**
      * Import xml billboard files and store it an ArrayList - this will act as the mock database.
-     * TODO: Change the pathname so it's not on local device
      */
     public static ArrayList<File> setupDatabase() {
 

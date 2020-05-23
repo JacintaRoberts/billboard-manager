@@ -39,7 +39,10 @@ public class Viewer extends JFrame implements Runnable {
     private static Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
     private static double screenHeight = screenSize.height;
     private static double screenWidth = screenSize.width;
-    private static double screenWidthBorder = 75;               // Horizontal spacing on borders
+
+    // Booleans which determines if the xml or picture file has been read or not
+    static boolean xmlRead = false;
+    static boolean pictureRead = false;
 
 
     /**
@@ -51,8 +54,8 @@ public class Viewer extends JFrame implements Runnable {
     }
 
     /**
-     * Extracts the xml file that we want to display.
-     * TODO: Remove or change this function to extract the XML file from the database
+     * Extracts the xml file that we want to display from the given test xml files stored in resources.
+     * TODO: This function is used to extract an xml file from a mock "database" of provided xml files for testing.
      */
     public static File extractXMLFile(int fileNum) {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
@@ -154,27 +157,16 @@ public class Viewer extends JFrame implements Runnable {
                 billboardData.put("Information Colour", null);
             }
 
+            // Update the boolean to say the xml file has been read
+            xmlRead = true;
+
         } catch (Exception e) {
-            e.printStackTrace();
+            // Update the boolean to say the xml file could not been read
+            xmlRead = false;
+            // e.printStackTrace();
         }
 
         return billboardData;
-    }
-
-
-    /**
-     * Setups the basics of the billboard regardless of what is being displayed
-     */
-    public void setupBillboard() {
-        // Create a border layout and aff the main panel to the billboard
-        setLayout(new BorderLayout());
-
-        // Add the central panel to the center of the billboard
-        add(mainPanel, BorderLayout.CENTER);
-
-        // Create a grid bag layout
-        mainPanel.setLayout(new GridBagLayout());
-        mainPanel.setBackground(Color.WHITE);
     }
 
 
@@ -195,8 +187,13 @@ public class Viewer extends JFrame implements Runnable {
                 URL pictureURL = new URL(picture);
                 pictureImage = ImageIO.read(pictureURL);
 
+                // Update boolean to say the picture has been read
+                pictureRead = true;
+
             } catch (Exception e) {
-                e.printStackTrace();
+                // Update boolean to say the picture couldn't be read in
+                pictureRead = false;
+                // e.printStackTrace();
             }
         }
         else {
@@ -206,8 +203,13 @@ public class Viewer extends JFrame implements Runnable {
                 byte[] pictureByteArray = Base64.getDecoder().decode(picture.getBytes(StandardCharsets.UTF_8));
                 pictureImage = ImageIO.read(new ByteArrayInputStream(pictureByteArray));
 
+                // Update boolean to say the picture has been read
+                pictureRead = true;
+
             } catch (Exception e) {
-                e.printStackTrace();
+                // Update boolean to say the picture couldn't be read in
+                pictureRead = false;
+                // e.printStackTrace();
             }
         }
 
@@ -292,13 +294,16 @@ public class Viewer extends JFrame implements Runnable {
         int currentFontSize = messageLabel.getFont().getSize();
         int fontSize = currentFontSize;
 
+        // Horizontal spacing on borders
+        double screenWidthBorder = 75;
+
         // Calculate what the width of the string would be based on the current font size
         FontMetrics fontMetrics = messageLabel.getFontMetrics(new Font(messageLabel.getFont().getName(), Font.BOLD,
                 currentFontSize));
         double stringWidth = fontMetrics.stringWidth(message);
 
         // While the current width of the string is less than the screen width minus some threshold for the border
-        while (stringWidth < (screenWidth - screenWidthBorder*2)) {
+        while (stringWidth < (screenWidth - screenWidthBorder *2)) {
             // Increase the font size
             fontSize = fontSize + 1;
 
@@ -352,10 +357,6 @@ public class Viewer extends JFrame implements Runnable {
 
             // Update the size of the label
             informationLabel.setSize((int) currentWidth, (int) currentHeight);
-
-            // Testing
-//            System.out.println("Size of label: " + currentWidth + " x " + currentHeight);
-//            System.out.println("Font Size: " + fontSize);
         }
     }
 
@@ -408,16 +409,31 @@ public class Viewer extends JFrame implements Runnable {
      public double setUpPicture(String picture, String pictureType, double maxImageWidth, double maxImageHeight) {
          // Read in the picture
          BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
+         double pictureHeight;
 
-         // Scale the image we are displaying based on the maximum image dimensions
-         Image scaledImage = getScaledImage(pictureImage, maxImageWidth, maxImageHeight);
+         // Has the picture been read in or not
+         if (!pictureRead) {
+             // Display an error if the picture couldn't be read in
+             pictureLabel.setText("Error: Couldn't read in image file.");
+             Font pictureFont = new Font(pictureLabel.getFont().getName(), Font.BOLD, 40);
+             pictureLabel.setFont(pictureFont);
+             pictureLabel.setForeground(Color.BLACK);
+             pictureLabel.setBackground(Color.BLACK);
 
-         // Set the scaled image as the JLabel
-         pictureIcon.setImage(scaledImage);
-         pictureLabel.setIcon(pictureIcon);
+             // Calculate the height of the "picture"
+             pictureHeight = pictureLabel.getFontMetrics(pictureFont).getHeight();
+         }
+         else {
+             // Scale the image we are displaying based on the maximum image dimensions
+             Image scaledImage = getScaledImage(pictureImage, maxImageWidth, maxImageHeight);
 
-         // Calculate the height of the picture
-         int pictureHeight = scaledImage.getHeight(null);
+             // Set the scaled image as the JLabel
+             pictureIcon.setImage(scaledImage);
+             pictureLabel.setIcon(pictureIcon);
+
+             // Calculate the height of the picture
+             pictureHeight = scaledImage.getHeight(null);
+         }
 
          // Return the picture height
          return pictureHeight;
@@ -535,17 +551,32 @@ public class Viewer extends JFrame implements Runnable {
         double messageHeight = setUpMessage(message);
         double pictureHeight = setUpPicture(picture, pictureType, maxImageWidth, maxImageHeight);
 
-        // Calculate vertical padding for image. It should fit in the center of bottom 2/3 of screen.
-        int picturePadding = (int) (((2*(screenHeight/3)) - pictureHeight ) / 2);
+        // Initialise variables
+        int topPicturePadding = 0;
+        int bottomPicturePadding = 0;
+        int messagePadding = 0;
 
-        // Calculate vertical padding for message. It should fit in the centre of the remaining space at the top.
-        int messagePadding = (int) (((screenHeight/3) + picturePadding - messageHeight ) / 2);
+        if (!pictureRead) {
+            // Calculate vertical padding for image. It should fit in the center of bottom 2/3 of screen.
+            topPicturePadding = (int) ((maxImageHeight - pictureHeight) / 2);
+            bottomPicturePadding = (int) (((2*(screenHeight/3)) - pictureHeight) / 2);
+
+            // Calculate vertical padding for message. It should fit in the centre of the remaining space at the top.
+            messagePadding = (int) (((screenHeight/3) - messageHeight ) / 2);
+        }
+        else {
+            // Calculate vertical padding for image. It should fit in the center of bottom 2/3 of screen.
+            bottomPicturePadding = (int) (((2*(screenHeight/3)) - pictureHeight) / 2);
+
+            // Calculate vertical padding for message. It should fit in the centre of the remaining space at the top.
+            messagePadding = (int) (((screenHeight/3) + bottomPicturePadding - messageHeight ) / 2);
+        }
 
         // Create grid bag constraints for the message and picture
         GridBagConstraints messageConstraints = setGridBagConstraints(0, 0, 1, messagePadding,
                 messagePadding);
-        GridBagConstraints pictureConstraints = setGridBagConstraints(0, 1, 2, 0,
-                picturePadding);
+        GridBagConstraints pictureConstraints = setGridBagConstraints(0, 1, 2, topPicturePadding,
+                bottomPicturePadding);
 
         // Add the message and image to the billboard
         mainPanel.add(messageLabel, messageConstraints);
@@ -601,22 +632,45 @@ public class Viewer extends JFrame implements Runnable {
         // Set up the picture and get it's height
         double pictureHeight = setUpPicture(picture, pictureType, maxImageWidth, maxImageHeight);
 
+        // Initialise variables
+        double maxStringWidth;
+        double maxStringHeight;
+        int informationPadding;
+
         // Calculate vertical padding for picture. It should be in the centre of the top 2/3 of the screen.
-        int picturePadding = (int) ( ((2*(screenHeight/3)) - pictureHeight)/2 );
+        int topPicturePadding = (int) ( ((2*(screenHeight/3)) - pictureHeight) / 2 );
+        int bottomPicturePadding = 0;
 
-        // Calculate the maximum string width and height for the information
-        double maxStringWidth = screenWidth*0.75;
-        double maxStringHeight = (screenHeight - pictureHeight - picturePadding) / 2;
+        // If the picture couldn't be read in properly - still display the contents nicely
+        if (!pictureRead) {
+            // Calculate the padding below the label
+            bottomPicturePadding = (int) ((maxImageHeight - pictureHeight) / 2);
 
-        // Set up the picture and get it's height
-        double informationHeight = setUpInformation(information, maxStringWidth, maxStringHeight, false);
+            // Calculate the maximum string width and height for the information
+            maxStringWidth = screenWidth*0.75;
+            maxStringHeight = (screenHeight - pictureHeight - topPicturePadding - bottomPicturePadding) / 2;
 
-        // Calculate vertical padding for information. It should be in the centre of the remaining space at the bottom.
-        int informationPadding = (int) ( ((screenHeight/3) + picturePadding - informationHeight)/2 );
+            // Set up the information and get it's height
+            double informationHeight = setUpInformation(information, maxStringWidth, maxStringHeight, false);
+
+            // Calculate vertical padding for information. It should be in the centre of remaining space at the bottom.
+            informationPadding = (int) ( ((screenHeight/3) - informationHeight)/2 );
+        }
+        else {
+            // Calculate the maximum string width and height for the information
+            maxStringWidth = screenWidth*0.75;
+            maxStringHeight = (screenHeight - pictureHeight - topPicturePadding) / 2;
+
+            // Set up the information and get it's height
+            double informationHeight = setUpInformation(information, maxStringWidth, maxStringHeight, false);
+
+            // Calculate vertical padding for information. It should be in the centre of remaining space at the bottom.
+            informationPadding = (int) ( ((screenHeight/3) + topPicturePadding - informationHeight)/2 );
+        }
 
         // Create grid bag constraints for the picture and information
-        GridBagConstraints pictureConstraints = setGridBagConstraints(0, 0, 2, picturePadding,
-                0);
+        GridBagConstraints pictureConstraints = setGridBagConstraints(0, 0, 2, topPicturePadding,
+                bottomPicturePadding);
         GridBagConstraints informationConstraints = setGridBagConstraints(0, 2, 1,
                 informationPadding, informationPadding);
 
@@ -642,25 +696,51 @@ public class Viewer extends JFrame implements Runnable {
         double messageHeight = setUpMessage(message);
         double pictureHeight = setUpPicture(picture, pictureType, maxImageWidth, maxImageHeight);
 
-        // Calculate vertical padding of message. It should be centred in the top part of the screen.
-        int messagePadding = (int) (((screenHeight/2) - (pictureHeight/2) - messageHeight) / 2);
+        // Initialise variables
+        int messagePadding = 0;
+        int picturePadding = 0;
+        int informationPadding = 0;
 
-        // Calculate the maximum string width and height for the information
-        double maxInformationWidth = screenWidth*0.75;
-        double maxInformationHeight = ((screenHeight/2) - (pictureHeight/2)) / 2;
+        // If the picture couldn't be read in properly - still display the rest of the contents properly
+        if (!pictureRead) {
+            // Calculate picture padding - make sure the label is centered
+            picturePadding = (int) ((maxImageHeight - pictureHeight) / 2);
 
-        // Set up the information and get it's height
-        double informationHeight = setUpInformation(information, maxInformationWidth, maxInformationHeight,
-                true);
+            // Calculate vertical padding of message. It should be centred in the top part of the screen.
+            messagePadding = (int) (((screenHeight/2) - (maxImageHeight/2) - messageHeight) / 2);
 
-        // Calculate vertical padding of information. It should be centred in the bottom part of the screen.
-        int informationPadding = (int) (((screenHeight/2) - (pictureHeight/2) - informationHeight) / 2);
+            // Calculate the maximum string width and height for the information
+            double maxInformationWidth = screenWidth*0.75;
+            double maxInformationHeight = ((screenHeight/2) - (maxImageHeight/2)) / 2;
+
+            // Set up the information and get it's height
+            double informationHeight = setUpInformation(information, maxInformationWidth, maxInformationHeight,
+                    true);
+
+            // Calculate vertical padding of information. It should be centred in the bottom part of the screen.
+            informationPadding = (int) (((screenHeight/2) - (maxImageHeight/2) - informationHeight) / 2);
+        }
+        else {
+            // Calculate vertical padding of message. It should be centred in the top part of the screen.
+            messagePadding = (int) (((screenHeight/2) - (pictureHeight/2) - messageHeight) / 2);
+
+            // Calculate the maximum string width and height for the information
+            double maxInformationWidth = screenWidth*0.75;
+            double maxInformationHeight = ((screenHeight/2) - (pictureHeight/2)) / 2;
+
+            // Set up the information and get it's height
+            double informationHeight = setUpInformation(information, maxInformationWidth, maxInformationHeight,
+                    true);
+
+            // Calculate vertical padding of information. It should be centred in the bottom part of the screen.
+            informationPadding = (int) (((screenHeight/2) - (pictureHeight/2) - informationHeight) / 2);
+        }
 
         // Create grid bag constraints for the elements
         GridBagConstraints messageConstraints = setGridBagConstraints(0, 0, 1, messagePadding,
                 messagePadding);
-        GridBagConstraints pictureConstraints = setGridBagConstraints(0, 1, 1, 0,
-                0);
+        GridBagConstraints pictureConstraints = setGridBagConstraints(0, 1, 1, picturePadding,
+                picturePadding);
         GridBagConstraints informationConstraints = setGridBagConstraints(0, 2, 1,
                 informationPadding, informationPadding);
 
@@ -745,14 +825,20 @@ public class Viewer extends JFrame implements Runnable {
 
     }
 
+
     /**
-     * If there are no billboards to display, display a message for the user.
+     * Setups the basics of the billboard regardless of what is being displayed
      */
-    public void noBillboardToDisplay() {
-        // Set up the message to display and add it to the main panel
-        String noBillboardMessage = "There are no billboards to display right now.";
-        setUpMessage(noBillboardMessage);
-        mainPanel.add(messageLabel);
+    public void setupBillboard() {
+        // Create a border layout and aff the main panel to the billboard
+        setLayout(new BorderLayout());
+
+        // Add the central panel to the center of the billboard
+        add(mainPanel, BorderLayout.CENTER);
+
+        // Create a grid bag layout
+        mainPanel.setLayout(new GridBagLayout());
+        mainPanel.setBackground(Color.WHITE);
     }
 
 
@@ -801,17 +887,26 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Displays the billboards
-     * @param serverResponse
+     * @param serverResponse - a File extracted from the database which can be examined to display the billboard
      */
-    public void displayBillboard(Object serverResponse) {
-        // TODO: Do something with serverResponse
+    public void displayBillboard(File serverResponse) {
+        // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
+        // Testing from the provided xml files
+        // TODO: Remove (or comment out) the testing of provided xml files.
         File fileToDisplay = extractXMLFile(6);
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
 
-        formatBillboard(billboardData);
-//        noBillboardToDisplay();
+        // Extract the billboard data using the server's response
+         HashMap<String, String> billboardDataServer = extractDataFromXML(serverResponse);
+
+        // Display the billboard or an error message depending on whether the xml file has been read or not
+        if (xmlRead) {
+            formatBillboard(billboardDataServer);
+        } else {
+            displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");
+        }
 
         listenEscapeKey();
         listenMouseClick();
@@ -819,14 +914,15 @@ public class Viewer extends JFrame implements Runnable {
     }
 
     /**
-     * Displays an error if the viewer cannot connect to the server
+     * Displays a special message on the billboard e.g. an error message.
+     * @param message - the message to display on the screen
      */
-    public void displayError() {
+    public void displaySpecialMessage(String message) {
+        // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
-        // Set up and add an error message label to the main panel
-        String errorMessage = "Error: Cannot connect to server. Trying again now...";
-        setUpMessage(errorMessage);
+        // Set up the message to display and add it to the main panel
+        setUpMessage(message);
         mainPanel.add(messageLabel);
 
         listenEscapeKey();
@@ -835,34 +931,38 @@ public class Viewer extends JFrame implements Runnable {
     }
 
 
-
-    // Determines whether a billboard xml was received from the server
+    /**
+     * Determines whether a billboard xml was received from the server
+     * @return - a boolean which tells us if we received an xml (true) or an empty string (false)
+     */
     private Boolean noBillboard() {
         if ( serverResponse.toString().isEmpty() ) { return true; }
         else { return false; }
     }
 
+
     // Contains the server's response (Billboard XML)
-    private Object serverResponse;
+    private File serverResponse;
+
 
     @Override
     public void run() {
         try {
-            //TODO: May want to cast the return type to XML - probably Alan and Kanu figure this out.
-            serverResponse = Helpers.initClient("Viewer");
+            // TODO: Check the cast to File works
+            serverResponse = (File) Helpers.initClient("Viewer");
             System.out.println("Received from server: " + serverResponse.toString());
             displayBillboard(serverResponse);
             if (noBillboard()) {
-                noBillboardToDisplay(); // Show no billboard screen
+                displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             }
         } catch (IOException | ClassNotFoundException e) {
-            displayError(); // Error in receiving content
+            displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
         }
     }
+
 
     public static void main(String[] args ) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
         executor.scheduleAtFixedRate(new Viewer("Billboard Viewer"), 0, 15, TimeUnit.SECONDS);
-        //SwingUtilities.invokeLater(new Viewer("Billboard Viewer")); // This is now redundant I think...
     }
 }
