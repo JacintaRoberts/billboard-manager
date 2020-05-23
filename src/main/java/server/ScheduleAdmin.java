@@ -11,6 +11,7 @@ public class ScheduleAdmin {
     // Custom SQL Strings for Specific Queries
     public static final String COUNT_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules";
     public static final String COUNT_FILTER_SCHEDULE_SQL = "SELECT COUNT(*) FROM Schedules WHERE BillboardName = ?";
+    public static final String GET_FILTER_SCHEDULE_SQL = "SELECT * FROM Schedules WHERE BillboardName = ?";
     public static final String DELETE_ALL_SCHEDULE_SQL = "DELETE FROM Schedules";
     public static final String DELETE_SCHEDULE_SQL = "DELETE FROM Schedules WHERE BillboardName = ?";
     public static final String DROP_SCHEDULE_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Schedules`";
@@ -61,6 +62,7 @@ public class ScheduleAdmin {
     // Custom Parameters for connection
     public static Connection connection;
     public static PreparedStatement countFilterSchedule;
+    public static PreparedStatement getFilterSchedule;
     public static PreparedStatement deleteSchedule;
     public static PreparedStatement editSchedule;
     public static PreparedStatement createSchedule;
@@ -207,12 +209,13 @@ public class ScheduleAdmin {
 
 
     /**
-     * Stores Database Queries: Schedules. This is a generic method which deletes all Schedules stored into database.
+     * This function will delete the Schedule Table Data if required. No checks are done.
      * <p>
-     * This method always returns immediately.
-     * @return
+     * This method always returns immediately. It will either return a success message "Schedule Table Dropped", or
+     * a fail message if it dosent run
+     * @return Delete Schedule Table Data if exists success string.
      */
-    public String deleteAllSchedules() throws IOException, SQLException {
+    public static String deleteAllSchedules() throws IOException, SQLException {
         String resultMessage;
         connection = DbConnection.getInstance();
         Statement countSchedule = connection.createStatement();
@@ -453,6 +456,115 @@ public class ScheduleAdmin {
         }
         // Return
         return resultMessage;
+    }
+
+
+
+    /**
+     * This function will list Schedules for billboards for a specific day. The day parameter is parsed into as a string
+     * and filters results to display raw schedules for the day.
+     * <p>
+     * This method always returns immediately. It will either return a success message or fail message if there is nothing
+     * to return for billboard schedules
+     * @param BillboardName A String to feed in to filter SQL quiries to return only schedules for a specifc Billboard.
+     * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     */
+    public static ScheduleInfo getScheduleInformation(String BillboardName) throws IOException, SQLException {
+        // Initialise Variable array
+        String retrievedBillboard;
+        String retrievedStartTime;
+        String retrievedDuration;
+        String retrievedCreationDateTime;
+        String retrievedRepeat;
+        String retrievedSunday;
+        String retrievedMonday;
+        String retrievedTueseday;
+        String retrievedWednesday;
+        String retrievedThursday;
+        String retrievedFriday;
+        String retrievedSaturday;
+        // Set storage parameters for single
+        String serverResponse = null;
+        //Check if Schedule Exists and updates as required
+        connection = DbConnection.getInstance();
+        countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+        countFilterSchedule.setString(1,BillboardName);
+        ResultSet rs = countFilterSchedule.executeQuery();
+        rs.next();
+        String count = rs.getString(1);
+        if (count.equals("0")) {
+            serverResponse = "Fail: No Schedule Exists";
+            retrievedBillboard = "0";
+            retrievedStartTime = "0";
+            retrievedDuration = "0";
+            retrievedCreationDateTime = "0";
+            retrievedRepeat = "0";
+            retrievedSunday = "0";
+            retrievedMonday = "0";
+            retrievedTueseday = "0";
+            retrievedWednesday = "0";
+            retrievedThursday = "0";
+            retrievedFriday = "0";
+            retrievedSaturday = "0";
+        } else {
+            getFilterSchedule = connection.prepareStatement(GET_FILTER_SCHEDULE_SQL);
+            getFilterSchedule.setString(1,BillboardName);
+            rs = getFilterSchedule.executeQuery();
+            rs.next();
+            // Store return from sql into respective data fields.
+            retrievedBillboard = rs.getString(1);
+            retrievedStartTime = rs.getString(2).substring(0, rs.getString(2).length() - 3);
+            retrievedDuration = rs.getString(3);
+            retrievedCreationDateTime = rs.getString(4).substring(0, rs.getString(4).length() - 5);
+            retrievedRepeat = rs.getString(5);
+            retrievedSunday = rs.getString(6);
+            retrievedMonday = rs.getString(7);
+            retrievedTueseday = rs.getString(8);
+            retrievedWednesday = rs.getString(9);
+            retrievedThursday = rs.getString(10);
+            retrievedFriday = rs.getString(11);
+            retrievedSaturday = rs.getString(12);
+            // Success Return Message
+            serverResponse = "Pass: Schedule Detail Returned";
+        }
+
+        // Create Schedulelist return object
+        ScheduleInfo scheduleInfo = new ScheduleInfo(serverResponse,
+                retrievedBillboard,
+                retrievedStartTime,
+                retrievedDuration,
+                retrievedCreationDateTime,
+                retrievedRepeat,
+                retrievedSunday,
+                retrievedMonday,
+                retrievedTueseday,
+                retrievedWednesday,
+                retrievedThursday,
+                retrievedFriday,
+                retrievedSaturday
+        );
+        // Return scheduleList Object
+        return scheduleInfo;
+    }
+
+
+
+    /**
+     * This function will list all Schedules for billboards for a specific day. The day parameter is parsed into as a string
+     * and filters results to display raw schedules for the day and then the resultant object is then imputed for time. This
+     * function builds on listFilteredScheduleInformation and viewAllDaySchedule methods, and is called by control panel to server
+     * <p>
+     * This method always returns immediately. It will either return a success message or fail message if there is nothing
+     * to return for billboard schedules
+     * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
+     * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     */
+    public static ScheduleList listAllFilteredScheduleInformation(String day) throws IOException, SQLException {
+        // Get rawDaySched
+        ScheduleList rawDaySched = ScheduleAdmin.listFilteredScheduleInformation(day);
+        // Impute AlldaySched
+        ScheduleList allDaysched = ScheduleAdmin.viewAllDaySchedule(rawDaySched);
+        return  allDaysched;
     }
 
     /**
@@ -773,7 +885,7 @@ public class ScheduleAdmin {
             serverResponse = "Fail: No current Active Schedule";
             retrievedBillboard.add("0");
             retrievedStartTime.add("0");
-            retrievedStartTime.add("0");
+            retrievedCreationDateTime.add("0");
         }
         // Create currentSchedule Object
         currentSchedule = new CurrentSchedule(serverResponse,
