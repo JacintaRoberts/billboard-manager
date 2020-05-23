@@ -56,7 +56,7 @@ class BillboardAdminTest {
      */
     @Test
     public void createABillboard() throws IOException, SQLException {
-        String dbResponse2 = billboardAdmin.dropBillboardTable();
+        String dbResponse2 = billboardAdmin.deleteAllBillboard();
         String dbResponse3 = billboardAdmin.createBillboardTable();
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
@@ -67,7 +67,6 @@ class BillboardAdminTest {
 
         String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
         assertEquals(dbResponse, "Pass: Billboard Created");
-//        billboardAdmin.close();
     }
 
 
@@ -75,12 +74,11 @@ class BillboardAdminTest {
      * Description: Receive create billboard request from CP, will have sessionToken, billboard name, and xml.
      *              Expect Fail due to Invalid Name (same name). Assume sessionToken is valid.
      * Expected Output: Billboard is not added to the table and returns "Fail: Billboard Name Already Exists"
-     * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
     @Test
     public void createSameNameBillboard() throws IOException, SQLException {
-        String dbResponse2 = billboardAdmin.dropBillboardTable();
-        String dbResponse3 = billboardAdmin.createBillboardTable();
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
 
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
@@ -89,10 +87,9 @@ class BillboardAdminTest {
         String userName = "testUser1";
         String billboardName = "Billboard1";
 
+        billboardAdmin.createBillboard( userName, billboardName, xmlCode);
         String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
         assertEquals(dbResponse, "Fail: Billboard Already Exists");
-
-        billboardAdmin.close();
     }
 
 
@@ -103,8 +100,8 @@ class BillboardAdminTest {
      */
     @Test
     public void createIllegalNameBillboard() throws IOException, SQLException {
-        String dbResponse2 = billboardAdmin.dropBillboardTable();
-        String dbResponse3 = billboardAdmin.createBillboardTable();
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
 
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
@@ -115,7 +112,6 @@ class BillboardAdminTest {
 
         String dbResponse = billboardAdmin.createBillboard( userName, billboardName, xmlCode);
         assertEquals(dbResponse, "Fail: Billboard Name Contains Illegal Characters");
-
     }
 
 
@@ -126,8 +122,8 @@ class BillboardAdminTest {
      */
     @Test
     public void editABillboard() throws SQLException, IOException {
-        String dbResponse2 = billboardAdmin.dropBillboardTable();
-        String dbResponse3 = billboardAdmin.createBillboardTable();
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
 
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
@@ -137,7 +133,6 @@ class BillboardAdminTest {
 
         String dbResponse = billboardAdmin.editBillboard(billboardName, xmlCode);
         assertEquals(dbResponse, "Pass: Billboard Edited");
-        billboardAdmin.close();
     }
 
 
@@ -163,6 +158,8 @@ class BillboardAdminTest {
      */
     @Test
     public void editABillboardNoBillboard() throws SQLException, IOException {
+        String dbResponse2 = billboardAdmin.deleteAllBillboard();
+        String dbResponse3 = billboardAdmin.createBillboardTable();
         String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
                 "<billboard>\n" +
                 "    <message>Basic message-only billboard</message>\n" +
@@ -171,10 +168,6 @@ class BillboardAdminTest {
 
         String dbResponse = billboardAdmin.editBillboard(billboardName, xmlCode);
         assertEquals(dbResponse, "Fail: Billboard Does not Exist");
-
-
-        billboardAdmin.close();
-
     }
 
 
@@ -184,6 +177,8 @@ class BillboardAdminTest {
      */
     @Test
     public void deleteABillboard() throws SQLException, IOException {
+    billboardAdmin.deleteAllBillboard();
+    billboardAdmin.createBillboardTable();
     String billboardName = "TestBillboard2";
     String dbResponse = billboardAdmin.deleteBillboard(billboardName);
     assertEquals(dbResponse, "Pass: Billboard Deleted");
@@ -198,10 +193,12 @@ class BillboardAdminTest {
      */
     @Test
     public void deleteABillboardNoBillboard() throws IOException, SQLException {
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
+
         String billboardName = "ThisDosentExistdddd";
         String dbResponse = billboardAdmin.deleteBillboard(billboardName);
         assertEquals(dbResponse,"Fail: Billboard Does not Exist");
-        billboardAdmin.close();
     }
 
 
@@ -225,12 +222,14 @@ class BillboardAdminTest {
      */
     @Test
     public void listAllBillboard() throws SQLException, IOException {
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
+
         List<String> testBillboardList = new ArrayList<String>();
         // Set test cases
         testBillboardList.add("TestBillboard");
         testBillboardList.add("TestBillboard2");
         testBillboardList.add("TestBillboard3");
-
 
         BillboardList billboardList = billboardAdmin.listBillboard();
         assertEquals(billboardList.getServerResponse(),"Pass: Billboard List Returned");
@@ -246,6 +245,8 @@ class BillboardAdminTest {
      */
     @Test
     public void listAllBillboardNoBillboard() throws SQLException, IOException {
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
 
         // Required if table is not empty
         billboardAdmin.deleteAllBillboard();
@@ -264,8 +265,9 @@ class BillboardAdminTest {
      */
     @Test
     public void getABillboardInformationPass() throws SQLException, IOException {
-        // Use below code to create if needed
-        //        billboardAdmin.createBillboard("User1", "Billboard1", "xmlCode");
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
+        billboardAdmin.createBillboard("User1", "Billboard1", "xmlCode");
 
         DbBillboard billboardInformation = billboardAdmin.getBillboardInformation("Billboard1");
         assertAll("Should return details of Given Billboard",
@@ -282,16 +284,15 @@ class BillboardAdminTest {
      *              information such as billboardName, Creator, xmlCode.
      *              The method will fail because the billboard does not exist.
      * Expected Output: Returns string failure message of "Fail: Billboard Does Not Exist"
-     * // TODO: Investigate if there is a way to check for a more specific JDBC SQL error
      */
-//    @Test
-//    public void getABillboardInformationNoBillboard(){
-//        BillboardInformation billboardInformation = billboardAdmin.getBillboardInformation("sessionToken","Billboard500");
-//        assertTrue(billboardInformation.length == 0);
-//        assertEquals(billboardInformation.getServerResponse(), "Fail: Billboard Does Not Exist")
-//        // Billboard Name does not exist in DB
-//        assertThrows(SQLException);
-//    }
+    @Test
+    public void getABillboardInformationNoBillboard() throws IOException, SQLException {
+        billboardAdmin.deleteAllBillboard();
+        billboardAdmin.createBillboardTable();
+
+        DbBillboard billboardInformation = billboardAdmin.getBillboardInformation("mpme");
+        assertEquals(billboardInformation.getReturnString(), "Fail: Billboard Does not Exist");
+    }
 
 
     /* Test 17: Billboard Information - Insufficient Permissions (Exception Handling)
@@ -306,18 +307,6 @@ class BillboardAdminTest {
 //        assertEquals(billboardInformation.getServerResponse(), "Fail: Insufficient User Permission");
 //    }
 
-
-    @Test
-    public void testsql() throws IOException, SQLException {
-        String dbResponse2 = billboardAdmin.deleteAllBillboard();
-        String dbResponse3 = billboardAdmin.createBillboardTable();
-//        String dbResponse4 = DbUser.createUsersTable();
-//        String dbResponse = billboardAdmin.createBillboardTable();
-//        String dbResponse = billboardAdmin.dropBillboardTable();
-//        System.out.println(dbResponse);
-//        System.out.println(dbResponse2);
-        System.out.println(dbResponse3);
-    }
 
 
 }

@@ -222,7 +222,7 @@ public class Server {
      */
     private static Object callBillboardAdminMethod() throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
-        switch (module) {
+        switch (method) {
             case "CreateBillboard":
                 String billboardName = additionalArgs[0];
                 String xmlCode = additionalArgs[1];
@@ -246,14 +246,42 @@ public class Server {
      * the database as necessary.
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
-    private static Object callScheduleAdminMethod() {
+    private static Object callScheduleAdminMethod() throws IOException, SQLException {
         // Determine which method from ScheduleAdmin to execute
-        switch (module) {
+        switch (method) {
             case "CreateSchedule":
-                //TODO: POPULATE WITH METHOD CALLS
-                //String billboardName = additionalArgs[0];
-                //String xmlCode = additionalArgs[1];
-                return true; // BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
+                String billboardName = additionalArgs[0];
+                String startTime = additionalArgs[1];
+                String duration = additionalArgs[2];
+                String creationDateTime = additionalArgs[3];
+                String repeat = additionalArgs[4];
+                String sunday = additionalArgs[5];
+                String monday = additionalArgs[6];
+                String tuesday = additionalArgs[7];
+                String wednesday = additionalArgs[8];
+                String thursday = additionalArgs[9];
+                String friday = additionalArgs[10];
+                String saturday = additionalArgs[11];
+                return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
+                sunday,monday,tuesday,wednesday,thursday,friday,saturday);
+            case "EditSchedule":
+                String editbillboardName = additionalArgs[0];
+                String editstartTime = additionalArgs[1];
+                String editduration = additionalArgs[2];
+                String editcreationDateTime = additionalArgs[3];
+                String editrepeat = additionalArgs[4];
+                String editsunday = additionalArgs[5];
+                String editmonday = additionalArgs[6];
+                String edittuesday = additionalArgs[7];
+                String editwednesday = additionalArgs[8];
+                String editthursday = additionalArgs[9];
+                String editfriday = additionalArgs[10];
+                String editsaturday = additionalArgs[11];
+                return ScheduleAdmin.editSchedule(editbillboardName,editstartTime,editduration,editcreationDateTime,editrepeat,
+                        editsunday,editmonday,edittuesday,editwednesday,editthursday,editfriday,editsaturday);
+            case "DeleteBillboard":
+                String deleteScheduleName = additionalArgs[0];
+                return ScheduleAdmin.deleteSchedule(deleteScheduleName);
             default:
                 return "No ScheduleAdmin method requested";
         }
