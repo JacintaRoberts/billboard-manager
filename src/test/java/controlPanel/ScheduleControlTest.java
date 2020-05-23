@@ -2,13 +2,11 @@ package controlPanel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.BillboardAdmin;
-import server.BillboardList;
-import server.ScheduleAdmin;
-import server.ScheduleList;
+import server.*;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -306,7 +304,6 @@ class ScheduleControlTest {
         String day = "Wednesday";
         server.ScheduleList allDaySchedule = (ScheduleList) ScheduleControl.listDayScheduleRequest("sampleToken", day);
 
-//      BillboardSchedules billboardSchedules = viewScheduleRequest("sessionToken");
         assertAll("Should return details of Given Billboard",
                 () -> assertEquals("Pass: All Day Schedule Returned", allDaySchedule.getScheduleServerResponse()),
                 () -> assertArrayEquals(ExpectedBillboardList.toArray(), allDaySchedule.getScheduleBillboardName().toArray()),
@@ -357,20 +354,54 @@ class ScheduleControlTest {
      * Description: Method to request to server for specific billboard information
      * Expected Output: Server will return Start Date, Duration and End Date
      */
-//    @Test
-//    public void viewABillboardScheduleRequest(String sessionToken, String billboard){
-//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//      scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "2020-04-14 09:00:00", "00:01:00", "00:10:00");
-//      BillboardScheduleInformation billboardScheduleInformation = viewBillboardScheduleRequest("sessionToken",
-//              "Billboard1");
-//      assertAll("Should return details of Given Billboard",
-//                () -> assertEquals("Pass: Billboard Schedule Returned", billboardScheduleInformation.getServerResponse()),
-//                () -> assertEquals("2020-04-14", billboardScheduleInformation.getBillboardStartDate()),
-//                () -> assertEquals("00:01:00", billboardScheduleInformation.getBillboardDuration())
-//                () -> assertEquals("00:10:00", billboardScheduleInformation.getBillboardRepeats())
-//                () -> assertEquals("2020-04-14", billboardScheduleInformation.getBillboardEndDate())
-//      );
-//    }
+    @Test
+    public void viewABillboardScheduleRequestTest() throws IOException, ClassNotFoundException {
+        // Set test cases
+        String ExpectedBillboardList= "ScheduledBillboard1";
+        String ExpectedStartTimeList= "05:00";
+        String ExpectedDurationList= "30";
+        String ExpectedCreationDateTimeList = "2020-05-18 12:55";
+        String ExpectedRepeatList = "120";
+        String ExpectedSundayList = "0";
+        String ExpectedMondayList = "0";
+        String ExpectedTuesdayList = "1";
+        String ExpectedWednesdayList = "1";
+        String ExpectedThursdayList = "0";
+        String ExpectedFridayList = "0";
+        String ExpectedSaturdayList = "0";
+
+        // Cleaning for test
+        BillboardControl.deleteAllBillboardRequest("sessionToken");
+        ScheduleControl.deleteAllScheduleRequest("sampleToken");
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
+        ScheduleControl.scheduleBillboardRequest("sampleToken","ScheduledBillboard1",
+                "05:00", 30, "2020-05-18 12:55", 120,
+                0,0,1,1,0,0,0);
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
+        ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard2",
+                "06:00", 20, "2020-05-18 13:55", 40,
+                0,1,1,1,1,1,0);
+
+
+        server.ScheduleInfo returnInfo = (ScheduleInfo)  ScheduleControl.listABillboardSchedule("sessionToken",
+                "ScheduledBillboard1");
+
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("Pass: Schedule Detail Returned", returnInfo.getScheduleServerResponse()),
+                () -> assertEquals(ExpectedBillboardList, returnInfo.getScheduleBillboardName()),
+                () -> assertEquals(ExpectedStartTimeList, returnInfo.getStartTime()),
+                () -> assertEquals(ExpectedDurationList, returnInfo.getDuration()),
+                () -> assertEquals(ExpectedCreationDateTimeList, returnInfo.getCreationDateTime()),
+                () -> assertEquals(ExpectedRepeatList, returnInfo.getRepeat()),
+                () -> assertEquals(ExpectedSundayList, returnInfo.getSunday()),
+                () -> assertEquals(ExpectedMondayList, returnInfo.getMonday()),
+                () -> assertEquals(ExpectedTuesdayList, returnInfo.getTuesday()),
+                () -> assertEquals(ExpectedWednesdayList, returnInfo.getWednesday()),
+                () -> assertEquals(ExpectedThursdayList, returnInfo.getThursday()),
+                () -> assertEquals(ExpectedFridayList, returnInfo.getFriday()),
+                () -> assertEquals(ExpectedSaturdayList, returnInfo.getSaturday())
+        );
+    }
 
 
     /* Test 18: Request to server to View specific billboard information (Exception Handling)
@@ -412,5 +443,52 @@ class ScheduleControlTest {
 //      "sessionToken","Billboard1");
 //      assertTrue(billboardScheduleInformation.getServerResponse() == "Fail: No User Permission");
 //    }
+
+    /* Test 22: View Active Schedule (Pass)
+     * Description: Receive view schedule request from CP, will require a session token.
+     *              Assume sessionToken is valid. View all schedule for a day.
+     * Expected Output:
+     */
+    @Test
+    public void ViewCurrentScheduleTest() throws IOException, SQLException, ClassNotFoundException {
+        // Cleaning
+        BillboardControl.deleteAllBillboardRequest("sessionToken");
+        ScheduleControl.deleteAllScheduleRequest("sampleToken");
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
+        ScheduleControl.scheduleBillboardRequest("sampleToken","ScheduledBillboard1",
+                "05:00", 30, "2020-05-18 12:55", 120,
+                0,0,1,1,0,0,0);
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
+        ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard2",
+                "06:00", 20, "2020-05-18 13:55", 40,
+                0,1,1,1,1,1,0);
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard3","testXML");
+        ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard3",
+                "13:00", 50, "2020-05-20 15:55", 0,
+                0,0,0,0,0,0,1);
+
+
+        // Set test cases
+        List<String> ExpectedBillboardList= new ArrayList<String>();
+        ExpectedBillboardList.add("ScheduledBillboard1");
+        List<String> ExpectedStartTimeList= new ArrayList<String>();
+        ExpectedStartTimeList.add("07:00");
+        List<String> ExpectedCreationDateTimeList = new ArrayList<String>();
+        ExpectedCreationDateTimeList.add("2020-05-18 12:55");
+
+        String day = "Wednesday";
+        LocalTime currentTime = LocalTime.parse("07:20");
+
+        server.CurrentSchedule activeSchedule = (CurrentSchedule) ScheduleControl.listActiveSchedule("sampleToken",day, String.valueOf(currentTime));
+
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("Pass: Current Active Schedule Returned", activeSchedule.getScheduleServerResponse()),
+                () -> assertArrayEquals(ExpectedStartTimeList.toArray(), activeSchedule.getStartTime().toArray()),
+                () -> assertArrayEquals(ExpectedCreationDateTimeList.toArray(), activeSchedule.getCreationDateTime().toArray()),
+                () -> assertArrayEquals(ExpectedBillboardList.toArray(), activeSchedule.getScheduleBillboardName().toArray())
+        );
+    }
+
+
 
 }

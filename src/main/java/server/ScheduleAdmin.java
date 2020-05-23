@@ -513,7 +513,7 @@ public class ScheduleAdmin {
             rs.next();
             // Store return from sql into respective data fields.
             retrievedBillboard = rs.getString(1);
-            retrievedStartTime = rs.getString(2);
+            retrievedStartTime = rs.getString(2).substring(0, rs.getString(2).length() - 3);
             retrievedDuration = rs.getString(3);
             retrievedCreationDateTime = rs.getString(4).substring(0, rs.getString(4).length() - 5);
             retrievedRepeat = rs.getString(5);
