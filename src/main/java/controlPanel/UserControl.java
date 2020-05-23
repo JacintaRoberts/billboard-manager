@@ -37,6 +37,7 @@ public class UserControl {
         return hashedPassword;
     }
 
+
     /**
      * Sends a user's request to log in to the server
      * Hashes the password on the client-side before sending across for validation
@@ -108,19 +109,33 @@ public class UserControl {
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
-    
+
     /**
      * Sends a user's request to get a user's permissions to the server
      * Receives a server acknowledgement from the server if user permission retrieval failed, otherwise a boolean arrayList
      * for whether the user has the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
      * @param sessionToken Session token for the current log in (contains calling user)
      * @param username the username of the user's permissions to be retrieved
-     * @return ArrayList of all usernames, or ServerAcknowledge for error message occurred.
+     * @return Boolean ArrayList for the user's permissions, or ServerAcknowledge for error message occurred.
      * @throws IOException Thrown if unknown server host when communicating through sockets.
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
     public static Object getUserPermissionsRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
         String message = String.format("User,getUserPermissions,%s,%s", sessionToken, username);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
+    /**
+     * Sends a user's request to get a password from the database
+     * Receives a server acknowledgement from the server if user password retrieval failed, otherwise a string password
+     * @param sessionToken Session token for the current log in (contains calling user)
+     * @param username the username of the user's password to be retrieved
+     * @return String password, or ServerAcknowledge for error message occurred.
+     * @throws IOException Thrown if unknown server host when communicating through sockets.
+     * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     */
+    public static Object getUserPasswordRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
+        String message = String.format("User,getUserPassword,%s,%s", sessionToken, username);
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 

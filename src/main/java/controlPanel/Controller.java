@@ -460,31 +460,8 @@ public class Controller
                 }
             }
             userProfileView.setPermissions(userPermissions);
-
-            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
-
-            // Get user password from server
-            String password = null;
-
-            try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
-                userPermissions = (ArrayList<Boolean>) serverResponse;
-            } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
-                // terminate Control Panel and restart
-                ex.printStackTrace();
-                // Error handling
-            } catch ( ClassCastException ex ) {
-                if (serverResponse.equals(InvalidToken)) {
-                    // TODO: error pop-up window for expired session
-                    // navigate to logout/login screen
-                } else if (serverResponse.equals(NoSuchUser)) {
-                    // TODO: error pop-up window for deleted user
-                    // display error and navigate to logout/login screen
-                }
-            }
-            userProfileView.setPassword("Password");
-
+            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
+            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
             views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
