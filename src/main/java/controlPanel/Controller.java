@@ -902,7 +902,8 @@ public class Controller
             bbCreateView.showBBEditingMessage(BBName);
 
             // FIXME: GET XML FILE FROM SERVER (VIEWER CLASS WILL NEED THE SAME METHOD)
-            // FIXME: SERVER CALL: getBBXML(bbName) returning a File
+            // FIXME: ALAN - BB CONTROL CALL: getBBXML(bbName) returning a File
+            // Note: this is exactly the same format as used by Kanu's Viewer
 
             // TODO: remove once server call is working
             File fileToDisplay = extractXMLFile(6);
@@ -940,7 +941,7 @@ public class Controller
             // if confirmed response, delete from DB
             if (response == 0)
             {
-                // FIXME: SERVER CALL: deleteBB(BBName)
+                // FIXME: ALAN - SERVER CALL: deleteBB(BBName)
 
                 // navigate to bb list screen to refresh screen
                 updateView(BB_LIST);
@@ -958,6 +959,16 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: View BB button clicked");
+
+            // get the BB name associated to the edit button
+            JButton button = (JButton) e.getSource();
+            String BBName = button.getName();
+
+            // FIXME: this will be the full screen BB preview page
+            //BBListView bbListView = (BBListView) views.get(BB_LIST);
+
+            //FIXME: ALAN - BB CONTROL CALL: getBBXML(BBName) returning a File/Object
+            //views.put(BB_LIST, bbListView);
         }
     }
 
@@ -973,7 +984,7 @@ public class Controller
 
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
-            // FIXME: SERVER CALL - getListOfBillboardNames() return an ArrayList<String> of all Billboard Names
+            // FIXME: ALAN - SERVER CALL - getListOfBillboardNames() return an ArrayList<String> of all Billboard Names
             ArrayList<String> stringArray = new ArrayList<>();
             stringArray.add("Myer's Biggest Sale");
             stringArray.add("Kathmandu Summer Sale");
@@ -1064,7 +1075,7 @@ public class Controller
                     // show scheduling option - asking user if they want to schedule BB now
                     int optionSelected = bbCreateView.showSchedulingOption();
 
-                    // FIXME: SERVER CALL: addBBXML(BBXMLFile) ADD BB TO DB!!!
+                    // FIXME: ALAN - SERVER CALL: addBBXML(BBXMLFile) ADD BB TO DB!!!
                     ArrayList<Object> BBXMLFile = bbCreateView.getBBXML();
 
                     // User Selected YES to schedule BB
