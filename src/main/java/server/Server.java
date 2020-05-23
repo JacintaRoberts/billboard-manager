@@ -282,6 +282,13 @@ public class Server {
             case "DeleteBillboard":
                 String deleteScheduleName = additionalArgs[0];
                 return ScheduleAdmin.deleteSchedule(deleteScheduleName);
+            case "ListAllDaySchedule":
+                String dayList = additionalArgs[0];
+                return ScheduleAdmin.viewAllDaySchedule(ScheduleAdmin.listFilteredScheduleInformation(dayList));
+            case "ListActiveSchedule":
+                String day = additionalArgs[0];
+                String currentTime = additionalArgs[0];
+                return ScheduleAdmin.viewAllDaySchedule(ScheduleAdmin.listFilteredScheduleInformation(day));
             default:
                 return "No ScheduleAdmin method requested";
         }

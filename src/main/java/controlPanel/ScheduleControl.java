@@ -144,6 +144,48 @@ public class ScheduleControl {
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to List all billboard schedule
+     * from control panel to server for a specific  day.
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @param  Day A String which provides Billboard Name to store into database
+     * @return
+     */
+    public String listAllDayScheduleRequest(String sessionToken,
+                                        String Day) throws IOException, ClassNotFoundException {
+        String message = String.format("Schedule,ListAllDaySchedule,%s,%s",
+                sessionToken,
+                Day);
+        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
+
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to List all billboard schedule
+     * from control panel to server for a specific  day.
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @param  Day A String which provides Billboard Name to store into database
+     * @return
+     */
+    public String listActiveSchedule(String sessionToken,
+                                            String Day, String currentTime) throws IOException, ClassNotFoundException {
+
+        // Parses the date
+//        LocalDate dt = LocalDate.parse("2018-11-27");
+        // Prints the day
+//        System.out.println(dt.getDayOfWeek());
+//        LocalTime now = LocalTime.now();
+        
+        String message = String.format("Schedule,ListActiveSchedule,%s,%s",
+                sessionToken,
+                Day,
+                currentTime);
+        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
 
 
 }
