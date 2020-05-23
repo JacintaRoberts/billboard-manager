@@ -19,7 +19,7 @@ public class DbUser {
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
     public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
-    public static final String LIST_USERS_SQL = "SELECT username FROM users;";
+    public static final String LIST_USERS_SQL = "SELECT Username FROM users;";
     public static final String UPDATE_PERMISSIONS_SQL = "UPDATE users SET CreateBillboard=?, EditBillboard=?, ScheduleBillboard=?, EditUser=? WHERE Username = ?";
     public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, RandomSalt=? WHERE Username = ?";
     private static Connection connection;
@@ -139,21 +139,6 @@ public class DbUser {
     }
 
 
-
-    //TODO: REDUNDANT METHOD - NOT SURE WHERE/IF ITS NEEDED
-    /**
-     * Tidy up connections
-     */
-    private static void close() {
-        try {
-            selectUser.close();
-            connection.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
-
-    }
-
     /**
     * Method to fetch a list of users from the database - feel free to change this just wanted it to work!
     * @return An array list of all the usernames in the database
@@ -193,6 +178,7 @@ public class DbUser {
         ResultSet rs = updatePermissions.executeQuery();
     }
 
+
     public static void updatePassword(String username, String password, String randomSalt) throws IOException, SQLException {
         connection = DbConnection.getInstance();
         updatePassword = connection.prepareStatement(UPDATE_PASSWORD_SQL);
@@ -200,5 +186,20 @@ public class DbUser {
         updatePassword.setString(2, randomSalt);
         updatePassword.setString(3, username);
         ResultSet rs = updatePassword.executeQuery();
+    }
+
+
+    //TODO: REDUNDANT METHOD - NOT SURE WHERE/IF ITS NEEDED
+    /**
+     * Tidy up connections
+     */
+    private static void close() {
+        try {
+            selectUser.close();
+            connection.close();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+
     }
 }

@@ -9,6 +9,7 @@ import java.util.Random;
 
 import static controlPanel.UserControl.hash;
 import static helpers.Helpers.bytesToString;
+import static server.DbUser.retrieveUser;
 import static server.Server.*;
 import static server.Server.Permission.EditUser;
 import static server.Server.ServerAcknowledge.*;
@@ -22,7 +23,7 @@ public class UserAdmin {
      * @return boolean true if they exist, boolean false if the user does not exist
      */
     public static boolean userExists(String username) throws IOException, SQLException {
-        ArrayList<String> user = DbUser.retrieveUser(username);
+        ArrayList<String> user = retrieveUser(username);
         System.out.println("This was received: " + user.toString());
         if (!user.isEmpty()) { // If username exists in db (case sensitivity and whitespace)
             System.out.println("User is not empty.");
@@ -43,7 +44,7 @@ public class UserAdmin {
      * @return boolean true if the password matches, boolean false if password mismatch
      */
     public static boolean checkPassword(String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
-        ArrayList<String> user = DbUser.retrieveUser(username);
+        ArrayList<String> user = retrieveUser(username);
         System.out.println("This was received: " + user.toString());
         System.out.println("Hashed password from CP: " + hashedPassword);
         String saltString = user.get(2); // Retrieve salt from database
@@ -187,7 +188,7 @@ public class UserAdmin {
      */
     private static ArrayList<Boolean> retrieveUserPermissionsFromDb(String username) throws IOException, SQLException {
         ArrayList<Boolean> userPermissions = new ArrayList<>();
-        ArrayList<String> retrievedUser = DbUser.retrieveUser(username);
+        ArrayList<String> retrievedUser = retrieveUser(username);
         userPermissions.add(0, stringToBoolean(retrievedUser.get(3))); // Create billboard
         userPermissions.add(1, stringToBoolean(retrievedUser.get(4))); // Edit billboard
         userPermissions.add(2, stringToBoolean(retrievedUser.get(5))); // Edit schedule
@@ -265,6 +266,7 @@ public class UserAdmin {
     }
 
 
+
     public ServerAcknowledge setUserPermissions(String sessionToken, String username, boolean createBillboards,
                                      boolean editBillboards, boolean editSchedules, boolean editUsers) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
@@ -292,6 +294,16 @@ public class UserAdmin {
         }
     }
 
+    /**
+     * Method to set password of corresponding user
+     * @param sessionToken
+     * @param username
+     * @param hashedPassword
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     * @throws NoSuchAlgorithmException
+     */
     public ServerAcknowledge setPassword(String sessionToken, String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
