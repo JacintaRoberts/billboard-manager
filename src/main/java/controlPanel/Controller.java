@@ -4,16 +4,16 @@ import controlPanel.Main.VIEW_TYPE;
 import org.xml.sax.SAXException;
 import server.Server;
 import server.Server.ServerAcknowledge;
+import server.UserAdmin;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -391,7 +391,7 @@ public class Controller
      #################################### DEFINE LISTENERS ####################################
     */
 
-    //---------------------------------- GENERIC LISTENER ------------------------------
+    //---------------------------------- GENERIC LISTENERS ------------------------------
     /**
      * Listener to handle Home Button mouse clicks.
      * If user clicks the Home button, user is navigated to Home Screen.
@@ -402,8 +402,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Home button clicked");
-            // navigate to home screen
-            updateView(VIEW_TYPE.HOME);
+            updateView(VIEW_TYPE.HOME); // navigate to home screen
         }
     }
 
@@ -440,9 +439,51 @@ public class Controller
 
             // set username, password and permissions in Profile View
             userProfileView.setUsername(username);
+
+            // Get user permissions from server
+            ArrayList<Boolean> userPermissions = null;
+            try {
+                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                userPermissions = (ArrayList<Boolean>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
+                ex.printStackTrace();
+            // Error handling
+            } catch ( ClassCastException ex ) {
+                if (serverResponse.equals(InvalidToken)) {
+                    // TODO: error pop-up window for expired session
+                    // navigate to logout/login screen
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    // TODO: error pop-up window for deleted user
+                    // display error and navigate to logout/login screen
+                }
+            }
+            userProfileView.setPermissions(userPermissions);
+
             // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
+
+            // Get user password from server
+            String password = null;
+
+            try {
+                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                userPermissions = (ArrayList<Boolean>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
+                ex.printStackTrace();
+                // Error handling
+            } catch ( ClassCastException ex ) {
+                if (serverResponse.equals(InvalidToken)) {
+                    // TODO: error pop-up window for expired session
+                    // navigate to logout/login screen
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    // TODO: error pop-up window for deleted user
+                    // display error and navigate to logout/login screen
+                }
+            }
             userProfileView.setPassword("Password");
-            userProfileView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
 
             views.put(USER_PROFILE, userProfileView);
 

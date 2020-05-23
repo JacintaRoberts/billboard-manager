@@ -96,7 +96,7 @@ public class UserControl {
 
 
     /**
-     * Sends a user's request to delete a user to the server
+     * Sends a user's request to lists users to the server
      * Receives a string acknowledgement from the server if user deletion is successful
      * @param sessionToken Session token for the current log in (contains calling user)
      * @return ArrayList of all usernames, or ServerAcknowledge for error message occurred.
@@ -107,4 +107,21 @@ public class UserControl {
         String message = String.format("User,ListUsers,%s", sessionToken);
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
+
+    
+    /**
+     * Sends a user's request to get a user's permissions to the server
+     * Receives a server acknowledgement from the server if user permission retrieval failed, otherwise a boolean arrayList
+     * for whether the user has the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
+     * @param sessionToken Session token for the current log in (contains calling user)
+     * @param username the username of the user's permissions to be retrieved
+     * @return ArrayList of all usernames, or ServerAcknowledge for error message occurred.
+     * @throws IOException Thrown if unknown server host when communicating through sockets.
+     * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     */
+    public static Object getUserPermissionsRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
+        String message = String.format("User,getUserPermissions,%s,%s", sessionToken, username);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
 }
