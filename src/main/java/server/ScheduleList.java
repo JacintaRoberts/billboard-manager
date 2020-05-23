@@ -1,8 +1,9 @@
 package server;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 
-public class ScheduleList {
+public class ScheduleList  implements Serializable {
     // Set Fields for DbSchedule
     private String serverResponse;
     private ArrayList<String> BillboardName;

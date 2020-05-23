@@ -2,10 +2,14 @@ package controlPanel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.BillboardList;
+import server.DbBillboard;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
 
 class BillboardControlTest {
 
@@ -143,19 +147,23 @@ class BillboardControlTest {
      *              list of billboards
      * Expected Output: A server response with the list of billboard as an array containing billboard names.
      */
-//    @Test
-//    public void listAllBillboardRequest(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard2", xmlCode);
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard3", xmlCode);
-//        List<String> testBillboardList = new ArrayList<String>();
-//        testBillboardList.add("Billboard1");
-//        testBillboardList.add("Billboard2");
-//        testBillboardList.add("Billboard3");
-//        BillboardList billboardList = billboardControl.listBillboardRequest("sessionToken");
-//        assertEquals(billboardList.getServerResponse(),"Pass: Billboard List Returned");
-//        assertArrayEquals(testBillboardList ,billboardList.getBillboardList());
-//    }
+    @Test
+    public void listAllBillboardRequest() throws IOException, ClassNotFoundException {
+        BillboardControl.deleteAllBillboardRequest("sampleToken");
+        billboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+        billboardControl.createBillboardRequest("sampleToken", "Billboard2", "xmlCode");
+        billboardControl.createBillboardRequest("sampleToken", "Billboard3", "xmlCode");
+        List<String> testBillboardList = new ArrayList<String>();
+        testBillboardList.add("Billboard1");
+        testBillboardList.add("Billboard2");
+        testBillboardList.add("Billboard3");
+        server.BillboardList billboardInformation = (BillboardList) billboardControl.listBillboardRequest("sampleToken");
+
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals(billboardInformation.getServerResponse(),"Pass: Billboard List Returned"),
+                () -> assertArrayEquals(testBillboardList.toArray(), billboardInformation.getBillboardNames().toArray())
+        );
+    }
 
 
     /* Test 12: Request to server to list billboards (Exception Handling)
@@ -176,17 +184,18 @@ class BillboardControlTest {
      *              information such as billboardName, Creator, xmlCode.
      * Expected Output: Return of billboard information such as billboardName, Creator, xmlCode
      */
-//    @Test
-//    public void getABillboardInformationRequestPass(){
-//        billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//        BillboardInformation billboardInformation = getBillboardInformationRequest("sessionToken","Billboard1");
-//        assertAll("Should return details of Given Billboard",
-//                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getServerResponse()),
-//                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
-//                () -> assertEquals("CAB302", billboardInformation.getBillboardCreator()),
-//                () -> assertEquals(xmlCode, billboardInformation.getBillboardXML())
-//        );
-//    }
+    @Test
+    public void getABillboardInformationRequestPass() throws IOException, ClassNotFoundException {
+        BillboardControl.deleteAllBillboardRequest("sampleToken");
+        billboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+        server.DbBillboard billboardInformation = (DbBillboard) billboardControl.getBillboardRequest("sampleToken","Billboard1");
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("Pass: Billboard Info Returned", billboardInformation.getReturnString()),
+                () -> assertEquals("Billboard1", billboardInformation.getBillboardName()),
+                () -> assertEquals("userNameReturn", billboardInformation.getCreator()),
+                () -> assertEquals("xmlCode", billboardInformation.getXMLCode())
+        );
+    }
 
 
     /* Test 14: Request to server to get billboard information (Exception Handling)

@@ -2,10 +2,19 @@ package controlPanel;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import server.BillboardAdmin;
+import server.BillboardList;
+import server.ScheduleAdmin;
+import server.ScheduleList;
 
 import java.io.IOException;
+import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertArrayEquals;
 
 class ScheduleControlTest {
 
@@ -33,7 +42,9 @@ class ScheduleControlTest {
      */
     @Test
     public void scheduleBillboardRequestTest() throws IOException, ClassNotFoundException {
+      BillboardControl.deleteAllBillboardRequest("sessionToken");
       BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+      ScheduleControl.deleteAllScheduleRequest("sampleToken");
       String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
               "09:30", 30, "2020-05-20 13:00", 40,0,0,
               1,0,1,1,0);
@@ -130,14 +141,17 @@ class ScheduleControlTest {
      * Expected Output: A schedule is not added to the table and returns "Fail: Billboard Scheduled More Frequently
      *                  Than Duration"
      */
-//    @Test
-//    public void scheduleBillboardNoPermission(){
-//      billboardAdmin.createBillboard("sampleToken", "Billboard1", xmlCode);
-//      // Example 1 - Billboard duration is 5 mins and repeats every 1 min should throw an error
-//      String dbResponse = scheduleAdmin.scheduleBillboard("basicToken", "Billboard1",
-//                                                                       "2020-04-14 09:00:00", "5:00:00:00", "24:00:00");
-//      assertEquals(serverResponse, "Fail: Billboard Scheduled More Frequently Than Duration");
-
+    @Test
+    public void scheduleBillboardBadRepeatDuration() throws IOException, SQLException, ClassNotFoundException {
+        BillboardControl.deleteAllBillboardRequest("sessionToken");
+        BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+        ScheduleControl.deleteAllScheduleRequest("sampleToken");
+        // Example 1 - Billboard duration is 5 mins and repeats every 1 min should throw an error
+        String serverResponse = ScheduleControl.scheduleBillboardRequest("sampleToken","Billboard1",
+                "04:00",50,"2020-04-15 13:40",20,1,0,
+                0,1,0,0,1);
+        assertEquals(serverResponse, "Fail: Billboard Scheduled More Frequently Than Duration");
+    }
 
 
     /* Test 9: Create Schedule - Repeat Exceeds Duration (Exception Handling)
@@ -160,14 +174,17 @@ class ScheduleControlTest {
      * Description: Method to remove Billboard. Will require a valid sessiontoken, and name of billboard to remove.
      * Expected Output: An success message from the server
      */
-//    @Test
-//    public void removeFromScheduleRequestTest(){
-//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//      scheduleControl.scheduleBillboardRequest("sampleToken", "billboard",
-//                "2020-04-14 09:00:00", "00:01:00", "00:10:00");
-//      String serverResponse = scheduleControl.removeFromScheduleRequest("sessionToken", "Billboard1", "2020-04-14 09:00:00");
-//      assertEquals(serverResponse, "Pass: Billboard Schedule Removed");
-//    }
+    @Test
+    public void removeFromScheduleRequestTest() throws IOException, ClassNotFoundException {
+      BillboardControl.deleteAllBillboardRequest("sessionToken");
+      ScheduleControl.deleteAllScheduleRequest("sampleToken");
+      BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+      ScheduleControl.scheduleBillboardRequest("sampleToken","Billboard1",
+                "04:00",20,"2020-04-15 13:40",60,1,0,
+                0,1,0,0,1);
+      String serverResponse = scheduleControl.deleteScheduleRequest("sessionToken", "Billboard1");
+      assertEquals(serverResponse, "Pass: Billboard Schedule Deleted");
+    }
 
 
     /* Test 11: Request to server to Remove Billboard Schedule (Exception Handling)
@@ -216,24 +233,96 @@ class ScheduleControlTest {
 //    }
 
 
-    /* Test 14: Request to server to view billboard Schedules (Success)
+    /* Test 14: Request to server to view raw billboard Schedules (Success)
      * Description: Method to request to server to view billboard schedules. Assume sessionToken is valid.
      * Expected Output: Server will return a string of schedules
      */
-//    @Test
-//    public void viewScheduleRequestTest(){
-//      billboardControl.createBillboardRequest("sampleToken", "Billboard1", xmlCode);
-//      scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1", "2020-04-14 09:00:00", "00:01:00", "00:10:00");
-//      billboardControl.createBillboardRequest("sampleToken", "Billboard2", xmlCode);
-//      scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard2", "2020-04-14 09:00:00", "00:01:00", "00:10:00");
+    @Test
+    public void viewScheduleRequestDayTest() throws IOException, ClassNotFoundException {
+        // Cleaning for test
+        BillboardControl.deleteAllBillboardRequest("sessionToken");
+        ScheduleControl.deleteAllScheduleRequest("sampleToken");
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
+        ScheduleControl.scheduleBillboardRequest("sampleToken","ScheduledBillboard1",
+                "05:00", 30, "2020-05-18 12:55", 120,
+                0,0,1,1,0,0,0);
+        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
+        ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard2",
+                "06:00", 20, "2020-05-18 13:55", 40,
+                0,1,1,1,1,1,0);
+
+        // Set test cases
+        List<String> ExpectedBillboardList= new ArrayList<String>(Arrays.asList("ScheduledBillboard1",
+                "ScheduledBillboard1", "ScheduledBillboard1", "ScheduledBillboard1", "ScheduledBillboard1",
+                "ScheduledBillboard1", "ScheduledBillboard1", "ScheduledBillboard1", "ScheduledBillboard1",
+                "ScheduledBillboard1", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2",
+                "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2",
+                "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2",
+                "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2",
+                "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2",
+                "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2",
+                "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2", "ScheduledBillboard2"));
+        List<String> ExpectedStartTimeList= new ArrayList<String>(Arrays.asList("05:00", "07:00", "09:00", "11:00",
+                "13:00", "15:00", "17:00", "19:00", "21:00", "23:00", "06:00", "06:40", "07:20", "08:00", "08:40",
+                "09:20", "10:00", "10:40", "11:20", "12:00", "12:40", "13:20", "14:00", "14:40", "15:20", "16:00",
+                "16:40", "17:20", "18:00", "18:40", "19:20", "20:00", "20:40", "21:20", "22:00", "22:40", "23:20"));
+        List<String> ExpectedDurationList= new ArrayList<String>(Arrays.asList("30", "30", "30", "30", "30", "30",
+                "30", "30", "30", "30", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20",
+                "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20", "20"));
+        List<String> ExpectedCreationDateTimeList = new ArrayList<String>(Arrays.asList("2020-05-18 12:55",
+                "2020-05-18 12:55", "2020-05-18 12:55", "2020-05-18 12:55", "2020-05-18 12:55",
+                "2020-05-18 12:55", "2020-05-18 12:55", "2020-05-18 12:55", "2020-05-18 12:55",
+                "2020-05-18 12:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55",
+                "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55",
+                "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55",
+                "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55",
+                "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55",
+                "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55",
+                "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55", "2020-05-18 13:55"));
+        List<String> ExpectedRepeatList = new ArrayList<String>(Arrays.asList("120", "120", "120", "120", "120", "120", "120",
+                "120", "120", "120", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40",
+                "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40", "40"));
+        List<String> ExpectedSundayList = new ArrayList<String>(Arrays.asList("0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0"));
+        List<String> ExpectedMondayList = new ArrayList<String>(Arrays.asList("0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1"));
+        List<String> ExpectedTuesdayList = new ArrayList<String>(Arrays.asList("1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1"));
+        List<String> ExpectedWednesdayList = new ArrayList<String>(Arrays.asList("1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1"));
+        List<String> ExpectedThursdayList = new ArrayList<String>(Arrays.asList("0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1"));
+        List<String> ExpectedFridayList = new ArrayList<String>(Arrays.asList("0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1", "1",
+                "1", "1", "1", "1", "1"));
+        List<String> ExpectedSaturdayList = new ArrayList<String>(Arrays.asList("0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0", "0",
+                "0", "0", "0", "0", "0"));
+        String day = "Wednesday";
+        server.ScheduleList allDaySchedule = (ScheduleList) ScheduleControl.listDayScheduleRequest("sampleToken", day);
+
 //      BillboardSchedules billboardSchedules = viewScheduleRequest("sessionToken");
-//      assertAll("Should return details of Given Billboard",
-//                () -> assertEquals("Pass: Billboard List Returned", billboardSchedules.getServerResponse()),
-//                () -> assertArrayEquals(String[] {"Billboard1","Billboard2"}, billboardSchedules.getBillboardName()),
-//                () -> assertArrayEquals(String[] {"03/04/2020","04/04/2020"}, billboardSchedules.getBillboardStartDate()),
-//                () -> assertArrayEquals(String[] {"01:00","02:00"}, billboardSchedules.getBillboardDuration()),
-//      );
-//    }
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("Pass: All Day Schedule Returned", allDaySchedule.getScheduleServerResponse()),
+                () -> assertArrayEquals(ExpectedBillboardList.toArray(), allDaySchedule.getScheduleBillboardName().toArray()),
+                () -> assertArrayEquals(ExpectedStartTimeList.toArray(), allDaySchedule.getStartTime().toArray()),
+                () -> assertArrayEquals(ExpectedDurationList.toArray(), allDaySchedule.getDuration().toArray()),
+                () -> assertArrayEquals(ExpectedCreationDateTimeList.toArray(), allDaySchedule.getCreationDateTime().toArray()),
+                () -> assertArrayEquals(ExpectedRepeatList.toArray(), allDaySchedule.getRepeat().toArray()),
+                () -> assertArrayEquals(ExpectedSundayList.toArray(), allDaySchedule.getSunday().toArray()),
+                () -> assertArrayEquals(ExpectedMondayList.toArray(), allDaySchedule.getMonday().toArray()),
+                () -> assertArrayEquals(ExpectedTuesdayList.toArray(), allDaySchedule.getTuesday().toArray()),
+                () -> assertArrayEquals(ExpectedWednesdayList.toArray(), allDaySchedule.getWednesday().toArray()),
+                () -> assertArrayEquals(ExpectedThursdayList.toArray(), allDaySchedule.getThursday().toArray()),
+                () -> assertArrayEquals(ExpectedFridayList.toArray(), allDaySchedule.getFriday().toArray()),
+                () -> assertArrayEquals(ExpectedSaturdayList.toArray(), allDaySchedule.getSaturday().toArray())
+        );
+    }
 
 
     /* Test 15: Request to server to view billboard Schedules (Exception Handling)
