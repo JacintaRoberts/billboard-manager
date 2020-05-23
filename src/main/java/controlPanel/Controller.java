@@ -525,8 +525,6 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-            model.storeUsername(username);
-            model.storeSessionToken("");
 
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
@@ -1192,10 +1190,10 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            try {
-                bbCreateView.browseXMLImport();
-            } catch (IOException | ParserConfigurationException | SAXException ex) {
-                ex.printStackTrace();
+
+            if (!bbCreateView.browseXMLImport())
+            {
+                bbCreateView.showInvalidXMLMessage();
             }
             views.put(BB_CREATE, bbCreateView);
         }

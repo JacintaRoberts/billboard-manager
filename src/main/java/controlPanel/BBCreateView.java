@@ -16,14 +16,11 @@ import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -35,8 +32,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.SAXException;
 
-import static javax.swing.JOptionPane.DEFAULT_OPTION;
-import static javax.swing.JOptionPane.INFORMATION_MESSAGE;
+import static javax.swing.JOptionPane.*;
 import static viewer.Viewer.*;
 
 public class BBCreateView extends AbstractGenericView
@@ -244,10 +240,23 @@ public class BBCreateView extends AbstractGenericView
      * Set colour of text in BB Text field in Drawing Panel
      * @param colour colour to set in text field (hexadecimal)
      */
-    protected void setBBTextColour(String colour)
+    protected void setBBTextColour(String colour) throws NumberFormatException
     {
-        infoColour = colour;
-        BBTextField.setForeground(Color.decode(infoColour));
+        Color newColour = Color.BLACK;
+        // set colour if provided, if not set to BLACK
+        if (!colour.equals(""))
+        {
+            try
+            {
+                newColour = Color.decode(colour);
+            }
+            catch (NumberFormatException e)
+            {
+                showInvalidInformationColourMessage();
+            }
+        }
+        BBTextField.setForeground(newColour);
+        infoColour = toHexString(newColour);
     }
 
     /**
@@ -256,8 +265,21 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void setBBTitleColour(String colour)
     {
-        titleColour = colour;
-        titleLabel.setForeground(Color.decode(titleColour));
+        Color newColour = Color.BLACK;
+        // set colour if provided, if not set to BLACK
+        if (!colour.equals(""))
+        {
+            try
+            {
+                newColour = Color.decode(colour);
+            }
+            catch (NumberFormatException e)
+            {
+                showInvalidTitleColourMessage();
+            }
+        }
+        titleLabel.setForeground(newColour);
+        titleColour = toHexString(newColour);
     }
 
     /**
@@ -282,10 +304,24 @@ public class BBCreateView extends AbstractGenericView
      * Set background colour of Drawing Panel to reflect BB colour set by user
      * @param colour colour to set drawing panel in hexadecimal
      */
-    protected void setBackgroundColour(String colour)
+    protected void setBackgroundColour(String colour) throws NumberFormatException
     {
-        backgroundColour = colour;
-        drawingPadPanel.setBackground(Color.decode(backgroundColour));
+        Color newColour = Color.WHITE;
+        // set colour if provided, if not set to BLACK
+        if (!colour.equals(""))
+        {
+            try
+            {
+                newColour = Color.decode(colour);
+            }
+            catch(NumberFormatException e)
+            {
+                showInvalidBackgroundColourMessage();
+            }
+        }
+        drawingPadPanel.setBackground(newColour);
+        backgroundColour = toHexString(newColour);
+        System.out.println("set background to white");
     }
 
     /**
@@ -298,11 +334,6 @@ public class BBCreateView extends AbstractGenericView
         photoLabel.setIcon(icon);
         photoType = imgType;
         photoPath = imgPath;
-
-
-        System.out.println("icon " + icon);
-        System.out.println("photo type " + photoType);
-        System.out.println("photo path " + photoPath);
     }
 
     /**
@@ -313,8 +344,6 @@ public class BBCreateView extends AbstractGenericView
     {
         billboardNameButton.setEnabled(enabled);
     }
-
-
 
     // ###################### GET BB VALUES ######################
 
@@ -363,6 +392,21 @@ public class BBCreateView extends AbstractGenericView
         return toHexString(colorSelect);
     }
 
+    private void showInvalidTitleColourMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Invalid Title Colour Provided in XML. Title has been set to default colour of black.");
+    }
+
+    private void showInvalidInformationColourMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Invalid Information Text Colour Provided in XML. Information has been set to default colour of black.");
+    }
+
+    private void showInvalidBackgroundColourMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Invalid Background Colour Provided in XML. Background has been set to default colour of white.");
+    }
+
     /**
      * Show Dialog to allow user to set background colour of BB
      * @return background colour provided by user (hexadecimal format)
@@ -405,6 +449,14 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
+     * Show Message to user to inform that XML Import was invalid
+     */
+    protected void showInvalidXMLMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Invalid XML Uploaded");
+    }
+
+    /**
      * Show Dialog to allow user to set Schedule
      * @return
      */
@@ -438,7 +490,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showBBEditingMessage(String BBName)
     {
-        String message = "You are editing Billboard: " + BBName;
+        String message = "You are editing Billboard: " + BBName + ". Please wait patiently for the billboard to load.";
         JOptionPane.showMessageDialog(null, message);
     }
 
@@ -511,13 +563,14 @@ public class BBCreateView extends AbstractGenericView
      * @throws SAXException
      * @throws ParserConfigurationException
      */
-    protected void browseXMLImport() throws IOException, SAXException, ParserConfigurationException {
+    protected boolean browseXMLImport() {
         int value = xmlChooser.showSaveDialog(null);
         if (value == JFileChooser.APPROVE_OPTION)
         {
             xmlImportPath = xmlChooser.getSelectedFile().getAbsolutePath();
-            xmlImport(xmlImportPath);
+            return xmlImport(xmlImportPath);
         }
+        return false;
     }
 
     /**
@@ -584,7 +637,8 @@ public class BBCreateView extends AbstractGenericView
      * @throws IOException
      * @throws SAXException
      */
-    private void xmlImport(String xmlImportPath) throws ParserConfigurationException, IOException, SAXException {
+    private boolean xmlImport(String xmlImportPath)
+    {
         //creating a constructor of file class and parsing an XML file
         File file = new File(xmlImportPath);
 
@@ -592,51 +646,129 @@ public class BBCreateView extends AbstractGenericView
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
 
         //an instance of builder to parse the specified xml file
-        DocumentBuilder db = dbf.newDocumentBuilder();
-        Document doc = db.parse(file);
+        Document doc;
+        DocumentBuilder db;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            return false;
+        }
+
+        try {
+            doc = db.parse(file);
+        } catch (SAXException | IOException e) {
+            return false;
+        }
 
         // normalise the XML structure
         doc.getDocumentElement().normalize();
 
+        // get root element (billboard)
         Element root = doc.getDocumentElement();
-        setBackgroundColour(root.getAttribute("background"));
+        if (root.getTagName().equals("billboard"))
+        {
+            // get title and title colour
+            NodeList titleList = doc.getElementsByTagName("message");
+            NodeList infoList = doc.getElementsByTagName("information");
+            NodeList photoList = doc.getElementsByTagName("picture");
+            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0)
+            {
+                return false;
+            }
 
-        NodeList titleList = doc.getElementsByTagName("message");
-        Element titleNode = (Element) titleList.item(0);
-        setBBTitle(titleNode.getTextContent());
-        setBBTitleColour(titleNode.getAttribute("colour"));
+            if (photoList.getLength() != 0)
+            {
+                boolean setPicture = manageXMLPicture(photoList);
+                if (!setPicture)
+                {
+                    return false;
+                }
+            }
 
-        NodeList infoList = doc.getElementsByTagName("information");
-        Element infoNode = (Element) infoList.item(0);
-        setBBText(infoNode.getTextContent());
-        setBBTextColour(infoNode.getAttribute("colour"));
+            // get background colour
+            String backgroundColour = root.getAttribute("background");
+            setBackgroundColour(backgroundColour);
 
-        NodeList photoList = doc.getElementsByTagName("picture");
+            if (titleList.getLength() != 0)
+            {
+                Element titleNode = (Element) titleList.item(0);
+                String title = titleNode.getTextContent();
+                setBBTitle(title);
+                String titleColour = titleNode.getAttribute("colour");
+                setBBTitleColour(titleColour);
+            }
+
+            if (infoList.getLength() != 0)
+            {
+                Element infoNode = (Element) infoList.item(0);
+                String information = infoNode.getTextContent();
+                String informationColour = infoNode.getAttribute("colour");
+                setBBText(information);
+                setBBTextColour(informationColour);
+            }
+            return true;
+        }
+        // invalid tag name for root
+        else
+        {
+            return false;
+        }
+    }
+
+    private boolean manageXMLPicture(NodeList photoList)
+    {
         Element photoNode = (Element) photoList.item(0);
-        String photoPathNode = null;
-        PhotoType photoPathType = null;
-        Image photoImage = null;
+
+        String photoPathURL;
+        PhotoType photoPathType;
+        Image photoImage;
+
         if (photoNode.hasAttribute("url"))
         {
-            photoPathNode = photoNode.getAttribute("url");
             photoPathType = PhotoType.URL;
-            if (photoPathNode != null)
+            photoPathURL = photoNode.getAttribute("url");
+
+            // check that
+            if (photoPathURL != null && photoPathURL.contains("https"))
             {
-                URL url = new URL(photoPathNode);
-                photoImage = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-                setPhoto(new ImageIcon(photoImage),photoPathType, photoPathNode);
+                try
+                {
+                    URL url = new URL(photoPathURL);
+                    photoImage = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                    setPhoto(new ImageIcon(photoImage),photoPathType, photoPathURL);
+                    return true;
+                }
+                catch (IOException e)
+                {
+                    return false;
+                }
             }
+            return false;
         }
         else if(photoNode.hasAttribute("data"))
         {
-            photoPathNode = photoNode.getAttribute("data");
+            photoPathURL = photoNode.getAttribute("data");
             photoPathType = PhotoType.DATA;
-            if (photoPathNode != null)
+
+            if (photoPathURL != null)
             {
-                byte[] imgBytes = Base64.getDecoder().decode(photoPathNode);
-                photoImage =ImageIO.read(new ByteArrayInputStream(imgBytes)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-                setPhoto(new ImageIcon(photoImage),photoPathType, photoPathNode);
+                byte[] imgBytes = Base64.getDecoder().decode(photoPathURL);
+                try
+                {
+                    photoImage =ImageIO.read(new ByteArrayInputStream(imgBytes)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                    setPhoto(new ImageIcon(photoImage),photoPathType, photoPathURL);
+                    return true;
+                }
+                catch (IOException e)
+                {
+                    return false;
+                }
             }
+            return false;
+        }
+        else
+        {
+            return false;
         }
     }
 
