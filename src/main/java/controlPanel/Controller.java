@@ -1,10 +1,9 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
+import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
-import server.BillboardList;
-import server.DbBillboard;
-import server.Server;
+import server.*;
 import server.Server.ServerAcknowledge;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -335,8 +334,7 @@ public class Controller
      * Designed to check Access Permissions in order to hide/show components of the Frame.
      * @param newViewType
      */
-    private void updateComponents(VIEW_TYPE newViewType)
-    {
+    private void updateComponents(VIEW_TYPE newViewType){
         switch(newViewType)
         {
             case HOME:
@@ -355,20 +353,22 @@ public class Controller
 
                 // FIXME: SERVER CALL: getBillboardSchedule(Monday), getBillboardSchedule(Tuesday) which will return ArrayList<ArrayList<String>>
 
+                //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+
                 // Billboard Schedule: day, time, bb name
                 ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
 
                 ArrayList<ArrayList<String>> billboardScheduleTuesday = new ArrayList<>();
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
 
                 ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
                 schedule.add(billboardScheduleMonday);
@@ -987,8 +987,9 @@ public class Controller
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 // FIXME: getXMLCode should return file not a string
+                File xmlFile = null;
                 //File xmlFile = billboardObject.getXMLCode();
-                //bbCreateView.addBBXML(xmlFile);
+                bbCreateView.addBBXML(xmlFile);
             }
             catch (IOException | ClassNotFoundException ex)
             {
@@ -1069,7 +1070,9 @@ public class Controller
             }
 
             // FIXME: show pop up window to say the BB cannot be previewed as XML is invalid
-
+            BBListView bbListView = (BBListView) views.get(BB_LIST);
+            bbListView.showBBInvalid();
+            views.put(BB_LIST, bbListView);
         }
     }
 
@@ -1174,20 +1177,26 @@ public class Controller
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             String bbName = bbCreateView.getSelectedBBName();
             // check that a BB name has been set, if not set raise error
-            if (!bbName.equals(""))
+            if (!bbName.equals("") && bbCreateView.checkBBValid())
             {
                 // raise confirmation to create BB
                 int confirmCreation = bbCreateView.showConfirmationCreateBB();
+
                 // if user confirms BB creation, show scheduling option
                 if (confirmCreation == 0)
                 {
-                    // show scheduling option - asking user if they want to schedule BB now
-                    int optionSelected = bbCreateView.showSchedulingOption();
+//                    try {
+//                        //String BBXMLFile = bbCreateView.getBBXML();
+//                    } catch (ParserConfigurationException ex)
+//                    {
+//                        ex.printStackTrace();
+//                    }
 
-                    // FIXME: return a FILE!! Patrice.
-                    //ArrayList<Object> BBXMLFile = bbCreateView.getBBXML();
                     // FIXME: xmlCode will be an XML File
                     //String createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile, model.getUsername());
+
+                    // show scheduling option - asking user if they want to schedule BB now
+                    int optionSelected = bbCreateView.showSchedulingOption();
 
                     // User Selected YES to schedule BB
                     if (optionSelected == 0)
@@ -1207,10 +1216,10 @@ public class Controller
                     }
                 }
             }
-            // if no bb name is provided, alert user to add one
+            // if no bb name or at no element is provided, alert user to add one
             else
             {
-                bbCreateView.showBBNameErrorMessage();
+                bbCreateView.showBBInvalidErrorMessage();
             }
         }
     }
@@ -1511,6 +1520,12 @@ public class Controller
 
                 //FIXME: SERVER CALL: removeBBSchedule(BBName)
                 // Noting - this BB may not exist in the Schedule Table!
+                try {
+                    String result = ScheduleControl.deleteScheduleRequest(model.getSessionToken(), BBName);
+                } catch (IOException | ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                    // FIXME: pop up window for error message
+                }
 
                 // navigate back to schedule menu
                 updateView(SCHEDULE_MENU);
@@ -1545,47 +1560,65 @@ public class Controller
                 // FIXME: IF AN OBJECT IS RETURNED, use SET SCHEDULE VALUES(SCHEDULE OBJECT)
                 // FIXME: IF NO OBJECT IS RETURNED, use SHOW NO EXISTING SCHEDULE MESSAGE() & REMOVE SCHEDULE SELECTION()
 
-                if (bbName.equals("Myer"))
-                {
-                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    int startHour = 5;
-                    int startMin = 6;
-                    int duration = 30;
-                    int minRepeat = 220;
-                    String recurrenceButton = "minute";
-                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                ScheduleInfo schedule = null;
+                try {
+                    schedule = (ScheduleInfo) ScheduleControl.listABillboardSchedule(model.getSessionToken(), bbName);
+                } catch (IOException | ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                    // FIXME: show pop up window to alert user of error
                 }
-                else if (bbName.equals("Anaconda"))
-                {
-                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    daysOfWeek.add(true);
-                    int startHour = 1;
-                    int startMin = 0;
-                    int duration = 30;
-                    int minRepeat = -1;
-                    String recurrenceButton = "hourly";
-                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-                }
-                else
-                {
-                    // alert user that no schedule exists in db
-                    scheduleUpdateView.showNoExistingScheduleMessage();
-                    // clear the schedule
-                    scheduleUpdateView.removeScheduleSelection();
-                }
+
+                // FIXME: ALAN - FORMAT CORRECTLY
+
+//                String monday = schedule.getMonday();
+//                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
+//                schedule.getStartTime(); // hh:mm
+//                schedule.getDuration();
+//                schedule.getRepeat(); // get repeat minutes
+
+                //scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+
+//                if (bbName.equals("Myer"))
+//                {
+//                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    int startHour = 5;
+//                    int startMin = 6;
+//                    int duration = 30;
+//                    int minRepeat = 220;
+//                    String recurrenceButton = "minute";
+//                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+//                }
+//                else if (bbName.equals("Anaconda"))
+//                {
+//                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    daysOfWeek.add(true);
+//                    int startHour = 1;
+//                    int startMin = 0;
+//                    int duration = 30;
+//                    int minRepeat = -1;
+//                    String recurrenceButton = "hourly";
+//                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+//                }
+//                else
+//                {
+//                    // alert user that no schedule exists in db
+//                    scheduleUpdateView.showNoExistingScheduleMessage();
+//                    // clear the schedule
+//                    scheduleUpdateView.removeScheduleSelection();
+//                }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
         }
@@ -1620,7 +1653,10 @@ public class Controller
                 if (response == 0)
                 {
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                    // FIXME: SCHEDULE CONTROL: storeBBSchedule(scheduleInfo)
+                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects
+
+                    //ScheduleControl.scheduleBillboardRequest(scheduleInfo);
+
                     scheduleUpdateView.showConfirmationDialog();
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);
                     // navigate to schedule menu
