@@ -120,8 +120,8 @@ public class UserControl {
      * @throws IOException Thrown if unknown server host when communicating through sockets.
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
-    public static Object getUserPermissionsRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
-        String message = String.format("User,getUserPermissions,%s,%s", sessionToken, username);
+    public static Object getPermissionsRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
+        String message = String.format("User,getPermissions,%s,%s", sessionToken, username);
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
@@ -134,8 +134,9 @@ public class UserControl {
      * @throws IOException Thrown if unknown server host when communicating through sockets.
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
-    public static Object getUserPasswordRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
-        String message = String.format("User,getUserPassword,%s,%s", sessionToken, username);
+    public static Object setPasswordRequest(String sessionToken, String username, String password) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
+        String hashedPassword = hash(password);
+        String message = String.format("User,setPassword,%s,%s,%s", sessionToken, username, hashedPassword);
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 

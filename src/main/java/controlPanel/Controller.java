@@ -437,7 +437,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userProfileView.setPermissions(userPermissions);
@@ -599,7 +599,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, usernameSelected);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, usernameSelected);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userEditView.setPermissions(userPermissions);
@@ -789,7 +789,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, usernameSelected);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, usernameSelected);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userPreviewView.setPermissions(userPermissions);
@@ -810,7 +810,6 @@ public class Controller
             //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
             // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
             // FIX: userPreviewView.setPassword("Password");
-
             views.put(USER_VIEW, userPreviewView);
 
             updateView(USER_VIEW);
@@ -879,7 +878,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userEditView.setPermissions(userPermissions);
