@@ -4,6 +4,7 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import server.ScheduleAdmin;
 
@@ -18,6 +19,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -43,14 +45,13 @@ public class Viewer extends JFrame implements Runnable {
     private double screenWidth;
 
     // Contains the server's response (Billboard XML) as a string
-    private File serverResponse;
+    private String serverResponse;
 
 
     /**
      * Constructor method
      */
     public Viewer() throws HeadlessException{
-
         // Set up the panels, labels, image icons etc. to display the different parts of the billboard
         mainPanel = new JPanel();
         messageLabel = new JLabel();
@@ -68,107 +69,105 @@ public class Viewer extends JFrame implements Runnable {
      * Extracts the xml file that we want to display from the given test xml files stored in resources.
      * TODO: This function is used to extract an xml file from a mock "database" of provided xml files for testing.
      */
-    public static File extractXMLFile(int fileNum) {
+    public static Document extractXMLFile(int fileNum) throws ParserConfigurationException, IOException, SAXException {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
-        return xmlFiles.get(fileNum-1);
+        File xmlFile = xmlFiles.get(fileNum-1);
+
+        // Use DocumentBuilderFactory to parse xml file in as a Document
+        DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+        Document xmlDoc = dBuilder.parse(xmlFile);
+
+        return xmlDoc;
     }
 
 
     /**
      * Extracts data from an xml file for creating the billboard - i.e. it gets the content from the
      * message, picture and information tags as well as the custom colours
-     * @param xmlFile An xml file as a Document, from which to extract information from.
+     * @param xmlDoc An xml file as a Document, from which to extract information from.
      * @return billboardTags Returns a HashMap which stores the background colour, message, message colour, picture,
      *      picture type (data or url), information, and information colour of the billboard, if there is no content
      *      for one or more of these tags, the string is null.
+     * TODO: Create a class which is billboardData and is of the form HashMap<String, String>
      */
-    public static HashMap<String, String> extractDataFromXML(File xmlFile) {
+    public static HashMap<String, String> extractDataFromXML(Document xmlDoc) {
         // Initiate an ArrayList to return
         HashMap<String, String> billboardData = new HashMap<>();
 
-        // Use DocumentBuilderFactory to parse xml file
-        try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
-            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
-            Document xmlDoc = dBuilder.parse(xmlFile);
+        // Create an element which is the billboard tag
+        NodeList billboardNodeList = xmlDoc.getElementsByTagName("billboard");
+        Node billboardNode = billboardNodeList.item(0);
+        Element billboardElement = (Element) billboardNode;
 
-            // Create an element which is the billboard tag
-            NodeList billboardNodeList = xmlDoc.getElementsByTagName("billboard");
-            Node billboardNode = billboardNodeList.item(0);
-            Element billboardElement = (Element) billboardNode;
+        // Add the background colour
+        if (!billboardElement.getAttribute("background").isEmpty()) {
+            String backgroundColour = billboardElement.getAttribute("background");
+            billboardData.put("Background Colour", backgroundColour);
+        } else {
+            billboardData.put("Background Colour", null);
+        }
 
-            // Add the background colour
-            if (!billboardElement.getAttribute("background").isEmpty()) {
-                String backgroundColour = billboardElement.getAttribute("background");
-                billboardData.put("Background Colour", backgroundColour);
+        // If the message tag exists, add the message and colour, else add an empty string
+        if (billboardElement.getElementsByTagName("message").getLength() == 1) {
+            Node messageNode = billboardElement.getElementsByTagName("message").item(0);
+            Element messageElement = (Element) messageNode;
+            String message = messageElement.getTextContent();
+
+            // Check if it has a message colour
+            if (!messageElement.getAttribute("colour").isEmpty()) {
+                String messageColour = messageElement.getAttribute("colour");
+                billboardData.put("Message Colour", messageColour);
             } else {
-                billboardData.put("Background Colour", null);
-            }
-
-            // If the message tag exists, add the message and colour, else add an empty string
-            if (billboardElement.getElementsByTagName("message").getLength() == 1) {
-                Node messageNode = billboardElement.getElementsByTagName("message").item(0);
-                Element messageElement = (Element) messageNode;
-                String message = messageElement.getTextContent();
-
-                // Check if it has a message colour
-                if (!messageElement.getAttribute("colour").isEmpty()) {
-                    String messageColour = messageElement.getAttribute("colour");
-                    billboardData.put("Message Colour", messageColour);
-                } else {
-                    billboardData.put("Message Colour", null);
-                }
-
-                billboardData.put("Message", message);
-            } else {
-                billboardData.put("Message", null);
                 billboardData.put("Message Colour", null);
             }
 
-            // If the picture tag exists, add the url or data attribute, else add an empty string
-            if (billboardElement.getElementsByTagName("picture").getLength() == 1) {
-                Node pictureNode = billboardElement.getElementsByTagName("picture").item(0);
-                Element pictureElement = (Element) pictureNode;
-                String picture = "";
+            billboardData.put("Message", message);
+        } else {
+            billboardData.put("Message", null);
+            billboardData.put("Message Colour", null);
+        }
 
-                // Check if the picture attribute is a url or data
-                if (pictureElement.getAttribute("url") != "") {
-                    picture = pictureElement.getAttribute("url");
-                    billboardData.put("Picture", picture);
-                    billboardData.put("Picture Type", "url");
-                } else {
-                    picture = pictureElement.getAttribute("data");
-                    billboardData.put("Picture", picture);
-                    billboardData.put("Picture Type", "data");
-                }
+        // If the picture tag exists, add the url or data attribute, else add an empty string
+        if (billboardElement.getElementsByTagName("picture").getLength() == 1) {
+            Node pictureNode = billboardElement.getElementsByTagName("picture").item(0);
+            Element pictureElement = (Element) pictureNode;
+            String picture = "";
 
+            // Check if the picture attribute is a url or data
+            if (pictureElement.getAttribute("url") != "") {
+                picture = pictureElement.getAttribute("url");
+                billboardData.put("Picture", picture);
+                billboardData.put("Picture Type", "url");
             } else {
-                billboardData.put("Picture", null);
-                billboardData.put("Picture Type", null);
+                picture = pictureElement.getAttribute("data");
+                billboardData.put("Picture", picture);
+                billboardData.put("Picture Type", "data");
             }
 
-            // If the information tag exists, add the information and colour, else add an empty string
-            if (billboardElement.getElementsByTagName("information").getLength() == 1) {
-                Node informationNode = billboardElement.getElementsByTagName("information").item(0);
-                Element informationElement = (Element) informationNode;
-                String information = informationElement.getTextContent();
+        } else {
+            billboardData.put("Picture", null);
+            billboardData.put("Picture Type", null);
+        }
 
-                // Check if it has an information colour
-                if (!informationElement.getAttribute("colour").isEmpty()) {
-                    String informationColour = informationElement.getAttribute("colour");
-                    billboardData.put("Information Colour", informationColour);
-                } else {
-                    billboardData.put("Information Colour", null);
-                }
+        // If the information tag exists, add the information and colour, else add an empty string
+        if (billboardElement.getElementsByTagName("information").getLength() == 1) {
+            Node informationNode = billboardElement.getElementsByTagName("information").item(0);
+            Element informationElement = (Element) informationNode;
+            String information = informationElement.getTextContent();
 
-                billboardData.put("Information", information);
+            // Check if it has an information colour
+            if (!informationElement.getAttribute("colour").isEmpty()) {
+                String informationColour = informationElement.getAttribute("colour");
+                billboardData.put("Information Colour", informationColour);
             } else {
-                billboardData.put("Information", null);
                 billboardData.put("Information Colour", null);
             }
 
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            billboardData = null;
+            billboardData.put("Information", information);
+        } else {
+            billboardData.put("Information", null);
+            billboardData.put("Information Colour", null);
         }
 
         return billboardData;
@@ -890,26 +889,29 @@ public class Viewer extends JFrame implements Runnable {
      * Displays the billboards to the viewer.
      * @param billboardXML A File extracted from the database which can be examined to display the billboard.
      */
-    public void displayBillboard(File billboardXML) {
+    public void displayBillboard(String billboardXML) {
         // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
-        // Testing from the provided xml files
-        // TODO: Remove (or comment out) the testing of provided xml files.
-        File fileToDisplay = extractXMLFile(6);
-        HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
-
         // Extract the billboard data using the server's response
-        HashMap<String, String> billboardDataServer = extractDataFromXML(billboardXML);
+        try {
+            // Parse in the xml file and get the formatting of the billboard
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
+            DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
+            Document xmlDocServer = dBuilder.parse(new InputSource(new StringReader(billboardXML)));
+            HashMap<String, String> billboardDataServer = extractDataFromXML(xmlDocServer);
 
-        // Display the billboard and if the billboard data extracted is null display an error
-        if (billboardDataServer != null) {
-            formatBillboard(billboardDataServer);
-        }
-        else {
+            // Testing from the provided xml files
+            // TODO: Remove (or comment out) the testing of provided xml files.
+            Document xmlDoc = extractXMLFile(6);
+            HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
+
+            // Display the billboard
+            formatBillboard(billboardData);
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            // Display an error is the xml File couldn't be parsed in
             displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");
         }
-
 
         listenEscapeKey();
         listenMouseClick();
@@ -939,8 +941,7 @@ public class Viewer extends JFrame implements Runnable {
      * @return - a boolean which tells us if we received an xml (true) or an empty string (false)
      */
     public Boolean noBillboard() {
-        // TODO: Check this works for File to String
-        if ( serverResponse.toString().isEmpty() ) { return true; }
+        if ( serverResponse.isEmpty() ) { return true; }
         else { return false; }
     }
 
@@ -948,8 +949,8 @@ public class Viewer extends JFrame implements Runnable {
     @Override
     public void run() {
         try {
-            // TODO: Change method to return a file
-            serverResponse = new File(ScheduleAdmin.getCurrentBillboardXML());
+            // TODO: Check this works
+            serverResponse = ScheduleAdmin.getCurrentBillboardXML();
             System.out.println("Received from server: " + serverResponse);
             displayBillboard(serverResponse);
             if (noBillboard()) {
@@ -958,6 +959,7 @@ public class Viewer extends JFrame implements Runnable {
         } catch (IOException | SQLException e) {
             displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
         }
+        // displayBillboard(serverResponse);
     }
 
 

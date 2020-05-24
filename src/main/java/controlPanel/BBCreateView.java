@@ -919,12 +919,12 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Display BB details, upon Editing the BB selected
-     * @param fileToDisplay path to BB XML
+     * @param docToDisplay document of BB XML
      */
-    protected void addBBXML(File fileToDisplay)
+    protected void addBBXML(Document docToDisplay)
     {
         // extract xml data into hash map using viewer code
-        HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
+        HashMap<String, String> billboardData = extractDataFromXML(docToDisplay);
 
         String backgroundColour = billboardData.get("Background Colour");
         System.out.println("background colour " + backgroundColour);

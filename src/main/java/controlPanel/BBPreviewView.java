@@ -5,6 +5,7 @@ import observer.Subject;
 import viewer.Viewer;
 
 import javax.swing.*;
+import org.w3c.dom.Document;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -36,7 +37,8 @@ public class BBPreviewView extends AbstractView
     private void createComponents()
     {
         Viewer viewer = new Viewer();
-        viewer.displayBillboard(new File("xml"));
+        // FIXME: This will be a string which is an xml file
+        viewer.displayBillboard("xml");
     }
 
     protected VIEW_TYPE getEnum()
@@ -51,10 +53,10 @@ public class BBPreviewView extends AbstractView
 
     protected void addBBXML(ArrayList<Object> xml)
     {
-        File file = null;
+        Document document = null;
 
         // Extract the billboard data using input file
-        HashMap<String, String> billboardDataServer = extractDataFromXML(file);
+        HashMap<String, String> billboardDataServer = extractDataFromXML(document);
 
 //        formatBillboard(billboardDataServer);
 //        listenEscapeKey();
