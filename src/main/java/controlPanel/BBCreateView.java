@@ -939,9 +939,9 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Display BB details, upon Editing the BB selected
-     * @param fileToDisplay path to BB XML
+     * @param docToDisplay document of BB XML
      */
-    protected void addBBXML(File fileToDisplay)
+    protected void addBBXML(Document docToDisplay)
     {
         // FIXME: remove later
         fileToDisplay = extractXMLFile(6);
@@ -949,7 +949,7 @@ public class BBCreateView extends AbstractGenericView
         //Document document = null;
 
         // extract xml data into hash map using viewer code
-        HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
+        HashMap<String, String> billboardData = extractDataFromXML(docToDisplay);
 
         String backgroundColour = billboardData.get("Background Colour");
         String message = billboardData.get("Message");

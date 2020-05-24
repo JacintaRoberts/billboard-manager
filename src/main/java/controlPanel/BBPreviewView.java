@@ -5,7 +5,7 @@ import observer.Subject;
 import viewer.Viewer;
 
 import javax.swing.*;
-import java.awt.*;
+import org.w3c.dom.Document;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,7 +23,6 @@ public class BBPreviewView extends AbstractView
     private JLabel messageLabel;
     private JLabel informationLabel;
     private JLabel pictureLabel;
-    // --- Viewer ---
     private Viewer viewer;
 
     /**
@@ -39,7 +38,6 @@ public class BBPreviewView extends AbstractView
     private void createComponents()
     {
         viewer = new Viewer();
-        viewer.displayBillboard(new File("xml"));
     }
 
     protected VIEW_TYPE getEnum()
@@ -48,8 +46,7 @@ public class BBPreviewView extends AbstractView
     }
 
     @Override
-    void cleanUp()
-    {
+    void cleanUp() {
 
     }
 
@@ -59,8 +56,7 @@ public class BBPreviewView extends AbstractView
     }
 
     @Override
-    public void update(Subject s)
-    {
+    public void update(Subject s) {
 
     }
 }
