@@ -2,6 +2,9 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.xml.sax.SAXException;
+import server.BillboardList;
+import server.DbBillboard;
+import server.Server;
 import server.Server.ServerAcknowledge;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
@@ -13,6 +16,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import static controlPanel.BillboardControl.deleteBillboardRequest;
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
 import static server.Server.ServerAcknowledge.*;
@@ -172,6 +176,7 @@ public class Controller
         addGenericListeners(USER_EDIT);
         UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
         userEditView.addSubmitButtonListener(new UserCreateButtonListener());
+        userEditView.addPasswordButtonListener(new UserPasswordSetButtonListener());
         views.put(USER_EDIT, userEditView);
     }
 
@@ -218,6 +223,7 @@ public class Controller
         bbCreateView.addXMLExportListener(new BBXMLExportListener());
         bbCreateView.addBBNameListener(new NameListener());
         bbCreateView.addBBCreationListener(new BBCreateListener());
+        bbCreateView.addBBPreviewListener(new BBPreviewListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -716,6 +722,18 @@ public class Controller
         }
     }
 
+    private class UserPasswordSetButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: User Password Set button clicked");
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+            userEditView.showNewPasswordInput();
+            views.put(USER_EDIT, userEditView);
+        }
+    }
+
     /**
      * Listener to handle Delete User Button mouse clicks.
      */
@@ -876,7 +894,6 @@ public class Controller
 
             // set username, password and permissions in Profile View
             userEditView.setUsername(username);
-
             // Get user permissions from server
             try {
                 serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
@@ -961,14 +978,16 @@ public class Controller
 
             bbCreateView.showBBEditingMessage(BBName);
 
-            // FIXME: GET XML FILE FROM SERVER (VIEWER CLASS WILL NEED THE SAME METHOD)
-            // FIXME: ALAN - BB CONTROL CALL: getBBXML(bbName) returning a File
-            // Note: this is exactly the same format as used by Kanu's Viewer
-
-            // TODO: remove once server call is working
-            File fileToDisplay = extractXMLFile(6);
-
-            bbCreateView.addBBXML(fileToDisplay);
+            try {
+                DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                // FIXME: getXMLCode should return file not a string
+                //File xmlFile = billboardObject.getXMLCode();
+                //bbCreateView.addBBXML(xmlFile);
+            }
+            catch (IOException | ClassNotFoundException ex)
+            {
+                ex.printStackTrace();
+            }
 
             // set BB Name based on selected button
             bbCreateView.setBBName(button.getName());
@@ -1001,8 +1020,12 @@ public class Controller
             // if confirmed response, delete from DB
             if (response == 0)
             {
-                // FIXME: ALAN - SERVER CALL: deleteBB(BBName)
-
+                try {
+                    String result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName);
+                    bbListView.showBBDeletedMessage(result);
+                } catch (IOException | ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                }
                 // navigate to bb list screen to refresh screen
                 updateView(BB_LIST);
             }
@@ -1024,11 +1047,23 @@ public class Controller
             JButton button = (JButton) e.getSource();
             String BBName = button.getName();
 
-            // FIXME: this will be the full screen BB preview page
-            //BBListView bbListView = (BBListView) views.get(BB_LIST);
+            BBPreviewView bbPreviewView = (BBPreviewView) views.get(BB_PREVIEW);
 
-            //FIXME: ALAN - BB CONTROL CALL: getBBXML(BBName) returning a File/Object
-            //views.put(BB_LIST, bbListView);
+            try {
+                DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                // FIXME: getXMLCode should return file not a string
+                //File xmlFile = billboardObject.getXMLCode();
+                //bbPreviewView.addBBXML(xmlFile);
+                views.put(BB_PREVIEW, bbPreviewView);
+                updateView(BB_PREVIEW);
+            }
+            catch (IOException | ClassNotFoundException ex)
+            {
+                ex.printStackTrace();
+            }
+
+            // FIXME: show pop up window to say the BB cannot be previewed as XML is invalid
+
         }
     }
 
@@ -1044,23 +1079,31 @@ public class Controller
 
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
-            // FIXME: ALAN - SERVER CALL - getListOfBillboardNames() return an ArrayList<String> of all Billboard Names
-            ArrayList<String> stringArray = new ArrayList<>();
-            stringArray.add("Myer's Biggest Sale");
-            stringArray.add("Kathmandu Summer Sale");
-            stringArray.add("Quilton's Covid Special");
-            stringArray.add("Macca's New Essentials Range");
-            stringArray.add("David Jones's Biggest Sale");
-            stringArray.add("BigW Summer Sale");
-            stringArray.add("Kmarts's Covid Special");
-            stringArray.add("Mecca's New Essentials Range");
-            stringArray.add("Peter Alexanders's Biggest Sale");
-            stringArray.add("Target Summer Sale");
-            stringArray.add("BigW Summer Sale");
-            stringArray.add("Kmarts's Covid Special");
-            stringArray.add("Mecca's New Essentials Range");
-            stringArray.add("Peter Alexanders's Biggest Sale");
-            stringArray.add("Target Summer Sale");
+
+            ArrayList<String> stringArray = null;
+            try {
+                BillboardList billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+                stringArray = billboardList.getBillboardNames();
+            } catch (IOException | ClassNotFoundException ex) {
+                ex.printStackTrace();
+            }
+            // FIXME: if null is returned handle correctly!!!
+//            ArrayList<String> stringArray = new ArrayList<>();
+//            stringArray.add("Myer's Biggest Sale");
+//            stringArray.add("Kathmandu Summer Sale");
+//            stringArray.add("Quilton's Covid Special");
+//            stringArray.add("Macca's New Essentials Range");
+//            stringArray.add("David Jones's Biggest Sale");
+//            stringArray.add("BigW Summer Sale");
+//            stringArray.add("Kmarts's Covid Special");
+//            stringArray.add("Mecca's New Essentials Range");
+//            stringArray.add("Peter Alexanders's Biggest Sale");
+//            stringArray.add("Target Summer Sale");
+//            stringArray.add("BigW Summer Sale");
+//            stringArray.add("Kmarts's Covid Special");
+//            stringArray.add("Mecca's New Essentials Range");
+//            stringArray.add("Peter Alexanders's Biggest Sale");
+//            stringArray.add("Target Summer Sale");
             bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
@@ -1135,8 +1178,10 @@ public class Controller
                     // show scheduling option - asking user if they want to schedule BB now
                     int optionSelected = bbCreateView.showSchedulingOption();
 
-                    // FIXME: ALAN - SERVER CALL: addBBXML(BBXMLFile) ADD BB TO DB!!!
-                    ArrayList<Object> BBXMLFile = bbCreateView.getBBXML();
+                    // FIXME: return a FILE!! Patrice.
+                    //ArrayList<Object> BBXMLFile = bbCreateView.getBBXML();
+                    // FIXME: xmlCode will be an XML File
+                    //String createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile, model.getUsername());
 
                     // User Selected YES to schedule BB
                     if (optionSelected == 0)
@@ -1161,6 +1206,33 @@ public class Controller
             {
                 bbCreateView.showBBNameErrorMessage();
             }
+        }
+    }
+
+    /**
+     * BB Preview Listener to handle mouse clicks made to the Preview button in the Create BB View
+     */
+    private class BBPreviewListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: Preview BB button clicked");
+            // get list BB create
+            BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            //ArrayList<Object> xml = bbCreateView.getBBXML();
+
+
+//            if (xml != null)
+//            {
+//                BBPreviewView bbPreviewView = (BBPreviewView) views.get(BB_PREVIEW);
+//                bbPreviewView.addBBXML(xml);
+//                views.put(BB_PREVIEW, bbPreviewView);
+//            }
+
+            // FIXME: show a pop up message to alert user that the XML is invalid and hence the BB cannot be previewed
+            views.put(BB_CREATE, bbCreateView);
+            updateView(BB_PREVIEW);
         }
     }
 
