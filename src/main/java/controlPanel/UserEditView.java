@@ -90,6 +90,10 @@ public class UserEditView extends AbstractUserView
                 passwordText = password;
             }
         }
+        else
+        {
+            passwordText = null;
+        }
     }
 
     protected void showErrorMessage()
