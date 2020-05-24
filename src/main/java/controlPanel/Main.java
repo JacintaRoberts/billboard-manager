@@ -28,15 +28,6 @@ public class Main {
      */
     public static void main(String[] args)
     {
-        // TODO: ONLY PUT THIS IN THE CP BACKEND FUNCTIONS WHEN NEED TO CONNECT TO SERVER - HERE FOR TESTING
-        // Login testing
-        //Object sessionToken = loginRequest("testUser","goodPass"); // CP Backend method call
-        //Object serverResponse2 = loginRequest("testUser","wrongPass"); // CP Backend method call
-        //Object serverResponse3 = loginRequest("nonExistentUser","anyPass"); // CP Backend method call
-        //System.out.println("Received from server: " + sessionToken.toString()); // My token
-        //System.out.println("Received from server: " + serverResponse2.toString()); // Error message 1
-        //System.out.println("Received from server: " + serverResponse3.toString()); // Error message 2*/
-
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(new Runnable() {

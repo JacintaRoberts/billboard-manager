@@ -2,10 +2,7 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.xml.sax.SAXException;
-import server.Server;
 import server.Server.ServerAcknowledge;
-import server.UserAdmin;
-
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
@@ -13,11 +10,9 @@ import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
 import static server.Server.ServerAcknowledge.*;
@@ -441,15 +436,16 @@ public class Controller
             userProfileView.setUsername(username);
 
             // Get user permissions from server
-            ArrayList<Boolean> userPermissions = null;
             try {
                 serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
-                userPermissions = (ArrayList<Boolean>) serverResponse;
+                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
+                // FIXME: setPermissions is wrong mapping
+                userProfileView.setPermissions(userPermissions);
             } catch (IOException | ClassNotFoundException ex) {
                 // TODO: error pop-up window for fatal error
                 // terminate Control Panel and restart
                 ex.printStackTrace();
-            // Error handling
+                // Error handling
             } catch ( ClassCastException ex ) {
                 if (serverResponse.equals(InvalidToken)) {
                     // TODO: error pop-up window for expired session
@@ -459,9 +455,9 @@ public class Controller
                     // display error and navigate to logout/login screen
                 }
             }
-            userProfileView.setPermissions(userPermissions);
             //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
             // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
+            // FIX: userProfileView.setPassword();
             views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
@@ -482,7 +478,7 @@ public class Controller
             try {
                 String sessionToken = model.getSessionToken(); // Retrieve session token
                 serverResponse = logoutRequest(sessionToken); // CP Backend method call
-                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                System.out.println("Received from server: " + serverResponse);
             } catch (IOException | ClassNotFoundException ex) {
                 // TODO: error pop-up window for fatal error
                 // terminate Control Panel and restart
@@ -600,9 +596,31 @@ public class Controller
             String usernameSelected = button.getName();
             // set username, password and permissions in User Edit View
             userEditView.setUsername(usernameSelected);
-            // FIXME: SERVER CALL: getUserPassword(usernameSelected) return String, getPermissions(usernameSelected) return ArrayList<Boolean>
-            userEditView.setPassword("Password");
-            userEditView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
+            // Get user permissions from server
+            try {
+                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, usernameSelected);
+                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
+                // FIXME: setPermissions is wrong mapping
+                userEditView.setPermissions(userPermissions);
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
+                ex.printStackTrace();
+                // Error handling
+            } catch ( ClassCastException ex ) {
+                if (serverResponse.equals(InvalidToken)) {
+                    // TODO: error pop-up window for expired session
+                    // navigate to logout/login screen
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    // TODO: error pop-up window for deleted user
+                    // display error and navigate to logout/login screen
+                }
+            }
+            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
+            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
+            // FIX: userEditView.setPassword("Password");
+
             // set Title of Screen
             userEditView.setBBFrameTitle("EDIT USER");
             views.put(USER_EDIT, userEditView);
@@ -684,11 +702,10 @@ public class Controller
                         // TODO: error pop up window for insufficient permissions
                         // let the user know they don't have necessary permissions
                 }
+                views.put(USER_EDIT, userEditView);
 
-                    views.put(USER_EDIT, userEditView);
-
-                    // navigate to edit menu screen
-                    updateView(USERS_MENU);
+                // navigate to edit menu screen
+                updateView(USERS_MENU);
                 }
             }
             else
@@ -721,7 +738,7 @@ public class Controller
                 try {
                     String sessionToken = model.getSessionToken(); // Retrieve session token
                     serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
-                    System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                    //System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 } catch (IOException | ClassNotFoundException ex) {
                     // TODO: error pop-up window for fatal error
                     // terminate Control Panel and restart
@@ -769,9 +786,30 @@ public class Controller
             String usernameSelected = button.getName();
             // set username, password and permissions in User Edit View
             userPreviewView.setUsername(usernameSelected);
-            // FIXME: SERVER CALL: getUserPassword(usernameSelected) return String, getPermissions(usernameSelected) return ArrayList<Boolean>
-            userPreviewView.setPassword("Password");
-            userPreviewView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
+            // Get user permissions from server
+            try {
+                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, usernameSelected);
+                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
+                // FIXME: setPermissions is wrong mapping
+                userPreviewView.setPermissions(userPermissions);
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
+                ex.printStackTrace();
+                // Error handling
+            } catch ( ClassCastException ex ) {
+                if (serverResponse.equals(InvalidToken)) {
+                    // TODO: error pop-up window for expired session
+                    // navigate to logout/login screen
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    // TODO: error pop-up window for deleted user
+                    // display error and navigate to logout/login screen
+                }
+            }
+            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
+            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
+            // FIX: userPreviewView.setPassword("Password");
 
             views.put(USER_VIEW, userPreviewView);
 
@@ -790,9 +828,8 @@ public class Controller
 
             // get LIST USER view
             UserListView userListView = (UserListView) views.get(USER_LIST);
-            Object serverResponse = null;
             ArrayList<String> usernames = null;
-            ServerAcknowledge errorMessage = null;
+            ServerAcknowledge errorMessage = Success;
             try {
                 serverResponse = UserControl.listUsersRequest(sessionToken);
                 // Attempt to cast to a string ArrayList for successful response
@@ -839,9 +876,30 @@ public class Controller
 
             // set username, password and permissions in Profile View
             userEditView.setUsername(username);
-            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
-            userEditView.setPassword("Password");
-            userEditView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
+
+            // Get user permissions from server
+            try {
+                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
+                // FIXME: setPermissions is wrong mapping
+                userEditView.setPermissions(userPermissions);
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
+                ex.printStackTrace();
+                // Error handling
+            } catch ( ClassCastException ex ) {
+                if (serverResponse.equals(InvalidToken)) {
+                    // TODO: error pop-up window for expired session
+                    // navigate to logout/login screen
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    // TODO: error pop-up window for deleted user
+                    // display error and navigate to logout/login screen
+                }
+            }
+            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
+            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
+            // FIX: userEditView.setPassword("Password");
 
             views.put(USER_EDIT, userEditView);
 
