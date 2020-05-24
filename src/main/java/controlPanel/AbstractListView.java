@@ -52,17 +52,18 @@ public abstract class AbstractListView extends AbstractGenericView
     }
 
     // add content dynamically to the list panel. It's design is to associate the added buttons with the correct listeners.
-            protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
-            {
-                int index = 1;
-                for (String contentName : contentArray)
-                {
-                    index ++;
-                    gbc = new GridBagConstraints();
+    protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
+    {
+        int index = 1;
+        for (String contentName : contentArray)
+        {
+            index ++;
+            gbc = new GridBagConstraints();
 
             // create one panel per piece of information (i.e. User or BB)
             JPanel contentPanel = new JPanel();
             contentPanel.setLayout(new GridBagLayout());
+            contentPanel.setName(contentName);
 
             // add Edit, Delete and View Button
             JButton editButton = new JButton("Edit");
@@ -114,10 +115,10 @@ public abstract class AbstractListView extends AbstractGenericView
     @Override
     void cleanUp()
     {
-        jPanels.clear();
         for (JPanel jPanel : jPanels)
         {
             mainPanel.remove(jPanel);
         }
+        jPanels.clear();
     }
 }

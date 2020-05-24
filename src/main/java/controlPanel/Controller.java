@@ -300,6 +300,7 @@ public class Controller
         // detach old view to stop listening to model
         model.detachObserver(oldView);
         // clean up gui (remove information)
+        System.out.println("CLEANUP");
         oldView.cleanUp();
         // set view as hidden
         oldView.setVisible(false);
@@ -852,6 +853,10 @@ public class Controller
                 serverResponse = UserControl.listUsersRequest(sessionToken);
                 // Attempt to cast to a string ArrayList for successful response
                 usernames = (ArrayList<String>) serverResponse;
+                for (String username : usernames)
+                {
+                    System.out.println(username);
+                }
             } catch (IOException | ClassNotFoundException ex) {
                 // TODO: error pop-up window for fatal error
                 // terminate Control Panel and restart
