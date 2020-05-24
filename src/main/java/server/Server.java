@@ -195,7 +195,7 @@ public class Server {
     private static Object callUserAdminMethod() throws IOException, SQLException, NoSuchAlgorithmException {
         // Determine which method from UserAdmin to execute
         switch (method) {
-            case "CreateUser":
+            case "createUser":
                 String username = additionalArgs[0];
                 String hashedPassword = additionalArgs[1];
                 boolean createBillboard = parseBoolean(additionalArgs[2]);
@@ -204,10 +204,10 @@ public class Server {
                 boolean editUser = parseBoolean(additionalArgs[5]);
                 return UserAdmin.createUser(sessionToken, username, hashedPassword, createBillboard, editBillboard,
                         scheduleBillboard, editUser); // Returns session token or fail message
-            case "DeleteUser":
+            case "deleteUser":
                 username = additionalArgs[0];
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
-            case "ListUsers":
+            case "listUsers":
                 return UserAdmin.listUsers(sessionToken); // Returns string array list of usernames or server acknowledge error
             case "getPermissions":
                 username = additionalArgs[0];
@@ -280,20 +280,20 @@ public class Server {
                 return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
                 sunday,monday,tuesday,wednesday,thursday,friday,saturday);
             case "EditSchedule":
-                String editbillboardName = additionalArgs[0];
-                String editstartTime = additionalArgs[1];
-                String editduration = additionalArgs[2];
-                String editcreationDateTime = additionalArgs[3];
-                String editrepeat = additionalArgs[4];
-                String editsunday = additionalArgs[5];
-                String editmonday = additionalArgs[6];
-                String edittuesday = additionalArgs[7];
-                String editwednesday = additionalArgs[8];
-                String editthursday = additionalArgs[9];
-                String editfriday = additionalArgs[10];
-                String editsaturday = additionalArgs[11];
-                return ScheduleAdmin.editSchedule(editbillboardName,editstartTime,editduration,editcreationDateTime,editrepeat,
-                        editsunday,editmonday,edittuesday,editwednesday,editthursday,editfriday,editsaturday);
+                String editBillboardName = additionalArgs[0];
+                String editStartTime = additionalArgs[1];
+                String editDuration = additionalArgs[2];
+                String editCreationDateTime = additionalArgs[3];
+                String editRepeat = additionalArgs[4];
+                String editSunday = additionalArgs[5];
+                String editMonday = additionalArgs[6];
+                String editTuesday = additionalArgs[7];
+                String editWednesday = additionalArgs[8];
+                String editThursday = additionalArgs[9];
+                String editFriday = additionalArgs[10];
+                String editSaturday = additionalArgs[11];
+                return ScheduleAdmin.editSchedule(editBillboardName,editStartTime,editDuration,editCreationDateTime,editRepeat,
+                        editSunday,editMonday,editTuesday,editWednesday,editThursday,editFriday,editSaturday);
             case "DeleteSchedule":
                 String deleteScheduleName = additionalArgs[0];
                 return ScheduleAdmin.deleteSchedule(deleteScheduleName);

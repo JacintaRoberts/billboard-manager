@@ -41,7 +41,7 @@ class ScheduleControlTest {
     @Test
     public void scheduleBillboardRequestTest() throws IOException, ClassNotFoundException {
       BillboardControl.deleteAllBillboardRequest("sessionToken");
-      BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+      //BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
       ScheduleControl.deleteAllScheduleRequest("sampleToken");
       String serverResponse = scheduleControl.scheduleBillboardRequest("sampleToken", "Billboard1",
               "09:30", 30, "2020-05-20 13:00", 40,0,0,
@@ -142,7 +142,7 @@ class ScheduleControlTest {
     @Test
     public void scheduleBillboardBadRepeatDuration() throws IOException, SQLException, ClassNotFoundException {
         BillboardControl.deleteAllBillboardRequest("sessionToken");
-        BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
         ScheduleControl.deleteAllScheduleRequest("sampleToken");
         // Example 1 - Billboard duration is 5 mins and repeats every 1 min should throw an error
         String serverResponse = ScheduleControl.scheduleBillboardRequest("sampleToken","Billboard1",
@@ -176,7 +176,7 @@ class ScheduleControlTest {
     public void removeFromScheduleRequestTest() throws IOException, ClassNotFoundException {
       BillboardControl.deleteAllBillboardRequest("sessionToken");
       ScheduleControl.deleteAllScheduleRequest("sampleToken");
-      BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+      //BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
       ScheduleControl.scheduleBillboardRequest("sampleToken","Billboard1",
                 "04:00",20,"2020-04-15 13:40",60,1,0,
                 0,1,0,0,1);
@@ -240,11 +240,11 @@ class ScheduleControlTest {
         // Cleaning for test
         BillboardControl.deleteAllBillboardRequest("sessionToken");
         ScheduleControl.deleteAllScheduleRequest("sampleToken");
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
         ScheduleControl.scheduleBillboardRequest("sampleToken","ScheduledBillboard1",
                 "05:00", 30, "2020-05-18 12:55", 120,
                 0,0,1,1,0,0,0);
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
         ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard2",
                 "06:00", 20, "2020-05-18 13:55", 40,
                 0,1,1,1,1,1,0);
@@ -373,11 +373,11 @@ class ScheduleControlTest {
         // Cleaning for test
         BillboardControl.deleteAllBillboardRequest("sessionToken");
         ScheduleControl.deleteAllScheduleRequest("sampleToken");
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
         ScheduleControl.scheduleBillboardRequest("sampleToken","ScheduledBillboard1",
                 "05:00", 30, "2020-05-18 12:55", 120,
                 0,0,1,1,0,0,0);
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
         ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard2",
                 "06:00", 20, "2020-05-18 13:55", 40,
                 0,1,1,1,1,1,0);
@@ -454,15 +454,15 @@ class ScheduleControlTest {
         // Cleaning
         BillboardControl.deleteAllBillboardRequest("sessionToken");
         ScheduleControl.deleteAllScheduleRequest("sampleToken");
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard1", "xmlCode");
         ScheduleControl.scheduleBillboardRequest("sampleToken","ScheduledBillboard1",
                 "05:00", 30, "2020-05-18 12:55", 120,
                 0,0,1,1,0,0,0);
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard2", "xmlCode");
         ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard2",
                 "06:00", 20, "2020-05-18 13:55", 40,
                 0,1,1,1,1,1,0);
-        BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard3","testXML");
+        //BillboardControl.createBillboardRequest("sampleToken", "ScheduledBillboard3","testXML");
         ScheduleControl.scheduleBillboardRequest("sampleToken", "ScheduledBillboard3",
                 "13:00", 50, "2020-05-20 15:55", 0,
                 0,0,0,0,0,0,1);

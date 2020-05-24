@@ -455,17 +455,17 @@ public class Controller
                 ex.printStackTrace();
                 // Error handling
             } catch ( ClassCastException ex ) {
-                if (serverResponse.equals(InvalidToken)) {
+                if ( serverResponse.equals(InvalidToken )) {
                     // TODO: error pop-up window for expired session
                     // navigate to logout/login screen
+                } else if ( serverResponse.equals(InsufficientPermission) ) {
+                    // TODO: error pop-up window for insufficient permissions
+                    // display notice of insufficient permission and tell them edit Permissions failed
                 } else if (serverResponse.equals(NoSuchUser)) {
                     // TODO: error pop-up window for deleted user
                     // display error and navigate to logout/login screen
                 }
             }
-            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
-            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
-            // FIX: userProfileView.setPassword();
             views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
@@ -621,14 +621,14 @@ public class Controller
                 if (serverResponse.equals(InvalidToken)) {
                     // TODO: error pop-up window for expired session
                     // navigate to logout/login screen
+                } else if ( serverResponse.equals(InsufficientPermission) ) {
+                    // TODO: error pop-up window for insufficient permissions
+                    // display notice of insufficient permission and tell them edit Permissions failed
                 } else if (serverResponse.equals(NoSuchUser)) {
                     // TODO: error pop-up window for deleted user
                     // display error and navigate to logout/login screen
                 }
             }
-            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
-            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
-            // FIX: userEditView.setPassword("Password");
 
             // set Title of Screen
             userEditView.setBBFrameTitle("EDIT USER");
@@ -710,6 +710,9 @@ public class Controller
                     } else if (serverResponse.equals(InsufficientPermission)) {
                         // TODO: error pop up window for insufficient permissions
                         // let the user know they don't have necessary permissions
+                    } else if (serverResponse.equals(PrimaryKeyClash)) {
+                        // TODO: error pop up window for username already exists
+                        // let the user know that the username already exists and to input a different one
                 }
                 views.put(USER_EDIT, userEditView);
 
@@ -823,14 +826,14 @@ public class Controller
                 if (serverResponse.equals(InvalidToken)) {
                     // TODO: error pop-up window for expired session
                     // navigate to logout/login screen
+                } else if ( serverResponse.equals(InsufficientPermission) ) {
+                    // TODO: error pop-up window for insufficient permissions
+                    // display notice of insufficient permission and tell them edit Permissions failed
                 } else if (serverResponse.equals(NoSuchUser)) {
                     // TODO: error pop-up window for deleted user
                     // display error and navigate to logout/login screen
                 }
             }
-            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
-            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
-            // FIX: userPreviewView.setPassword("Password");
             views.put(USER_VIEW, userPreviewView);
 
             updateView(USER_VIEW);
@@ -916,14 +919,14 @@ public class Controller
                 if (serverResponse.equals(InvalidToken)) {
                     // TODO: error pop-up window for expired session
                     // navigate to logout/login screen
+                } else if ( serverResponse.equals(InsufficientPermission) ) {
+                    // TODO: error pop-up window for insufficient permissions
+                    // display notice of insufficient permission and tell them edit Permissions failed
                 } else if (serverResponse.equals(NoSuchUser)) {
                     // TODO: error pop-up window for deleted user
                     // display error and navigate to logout/login screen
                 }
             }
-            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
-            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
-            // FIX: userEditView.setPassword("Password");
 
             views.put(USER_EDIT, userEditView);
 
