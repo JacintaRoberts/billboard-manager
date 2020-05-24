@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * View designed for editing users.
@@ -21,14 +22,12 @@ public class UserEditView extends AbstractUserView
     // --- String ---
     private String passwordText;
 
-
-
     public UserEditView()
     {
         super("Edit User");
         view_type = VIEW_TYPE.USER_EDIT;
         setEditable(true);
-        passwordText = "";
+        passwordText = null;
         addSubmitButton();
     }
 
@@ -39,7 +38,7 @@ public class UserEditView extends AbstractUserView
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
         navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
-        navPanel.add(setPasswordButton, setGBC(gbc,3,1,1,1));
+        navPanel.add(setPasswordButton, setGBC(gbc,4,1,1,1));
     }
 
     protected ArrayList<Object> getUserInfo()
@@ -82,11 +81,14 @@ public class UserEditView extends AbstractUserView
     {
         String message = "Please enter new password.";
         String password = JOptionPane.showInputDialog(null, message);
-        System.out.println(password);
-        if (!password.equals(""))
+
+        // null catches when user has canceled set, "" when user has not provided a string but has clicked OK
+        if (password != null)
         {
-            System.out.println("Set password");
-            passwordText = password;
+            if (!password.equals(""))
+            {
+                passwordText = password;
+            }
         }
     }
 
@@ -103,12 +105,20 @@ public class UserEditView extends AbstractUserView
     // TODO: check that user's do not need to have any permissions selected
     protected boolean checkValidUser()
     {
-        return !usernameText.getText().equals("") && !passwordText.equals("");
+        return !usernameText.getText().equals("") && passwordText!= null;
     }
 
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
+    }
+
+    @Override
+    void cleanUp()
+    {
+        setUsername("");
+        setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
+        passwordText = null;
     }
     
 }
