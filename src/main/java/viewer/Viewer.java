@@ -5,19 +5,25 @@ import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
+import org.xml.sax.InputSource;
+import org.xml.sax.SAXException;
+import server.ScheduleAdmin;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
 import java.awt.*;
 import java.awt.event.*;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.HashMap;
@@ -39,7 +45,7 @@ public class Viewer extends JFrame implements Runnable {
     private double screenHeight;
     private double screenWidth;
 
-    // Contains the server's response (Billboard XML)
+    // Contains the server's response (Billboard XML) as a string
     private File serverResponse;
 
 
@@ -61,7 +67,6 @@ public class Viewer extends JFrame implements Runnable {
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         screenHeight = screenSize.height;
         screenWidth = screenSize.width;
-
     }
 
     /**
@@ -77,18 +82,17 @@ public class Viewer extends JFrame implements Runnable {
     /**
      * Extracts data from an xml file for creating the billboard - i.e. it gets the content from the
      * message, picture and information tags as well as the custom colours
-     * @param xmlFile - an xml file from which to extract information from
-     * @return billboardTags - a HashMap which stores the background colour, message, message colour, picture,
+     * @param xmlFile An xml file as a Document, from which to extract information from.
+     * @return billboardTags Returns a HashMap which stores the background colour, message, message colour, picture,
      *      picture type (data or url), information, and information colour of the billboard, if there is no content
-     *      for one or more of these tags, the string is null
+     *      for one or more of these tags, the string is null.
      */
     public static HashMap<String, String> extractDataFromXML(File xmlFile) {
         // Initiate an ArrayList to return
         HashMap<String, String> billboardData = new HashMap<>();
 
-        // Try parsing the xml file - if it fails catch the exception
+        // Use DocumentBuilderFactory to parse xml file
         try {
-            // Use DocumentBuilderFactory to parse xml file
             DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document xmlDoc = dBuilder.parse(xmlFile);
@@ -168,10 +172,8 @@ public class Viewer extends JFrame implements Runnable {
                 billboardData.put("Information Colour", null);
             }
 
-        } catch (Exception e) {
-            // Return a null
+        } catch (ParserConfigurationException | IOException | SAXException e) {
             billboardData = null;
-            // e.printStackTrace();
         }
 
         return billboardData;
@@ -369,7 +371,6 @@ public class Viewer extends JFrame implements Runnable {
     public static String getInformationHTMLString(String information, int maxStringWidth) {
         String informationHTML = "<html><div style='width: " + maxStringWidth + "; text-align: center;'>"
                 + information + "</div></html>";
-
         return informationHTML;
     }
 
@@ -891,10 +892,10 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays the billboards
-     * @param serverResponse - a File extracted from the database which can be examined to display the billboard
+     * Displays the billboards to the viewer.
+     * @param billboardXML A File extracted from the database which can be examined to display the billboard.
      */
-    public void displayBillboard(File serverResponse) {
+    public void displayBillboard(File billboardXML) {
         // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
@@ -904,14 +905,16 @@ public class Viewer extends JFrame implements Runnable {
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
 
         // Extract the billboard data using the server's response
-         HashMap<String, String> billboardDataServer = extractDataFromXML(serverResponse);
+        HashMap<String, String> billboardDataServer = extractDataFromXML(billboardXML);
 
-        // Display the billboard or an error message depending on whether the xml file has been read or not
+        // Display the billboard and if the billboard data extracted is null display an error
         if (billboardDataServer != null) {
             formatBillboard(billboardDataServer);
-        } else {
+        }
+        else {
             displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");
         }
+
 
         listenEscapeKey();
         listenMouseClick();
@@ -941,6 +944,7 @@ public class Viewer extends JFrame implements Runnable {
      * @return - a boolean which tells us if we received an xml (true) or an empty string (false)
      */
     public Boolean noBillboard() {
+        // TODO: Check this works for File to String
         if ( serverResponse.toString().isEmpty() ) { return true; }
         else { return false; }
     }
@@ -949,14 +953,14 @@ public class Viewer extends JFrame implements Runnable {
     @Override
     public void run() {
         try {
-            // TODO: Update with new method from ScheduleAdmin class in server
-            serverResponse = (File) Helpers.initClient("Viewer");
-            System.out.println("Received from server: " + serverResponse.toString());
+            // TODO: Change method to return a file
+            serverResponse = new File(ScheduleAdmin.getCurrentBillboardXML());
+            System.out.println("Received from server: " + serverResponse);
             displayBillboard(serverResponse);
             if (noBillboard()) {
                 displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             }
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (IOException | SQLException e) {
             displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
         }
     }

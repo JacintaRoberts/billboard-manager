@@ -905,6 +905,37 @@ public class ScheduleAdmin {
     }
 
 
+    /**
+     * This function returns the index of the latest date from an array of LocalDateTime values.
+     * @param dateTimes An ArrayList of LocalDateTime values.
+     * @return index Returns an int which is the index of the latest date in the dateTimes ArrayList.
+     */
+    public static int latestDateTimeInArray(ArrayList<LocalDateTime> dateTimes) {
+
+        // Set the first value of the array list to be the latest value
+        LocalDateTime latestDateTime = dateTimes.get(0);
+        int index = 0;
+
+        // Loop over each element in the array list and check if the dateTime is after the latest dateTime
+        for (int i = 1; i < dateTimes.size(); i++) {
+            if (dateTimes.get(i).isAfter(latestDateTime)) {
+                latestDateTime = dateTimes.get(i);
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+
+    /**
+     * This function returns the xml for the billboard that should be currently scheduled. If there are multiple
+     * billboards scheduled, it will choose the one which was created first based on it's creation date time. If there
+     * are no billboards scheduled, it will return an empty string.
+     * @return billboardXML Returns the xml of the current billboard to be displayed to the viewer.
+     * @throws IOException
+     * @throws SQLException
+     */
     public static String getCurrentBillboardXML() throws IOException, SQLException {
         // Initialise variable to store xml file
         String billboardXML = "";
@@ -920,9 +951,8 @@ public class ScheduleAdmin {
         // Get the current schedule (based on the time) and the billboard name
         CurrentSchedule currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
         ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
-        String currentBillboardName = "";
+        String currentBillboardName;
 
-        // TODO: Decide which billboard to display depending on how many billboards are currently scheduled
         if (!currentScheduleBillboardNames.isEmpty()) {
             if (currentScheduleBillboardNames.size() == 1) {
                 // There is only one billboard
@@ -940,22 +970,13 @@ public class ScheduleAdmin {
                     creationLocalDateTimes.set(i, dateTime);
                 }
 
-                for (int i = 0; i < creationLocalDateTimes.size(); i++) {
-                    for (int j = 0; j < creationLocalDateTimes.size(); j++) {
-                        // TODO: Compare each time with each other and return the correct one 
-                        // Return index from array list
-                    }
-                }
-
-
-                // TODO: Get billboard name from same index
-
+                // Find latest date from creation date time array and get the corresponding billboard name
+                int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
+                currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
             }
-
             // Get the chosen billboard's schedule and extract the xml code
             DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
             billboardXML = dbBillboardSchedule.getXMLCode();
-
         }
 
         return billboardXML;
