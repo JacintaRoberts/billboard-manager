@@ -5,7 +5,7 @@ import observer.Subject;
 import viewer.Viewer;
 
 import javax.swing.*;
-import java.awt.*;
+import org.w3c.dom.Document;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -23,8 +23,6 @@ public class BBPreviewView extends AbstractView
     private JLabel messageLabel;
     private JLabel informationLabel;
     private JLabel pictureLabel;
-    // --- Viewer ---
-    private Viewer viewer;
 
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
@@ -39,7 +37,8 @@ public class BBPreviewView extends AbstractView
     private void createComponents()
     {
         Viewer viewer = new Viewer();
-        viewer.displayBillboard(new File("xml"));
+        // FIXME: This will be a string which is an xml file
+        viewer.displayBillboard("xml");
     }
 
     protected VIEW_TYPE getEnum()
@@ -48,19 +47,25 @@ public class BBPreviewView extends AbstractView
     }
 
     @Override
-    void cleanUp()
-    {
+    void cleanUp() {
 
     }
 
-    protected void addBBXML(String xml)
+    protected void addBBXML(ArrayList<Object> xml)
     {
-       //viewer.displayBillboard(xml);
+        Document document = null;
+
+        // Extract the billboard data using input file
+        HashMap<String, String> billboardDataServer = extractDataFromXML(document);
+
+//        formatBillboard(billboardDataServer);
+//        listenEscapeKey();
+//        listenMouseClick();
+//        showViewer();
     }
 
     @Override
-    public void update(Subject s)
-    {
+    public void update(Subject s) {
 
     }
 }
