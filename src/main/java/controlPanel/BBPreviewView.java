@@ -2,7 +2,6 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 import observer.Subject;
-import org.w3c.dom.Document;
 import viewer.Viewer;
 
 import javax.swing.*;
@@ -12,7 +11,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import static viewer.Viewer.*;
-
 
 public class BBPreviewView extends AbstractView
 {
@@ -40,7 +38,8 @@ public class BBPreviewView extends AbstractView
 
     private void createComponents()
     {
-        Viewer viewer = new Viewer("Viewer");
+        Viewer viewer = new Viewer();
+        viewer.displayBillboard(new File("xml"));
     }
 
     protected VIEW_TYPE getEnum()

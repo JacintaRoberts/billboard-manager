@@ -1,11 +1,9 @@
 package viewer;
 
-import helpers.Helpers;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 import server.ScheduleAdmin;
 
@@ -20,7 +18,6 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
-import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.sql.SQLException;
@@ -51,10 +48,8 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Constructor method
-     * @param title - the title of the viewer
      */
-    public Viewer(String title) throws HeadlessException{
-        super(title);
+    public Viewer() throws HeadlessException{
 
         // Set up the panels, labels, image icons etc. to display the different parts of the billboard
         mainPanel = new JPanel();
@@ -968,6 +963,6 @@ public class Viewer extends JFrame implements Runnable {
 
     public static void main(String[] args ) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(new Viewer("Billboard Viewer"), 0, 15, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(new Viewer(), 0, 15, TimeUnit.SECONDS);
     }
 }
