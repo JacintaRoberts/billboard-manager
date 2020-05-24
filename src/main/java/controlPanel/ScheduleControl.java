@@ -177,6 +177,22 @@ public class ScheduleControl {
     }
 
 
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to get a specific billboard schedule
+     * from control panel to server/
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @param  BillboardName A String which provides Billboard Name to filter schedules from database
+     * @return
+     */
+    public static  Object listABillboardSchedule(String sessionToken,
+                                                 String BillboardName) throws IOException, ClassNotFoundException {
+        String message = String.format("Schedule,ListABillboardSchedule,%s,%s",
+                sessionToken,
+                BillboardName);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
 
 
     /**
@@ -188,7 +204,7 @@ public class ScheduleControl {
      * @param  Day A String which provides Billboard Name to store into database
      * @return
      */
-    public static String listActiveSchedule(String sessionToken,
+    public static Object listActiveSchedule(String sessionToken,
                                             String Day, String currentTime) throws IOException, ClassNotFoundException {
 
         // Parses the date
@@ -197,11 +213,11 @@ public class ScheduleControl {
 //        System.out.println(dt.getDayOfWeek());
 //        LocalTime now = LocalTime.now();
         
-        String message = String.format("Schedule,ListActiveSchedule,%s,%s",
+        String message = String.format("Schedule,ListActiveSchedule,%s,%s,%s",
                 sessionToken,
                 Day,
                 currentTime);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 

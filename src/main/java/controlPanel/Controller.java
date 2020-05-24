@@ -4,16 +4,16 @@ import controlPanel.Main.VIEW_TYPE;
 import org.xml.sax.SAXException;
 import server.Server;
 import server.Server.ServerAcknowledge;
+import server.UserAdmin;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
-import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Array;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -391,7 +391,7 @@ public class Controller
      #################################### DEFINE LISTENERS ####################################
     */
 
-    //---------------------------------- GENERIC LISTENER ------------------------------
+    //---------------------------------- GENERIC LISTENERS ------------------------------
     /**
      * Listener to handle Home Button mouse clicks.
      * If user clicks the Home button, user is navigated to Home Screen.
@@ -402,8 +402,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Home button clicked");
-            // navigate to home screen
-            updateView(VIEW_TYPE.HOME);
+            updateView(VIEW_TYPE.HOME); // navigate to home screen
         }
     }
 
@@ -440,10 +439,29 @@ public class Controller
 
             // set username, password and permissions in Profile View
             userProfileView.setUsername(username);
-            // FIXME: SERVER CALL: getUserPassword(username) return String, getPermissions(username) return ArrayList<Boolean>
-            userProfileView.setPassword("Password");
-            userProfileView.setPermissions(new ArrayList<>(Arrays.asList(false,true,true,true)));
 
+            // Get user permissions from server
+            ArrayList<Boolean> userPermissions = null;
+            try {
+                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                userPermissions = (ArrayList<Boolean>) serverResponse;
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
+                ex.printStackTrace();
+            // Error handling
+            } catch ( ClassCastException ex ) {
+                if (serverResponse.equals(InvalidToken)) {
+                    // TODO: error pop-up window for expired session
+                    // navigate to logout/login screen
+                } else if (serverResponse.equals(NoSuchUser)) {
+                    // TODO: error pop-up window for deleted user
+                    // display error and navigate to logout/login screen
+                }
+            }
+            userProfileView.setPermissions(userPermissions);
+            //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
+            // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
             views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
@@ -460,39 +478,31 @@ public class Controller
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Log Out button clicked");
+            // Retrieve server response
             try {
                 String sessionToken = model.getSessionToken(); // Retrieve session token
                 serverResponse = logoutRequest(sessionToken); // CP Backend method call
                 System.out.println("RESPONSE FROM SERVER: " + serverResponse);
-            // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-            // NOTE: THIS logoutRequest METHOD WILL EITHER RETURN:
-            // 1. ServerAcknowledgement.Success; // Occurs when session token existed and was successfully expired
-            // 2. ServerAcknowledgment.InvalidToken; // Occurs when session token was already expired
-            // If successful, let the user know, navigate to login screen
-                if (sessionTokenExpirationSuccess()) {
-                    System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
-                    //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
-                } else { // Session token was already expired
-                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
-                    //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
-                }
-                // Navigate to log in screen for both cases
-                updateView(LOGIN);
-                //updateView(VIEW_TYPE.LOGIN); // n
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
+            } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
                 ex.printStackTrace();
             }
+
+            // If successful, let the user know, navigate to login screen
+            if (serverResponse.equals(Success)) {
+                System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
+                //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
+            // Error handling as follows:
+            } else { // Session token was already expired
+                System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
+            }
+            // Navigate to log in screen for both cases
+            updateView(LOGIN);
+
         }
 
-        // Determines whether the session token was successfully expired
-        private boolean sessionTokenExpirationSuccess() {
-            if ( serverResponse.equals(Success) ) {
-                return true;
-            }
-            return false;
-        }
     }
 
 
@@ -515,8 +525,6 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-            model.storeUsername(username);
-            model.storeSessionToken("");
 
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
@@ -549,6 +557,8 @@ public class Controller
                     updateView(VIEW_TYPE.HOME);
                 }
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
                 ex.printStackTrace();
             }
         }
@@ -647,21 +657,32 @@ public class Controller
                     // Parsing elements from user array for the UserControl method to create the request to server
                     String username = (String) userArray.get(0);
                     String password = (String) userArray.get(1);
-                    Boolean createBillboards = (Boolean) userArray.get(5); //TODO: HARDCODED SHOULD PROBABLY FIX THIS AND ADJUST INDICES BELOW
+                    Boolean createBillboards = (Boolean) userArray.get(5);
                     Boolean editBillboards = (Boolean) userArray.get(2);
                     Boolean editSchedules = (Boolean) userArray.get(3);
                     Boolean editUsers = (Boolean) userArray.get(4);
 
-                    // TODO: HANDLE EXCEPTIONS IN GUI
+                    // Retrieve server response
                     try {
-                        UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
-                    } catch (IOException ex) {
+                        serverResponse = UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+                    } catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex) {
                         ex.printStackTrace();
-                    } catch (ClassNotFoundException ex) {
-                        ex.printStackTrace();
-                    } catch (NoSuchAlgorithmException ex) {
-                        ex.printStackTrace();
+                        // TODO: error pop-up window for fatal error
+                        // terminate Control Panel and restart
                     }
+
+                    // Filter response and display appropriate action
+                    if (serverResponse.equals(Success)) {
+                        // TODO: success pop up window
+                    }
+                    else if (serverResponse.equals(InvalidToken)) {
+                        // TODO: error pop up window for expired session
+                        // navigate to logout/login screen
+                    } else if (serverResponse.equals(InsufficientPermission)) {
+                        // TODO: error pop up window for insufficient permissions
+                        // let the user know they don't have necessary permissions
+                }
+
                     views.put(USER_EDIT, userEditView);
 
                     // navigate to edit menu screen
@@ -691,35 +712,39 @@ public class Controller
             int response = userListView.showDeleteConfirmation();
 
             // if confirmed response, delete from DB
-            if (response == 0)
+            if (response == 0) // TODO: NOT SURE WHAT RESPONSE == 0 CORRESPONDS TO BUT MAY NEED TO BE INTEGRATED BELOW
             {
                 System.out.println("Delete user from DB");
-            // TODO: get user information from server i.e. UserInfo userInfo = getUser(sessionToken, username, userRequest);
-            try {
-                String sessionToken = model.getSessionToken(); // Retrieve session token
-                serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
-                System.out.println("RESPONSE FROM SERVER: " + serverResponse);
-                // TODO: RETURN CUSTOM MESSAGE/ACTION TO USER VIA GUI
-                // NOTE: deleteUserRequest will return 1 of 5 ServerAcknowledgements
-                // If successful, let the user know, navigate to login screen
+                // Retrieve response from DB
+                try {
+                    String sessionToken = model.getSessionToken(); // Retrieve session token
+                    serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
+                    System.out.println("RESPONSE FROM SERVER: " + serverResponse);
+                } catch (IOException | ClassNotFoundException ex) {
+                    // TODO: error pop-up window for fatal error
+                    // terminate Control Panel and restart
+                    ex.printStackTrace();
+                }
+
+                // If successful, let the user know
                 if (serverResponse.equals(Success)) {
                     System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
                     //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
-                } else if (serverResponse.equals(InsufficientPermission)) { // Session token was already expired
-                    System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
+                // Error handling on GUI as follows
+                } else if (serverResponse.equals(InsufficientPermission)) {
+                    System.out.println("CONTROLLER LEVEL - Insufficient Permission");
                     //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
                 } else if (serverResponse.equals(InvalidToken)) {
+                    System.out.println("CONTROLLER LEVEL - Invalid Token");
                     //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
                 } else if (serverResponse.equals(NoSuchUser)) {
+                    System.out.println("CONTROLLER LEVEL - No Such User Found in DB to be Deleted");
                     //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
                 } else if (serverResponse.equals(CannotDeleteSelf)) {
+                    System.out.println("CONTROLLER LEVEL - Cannot Delete Your Own User");
                     //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
                 }
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            } catch (ClassNotFoundException ex) {
-                ex.printStackTrace();
-            }
+
                 // navigate back to the same page to refresh view
                 updateView(USER_LIST);
             }
@@ -765,43 +790,31 @@ public class Controller
             UserListView userListView = (UserListView) views.get(USER_LIST);
             Object serverResponse = null;
             ArrayList<String> usernames = null;
-//            ArrayList<String> usernames = new ArrayList<>();
-//            usernames.add("user1");
-//            usernames.add("user2");
-//            usernames.add("user3");
-//            usernames.add("user4");
-//            usernames.add("user5");
-//            usernames.add("user6");
-//            usernames.add("user7");
-//            usernames.add("user8");
-//            usernames.add("user9");
-//            usernames.add("user10");
-//            usernames.add("user1");
-//            usernames.add("user2");
-//            usernames.add("user3");
-//            usernames.add("user4");
-//            usernames.add("user5");
-//            usernames.add("user6");
-//            usernames.add("user7");
-//            usernames.add("user8");
-//            usernames.add("user9");
-//            usernames.add("user10");
             ServerAcknowledge errorMessage = null;
             try {
                 serverResponse = UserControl.listUsersRequest(sessionToken);
-                // Attempt to cast to ArrayList
+                // Attempt to cast to a string ArrayList for successful response
                 usernames = (ArrayList<String>) serverResponse;
             } catch (IOException | ClassNotFoundException ex) {
+                // TODO: error pop-up window for fatal error
+                // terminate Control Panel and restart
                 ex.printStackTrace();
             } catch (ClassCastException ex) {
+                // Otherwise, some other error message was returned from the server
                 errorMessage = (ServerAcknowledge) serverResponse;
             }
 
-            // TODO: DO STUFF WITH ERROR MESSAGE POSSIBILITIES
-            //TODO: FOR SOME REASON THIS IS SOMEHOW DUPLICATING/CHANGING THE VIEW USERS AFTER A FEW CLICKS AWAY AND BACK
-            //TODO: CHANGE ADD CONTENT USAGE TO HANDLE ARRAY LIST
-            userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
-            views.put(USER_LIST, userListView);
+            // Error handling on GUI as follows
+            if (errorMessage.equals(InsufficientPermission)) {
+                System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
+                //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+            } else if (serverResponse.equals(InvalidToken)) {
+                System.out.println("CONTROLLER LEVEL - Invalid Token");
+                //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+            } else { // Successful, let the user know and populate with list of users
+                userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
+                views.put(USER_LIST, userListView);
+            }
 
             // navigate to users list screen
             updateView(USER_LIST);
@@ -889,7 +902,8 @@ public class Controller
             bbCreateView.showBBEditingMessage(BBName);
 
             // FIXME: GET XML FILE FROM SERVER (VIEWER CLASS WILL NEED THE SAME METHOD)
-            // FIXME: SERVER CALL: getBBXML(bbName) returning a File
+            // FIXME: ALAN - BB CONTROL CALL: getBBXML(bbName) returning a File
+            // Note: this is exactly the same format as used by Kanu's Viewer
 
             // TODO: remove once server call is working
             File fileToDisplay = extractXMLFile(6);
@@ -927,7 +941,7 @@ public class Controller
             // if confirmed response, delete from DB
             if (response == 0)
             {
-                // FIXME: SERVER CALL: deleteBB(BBName)
+                // FIXME: ALAN - SERVER CALL: deleteBB(BBName)
 
                 // navigate to bb list screen to refresh screen
                 updateView(BB_LIST);
@@ -945,6 +959,16 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: View BB button clicked");
+
+            // get the BB name associated to the edit button
+            JButton button = (JButton) e.getSource();
+            String BBName = button.getName();
+
+            // FIXME: this will be the full screen BB preview page
+            //BBListView bbListView = (BBListView) views.get(BB_LIST);
+
+            //FIXME: ALAN - BB CONTROL CALL: getBBXML(BBName) returning a File/Object
+            //views.put(BB_LIST, bbListView);
         }
     }
 
@@ -960,7 +984,7 @@ public class Controller
 
             // get list BB view
             BBListView bbListView = (BBListView) views.get(BB_LIST);
-            // FIXME: SERVER CALL - getListOfBillboardNames() return an ArrayList<String> of all Billboard Names
+            // FIXME: ALAN - SERVER CALL - getListOfBillboardNames() return an ArrayList<String> of all Billboard Names
             ArrayList<String> stringArray = new ArrayList<>();
             stringArray.add("Myer's Biggest Sale");
             stringArray.add("Kathmandu Summer Sale");
@@ -1051,7 +1075,7 @@ public class Controller
                     // show scheduling option - asking user if they want to schedule BB now
                     int optionSelected = bbCreateView.showSchedulingOption();
 
-                    // FIXME: SERVER CALL: addBBXML(BBXMLFile) ADD BB TO DB!!!
+                    // FIXME: ALAN - SERVER CALL: addBBXML(BBXMLFile) ADD BB TO DB!!!
                     ArrayList<Object> BBXMLFile = bbCreateView.getBBXML();
 
                     // User Selected YES to schedule BB
@@ -1177,10 +1201,10 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            try {
-                bbCreateView.browseXMLImport();
-            } catch (IOException | ParserConfigurationException | SAXException ex) {
-                ex.printStackTrace();
+
+            if (!bbCreateView.browseXMLImport())
+            {
+                bbCreateView.showInvalidXMLMessage();
             }
             views.put(BB_CREATE, bbCreateView);
         }

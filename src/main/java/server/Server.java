@@ -11,6 +11,7 @@ import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -209,6 +210,9 @@ public class Server {
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
             case "ListUsers":
                 return UserAdmin.listUsers(sessionToken); // Returns string array list of usernames or server acknowledge error
+            case "getUserPermissions":
+                username = additionalArgs[0];
+                return UserAdmin.getUserPermissions(sessionToken, username); // Returns boolean array list of usernames or server acknowledge error
             default:
                 return "No UserAdmin method requested";
         }
@@ -293,11 +297,14 @@ public class Server {
                 return ScheduleAdmin.deleteAllSchedules();
             case "ListAllDaySchedule":
                 String dayList = additionalArgs[0];
-                return ScheduleAdmin.viewAllDaySchedule(ScheduleAdmin.listFilteredScheduleInformation(dayList));
+                return ScheduleAdmin.listAllFilteredScheduleInformation(dayList);
+            case "ListABillboardSchedule":
+                String BillboardSchedule = additionalArgs[0];
+                return ScheduleAdmin.getScheduleInformation(BillboardSchedule);
             case "ListActiveSchedule":
                 String day = additionalArgs[0];
-                String currentTime = additionalArgs[0];
-                return ScheduleAdmin.viewAllDaySchedule(ScheduleAdmin.listFilteredScheduleInformation(day));
+                LocalTime currentTime = LocalTime.parse(additionalArgs[1]);
+                return ScheduleAdmin.viewCurrentSchedule(ScheduleAdmin.listAllFilteredScheduleInformation(day), currentTime);
             default:
                 return "No ScheduleAdmin method requested";
         }

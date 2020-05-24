@@ -629,8 +629,9 @@ class ScheduleAdminTest {
                 "06:00", "20", "2020-05-18 13:55", "40",
                 "0","1","1","1","1","1","0");
 
-        ScheduleList scheduleList = ScheduleAdmin.listFilteredScheduleInformation(day);
-        ScheduleList allDaySchedule = ScheduleAdmin.viewAllDaySchedule(scheduleList);
+//        ScheduleList scheduleList = ScheduleAdmin.listFilteredScheduleInformation(day);
+//        ScheduleList allDaySchedule = ScheduleAdmin.viewAllDaySchedule(scheduleList);
+        ScheduleList allDaySchedule = ScheduleAdmin.listAllFilteredScheduleInformation(day);
 
         assertAll("Should return details of Given Billboard",
                 () -> assertEquals("Pass: All Day Schedule Returned", allDaySchedule.getScheduleServerResponse()),
@@ -649,7 +650,7 @@ class ScheduleAdminTest {
         );
     }
 
-    /* Test 22: View Full Day Schedule (Pass)
+    /* Test 22: View Active Schedule (Pass)
      * Description: Receive view schedule request from CP, will require a session token.
      *              Assume sessionToken is valid. View all schedule for a day.
      * Expected Output:
@@ -706,50 +707,50 @@ class ScheduleAdminTest {
      *              Assume sessionToken is valid.
      * Expected Output: A schedule is returned from the table and returns "Pass: Schedule Detail Returned"
      */
-//    @Test
-//    public void scheduleBillboard() throws IOException, SQLException {
-//        // Cleaning
-//        scheduleAdmin.deleteAllSchedules();
-//        BillboardAdmin.deleteAllBillboard();
-//
-//        // Set test cases
-//        String ExpectedBillboardList= "ScheduledBillboard";
-//        String ExpectedStartTimeList= "05:00";
-//        String ExpectedDurationList= "30";
-//        String ExpectedCreationDateTimeList = "2020-05-18 12:55";
-//        String ExpectedRepeatList = "120";
-//        String ExpectedSundayList = "0";
-//        String ExpectedMondayList = "0";
-//        String ExpectedTuesdayList = "1";
-//        String ExpectedWednesdayList = "1";
-//        String ExpectedThursdayList = "0";
-//        String ExpectedFridayList = "0";
-//        String ExpectedSaturdayList = "0";
-//
-//
-//        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
-//        String dbResponse = scheduleAdmin.createSchedule("ScheduledBillboard",
-//                "05:00", "30", "2020-05-18 12:55", "120",
-//                "0","0","1","1","0","0","0");
-//
-//        ScheduleInfo returnInfo = ScheduleAdmin.getScheduleInformation("ScheduledBillboard");
-//
-//        assertAll("Should return details of Given Billboard",
-//                () -> assertEquals("Pass: Schedule Detail Returned", returnInfo.getScheduleServerResponse()),
-//                () -> assertEquals(ExpectedBillboardList, returnInfo.getScheduleBillboardName()),
-//                () -> assertEquals(ExpectedStartTimeList, returnInfo.getStartTime()),
-//                () -> assertEquals(ExpectedDurationList, returnInfo.getDuration()),
-//                () -> assertEquals(ExpectedCreationDateTimeList, returnInfo.getCreationDateTime()),
-//                () -> assertEquals(ExpectedRepeatList, returnInfo.getRepeat()),
-//                () -> assertEquals(ExpectedSundayList, returnInfo.getSunday()),
-//                () -> assertEquals(ExpectedMondayList, returnInfo.getMonday()),
-//                () -> assertEquals(ExpectedTuesdayList, returnInfo.getTuesday()),
-//                () -> assertEquals(ExpectedWednesdayList, returnInfo.getWednesday()),
-//                () -> assertEquals(ExpectedThursdayList, returnInfo.getThursday()),
-//                () -> assertEquals(ExpectedFridayList, returnInfo.getFriday()),
-//                () -> assertEquals(ExpectedSaturdayList, returnInfo.getSaturday())
-//        );
-//    }
+    @Test
+    public void scheduleBillboard() throws IOException, SQLException {
+        // Cleaning
+        scheduleAdmin.deleteAllSchedules();
+        BillboardAdmin.deleteAllBillboard();
+
+        // Set test cases
+        String ExpectedBillboardList= "ScheduledBillboard";
+        String ExpectedStartTimeList= "05:00";
+        String ExpectedDurationList= "30";
+        String ExpectedCreationDateTimeList = "2020-05-18 12:55";
+        String ExpectedRepeatList = "120";
+        String ExpectedSundayList = "0";
+        String ExpectedMondayList = "0";
+        String ExpectedTuesdayList = "1";
+        String ExpectedWednesdayList = "1";
+        String ExpectedThursdayList = "0";
+        String ExpectedFridayList = "0";
+        String ExpectedSaturdayList = "0";
+
+
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
+        String dbResponse = scheduleAdmin.createSchedule("ScheduledBillboard",
+                "05:00", "30", "2020-05-18 12:55", "120",
+                "0","0","1","1","0","0","0");
+
+        ScheduleInfo returnInfo = ScheduleAdmin.getScheduleInformation("ScheduledBillboard");
+
+        assertAll("Should return details of Given Billboard",
+                () -> assertEquals("Pass: Schedule Detail Returned", returnInfo.getScheduleServerResponse()),
+                () -> assertEquals(ExpectedBillboardList, returnInfo.getScheduleBillboardName()),
+                () -> assertEquals(ExpectedStartTimeList, returnInfo.getStartTime()),
+                () -> assertEquals(ExpectedDurationList, returnInfo.getDuration()),
+                () -> assertEquals(ExpectedCreationDateTimeList, returnInfo.getCreationDateTime()),
+                () -> assertEquals(ExpectedRepeatList, returnInfo.getRepeat()),
+                () -> assertEquals(ExpectedSundayList, returnInfo.getSunday()),
+                () -> assertEquals(ExpectedMondayList, returnInfo.getMonday()),
+                () -> assertEquals(ExpectedTuesdayList, returnInfo.getTuesday()),
+                () -> assertEquals(ExpectedWednesdayList, returnInfo.getWednesday()),
+                () -> assertEquals(ExpectedThursdayList, returnInfo.getThursday()),
+                () -> assertEquals(ExpectedFridayList, returnInfo.getFriday()),
+                () -> assertEquals(ExpectedSaturdayList, returnInfo.getSaturday())
+        );
+    }
 
 
 
