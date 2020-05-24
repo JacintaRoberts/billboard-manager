@@ -304,6 +304,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedEndTime = new ArrayList<>();
         ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
@@ -326,6 +327,7 @@ public class ScheduleAdmin {
             retrievedBillboard.add("0");
             retrievedStartTime.add("0");
             retrievedDuration.add("0");
+            retrievedEndTime.add("0");
             retrievedCreationDateTime.add("0");
             retrievedRepeat.add("0");
             retrievedSunday.add("0");
@@ -346,6 +348,7 @@ public class ScheduleAdmin {
                 retrievedBillboard.add(rs.getString(1));
                 retrievedStartTime.add(rs.getString(2));
                 retrievedDuration.add(rs.getString(3));
+                retrievedEndTime.add("0");
                 retrievedCreationDateTime.add(rs.getString(4));
                 retrievedRepeat.add(rs.getString(5));
                 retrievedSunday.add(rs.getString(6));
@@ -364,6 +367,7 @@ public class ScheduleAdmin {
                 retrievedBillboard,
                 retrievedStartTime,
                 retrievedDuration,
+                retrievedEndTime,
                 retrievedCreationDateTime,
                 retrievedRepeat,
                 retrievedSunday,
@@ -588,6 +592,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedEndTime = new ArrayList<>();
         ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
@@ -710,6 +715,7 @@ public class ScheduleAdmin {
                 retrievedBillboard.add(rs.getString(1));
                 retrievedStartTime.add(rs.getString(2));
                 retrievedDuration.add(rs.getString(3));
+                retrievedEndTime.add("0");
                 retrievedCreationDateTime.add(rs.getString(4).substring(0, rs.getString(4).length() - 5));
                 retrievedRepeat.add(rs.getString(5));
                 retrievedSunday.add(rs.getString(6));
@@ -729,6 +735,7 @@ public class ScheduleAdmin {
                 retrievedBillboard,
                 retrievedStartTime,
                 retrievedDuration,
+                retrievedEndTime,
                 retrievedCreationDateTime,
                 retrievedRepeat,
                 retrievedSunday,
@@ -761,6 +768,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedEndTime = new ArrayList<>();
         ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
@@ -808,6 +816,7 @@ public class ScheduleAdmin {
             for (int j = 0; j <= extraSched; j++){
                 retrievedBillboard.add(billboardName);
                 retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes)));
+                retrievedEndTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes).plusMinutes(duration)));
                 retrievedDuration.add(String.valueOf(duration));
                 retrievedCreationDateTime.add(creationDateTime);
                 retrievedRepeat.add(String.valueOf(repeatMinutes));
@@ -827,6 +836,7 @@ public class ScheduleAdmin {
                 retrievedBillboard,
                 retrievedStartTime,
                 retrievedDuration,
+                retrievedEndTime,
                 retrievedCreationDateTime,
                 retrievedRepeat,
                 retrievedSunday,

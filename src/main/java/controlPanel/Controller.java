@@ -15,6 +15,8 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.List;
+
 import static controlPanel.BillboardControl.deleteBillboardRequest;
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
@@ -353,7 +355,13 @@ public class Controller
 
                 // FIXME: SERVER CALL: getBillboardSchedule(Monday), getBillboardSchedule(Tuesday) which will return ArrayList<ArrayList<String>>
 
-                //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+                try {
+                    ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
 
                 // Billboard Schedule: day, time, bb name
                 ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
@@ -1584,13 +1592,35 @@ public class Controller
 
                 // FIXME: ALAN - FORMAT CORRECTLY
 
-//                String monday = schedule.getMonday();
-//                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
-//                schedule.getStartTime(); // hh:mm
-//                schedule.getDuration();
-//                schedule.getRepeat(); // get repeat minutes
+                Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
+                Boolean monday = Boolean.parseBoolean(schedule.getMonday());
+                Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
+                Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
+                Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
+                Boolean friday = Boolean.parseBoolean(schedule.getFriday());
+                Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
+                String startTime = schedule.getStartTime();
+                Integer duration = Integer.parseInt(schedule.getDuration().trim());
+                Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
 
-                //scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+
+
+                ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
+                String recurrenceButton;
+
+                if(minRepeat.equals(60)){
+                    recurrenceButton = "hourly";
+                } else if (minRepeat.equals(0)){
+                    recurrenceButton = "no repeats";
+                } else{
+                    recurrenceButton = "minute";
+                }
+
+                Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
+                Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+
+
+                scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
 
 //                if (bbName.equals("Myer"))
 //                {
@@ -1669,7 +1699,13 @@ public class Controller
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
                     // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects
 
-                    //ScheduleControl.scheduleBillboardRequest(scheduleInfo);
+                    try {
+                        ScheduleControl.updateScheduleBillboardRequest("sessionToken",scheduleInfo);
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    } catch (ClassNotFoundException classNotFoundException) {
+                        classNotFoundException.printStackTrace();
+                    }
 
                     scheduleUpdateView.showConfirmationDialog();
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);
