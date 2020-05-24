@@ -1,10 +1,17 @@
 package server;
 
+import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.sql.*;
+import java.time.DayOfWeek;
+import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Locale;
 
 public class ScheduleAdmin {
 
@@ -895,6 +902,84 @@ public class ScheduleAdmin {
         );
         // Return currentSchedule
         return currentSchedule;
+    }
+
+
+    /**
+     * This function returns the index of the latest date from an array of LocalDateTime values.
+     * @param dateTimes An ArrayList of LocalDateTime values.
+     * @return index Returns an int which is the index of the latest date in the dateTimes ArrayList.
+     */
+    public static int latestDateTimeInArray(ArrayList<LocalDateTime> dateTimes) {
+
+        // Set the first value of the array list to be the latest value
+        LocalDateTime latestDateTime = dateTimes.get(0);
+        int index = 0;
+
+        // Loop over each element in the array list and check if the dateTime is after the latest dateTime
+        for (int i = 1; i < dateTimes.size(); i++) {
+            if (dateTimes.get(i).isAfter(latestDateTime)) {
+                latestDateTime = dateTimes.get(i);
+                index = i;
+            }
+        }
+
+        return index;
+    }
+
+
+    /**
+     * This function returns the xml for the billboard that should be currently scheduled. If there are multiple
+     * billboards scheduled, it will choose the one which was created first based on it's creation date time. If there
+     * are no billboards scheduled, it will return an empty string.
+     * @return billboardXML Returns the xml of the current billboard to be displayed to the viewer.
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String getCurrentBillboardXML() throws IOException, SQLException {
+        // Initialise variable to store xml file
+        String billboardXML = "";
+
+        // Get the current date and time and get the current day of the week
+        LocalDateTime localDateTime = LocalDateTime.now();
+        LocalTime currentTime = localDateTime.toLocalTime();
+        String currentDayOfWeek = localDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+
+        // Get today's schedule
+        ScheduleList todayScheduleList = listFilteredScheduleInformation(currentDayOfWeek);
+
+        // Get the current schedule (based on the time) and the billboard name
+        CurrentSchedule currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
+        ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
+        String currentBillboardName;
+
+        if (!currentScheduleBillboardNames.isEmpty()) {
+            if (currentScheduleBillboardNames.size() == 1) {
+                // There is only one billboard
+                currentBillboardName = String.valueOf(currentScheduleBillboardNames);
+            }
+            else{
+                // There is more than one billboard scheduled for right now, so get their creation date time
+                ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
+                ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
+
+                // Parse strings into LocalDateTime with the correct formatting
+                for (int i = 0; i < creationDateTimeStrings.size(); i++) {
+                    LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                    creationLocalDateTimes.set(i, dateTime);
+                }
+
+                // Find latest date from creation date time array and get the corresponding billboard name
+                int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
+                currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
+            }
+            // Get the chosen billboard's schedule and extract the xml code
+            DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
+            billboardXML = dbBillboardSchedule.getXMLCode();
+        }
+
+        return billboardXML;
     }
 
 
