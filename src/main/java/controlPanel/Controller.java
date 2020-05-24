@@ -341,8 +341,6 @@ public class Controller
         switch(newViewType)
         {
             case HOME:
-                System.out.println("Check Home permission");
-                System.out.println("Set Username Welcome Text");
                 HomeView homeView = (HomeView) views.get(VIEW_TYPE.HOME);
                 homeView.setWelcomeText(model.getUsername());
                 // FIXME: this is where Requests would be made to the Server
@@ -386,6 +384,9 @@ public class Controller
                 scheduleUpdateView.setBBNamesFromDB(names);
                 scheduleUpdateView.showInstructionMessage();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+            case USER_LIST:
+                listUserHandling();
+
         }
     }
 
@@ -844,45 +845,46 @@ public class Controller
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
-
-            // get LIST USER view
-            UserListView userListView = (UserListView) views.get(USER_LIST);
-            ArrayList<String> usernames = null;
-            ServerAcknowledge errorMessage = Success;
-            try {
-                serverResponse = UserControl.listUsersRequest(sessionToken);
-                // Attempt to cast to a string ArrayList for successful response
-                usernames = (ArrayList<String>) serverResponse;
-                for (String username : usernames)
-                {
-                    System.out.println(username);
-                }
-            } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
-                // terminate Control Panel and restart
-                ex.printStackTrace();
-            } catch (ClassCastException ex) {
-                // Otherwise, some other error message was returned from the server
-                errorMessage = (ServerAcknowledge) serverResponse;
-            }
-
-            // Error handling on GUI as follows
-            if (errorMessage.equals(InsufficientPermission)) {
-                System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
-                //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
-            } else if (serverResponse.equals(InvalidToken)) {
-                System.out.println("CONTROLLER LEVEL - Invalid Token");
-                //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
-            } else { // Successful, let the user know and populate with list of users
-                userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
-                views.put(USER_LIST, userListView);
-            }
-
             // navigate to users list screen
             updateView(USER_LIST);
         }
     }
 
+    private void listUserHandling()
+    {
+        // get LIST USER view
+        UserListView userListView = (UserListView) views.get(USER_LIST);
+        ArrayList<String> usernames = null;
+        ServerAcknowledge errorMessage = Success;
+        try {
+            serverResponse = UserControl.listUsersRequest(sessionToken);
+            // Attempt to cast to a string ArrayList for successful response
+            usernames = (ArrayList<String>) serverResponse;
+            for (String username : usernames)
+            {
+                System.out.println(username);
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            // TODO: error pop-up window for fatal error
+            // terminate Control Panel and restart
+            ex.printStackTrace();
+        } catch (ClassCastException ex) {
+            // Otherwise, some other error message was returned from the server
+            errorMessage = (ServerAcknowledge) serverResponse;
+        }
+
+        // Error handling on GUI as follows
+        if (errorMessage.equals(InsufficientPermission)) {
+            System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
+            //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+        } else if (serverResponse.equals(InvalidToken)) {
+            System.out.println("CONTROLLER LEVEL - Invalid Token");
+            //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+        } else { // Successful, let the user know and populate with list of users
+            userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
+            views.put(USER_LIST, userListView);
+        }
+    }
 
     /**
      * Listener to handle Edit Profile Button mouse clicks.
