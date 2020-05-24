@@ -13,7 +13,6 @@ import java.sql.SQLException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import static helpers.Helpers.bytesToString;
 import static helpers.Helpers.networkPropsFilePath;
@@ -210,9 +209,13 @@ public class Server {
                 return UserAdmin.deleteUser(sessionToken, username); // Returns server acknowledgment of deletion or fail message
             case "ListUsers":
                 return UserAdmin.listUsers(sessionToken); // Returns string array list of usernames or server acknowledge error
-            case "getUserPermissions":
+            case "getPermissions":
                 username = additionalArgs[0];
-                return UserAdmin.getUserPermissions(sessionToken, username); // Returns boolean array list of usernames or server acknowledge error
+                return UserAdmin.getPermissions(sessionToken, username); // Returns boolean array list of usernames or server acknowledge error
+            case "setPassword":
+                username = additionalArgs[0];
+                hashedPassword = additionalArgs[1];
+                return UserAdmin.setPassword(sessionToken, username, hashedPassword); // Returns boolean array list of usernames or server acknowledge error
             default:
                 return "No UserAdmin method requested";
         }

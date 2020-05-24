@@ -170,11 +170,11 @@ class UserAdminTest {
             DbUser.addUser(editUserUser, dummyHashedSaltedPassword, dummySalt, false, false, false, true);
         }
         assertAll("Check for a few Possible User Permission Combinations",
-            ()-> assertEquals(basicPermissions, getUserPermissions(sessionToken, basicUser)),
-            ()-> assertEquals(createBillboardPermission, getUserPermissions(sessionToken, createBillboardUser)),
-            ()-> assertEquals(editBillboardPermission, getUserPermissions(sessionToken, editBillboardUser)),
-            ()-> assertEquals(editSchedulePermission, getUserPermissions(sessionToken, editScheduleUser)),
-            ()-> assertEquals(editUserPermission, getUserPermissions(sessionToken, editUserUser))
+            ()-> assertEquals(basicPermissions, getPermissions(sessionToken, basicUser)),
+            ()-> assertEquals(createBillboardPermission, getPermissions(sessionToken, createBillboardUser)),
+            ()-> assertEquals(editBillboardPermission, getPermissions(sessionToken, editBillboardUser)),
+            ()-> assertEquals(editSchedulePermission, getPermissions(sessionToken, editScheduleUser)),
+            ()-> assertEquals(editUserPermission, getPermissions(sessionToken, editUserUser))
         );
     }
 
@@ -210,11 +210,11 @@ class UserAdminTest {
         String editUserToken = (String) login(editUserUser, dummyHashedPassword);
 
         assertAll("Check for a few Possible Own User Permission Combinations",
-                ()-> assertEquals(basicPermissions, getUserPermissions(basicToken, basicUser)),
-                ()-> assertEquals(createBillboardPermission, getUserPermissions(createBillboardToken, createBillboardUser)),
-                ()-> assertEquals(editBillboardPermission, getUserPermissions(editBillboardToken, editBillboardUser)),
-                ()-> assertEquals(editSchedulePermission, getUserPermissions(ediScheduleToken, editScheduleUser)),
-                ()-> assertEquals(editUserPermission, getUserPermissions(editUserToken, editUserUser))
+                ()-> assertEquals(basicPermissions, getPermissions(basicToken, basicUser)),
+                ()-> assertEquals(createBillboardPermission, getPermissions(createBillboardToken, createBillboardUser)),
+                ()-> assertEquals(editBillboardPermission, getPermissions(editBillboardToken, editBillboardUser)),
+                ()-> assertEquals(editSchedulePermission, getPermissions(ediScheduleToken, editScheduleUser)),
+                ()-> assertEquals(editUserPermission, getPermissions(editUserToken, editUserUser))
         );
     }
 
@@ -237,8 +237,8 @@ class UserAdminTest {
         String otherToken = (String) login(testUser, dummyHashedPassword);
         UserAdmin.deleteUser(otherToken, callingUser); // Should expire all tokens associated with the user deleted
 
-        Object dbResponseViewOtherUser = userAdmin.getUserPermissions(sessionToken, testUser);
-        Object dbResponseViewDeletedSelf = userAdmin.getUserPermissions(sessionToken, callingUser);
+        Object dbResponseViewOtherUser = userAdmin.getPermissions(sessionToken, testUser);
+        Object dbResponseViewDeletedSelf = userAdmin.getPermissions(sessionToken, callingUser);
         // Check return value
         assertEquals(InvalidToken, dbResponseViewOtherUser);
         assertEquals(InvalidToken, dbResponseViewDeletedSelf);
@@ -255,7 +255,7 @@ class UserAdminTest {
     public void getOtherUserPermissionsInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
         // Temporarily change to basic user as the calling user (via the session token)
         String basicToken = (String) login(basicUser, dummyHashedPassword);
-        Object dbResponse =  getUserPermissions(basicToken, testUser);
+        Object dbResponse =  getPermissions(basicToken, testUser);
         // Check return value
         assertEquals(InsufficientPermission, dbResponse);
     }
@@ -274,7 +274,7 @@ class UserAdminTest {
             assertFalse(UserAdmin.userExists(testUser));
         }
         // Check return value - session should be invalid now
-        Object dbResponse = UserAdmin.getUserPermissions(sessionToken, testUser);
+        Object dbResponse = UserAdmin.getPermissions(sessionToken, testUser);
         assertEquals(NoSuchUser, dbResponse);
     }
 
@@ -354,7 +354,7 @@ class UserAdminTest {
         // Check return value
         assertEquals(Success, dbResponse);
         // Check that the user permissions are actually updated in the DB
-        assertEquals(editUserPermission, userAdmin.getUserPermissions(testToken, testUser));
+        assertEquals(editUserPermission, userAdmin.getPermissions(testToken, testUser));
     }
 
 
@@ -377,7 +377,7 @@ class UserAdminTest {
         // Check return value
         assertEquals(CannotRemoveOwnAdminPermission, dbResponse);
         // Check that the user permissions are not updated in the DB
-        assertEquals(fullPermissions, userAdmin.getUserPermissions(testToken,testUser));
+        assertEquals(fullPermissions, userAdmin.getPermissions(testToken,testUser));
     }
 
 
@@ -404,7 +404,7 @@ class UserAdminTest {
         // Check return value
         assertEquals(InvalidToken, dbResponse);
         // Check that the user permissions are not able to be retrieved from DB (due to deletion)
-        assertEquals(NoSuchUser, userAdmin.getUserPermissions(otherToken,callingUser));
+        assertEquals(NoSuchUser, userAdmin.getPermissions(otherToken,callingUser));
     }
 
 
@@ -433,7 +433,7 @@ class UserAdminTest {
         // Check return value
         assertEquals(InsufficientPermission, dbResponse);
         // Check that the user permissions are not updated in the DB
-        assertEquals(fullPermissions, userAdmin.getUserPermissions(sessionToken, testUser));
+        assertEquals(fullPermissions, userAdmin.getPermissions(sessionToken, testUser));
     }
 
 
@@ -452,14 +452,14 @@ class UserAdminTest {
         }
         System.out.println("The test user does not exists, so it will be created.");
         DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
-        assertEquals(fullPermissions, userAdmin.getUserPermissions(sessionToken, testUser));
+        assertEquals(fullPermissions, userAdmin.getPermissions(sessionToken, testUser));
         // Calling user is "callingUser" which is associated with "sessionToken" in the beforeEachTest
         // Attempt to remove all of test user's permissions (verify that it can remove other user's EditUser permission)
         ServerAcknowledge dbResponse = userAdmin.setUserPermissions(sessionToken, testUser, false, false, false, false);
         // Check return value
         assertEquals(Success, dbResponse);
         // Check that the user permissions are actually updated in the DB
-        assertEquals(basicPermissions, userAdmin.getUserPermissions(sessionToken, testUser));
+        assertEquals(basicPermissions, userAdmin.getPermissions(sessionToken, testUser));
     }
 
 

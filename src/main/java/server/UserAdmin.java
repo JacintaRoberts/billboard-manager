@@ -208,7 +208,7 @@ public class UserAdmin {
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser) or an enum to indicate
      * insufficient permission to view requested user.
      */
-    public static Object getUserPermissions(String sessionToken, String username) throws IOException, SQLException {
+    public static Object getPermissions(String sessionToken, String username) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
             if (!callingUsername.equals(username)) {
@@ -304,7 +304,7 @@ public class UserAdmin {
      * @throws SQLException
      * @throws NoSuchAlgorithmException
      */
-    public ServerAcknowledge setPassword(String sessionToken, String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
+    public static ServerAcknowledge setPassword(String sessionToken, String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
             if (!callingUsername.equals(username) & !hasPermission(callingUsername, EditUser)) {
