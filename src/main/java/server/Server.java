@@ -29,6 +29,7 @@ public class Server {
     private static String method = null;
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
+    private static String[] concatString = new String[0];
     private static final int TOKEN_SIZE = 32; // Constant for the number of bytes in a session token
 
     // Different permissions that are available
@@ -233,7 +234,14 @@ public class Server {
             case "CreateBillboard":
                 String creator = additionalArgs[0];
                 String billboardName = additionalArgs[1];
-                String xmlCode = additionalArgs[2];
+                System.out.println(additionalArgs.length);
+                String xmlCode;
+                if (additionalArgs.length > 3){
+                    concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
+                    xmlCode = String.join(",",concatString);
+                } else {
+                    xmlCode = additionalArgs[2];
+                }
                 return BillboardAdmin.createBillboard(creator,billboardName,xmlCode);
             case "EditBillboard":
                 String originalBillboardName = additionalArgs[0];

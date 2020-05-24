@@ -165,7 +165,7 @@ public class BillboardAdmin {
                                          String billboard,
                                          String xmlCode) throws IOException, SQLException {
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
             countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
@@ -203,7 +203,7 @@ public class BillboardAdmin {
     public static String editBillboard(String billboard,
                                        String xmlCode) throws IOException, SQLException {
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
             countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
@@ -237,7 +237,7 @@ public class BillboardAdmin {
      */
     public static String deleteBillboard(String billboard) throws IOException, SQLException {
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
             countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
@@ -331,7 +331,7 @@ public class BillboardAdmin {
      */
     public static DbBillboard getBillboardInformation(String billboard) throws IOException, SQLException {
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
             countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
