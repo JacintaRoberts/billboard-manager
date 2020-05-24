@@ -905,6 +905,20 @@ public class Controller
                 userEditView.setPermissions(userPermissions);
             } catch (IOException | ClassNotFoundException ex) {
                 // TODO: error pop-up window for fatal error
+                //TODO: HERE! IS AN EXAMPLE POP-UP WINDOW
+
+                // getCurrentFrame reference to GUI
+                //BBListView bbListView = (BBListView) views.get(BB_LIST);
+                //bbListView.showBBInvalid();
+                //views.put(BB_LIST, BBListView);
+
+                // in bblistview class
+                // protected void showBBINvalid()
+                //{
+                //  String message = "hello";
+                //    JOptionPane.showMessageDialog(null, message);
+                //}
+
                 // terminate Control Panel and restart
                 ex.printStackTrace();
                 // Error handling
