@@ -437,7 +437,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userProfileView.setPermissions(userPermissions);
@@ -521,7 +521,8 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-
+            model.storeUsername(username);
+            // Attempt to handle the login request
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
                 //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
@@ -533,12 +534,14 @@ public class Controller
                     System.out.println("Please try another password");
                     // show error message
                     logInView.setErrorVisibility(true);
+                    // TODO: POP-UP WINDOW FOR BAD PASSWORD
                     views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
                 } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User");
                     System.out.println("Please try another username");
                     // show error message
                     logInView.setErrorVisibility(true);
+                    // TODO: POP-UP WINDOW FOR BAD PASSWORD
                     views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
                 } else { // login request success
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
@@ -597,7 +600,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, usernameSelected);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, usernameSelected);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userEditView.setPermissions(userPermissions);
@@ -787,7 +790,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, usernameSelected);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, usernameSelected);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userPreviewView.setPermissions(userPermissions);
@@ -808,7 +811,6 @@ public class Controller
             //TODO: GIVE THE USER THE OPTION OF "CHANGING" PASSWORD RATHER THAN SHOWING PLAIN TEXT VERSION AS
             // HASHING IS 1 WAY AND IT'S IMPOSSIBLE TO DO THAT CURRENTLY.
             // FIX: userPreviewView.setPassword("Password");
-
             views.put(USER_VIEW, userPreviewView);
 
             updateView(USER_VIEW);
@@ -877,7 +879,7 @@ public class Controller
 
             // Get user permissions from server
             try {
-                serverResponse = UserControl.getUserPermissionsRequest(sessionToken, username);
+                serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
                 ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
                 // FIXME: setPermissions is wrong mapping
                 userEditView.setPermissions(userPermissions);
