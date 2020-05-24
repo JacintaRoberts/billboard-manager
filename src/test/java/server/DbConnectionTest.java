@@ -369,7 +369,7 @@ class DbConnectionTest {
     public void checkBillboardsTable2() throws IOException, SQLException {
 
         // Set SQL Query
-        final String SHOW_BILLBOARD_CONTENT = "SELECT COUNT(*) FROM Schedules WHERE Wednesday = 1";
+        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Schedules ";
 //        final String SHOW_BILLBOARD_CONTENT = "UPDATE Schedules SET `StartTime` = '00:00:00'  ";
 
         // Set predetermined test cases

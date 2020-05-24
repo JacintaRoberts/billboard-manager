@@ -700,6 +700,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // --- ADD INPUT TO ARRAY ---
         // add info to the array
+        scheduleInfo.add(name);
         scheduleInfo.add(daysOfWeek);
         scheduleInfo.add(startHour);
         scheduleInfo.add(startMin);

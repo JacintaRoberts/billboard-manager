@@ -30,7 +30,7 @@ public class ScheduleControl {
      * @param  Saturday An Integer that's either 1 or 0  to see if the schedule is to be run during Saturday
      * @return
      */
-    public String scheduleBillboardRequest(String sessionToken, String billboardName, String startTime, int Duration,
+    public static String scheduleBillboardRequest(String sessionToken, String billboardName, String startTime, int Duration,
                                            String CreationDateTime, Integer Repeat, Integer Sunday, Integer Monday,
                                            Integer Tuesday, Integer Wednesday, Integer Thursday, Integer Friday,
                                            Integer Saturday) throws IOException, ClassNotFoundException {
@@ -65,7 +65,7 @@ public class ScheduleControl {
             return (String) Helpers.initClient(message);
         } else {
             String serverResponse;
-            return serverResponse = "Fail: Invalid Duration Repeat Combination";
+            return serverResponse = "Fail: Billboard Scheduled More Frequently Than Duration";
         }
     }
 
@@ -89,7 +89,7 @@ public class ScheduleControl {
      * @param  Saturday An Integer that's either 1 or 0  to see if the schedule is to be run during Saturday
      * @return
      */
-    public String updateScheduleBillboardRequest(String sessionToken, String billboardName, String startTime, int Duration,
+    public static  String updateScheduleBillboardRequest(String sessionToken, String billboardName, String startTime, int Duration,
                                            String CreationDateTime, Integer Repeat, Integer Sunday, Integer Monday,
                                            Integer Tuesday, Integer Wednesday, Integer Thursday, Integer Friday,
                                            Integer Saturday) throws IOException, ClassNotFoundException {
@@ -136,7 +136,7 @@ public class ScheduleControl {
      * @param  billboardName A String which provides Billboard Name to store into database
      * @return
      */
-    public String deleteScheduleRequest(String sessionToken,
+    public static  String deleteScheduleRequest(String sessionToken,
                                          String billboardName) throws IOException, ClassNotFoundException {
         String message = String.format("Schedule,DeleteSchedule,%s,%s",
                 sessionToken,
@@ -144,6 +144,81 @@ public class ScheduleControl {
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to Delete all billboard schedule
+     * from control panel to server.
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @return
+     */
+    public static  String deleteAllScheduleRequest(String sessionToken) throws IOException, ClassNotFoundException {
+        String message = String.format("Schedule,DeleteAllSchedule,%s",
+                sessionToken);
+        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
+
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to List all billboard schedule
+     * from control panel to server for a specific  day.
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @param  Day A String which provides Billboard Name to store into database
+     * @return
+     */
+    public static  Object listDayScheduleRequest(String sessionToken,
+                                        String Day) throws IOException, ClassNotFoundException {
+        String message = String.format("Schedule,ListAllDaySchedule,%s,%s",
+                sessionToken,
+                Day);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
+
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to get a specific billboard schedule
+     * from control panel to server/
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @param  BillboardName A String which provides Billboard Name to filter schedules from database
+     * @return
+     */
+    public static  Object listABillboardSchedule(String sessionToken,
+                                                 String BillboardName) throws IOException, ClassNotFoundException {
+        String message = String.format("Schedule,ListABillboardSchedule,%s,%s",
+                sessionToken,
+                BillboardName);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
+
+
+    /**
+     * Send Queries: Schedule. This is a generic method which sends a request to List all billboard schedule
+     * from control panel to server for a specific  day.
+     * <p>
+     * This method always returns immediately.
+     * @param  sessionToken A sessionToken generated when logged in
+     * @param  Day A String which provides Billboard Name to store into database
+     * @return
+     */
+    public static Object listActiveSchedule(String sessionToken,
+                                            String Day, String currentTime) throws IOException, ClassNotFoundException {
+
+        // Parses the date
+//        LocalDate dt = LocalDate.parse("2018-11-27");
+        // Prints the day
+//        System.out.println(dt.getDayOfWeek());
+//        LocalTime now = LocalTime.now();
+        
+        String message = String.format("Schedule,ListActiveSchedule,%s,%s,%s",
+                sessionToken,
+                Day,
+                currentTime);
+        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
 
 
 }
