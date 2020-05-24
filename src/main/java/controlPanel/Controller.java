@@ -350,6 +350,7 @@ public class Controller
                 break;
             case SCHEDULE_WEEK:
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+                scheduleWeekView.setWelcomeText(model.getUsername());
 
                 // FIXME: SERVER CALL: getBillboardSchedule(Monday), getBillboardSchedule(Tuesday) which will return ArrayList<ArrayList<String>>
 
@@ -378,6 +379,7 @@ public class Controller
                 break;
             case SCHEDULE_UPDATE:
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                scheduleUpdateView.setWelcomeText(model.getUsername());
                 // FIXME: call to server: get BB names
                 String[] names = {"Myer", "Anaconda", "David Jones"};
                 scheduleUpdateView.setBBNamesFromDB(names);
@@ -856,6 +858,7 @@ public class Controller
     {
         // get LIST USER view
         UserListView userListView = (UserListView) views.get(USER_LIST);
+        userListView.setWelcomeText(model.getUsername());
         ArrayList<String> usernames = null;
         ServerAcknowledge errorMessage = Success;
         try {

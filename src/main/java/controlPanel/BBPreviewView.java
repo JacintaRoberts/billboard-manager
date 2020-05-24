@@ -38,7 +38,7 @@ public class BBPreviewView extends AbstractView
 
     private void createComponents()
     {
-        Viewer viewer = new Viewer();
+        viewer = new Viewer();
         viewer.displayBillboard(new File("xml"));
     }
 
@@ -55,7 +55,7 @@ public class BBPreviewView extends AbstractView
 
     protected void addBBXML(String xml)
     {
-       //viewer.displayBillboard(xml);
+       viewer.displayBillboard(xml);
     }
 
     @Override

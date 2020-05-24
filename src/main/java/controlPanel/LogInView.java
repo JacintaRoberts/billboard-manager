@@ -112,7 +112,9 @@ public class LogInView extends AbstractView
     }
 
     @Override
-    void cleanUp() {
-
+    void cleanUp()
+    {
+        usernameField.setText(null);
+        passwordField.setText(null);
     }
 }
