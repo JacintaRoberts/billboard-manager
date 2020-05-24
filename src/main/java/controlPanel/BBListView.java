@@ -42,4 +42,10 @@ public class BBListView extends AbstractListView
         JOptionPane.showMessageDialog(null, message);
     }
 
+    protected void showBBInvalid()
+    {
+        String message = "Invalid Billboard XML File - cannot read.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
 }

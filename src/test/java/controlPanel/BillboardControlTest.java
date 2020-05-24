@@ -39,8 +39,14 @@ class BillboardControlTest {
     @Test
     public void createABillboardRequest() throws IOException, ClassNotFoundException {
         //TODO: ENSURE THE BILLBOARD DOES NOT ALREADY EXIST IN DB FOR INTEGRATED TESTING :)
-        //String serverResponse = billboardControl.createBillboardRequest("sampleToken", "newBillboard1", "xmlCode");
-        //assertEquals( "Pass: Billboard Created", serverResponse);
+        BillboardControl.deleteAllBillboardRequest("sampleToken");
+        String xmlCode = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
+                "<billboard>\n" +
+                "    <information>Billboard with an information tag, and nothing else. Note that the text is word-wrapped. The quick brown fox jumped over the lazy dogs.</information>\n" +
+                "</billboard>";
+        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Test User","newBillboard1", xmlCode);
+        assertEquals( "Pass: Billboard Created", serverResponse);
+        getABillboardInformationRequestPass();
     }
 
 
@@ -224,5 +230,6 @@ class BillboardControlTest {
 //        assertEquals(billboardInformation.getServerResponse(), "Fail: Insufficient User Permission");
 //    }
 
+//    @Test
 
 }

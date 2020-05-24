@@ -30,7 +30,7 @@ public class ScheduleControl {
      * @param  Saturday An Integer that's either 1 or 0  to see if the schedule is to be run during Saturday
      * @return
      */
-    public static String scheduleBillboardRequest(String sessionToken, String billboardName, String startTime, int Duration,
+    public static String scheduleBillboardRequest(String sessionToken, String billboardName, String startTime, Integer Duration,
                                            String CreationDateTime, Integer Repeat, Integer Sunday, Integer Monday,
                                            Integer Tuesday, Integer Wednesday, Integer Thursday, Integer Friday,
                                            Integer Saturday) throws IOException, ClassNotFoundException {
