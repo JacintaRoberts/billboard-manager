@@ -18,6 +18,7 @@ import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -345,73 +346,98 @@ public class BBCreateView extends AbstractGenericView
 
     protected String getSelectedBBName() {return BBNameLabel.getText();}
 
+
+    protected boolean checkBBValid()
+    {
+        boolean infoNull = (BBTextField.getText().equals("") || BBTextField.getText() == null);
+        boolean titleNull = (titleLabel.getText().equals("") || titleLabel.getText() == null);
+        boolean pictureNull = (photoPath == null);
+
+        System.out.println(infoNull);
+        System.out.println(titleNull);
+        System.out.println(pictureNull);
+
+        if (infoNull && titleNull && pictureNull)
+        {
+            return false;
+        }
+        return true;
+    }
+
     // FIXME: RETURN NULL IF THIS XML is currently invalid! ADD CHECKS!!
-    protected ArrayList<Object> getBBXML() throws ParserConfigurationException, TransformerConfigurationException {
-        ArrayList<Object> BBInfo = new ArrayList<>();
-//        // add BB name
-//        BBInfo.add(getSelectedBBName());
-//        // add background colour
-//        BBInfo.add(backgroundColour);
-//        // add title
-//        BBInfo.add(titleLabel.getText());
-//        // add title colour
-//        BBInfo.add(titleColour);
-//        // add text
-//        BBInfo.add(BBTextField.getText());
-//        // add text colour
-//        BBInfo.add(infoColour);
-//        // photo
-//        BBInfo.add(photoLabel.getIcon());
-
-
+    protected String getBBXML() throws ParserConfigurationException, TransformerException {
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
         Document document = documentBuilder.newDocument();
 
+        boolean infoExists = (!BBTextField.getText().equals("") || BBTextField.getText() != null);
+        boolean titleExists = (!titleLabel.getText().equals("") || titleLabel.getText() != null);
+        boolean pictureExists = (photoPath != null);
+
+        // ------- ROOT -------
         // root element - billboard
         Element root = document.createElement("billboard");
         document.appendChild(root);
 
-        // ------- MESSAGE / TITLE -------
-        Element message = document.createElement("message");
-        root.appendChild(message);
+        // set a colour attribute to root element
+        Attr attr_background = document.createAttribute("background");
+        attr_background.setValue(backgroundColour);
+        root.setAttributeNode(attr_background);
 
-        // set a colour attribute to message element
-        Attr attr_message = document.createAttribute("colour");
-        attr_message.setValue(titleColour);
-        message.setAttributeNode(attr_message);
+        if (titleExists)
+        {
+            // ------- MESSAGE / TITLE -------
+            Element message = document.createElement("message");
+            root.appendChild(message);
+
+            // set a colour attribute to message element
+            Attr attr_message = document.createAttribute("colour");
+            attr_message.setValue(titleColour);
+            message.setAttributeNode(attr_message);
+        }
 
         // ------- INFORMATION -------
-        Element information = document.createElement("information");
-        root.appendChild(information);
+        if (infoExists)
+        {
+            Element information = document.createElement("information");
+            information.setNodeValue(BBTextField.getText());
+            root.appendChild(information);
 
-        // set a colour attribute to information element
-        Attr attr_information = document.createAttribute("colour");
-        attr_information.setValue(infoColour);
-        information.setAttributeNode(attr_information);
+            // set a colour attribute to information element
+            Attr attr_information = document.createAttribute("colour");
+            attr_information.setValue(infoColour);
+            information.setAttributeNode(attr_information);
+        }
 
         // ------- PICTURE -------
-        Element picture = document.createElement("picture");
-        root.appendChild(picture);
-
-        Attr attr_picture;
-
-        // set a colour attribute to information element
-        if (photoType == PhotoType.DATA)
+        // FIXME: check photo path? and icon???
+        if (pictureExists)
         {
-            attr_picture = document.createAttribute("data");
-        }
-        else
-        {
-            attr_picture = document.createAttribute("url");
+            Element picture = document.createElement("picture");
+            root.appendChild(picture);
+
+            Attr attr_picture;
+
+            // set a colour attribute to information element
+            if (photoType == PhotoType.DATA) {
+                attr_picture = document.createAttribute("data");
+            }
+            else {
+                attr_picture = document.createAttribute("url");
+            }
+
+            attr_picture.setValue(photoPath);
+            picture.setAttributeNode(attr_picture);
         }
 
-        attr_picture.setValue(photoPath);
-        information.setAttributeNode(attr_picture);
+        TransformerFactory tf = TransformerFactory.newInstance();
+        Transformer t = tf.newTransformer();
+        StringWriter sw = new StringWriter();
+        t.transform(new DOMSource(document), new StreamResult(sw));
 
-        return BBInfo;
+        return sw.toString();
     }
 
     // ###################### BROWSE FOR BB SETTINGS ######################
@@ -541,9 +567,9 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Show Error Message as no BB name was provided
      */
-    protected void showBBNameErrorMessage()
+    protected void showBBInvalidErrorMessage()
     {
-        String message = "Please select a Billboard Name before creating the Billboard.";
+        String message = "Invalid BB. Please ensure to select a Billboard Name and at least a title, text or picture.";
         JOptionPane.showMessageDialog(null, message);
     }
 
@@ -709,22 +735,18 @@ public class BBCreateView extends AbstractGenericView
 
         // get root element (billboard)
         Element root = doc.getDocumentElement();
-        if (root.getTagName().equals("billboard"))
-        {
+        if (root.getTagName().equals("billboard")) {
             // get title and title colour
             NodeList titleList = doc.getElementsByTagName("message");
             NodeList infoList = doc.getElementsByTagName("information");
             NodeList photoList = doc.getElementsByTagName("picture");
-            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0)
-            {
+            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0) {
                 return false;
             }
 
-            if (photoList.getLength() != 0)
-            {
+            if (photoList.getLength() != 0) {
                 boolean setPicture = manageXMLPicture(photoList);
-                if (!setPicture)
-                {
+                if (!setPicture) {
                     return false;
                 }
             }
@@ -733,8 +755,7 @@ public class BBCreateView extends AbstractGenericView
             String backgroundColour = root.getAttribute("background");
             setBackgroundColour(backgroundColour);
 
-            if (titleList.getLength() != 0)
-            {
+            if (titleList.getLength() != 0) {
                 Element titleNode = (Element) titleList.item(0);
                 String title = titleNode.getTextContent();
                 setBBTitle(title);
@@ -742,8 +763,7 @@ public class BBCreateView extends AbstractGenericView
                 setBBTitleColour(titleColour);
             }
 
-            if (infoList.getLength() != 0)
-            {
+            if (infoList.getLength() != 0) {
                 Element infoNode = (Element) infoList.item(0);
                 String information = infoNode.getTextContent();
                 String informationColour = infoNode.getAttribute("colour");
@@ -923,11 +943,15 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void addBBXML(File fileToDisplay)
     {
+        // FIXME: remove later
+        fileToDisplay = extractXMLFile(6);
+
+        //Document document = null;
+
         // extract xml data into hash map using viewer code
         HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
 
         String backgroundColour = billboardData.get("Background Colour");
-        System.out.println("background colour " + backgroundColour);
         String message = billboardData.get("Message");
         String messageColour = billboardData.get("Message Colour");
         String picture = billboardData.get("Picture");

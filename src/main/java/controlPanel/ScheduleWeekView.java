@@ -64,6 +64,7 @@ public class ScheduleWeekView extends AbstractGenericView
             DefaultTableModel model = new DefaultTableModel();
             model.addColumn("Time");
             model.addColumn("Billboard");
+            model.addColumn("Creator");
             // create table with table model
             JTable dayTable = new JTable(model);
             dayTable.setRowHeight(50);
