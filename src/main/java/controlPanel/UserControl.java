@@ -74,7 +74,7 @@ public class UserControl {
     public static ServerAcknowledge createUserRequest(String sessionToken, String username, String passwordFromControlPanel, boolean createBillboard, boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException,
             ClassNotFoundException, NoSuchAlgorithmException {
         String hashedPassword = hash(passwordFromControlPanel); // Hash password entered by the user
-        String message = String.format("User,CreateUser,%s,%s,%s,%s,%s,%s,%s", sessionToken, username, hashedPassword,
+        String message = String.format("User,createUser,%s,%s,%s,%s,%s,%s,%s", sessionToken, username, hashedPassword,
                                         createBillboard, editBillboard, scheduleBillboard, editUser);
         return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
@@ -90,7 +90,7 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
     public static ServerAcknowledge deleteUserRequest(String sessionToken, String username) throws IOException, ClassNotFoundException {
-        String message = String.format("User,DeleteUser,%s,%s", sessionToken, username);
+        String message = String.format("User,deleteUser,%s,%s", sessionToken, username);
         return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
@@ -105,7 +105,7 @@ public class UserControl {
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
     public static Object listUsersRequest(String sessionToken) throws IOException, ClassNotFoundException {
-        String message = String.format("User,ListUsers,%s", sessionToken);
+        String message = String.format("User,listUsers,%s", sessionToken);
         return Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 

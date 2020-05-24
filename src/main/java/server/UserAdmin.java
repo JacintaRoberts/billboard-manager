@@ -261,7 +261,7 @@ public class UserAdmin {
             }
         } else {
             System.out.println("Session was not valid, no list of users was retrieved");
-            return InvalidToken; // 4. Invalid Token
+            return InvalidToken; // 3. Invalid Token
         }
     }
 
