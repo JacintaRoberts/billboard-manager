@@ -4,6 +4,7 @@ import observer.Subject;
 
 import controlPanel.Main.VIEW_TYPE;
 
+import javax.swing.*;
 import java.awt.event.MouseListener;
 
 public class BBListView extends AbstractListView
@@ -34,6 +35,11 @@ public class BBListView extends AbstractListView
     Main.VIEW_TYPE getEnum()
     {
         return view_type;
+    }
+
+    protected void showBBDeletedMessage(String message)
+    {
+        JOptionPane.showMessageDialog(null, message);
     }
 
 }

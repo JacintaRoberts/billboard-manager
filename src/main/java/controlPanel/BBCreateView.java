@@ -26,10 +26,7 @@ import java.util.Base64;
 import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
+import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import static javax.swing.JOptionPane.*;
@@ -321,7 +318,6 @@ public class BBCreateView extends AbstractGenericView
         }
         drawingPadPanel.setBackground(newColour);
         backgroundColour = toHexString(newColour);
-        System.out.println("set background to white");
     }
 
     /**
@@ -349,23 +345,71 @@ public class BBCreateView extends AbstractGenericView
 
     protected String getSelectedBBName() {return BBNameLabel.getText();}
 
-    protected ArrayList<Object> getBBXML()
-    {
+    // FIXME: RETURN NULL IF THIS XML is currently invalid! ADD CHECKS!!
+    protected ArrayList<Object> getBBXML() throws ParserConfigurationException, TransformerConfigurationException {
         ArrayList<Object> BBInfo = new ArrayList<>();
-        // add BB name
-        BBInfo.add(getSelectedBBName());
-        // add background colour
-        BBInfo.add(backgroundColour);
-        // add title
-        BBInfo.add(titleLabel.getText());
-        // add title colour
-        BBInfo.add(titleColour);
-        // add text
-        BBInfo.add(BBTextField.getText());
-        // add text colour
-        BBInfo.add(infoColour);
-        // photo
-        BBInfo.add(photoLabel.getIcon());
+//        // add BB name
+//        BBInfo.add(getSelectedBBName());
+//        // add background colour
+//        BBInfo.add(backgroundColour);
+//        // add title
+//        BBInfo.add(titleLabel.getText());
+//        // add title colour
+//        BBInfo.add(titleColour);
+//        // add text
+//        BBInfo.add(BBTextField.getText());
+//        // add text colour
+//        BBInfo.add(infoColour);
+//        // photo
+//        BBInfo.add(photoLabel.getIcon());
+
+
+        DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
+
+        DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
+
+        Document document = documentBuilder.newDocument();
+
+        // root element - billboard
+        Element root = document.createElement("billboard");
+        document.appendChild(root);
+
+        // ------- MESSAGE / TITLE -------
+        Element message = document.createElement("message");
+        root.appendChild(message);
+
+        // set a colour attribute to message element
+        Attr attr_message = document.createAttribute("colour");
+        attr_message.setValue(titleColour);
+        message.setAttributeNode(attr_message);
+
+        // ------- INFORMATION -------
+        Element information = document.createElement("information");
+        root.appendChild(information);
+
+        // set a colour attribute to information element
+        Attr attr_information = document.createAttribute("colour");
+        attr_information.setValue(infoColour);
+        information.setAttributeNode(attr_information);
+
+        // ------- PICTURE -------
+        Element picture = document.createElement("picture");
+        root.appendChild(picture);
+
+        Attr attr_picture;
+
+        // set a colour attribute to information element
+        if (photoType == PhotoType.DATA)
+        {
+            attr_picture = document.createAttribute("data");
+        }
+        else
+        {
+            attr_picture = document.createAttribute("url");
+        }
+
+        attr_picture.setValue(photoPath);
+        information.setAttributeNode(attr_picture);
 
         return BBInfo;
     }
@@ -525,7 +569,7 @@ public class BBCreateView extends AbstractGenericView
                 imageDetails.add(encodedString);
                 return imageDetails;
             }
-            catch (Exception e)
+            catch (IOException e)
             {
                 return null;
             }
@@ -1014,6 +1058,15 @@ public class BBCreateView extends AbstractGenericView
     protected void addBBCreationListener(MouseListener listener)
     {
         createButton.addMouseListener(listener);
+    }
+
+    /**
+     * Add listener to Preview BB Button
+     * @param listener mouse listener
+     */
+    protected void addBBPreviewListener(MouseListener listener)
+    {
+        previewButton.addMouseListener(listener);
     }
 
     protected enum PhotoType

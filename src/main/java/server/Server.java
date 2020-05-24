@@ -228,9 +228,10 @@ public class Server {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
             case "CreateBillboard":
-                String billboardName = additionalArgs[0];
-                String xmlCode = additionalArgs[1];
-                return BillboardAdmin.createBillboard("userNameReturn",billboardName,xmlCode);
+                String creator = additionalArgs[0];
+                String billboardName = additionalArgs[1];
+                String xmlCode = additionalArgs[2];
+                return BillboardAdmin.createBillboard(creator,billboardName,xmlCode);
             case "EditBillboard":
                 String originalBillboardName = additionalArgs[0];
                 String newXmlCode = additionalArgs[1];
