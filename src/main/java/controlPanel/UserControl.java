@@ -126,18 +126,21 @@ public class UserControl {
     }
 
     /**
-     * Sends a user's request to get a password from the database
-     * Receives a server acknowledgement from the server if user password retrieval failed, otherwise a string password
+     * Sends a user's request to set a password in the database to the server
+     * Hashes the password before sending across to the server
+     * Receives a server acknowledgement from the server - Success or Failure acknowledgment
      * @param sessionToken Session token for the current log in (contains calling user)
-     * @param username the username of the user's password to be retrieved
-     * @return String password, or ServerAcknowledge for error message occurred.
+     * @param username the username of the user's password to be set
+     * @param password the new password to be set
+     * @return ServerAcknowledge for success or error message
      * @throws IOException Thrown if unknown server host when communicating through sockets.
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     * @throws NoSuchAlgorithmException If the hashing algorithm for securing the password is not found
      */
-    public static Object setPasswordRequest(String sessionToken, String username, String password) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
+    public static ServerAcknowledge setPasswordRequest(String sessionToken, String username, String password) throws IOException, ClassNotFoundException, NoSuchAlgorithmException {
         String hashedPassword = hash(password);
         String message = String.format("User,setPassword,%s,%s,%s", sessionToken, username, hashedPassword);
-        return Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 }

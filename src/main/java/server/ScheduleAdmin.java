@@ -212,7 +212,7 @@ public class ScheduleAdmin {
      * This method always returns immediately.
      * @return
      */
-    public String deleteAllSchedules() throws IOException, SQLException {
+    public static String deleteAllSchedules() throws IOException, SQLException {
         String resultMessage;
         connection = DbConnection.getInstance();
         Statement countSchedule = connection.createStatement();
