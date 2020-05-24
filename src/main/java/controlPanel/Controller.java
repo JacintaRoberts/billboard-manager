@@ -523,7 +523,7 @@ public class Controller
             String password = logInView.getPassword();
             model.storeUsername(username);
             model.storeSessionToken("");
-
+            // Attempt to handle the login request
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
                 //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
@@ -535,12 +535,14 @@ public class Controller
                     System.out.println("Please try another password");
                     // show error message
                     logInView.setErrorVisibility(true);
+                    // TODO: POP-UP WINDOW FOR BAD PASSWORD
                     views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
                 } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User");
                     System.out.println("Please try another username");
                     // show error message
                     logInView.setErrorVisibility(true);
+                    // TODO: POP-UP WINDOW FOR BAD PASSWORD
                     views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
                 } else { // login request success
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
