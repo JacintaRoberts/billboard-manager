@@ -164,7 +164,7 @@ public class ScheduleAdmin {
                                         String Saturday) throws IOException, SQLException {
         // Set Parameters and Varaibles
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         // First Check Valid Characters for Billboard String
         if (billboard.matches(validCharacters)) {
             // Get Connection to see if there is a billboard that exists
@@ -252,7 +252,7 @@ public class ScheduleAdmin {
     public static String deleteSchedule(String billboard) throws IOException, SQLException {
         // Set Variables
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
             // Set Connection to see if billboard exists or not
             connection = DbConnection.getInstance();
@@ -413,7 +413,7 @@ public class ScheduleAdmin {
                                        String Saturday) throws IOException, SQLException {
         // Set Parameters
         String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_]+)";
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
         // Check Valid Characters for billboardName
         if (billboard.matches(validCharacters)) {
             // Start conenction to see if billboard exists
