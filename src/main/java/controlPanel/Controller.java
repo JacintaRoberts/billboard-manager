@@ -861,12 +861,9 @@ public class Controller
         ServerAcknowledge errorMessage = Success;
         try {
             serverResponse = UserControl.listUsersRequest(sessionToken);
+            System.out.println(serverResponse);
             // Attempt to cast to a string ArrayList for successful response
             usernames = (ArrayList<String>) serverResponse;
-            for (String username : usernames)
-            {
-                System.out.println(username);
-            }
         } catch (IOException | ClassNotFoundException ex) {
             // TODO: error pop-up window for fatal error
             // terminate Control Panel and restart
