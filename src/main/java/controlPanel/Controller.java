@@ -300,7 +300,6 @@ public class Controller
         // detach old view to stop listening to model
         model.detachObserver(oldView);
         // clean up gui (remove information)
-        System.out.println("CLEANUP");
         oldView.cleanUp();
         // set view as hidden
         oldView.setVisible(false);

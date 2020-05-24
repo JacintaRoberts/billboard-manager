@@ -63,7 +63,6 @@ public abstract class AbstractListView extends AbstractGenericView
             // create one panel per piece of information (i.e. User or BB)
             JPanel contentPanel = new JPanel();
             contentPanel.setLayout(new GridBagLayout());
-            contentPanel.setName(contentName);
 
             // add Edit, Delete and View Button
             JButton editButton = new JButton("Edit");
