@@ -24,11 +24,9 @@ public class UserAdmin {
      */
     public static boolean userExists(String username) throws IOException, SQLException {
         ArrayList<String> user = retrieveUser(username);
-        System.out.println("This was received: " + user.toString());
-        if (!user.isEmpty()) { // If username exists in db (case sensitivity and whitespace)
-            System.out.println("User is not empty.");
-            if (user.get(0).equals(username)) { // Username matches
-                System.out.println("Username matches!");
+        if (!user.isEmpty()) {
+            if (user.get(0).equals(username)) {
+                System.out.println("Username exists in database.");
                 return true;
             }
         }

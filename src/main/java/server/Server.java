@@ -22,6 +22,8 @@ import static server.Server.ServerAcknowledge.*;
 public class Server {
     // Session tokens are stored in memory on server as per the specification
     private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    //TODO: USE UUID FOR SESSION TOKENS TO ENSURE UNIQUENESS
+
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
@@ -63,14 +65,27 @@ public class Server {
         values.add(username);
         values.add(creationTime);
         // Generate session token key
+        //TODO: Could change this to
         Random rng = new Random();
         byte[] sessionTokenBytes = new byte[TOKEN_SIZE]; // Technically there is a very small chance the same token could be generated (primary key clash)
         rng.nextBytes(sessionTokenBytes);
         String sessionToken = bytesToString(sessionTokenBytes);
-        System.out.println("Before keys: " + validSessionTokens.keySet());
         validSessionTokens.put(sessionToken, values);
-        System.out.println("After keys: " + validSessionTokens.keySet());
         return sessionToken;
+    }
+
+
+    /**
+     * Method to determine whether the creation time of a token is acceptable
+     * @param creationTime The creation time of the token
+     * @return Boolean true if the creation time is within 24 hours, false if it is more than 24 hours since creation.
+     */
+    private static boolean tokenIsCurrent(LocalDateTime creationTime){
+        LocalDateTime currentTime = LocalDateTime.now(); // Generate current date time
+        LocalDateTime acceptableTime = currentTime.minusHours(24);
+        System.out.println("Acceptable time is: " + acceptableTime);
+        System.out.println("Session token creation time is: " + creationTime);
+        return creationTime.isAfter(acceptableTime);
     }
 
     /**
@@ -80,17 +95,21 @@ public class Server {
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
         try {
-            System.out.println("All keys: " + validSessionTokens.keySet());
             String username = getUsernameFromToken(sessionToken);
             System.out.println("Username of the session token: " + username);
             if (UserAdmin.userExists(username)) {
-                return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+                // Check if there is a valid session token for the existing user
+                if (validSessionTokens.containsKey(sessionToken)){
+                    LocalDateTime creationTime = (LocalDateTime) validSessionTokens.get(sessionToken).get(1);
+                    return tokenIsCurrent(creationTime); // Determine whether the creation time is still valid
+                }
             }
-        } catch (NullPointerException err) {
+        } catch (NullPointerException err) { // Token does not exist at all
             return false;
         }
         return false; // Return false as the user does not exist anymore or never did
     }
+
 
     /**
      * Retrieves the username of the provided session token
