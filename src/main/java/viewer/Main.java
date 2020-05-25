@@ -3,6 +3,7 @@ package viewer;
 
 import server.ScheduleAdmin;
 
+import javax.swing.text.View;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
@@ -13,12 +14,11 @@ public class Main implements Runnable {
 
     // Contains the server's response (Billboard XML) as a string
     private String serverResponse;
-
+    private static Viewer viewer; // Single instance of the viewer class to prevent multiple windows
 
     @Override
     public void run() {
-        Viewer viewer = new Viewer();
-        System.out.println("Instantiated viewer");
+        // Get current billboard from schedule and display
         try {
             serverResponse = ScheduleAdmin.getCurrentBillboardXML();
             System.out.println("Received from server: " + serverResponse);
@@ -37,9 +37,10 @@ public class Main implements Runnable {
 
 
     public static void main(String[] args ) {
-        Main viewer = new Main();
+        Main viewerMain = new Main();
+        viewer = new Viewer();
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(viewer, 0, 15, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate(viewerMain, 0, 15, TimeUnit.SECONDS);
     }
 
 }
