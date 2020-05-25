@@ -151,4 +151,9 @@ public abstract class AbstractGenericView extends AbstractView
     {
         return gbc_nav;
     }
+
+
+
+
+
 }

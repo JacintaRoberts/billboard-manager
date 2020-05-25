@@ -120,4 +120,11 @@ public abstract class AbstractListView extends AbstractGenericView
         }
         jPanels.clear();
     }
+
+    protected void showBBInvalid()
+    {
+        String message = "Invalid Billboard XML File - cannot read.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
 }

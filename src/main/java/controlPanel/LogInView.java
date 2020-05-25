@@ -117,4 +117,6 @@ public class LogInView extends AbstractView
         usernameField.setText(null);
         passwordField.setText(null);
     }
+
+
 }

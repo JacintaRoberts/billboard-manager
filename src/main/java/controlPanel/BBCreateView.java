@@ -15,10 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -28,6 +25,7 @@ import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
 import static javax.swing.JOptionPane.*;
@@ -883,75 +881,21 @@ public class BBCreateView extends AbstractGenericView
      * Display BB details, upon Editing the BB selected
      * @param xmlStringToDisplay document of BB XML
      */
-    protected void addBBXML(String xmlStringToDisplay)
+    protected boolean addBBXML(String xmlStringToDisplay)
     {
-
-
-
-
-
-
-
-//        // extract xml data into hash map using viewer code
-//        HashMap<String, String> billboardData = extractDataFromXML(docToDisplay);
-//
-//        String backgroundColour = billboardData.get("Background Colour");
-//        String message = billboardData.get("Message");
-//        String messageColour = billboardData.get("Message Colour");
-//        String picture = billboardData.get("Picture");
-//        String pictureType = billboardData.get("Picture Type");
-//        String information = billboardData.get("Information");
-//        String informationColour = billboardData.get("Information Colour");
-//
-//        // Read in the picture
-//        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
-//        PhotoType photoType = null;
-//        if (pictureType.equals("url"))
-//        {
-//            photoType = PhotoType.URL;
-//        }
-//        else if (pictureType.equals("data"))
-//        {
-//            photoType = PhotoType.DATA;
-//        }
-//        setPhoto(new ImageIcon(pictureImage),photoType, picture);
-//
-//        setBBTitle(message);
-//        setBBText(information);
-//
-//        // Check if there's a specific background colour & set, else set it to be white
-//        if (backgroundColour != null)
-//        {
-//            setBackgroundColour(backgroundColour);
-//        }
-//        else {
-//            setBackgroundColour(toHexString(Color.WHITE));
-//        }
-//
-//        // Check if there's a specific message text colour, else set it to be black
-//        if (message != null)
-//        {
-//            if (messageColour != null) {
-//                setBBTitleColour(messageColour);
-//            }
-//            else {
-//                setBBTitleColour(toHexString(Color.BLACK));
-//            }
-//        }
-//
-//        // Check if there's a specific information text colour, else set it to be black
-//        if (information != null)
-//        {
-//            if (informationColour != null)
-//            {
-//                setBBTextColour(informationColour);
-//            }
-//            else {
-//                setBBTextColour(toHexString(Color.BLACK));
-//            }
-//        }
-//        // disable billboard name button as user should not be able to change BB name
-//        setBBNameEnabled(false);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
+        Document document;
+        try
+        {
+            builder = factory.newDocumentBuilder();
+            document = builder.parse( new InputSource( new StringReader( xmlStringToDisplay)));
+            setXMLBB(document);
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     // ###################### LISTENERS ######################
@@ -1095,3 +1039,67 @@ public class BBCreateView extends AbstractGenericView
 //        user.appendChild(doc.createTextNode(info));
 //        return user;
 //    }
+
+
+
+
+//        // extract xml data into hash map using viewer code
+//        HashMap<String, String> billboardData = extractDataFromXML(docToDisplay);
+//
+//        String backgroundColour = billboardData.get("Background Colour");
+//        String message = billboardData.get("Message");
+//        String messageColour = billboardData.get("Message Colour");
+//        String picture = billboardData.get("Picture");
+//        String pictureType = billboardData.get("Picture Type");
+//        String information = billboardData.get("Information");
+//        String informationColour = billboardData.get("Information Colour");
+//
+//        // Read in the picture
+//        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
+//        PhotoType photoType = null;
+//        if (pictureType.equals("url"))
+//        {
+//            photoType = PhotoType.URL;
+//        }
+//        else if (pictureType.equals("data"))
+//        {
+//            photoType = PhotoType.DATA;
+//        }
+//        setPhoto(new ImageIcon(pictureImage),photoType, picture);
+//
+//        setBBTitle(message);
+//        setBBText(information);
+//
+//        // Check if there's a specific background colour & set, else set it to be white
+//        if (backgroundColour != null)
+//        {
+//            setBackgroundColour(backgroundColour);
+//        }
+//        else {
+//            setBackgroundColour(toHexString(Color.WHITE));
+//        }
+//
+//        // Check if there's a specific message text colour, else set it to be black
+//        if (message != null)
+//        {
+//            if (messageColour != null) {
+//                setBBTitleColour(messageColour);
+//            }
+//            else {
+//                setBBTitleColour(toHexString(Color.BLACK));
+//            }
+//        }
+//
+//        // Check if there's a specific information text colour, else set it to be black
+//        if (information != null)
+//        {
+//            if (informationColour != null)
+//            {
+//                setBBTextColour(informationColour);
+//            }
+//            else {
+//                setBBTextColour(toHexString(Color.BLACK));
+//            }
+//        }
+//        // disable billboard name button as user should not be able to change BB name
+//        setBBNameEnabled(false);

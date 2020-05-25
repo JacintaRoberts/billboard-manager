@@ -21,7 +21,7 @@ import static server.Server.ServerAcknowledge.*;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
-    static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
@@ -177,10 +177,11 @@ public class Server {
             case "Schedule":
                 return callScheduleAdminMethod();
             case "Logout":
-                return logout(sessionToken); // Returns string acknowledgement
+                return logout(sessionToken);
             case "Login":
-                String username = clientArgs[1]; // Overwrites method position
-                String hashedPassword = clientArgs[2]; // Overwrites session token position (does not require)
+                // Does not require method argument or session token
+                String username = clientArgs[1];
+                String hashedPassword = clientArgs[2];
                 return login(username, hashedPassword); // Returns session token or fail message
             default:
                 return "No server method requested";
@@ -232,17 +233,15 @@ public class Server {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
             case "CreateBillboard":
-                String creator = additionalArgs[0];
-                String billboardName = additionalArgs[1];
-                System.out.println(additionalArgs.length);
+                String billboardName = additionalArgs[0];
                 String xmlCode;
-                if (additionalArgs.length > 3){
+                if (additionalArgs.length > 2) { // TODO: Refactor to "XML has commas"
                     concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
                     xmlCode = String.join(",",concatString);
                 } else {
-                    xmlCode = additionalArgs[2];
+                    xmlCode = additionalArgs[1];
                 }
-                return BillboardAdmin.createBillboard(creator,billboardName,xmlCode);
+                return BillboardAdmin.createBillboard(sessionToken, billboardName, xmlCode);
             case "EditBillboard":
                 String originalBillboardName = additionalArgs[0];
                 String newXmlCode = additionalArgs[1];
