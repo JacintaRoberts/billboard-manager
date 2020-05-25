@@ -1132,7 +1132,7 @@ public class Controller
 //                    }
 
                     // FIXME: xmlCode will be an XML File
-                    //String createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile, model.getUsername());
+                    // String createBBReq = BillboardControl.createBillboardRequest(sessionToken, bbName, BBXMLFile);
 
                     // show scheduling option - asking user if they want to schedule BB now
                     int optionSelected = bbCreateView.showSchedulingOption();

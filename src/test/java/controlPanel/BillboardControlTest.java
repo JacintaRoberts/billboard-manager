@@ -44,7 +44,7 @@ class BillboardControlTest {
                 "<billboard>\n" +
                 "    <information>Billboard with an information tag, and nothing else. Note that the text is word-wrapped. The quick brown fox jumped over the lazy dogs.</information>\n" +
                 "</billboard>";
-        String serverResponse = billboardControl.createBillboardRequest("sampleToken", "Test User","newBillboard1", xmlCode);
+        String serverResponse = billboardControl.createBillboardRequest("sampleToken","newBillboard1", xmlCode);
         assertEquals( "Pass: Billboard Created", serverResponse);
         getABillboardInformationRequestPass();
     }

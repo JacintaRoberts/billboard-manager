@@ -16,18 +16,11 @@ public class BillboardControl
      * @param  sessionToken A sessionToken generated when logged in
      * @param  billboardName A String which provides Billboard Name to store into database
      * @param  xmlCode A String which provides xmlCode to store into database
-     * @return
+     * @return ServerAcknowledge TODO: Refactor BillboardAdmin/ScheduleAdmin to use ServerAcknowledge Return type
      */
-    public static String createBillboardRequest(String sessionToken,
-                                                String userName,
-                                                String billboardName,
+    public static String createBillboardRequest(String sessionToken, String billboardName,
                                                 String xmlCode) throws IOException, ClassNotFoundException {
-    String message = String.format("Billboard,CreateBillboard,%s,%s,%s,%s",
-            sessionToken,
-            userName,
-            billboardName,
-            xmlCode);
-    System.out.println(message);
+    String message = String.format("Billboard,CreateBillboard,%s,%s,%s", sessionToken, billboardName, xmlCode);
     return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
