@@ -228,18 +228,17 @@ public class Server {
      * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
      * @return Server's response (Object which contains data from database/acknowledgement)
-     */
+     */ // TODO: JACINTA WILL REFACTOR THESE METHODS TO RETURN SERVER ACKNOWLEDGE RATHER THAN HARD-CODED STRING
     private static Object callBillboardAdminMethod() throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
             case "CreateBillboard":
                 String billboardName = additionalArgs[0];
-                String xmlCode;
-                if (additionalArgs.length > 2) { // TODO: Refactor to "XML has commas"
+                String xmlCode = additionalArgs[1]; // default
+                if ( xmlHasCommas() ) {
+                    // Rejoin the XML code into a single variable
                     concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
-                    xmlCode = String.join(",",concatString);
-                } else {
-                    xmlCode = additionalArgs[1];
+                    xmlCode = String.join(",", concatString);
                 }
                 return BillboardAdmin.createBillboard(sessionToken, billboardName, xmlCode);
             case "EditBillboard":
@@ -261,6 +260,15 @@ public class Server {
         }
     }
 
+    /*
+    Method to determine whether the xml provided has commas in the message
+     */
+    private static Boolean xmlHasCommas() {
+        if ( additionalArgs.length > 2 ) {
+            return true;
+        }
+        return false;
+    }
 
 
     /**
