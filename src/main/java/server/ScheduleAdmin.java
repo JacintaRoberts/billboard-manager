@@ -755,91 +755,95 @@ public class ScheduleAdmin {
      * @return Returns a ScheduleList object with imputed results for schedules.
      * Contains information on all fields. Each field is an array and can be read via getters.
      */
-    public static ScheduleList viewAllDaySchedule(ScheduleList scheduleList) throws IOException, SQLException {
-        // Initialise allDaySchedule object
-        ScheduleList allDaySchedule = null;
-        // Initialise ArrayList to build return Variable
-        ArrayList<String> retrievedBillboard = new ArrayList<>();
-        ArrayList<String> retrievedStartTime = new ArrayList<>();
-        ArrayList<String> retrievedDuration = new ArrayList<>();
-        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
-        ArrayList<String> retrievedRepeat = new ArrayList<>();
-        ArrayList<String> retrievedSunday = new ArrayList<>();
-        ArrayList<String> retrievedMonday = new ArrayList<>();
-        ArrayList<String> retrievedTuesday = new ArrayList<>();
-        ArrayList<String> retrievedWednesday = new ArrayList<>();
-        ArrayList<String> retrievedThursday = new ArrayList<>();
-        ArrayList<String> retrievedFriday = new ArrayList<>();
-        ArrayList<String> retrievedSaturday = new ArrayList<>();
-        // Set Constant Variables used for computation
-        int numBillboards = scheduleList.getScheduleBillboardName().size();
-        LocalTime endTime = LocalTime.parse("23:59");
-        // Set Local Variables for temporary storage and computation
-        LocalTime startTime ;
-        int repeatMinutes ;
-        int minTillEnd ;
-        int extraSched;
-        int duration ;
-        String billboardName;
-        String creationDateTime;
-        String Sunday;
-        String Monday;
-        String Tuesday;
-        String Wednesday;
-        String Thursday;
-        String Friday;
-        String Saturday;
-        // Run through all of the billboard schedule present
-        for (int i = 0; i < numBillboards; i++) {
-            billboardName = scheduleList.getScheduleBillboardName().get(i);
-            startTime = LocalTime.parse(scheduleList.getStartTime().get(i)) ;
-            repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
-            duration = Integer.parseInt(scheduleList.getDuration().get(i));
-            creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
-            minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
-            extraSched = minTillEnd / repeatMinutes;
-            Sunday = scheduleList.getSunday().get(i);
-            Monday = scheduleList.getMonday().get(i);
-            Tuesday = scheduleList.getTuesday().get(i);
-            Wednesday = scheduleList.getWednesday().get(i);
-            Thursday = scheduleList.getThursday().get(i);
-            Friday = scheduleList.getFriday().get(i);
-            Saturday = scheduleList.getSaturday().get(i);
-            // Genearte all possible imputation of schedules and store into temporary arraylist
-            for (int j = 0; j <= extraSched; j++){
-                retrievedBillboard.add(billboardName);
-                retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes)));
-                retrievedDuration.add(String.valueOf(duration));
-                retrievedCreationDateTime.add(creationDateTime);
-                retrievedRepeat.add(String.valueOf(repeatMinutes));
-                retrievedSunday.add(Sunday);
-                retrievedMonday.add(Monday);
-                retrievedTuesday.add(Tuesday);
-                retrievedWednesday.add(Wednesday);
-                retrievedThursday.add(Thursday);
-                retrievedFriday.add(Friday);
-                retrievedSaturday.add(Saturday);
+    public static ScheduleList viewAllDaySchedule(ScheduleList scheduleList) {
+        try {
+            // Initialise allDaySchedule object
+            ScheduleList allDaySchedule = null;
+            // Initialise ArrayList to build return Variable
+            ArrayList<String> retrievedBillboard = new ArrayList<>();
+            ArrayList<String> retrievedStartTime = new ArrayList<>();
+            ArrayList<String> retrievedDuration = new ArrayList<>();
+            ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+            ArrayList<String> retrievedRepeat = new ArrayList<>();
+            ArrayList<String> retrievedSunday = new ArrayList<>();
+            ArrayList<String> retrievedMonday = new ArrayList<>();
+            ArrayList<String> retrievedTuesday = new ArrayList<>();
+            ArrayList<String> retrievedWednesday = new ArrayList<>();
+            ArrayList<String> retrievedThursday = new ArrayList<>();
+            ArrayList<String> retrievedFriday = new ArrayList<>();
+            ArrayList<String> retrievedSaturday = new ArrayList<>();
+            // Set Constant Variables used for computation
+            int numBillboards = scheduleList.getScheduleBillboardName().size();
+            LocalTime endTime = LocalTime.parse("23:59");
+            // Set Local Variables for temporary storage and computation
+            LocalTime startTime;
+            int repeatMinutes;
+            int minTillEnd;
+            int extraSched;
+            int duration;
+            String billboardName;
+            String creationDateTime;
+            String Sunday;
+            String Monday;
+            String Tuesday;
+            String Wednesday;
+            String Thursday;
+            String Friday;
+            String Saturday;
+            // Run through all of the billboard schedule present
+            for (int i = 0; i < numBillboards; i++) {
+                billboardName = scheduleList.getScheduleBillboardName().get(i);
+                startTime = LocalTime.parse(scheduleList.getStartTime().get(i));
+                repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
+                duration = Integer.parseInt(scheduleList.getDuration().get(i));
+                creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
+                minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
+                extraSched = minTillEnd / repeatMinutes;
+                Sunday = scheduleList.getSunday().get(i);
+                Monday = scheduleList.getMonday().get(i);
+                Tuesday = scheduleList.getTuesday().get(i);
+                Wednesday = scheduleList.getWednesday().get(i);
+                Thursday = scheduleList.getThursday().get(i);
+                Friday = scheduleList.getFriday().get(i);
+                Saturday = scheduleList.getSaturday().get(i);
+                // Genearte all possible imputation of schedules and store into temporary arraylist
+                for (int j = 0; j <= extraSched; j++) {
+                    retrievedBillboard.add(billboardName);
+                    retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j * repeatMinutes)));
+                    retrievedDuration.add(String.valueOf(duration));
+                    retrievedCreationDateTime.add(creationDateTime);
+                    retrievedRepeat.add(String.valueOf(repeatMinutes));
+                    retrievedSunday.add(Sunday);
+                    retrievedMonday.add(Monday);
+                    retrievedTuesday.add(Tuesday);
+                    retrievedWednesday.add(Wednesday);
+                    retrievedThursday.add(Thursday);
+                    retrievedFriday.add(Friday);
+                    retrievedSaturday.add(Saturday);
+                }
             }
+            // Generate Response message
+            String serverResponse = "Pass: All Day Schedule Returned";
+            // Create ruturn allDayScheduleObject
+            allDaySchedule = new ScheduleList(serverResponse,
+                    retrievedBillboard,
+                    retrievedStartTime,
+                    retrievedDuration,
+                    retrievedCreationDateTime,
+                    retrievedRepeat,
+                    retrievedSunday,
+                    retrievedMonday,
+                    retrievedTuesday,
+                    retrievedWednesday,
+                    retrievedThursday,
+                    retrievedFriday,
+                    retrievedSaturday
+            );
+            // Return Schedule
+            return allDaySchedule;
+        } catch (DateTimeParseException e) {
+            return null; // FIXME: Band-aid fix. If no schedule exists it will try to parse "0" to a date-time
         }
-        // Generate Response message
-        String serverResponse = "Pass: All Day Schedule Returned";
-        // Create ruturn allDayScheduleObject
-        allDaySchedule = new ScheduleList(serverResponse,
-                retrievedBillboard,
-                retrievedStartTime,
-                retrievedDuration,
-                retrievedCreationDateTime,
-                retrievedRepeat,
-                retrievedSunday,
-                retrievedMonday,
-                retrievedTuesday,
-                retrievedWednesday,
-                retrievedThursday,
-                retrievedFriday,
-                retrievedSaturday
-        );
-        // Return Schedule
-        return allDaySchedule;
     }
 
     /**
