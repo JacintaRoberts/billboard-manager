@@ -151,4 +151,49 @@ public abstract class AbstractGenericView extends AbstractView
     {
         return gbc_nav;
     }
+
+    //---------------------------------- POP-UP WINDOWS ------------------------------
+
+    /**
+     * Pop-up window to handle InsufficientPermission ServerAcknowledgement
+     */
+    public void showInsufficientPermissionsException() {
+        String message = "You do not have the necessary permissions to perform this action.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Pop-up window to let the user know the creation event was successful
+     */
+    protected void showCreateSuccess() {
+        String message = "Creation was successful.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Pop-up window to let the user know that create user failed because that username already exists
+     */
+    protected void showUsernamePrimaryKeyClashException() {
+        String message = "A user with that username already exists, input a different username!";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Pop-up window to let the user know the deletion event was successful
+     */
+    protected void showDeleteSuccess() {
+        String message = "Deletion was successful.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Pop-up window to let the user know that deletion failed because they cannot delete their own user
+     */
+    protected void showCannotDeleteSelfException() {
+        String message = "You cannot delete your own user!";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+
 }

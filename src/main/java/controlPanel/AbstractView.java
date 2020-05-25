@@ -113,4 +113,31 @@ public abstract class AbstractView extends JFrame implements Observer
     abstract Main.VIEW_TYPE getEnum();
 
     abstract void cleanUp();
+
+    /**
+     * Pop-up window to handle fatal error occurred (if something goes drastically wrong on the server)
+     */
+    protected void showFatalError() {
+        String message = "A fatal error has occurred - restart control panel.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+    /**
+     * Pop-up window to handle NoSuchUser ServerAcknowledgement
+     */
+    protected void showNoSuchUserException() {
+        String message = "Username does not exist.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Pop-up window to handle InvalidToken ServerAcknowledgement
+     */
+    protected void showInvalidTokenException() {
+        String message = "Expired token. Please login to your account again.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
 }

@@ -443,29 +443,7 @@ public class Controller
             userProfileView.setUsername(username);
 
             // Get user permissions from server
-            try {
-                serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
-                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
-                // FIXME: setPermissions is wrong mapping
-                userProfileView.setPermissions(userPermissions);
-            } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
-                // terminate Control Panel and restart
-                ex.printStackTrace();
-                // Error handling
-            } catch ( ClassCastException ex ) {
-                if ( serverResponse.equals(InvalidToken )) {
-                    // TODO: error pop-up window for expired session
-                    // navigate to logout/login screen
-                } else if ( serverResponse.equals(InsufficientPermission) ) {
-                    // TODO: error pop-up window for insufficient permissions
-                    // display notice of insufficient permission and tell them edit Permissions failed
-                } else if (serverResponse.equals(NoSuchUser)) {
-                    // TODO: error pop-up window for deleted user
-                    // display error and navigate to logout/login screen
-                }
-            }
-            views.put(USER_PROFILE, userProfileView);
+            getUserPermissionsFromServer(userProfileView, USER_PROFILE, username);
 
             // navigate to home screen
             updateView(USER_PROFILE);
@@ -481,13 +459,14 @@ public class Controller
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Log Out button clicked");
+            LogInView logInView = (LogInView) views.get(VIEW_TYPE.LOGIN);
             // Retrieve server response
             try {
                 String sessionToken = model.getSessionToken(); // Retrieve session token
                 serverResponse = logoutRequest(sessionToken); // CP Backend method call
                 System.out.println("Received from server: " + serverResponse);
             } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
+                logInView.showFatalError();
                 // terminate Control Panel and restart
                 ex.printStackTrace();
             }
@@ -495,11 +474,11 @@ public class Controller
             // If successful, let the user know, navigate to login screen
             if (serverResponse.equals(Success)) {
                 System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
-                //DisplayLogoutSuccess(); // TODO: Implement some visual acknowledgement to user
-            // Error handling as follows:
-            } else { // Session token was already expired
+                logInView.showLogoutSuccess();
+            // Error handling as follows
+            } else {
                 System.out.println("CONTROLLER LEVEL - Session Token Was Already Expired!");
-                //DisplaySessionTokenExpired(); //TODO: Implement some visual acknowledgement to user
+                logInView.showInvalidTokenException();
             }
             // Navigate to log in screen for both cases
             updateView(LOGIN);
@@ -539,32 +518,26 @@ public class Controller
                 if (serverResponse.equals(BadPassword)) {
                     System.out.println("CONTROLLER LEVEL - Incorrect Password");
                     System.out.println("Please try another password");
-                    // show error message
-                    logInView.setErrorVisibility(true);
-                    // TODO: POP-UP WINDOW FOR BAD PASSWORD
-                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID PASSWORD
+                    logInView.showBadPasswordException();
+                    views.put(VIEW_TYPE.LOGIN, logInView);
                 } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User");
                     System.out.println("Please try another username");
-                    // show error message
-                    logInView.setErrorVisibility(true);
-                    // TODO: POP-UP WINDOW FOR BAD PASSWORD
-                    views.put(VIEW_TYPE.LOGIN, logInView); //TODO: IMPLEMENT SOME LOGIC TO HAVE THE USER TRY TO RE-ENTER VALID USERNAME
+                    logInView.showNoSuchUserException();
+                    views.put(VIEW_TYPE.LOGIN, logInView);
                 } else { // login request success
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
                     // store username and session token in model
                     model.storeUsername(username);
                     sessionToken = (String) serverResponse; // Store as a session token
                     model.storeSessionToken(sessionToken);
-                    // hide error string
-                    logInView.setErrorVisibility(false);
                     views.put(VIEW_TYPE.LOGIN, logInView);
                     // nav user to home screen
                     updateView(VIEW_TYPE.HOME);
                 }
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
-                // TODO: error pop-up window for fatal error
-                // terminate Control Panel and restart
+                logInView.showFatalError();
+                // TODO: terminate Control Panel and restart
                 ex.printStackTrace();
             }
         }
@@ -605,29 +578,9 @@ public class Controller
             // set username, password and permissions in User Edit View
             userEditView.setUsername(usernameSelected);
 
+
             // Get user permissions from server
-            try {
-                serverResponse = UserControl.getPermissionsRequest(sessionToken, usernameSelected);
-                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
-                // FIXME: setPermissions is wrong mapping
-                userEditView.setPermissions(userPermissions);
-            } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
-                // terminate Control Panel and restart
-                ex.printStackTrace();
-                // Error handling
-            } catch ( ClassCastException ex ) {
-                if (serverResponse.equals(InvalidToken)) {
-                    // TODO: error pop-up window for expired session
-                    // navigate to logout/login screen
-                } else if ( serverResponse.equals(InsufficientPermission) ) {
-                    // TODO: error pop-up window for insufficient permissions
-                    // display notice of insufficient permission and tell them edit Permissions failed
-                } else if (serverResponse.equals(NoSuchUser)) {
-                    // TODO: error pop-up window for deleted user
-                    // display error and navigate to logout/login screen
-                }
-            }
+            getUserPermissionsFromServer(userEditView, USER_PROFILE, usernameSelected);
 
             // set Title of Screen
             userEditView.setBBFrameTitle("EDIT USER");
@@ -676,7 +629,7 @@ public class Controller
             // if valid user input, ask user to confirm user creation
             if (validUserInput)
             {
-                int response = userEditView.showCreateUserConfirmation();
+                int response = userEditView.showCreateUserConfirmation(); // FIXME: Patrice should this be userCreateView?
                 // add user to DB if user confirms user creation
                 if (response == 0)
                 {
@@ -695,23 +648,22 @@ public class Controller
                         serverResponse = UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
                     } catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex) {
                         ex.printStackTrace();
-                        // TODO: error pop-up window for fatal error
-                        // terminate Control Panel and restart
+                        userEditView.showFatalError();
+                        // TODO: terminate Control Panel and restart
                     }
 
                     // Filter response and display appropriate action
                     if (serverResponse.equals(Success)) {
-                        // TODO: success pop up window
+                        userEditView.showCreateSuccess();
                     }
                     else if (serverResponse.equals(InvalidToken)) {
-                        // TODO: error pop up window for expired session
-                        // navigate to logout/login screen
+                        userEditView.showInvalidTokenException();
+                        // TODO: navigate to logout/login screen
                     } else if (serverResponse.equals(InsufficientPermission)) {
-                        // TODO: error pop up window for insufficient permissions
-                        // let the user know they don't have necessary permissions
+                        userEditView.showInsufficientPermissionsException();
                     } else if (serverResponse.equals(PrimaryKeyClash)) {
-                        // TODO: error pop up window for username already exists
-                        // let the user know that the username already exists and to input a different one
+                        userEditView.showUsernamePrimaryKeyClashException();
+                        // TODO: Give user a chance to type in a new username (clear existing)
                 }
                 views.put(USER_EDIT, userEditView);
 
@@ -749,7 +701,7 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Delete User button clicked");
             JButton button = (JButton) e.getSource();
             String username = button.getName();
-            UserListView userListView = (UserListView) views.get(USER_LIST);
+            UserListView userListView = (UserListView) views.get(USER_LIST); //TODO: Patrice can you check if this should be a deleteUserView.
             // ask user to confirm deletion of user
             int response = userListView.showDeleteConfirmation();
 
@@ -761,30 +713,29 @@ public class Controller
                 try {
                     String sessionToken = model.getSessionToken(); // Retrieve session token
                     serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
-                    //System.out.println("RESPONSE FROM SERVER: " + serverResponse);
                 } catch (IOException | ClassNotFoundException ex) {
-                    // TODO: error pop-up window for fatal error
-                    // terminate Control Panel and restart
+                    userListView.showFatalError();
+                    // TODO: terminate Control Panel and restart
                     ex.printStackTrace();
                 }
 
                 // If successful, let the user know
                 if (serverResponse.equals(Success)) {
                     System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
-                    //DisplayUserDeletedSuccess(); // TODO: Implement some visual acknowledgement to user
-                // Error handling on GUI as follows
+                    userListView.showDeleteSuccess();
+                // Error handling on GUI via pop-up windows
                 } else if (serverResponse.equals(InsufficientPermission)) {
                     System.out.println("CONTROLLER LEVEL - Insufficient Permission");
-                    //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+                    userListView.showInsufficientPermissionsException();
                 } else if (serverResponse.equals(InvalidToken)) {
                     System.out.println("CONTROLLER LEVEL - Invalid Token");
-                    //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+                    userListView.showInvalidTokenException();
                 } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User Found in DB to be Deleted");
-                    //DisplayUserAlreadyDeleted(); //TODO: Implement some visual acknowledgement to user
+                    userListView.showNoSuchUserException();
                 } else if (serverResponse.equals(CannotDeleteSelf)) {
                     System.out.println("CONTROLLER LEVEL - Cannot Delete Your Own User");
-                    //DisplayCannotDeleteSelf(); //TODO: Implement some visual acknowledgement to user
+                    userListView.showCannotDeleteSelfException();
                 }
 
                 // navigate back to the same page to refresh view
@@ -811,29 +762,7 @@ public class Controller
             userPreviewView.setUsername(usernameSelected);
 
             // Get user permissions from server
-            try {
-                serverResponse = UserControl.getPermissionsRequest(sessionToken, usernameSelected);
-                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
-                // FIXME: setPermissions is wrong mapping
-                userPreviewView.setPermissions(userPermissions);
-            } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
-                // terminate Control Panel and restart
-                ex.printStackTrace();
-                // Error handling
-            } catch ( ClassCastException ex ) {
-                if (serverResponse.equals(InvalidToken)) {
-                    // TODO: error pop-up window for expired session
-                    // navigate to logout/login screen
-                } else if ( serverResponse.equals(InsufficientPermission) ) {
-                    // TODO: error pop-up window for insufficient permissions
-                    // display notice of insufficient permission and tell them edit Permissions failed
-                } else if (serverResponse.equals(NoSuchUser)) {
-                    // TODO: error pop-up window for deleted user
-                    // display error and navigate to logout/login screen
-                }
-            }
-            views.put(USER_VIEW, userPreviewView);
+            getUserPermissionsFromServer(userPreviewView, USER_VIEW, usernameSelected);
 
             updateView(USER_VIEW);
         }
@@ -864,8 +793,8 @@ public class Controller
             // Attempt to cast to a string ArrayList for successful response
             usernames = (ArrayList<String>) serverResponse;
         } catch (IOException | ClassNotFoundException ex) {
-            // TODO: error pop-up window for fatal error
-            // terminate Control Panel and restart
+            userListView.showFatalError();
+            // TODO: terminate Control Panel and restart
             ex.printStackTrace();
         } catch (ClassCastException ex) {
             // Otherwise, some other error message was returned from the server
@@ -875,10 +804,10 @@ public class Controller
         // Error handling on GUI as follows
         if (errorMessage.equals(InsufficientPermission)) {
             System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
-            //DisplayInsufficientPermission(); //TODO: Implement some visual acknowledgement to user
+            userListView.showInsufficientPermissionsException();
         } else if (serverResponse.equals(InvalidToken)) {
             System.out.println("CONTROLLER LEVEL - Invalid Token");
-            //DisplayInvalidSessionToken(); //TODO: Implement some visual acknowledgement to user
+            userListView.showInvalidTokenException();
         } else { // Successful, let the user know and populate with list of users
             userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
             views.put(USER_LIST, userListView);
@@ -900,50 +829,46 @@ public class Controller
 
             // set username, password and permissions in Profile View
             userEditView.setUsername(username);
+
             // Get user permissions from server
-            try {
-                serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
-                ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
-                // FIXME: setPermissions is wrong mapping
-                userEditView.setPermissions(userPermissions);
-            } catch (IOException | ClassNotFoundException ex) {
-                // TODO: error pop-up window for fatal error
-                //TODO: HERE! IS AN EXAMPLE POP-UP WINDOW
-
-                // getCurrentFrame reference to GUI
-                //BBListView bbListView = (BBListView) views.get(BB_LIST);
-                //bbListView.showBBInvalid();
-                //views.put(BB_LIST, BBListView);
-
-                // in bblistview class
-                // protected void showBBINvalid()
-                //{
-                //  String message = "hello";
-                //    JOptionPane.showMessageDialog(null, message);
-                //}
-
-                // terminate Control Panel and restart
-                ex.printStackTrace();
-                // Error handling
-            } catch ( ClassCastException ex ) {
-                if (serverResponse.equals(InvalidToken)) {
-                    // TODO: error pop-up window for expired session
-                    // navigate to logout/login screen
-                } else if ( serverResponse.equals(InsufficientPermission) ) {
-                    // TODO: error pop-up window for insufficient permissions
-                    // display notice of insufficient permission and tell them edit Permissions failed
-                } else if (serverResponse.equals(NoSuchUser)) {
-                    // TODO: error pop-up window for deleted user
-                    // display error and navigate to logout/login screen
-                }
-            }
-
-            views.put(USER_EDIT, userEditView);
+            getUserPermissionsFromServer(userEditView, USER_EDIT, username);
 
             // navigate to edit users
             updateView(USER_EDIT);
         }
     }
+
+    /**
+     * Get user permissions from server, store in view and display appropriate error message pop-up windows/actions
+     */
+    private void getUserPermissionsFromServer(AbstractUserView userView, VIEW_TYPE viewType, String username) {
+        try {
+            serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
+            ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
+            // FIXME: setPermissions is wrong mapping
+            userView.setPermissions(userPermissions);
+            views.put(viewType, userView);
+        } catch (IOException | ClassNotFoundException ex) {
+            userView.showFatalError();
+            views.put(viewType, userView);
+            // TODO: terminate Control Panel and restart
+            ex.printStackTrace();
+            // If the return is not an array list of booleans, an exception occurred
+        } catch ( ClassCastException ex ) {
+            if (serverResponse.equals(InvalidToken)) {
+                userView.showInvalidTokenException();
+                // TODO: navigate to logout/login screen
+            } else if ( serverResponse.equals(InsufficientPermission) ) {
+                userView.showInsufficientPermissionsException();
+            } else if (serverResponse.equals(NoSuchUser)) {
+                userView.showNoSuchUserException();
+                // TODO: navigate to logout/login screen
+            }
+            views.put(viewType, userView);
+        }
+    }
+
+
 
     //---------------------------------- BB LISTENERS ------------------------------
 
@@ -1003,7 +928,7 @@ public class Controller
                 // FIXME: getXMLCode should return file not a string
                 File xmlFile = null;
                 //File xmlFile = billboardObject.getXMLCode();
-                bbCreateView.addBBXML(xmlFile);
+                //bbCreateView.addBBXML(xmlFile);
             }
             catch (IOException | ClassNotFoundException ex)
             {

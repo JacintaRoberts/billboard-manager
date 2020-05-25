@@ -115,4 +115,21 @@ public class LogInView extends AbstractView
     void cleanUp() {
 
     }
+
+    /**
+     * Pop-up window to let the user know the logout was successful
+     */
+    protected void showLogoutSuccess() {
+        String message = "Logout was successful.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+    /**
+     * Pop-up window to let the user know the logout was successful
+     */
+    protected void showBadPasswordException() {
+        String message = "Password was incorrect.";
+        JOptionPane.showMessageDialog(null, message);
+    }
 }
