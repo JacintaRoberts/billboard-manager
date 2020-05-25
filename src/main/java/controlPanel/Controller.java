@@ -67,6 +67,7 @@ public class Controller
         addUserListListener();
         addUserEditListener();
         addUserPreviewListener();
+        addUserCreateListener();
 
         addBBMenuListener();
         addBBCreateListener();
@@ -179,8 +180,8 @@ public class Controller
     {
         addGenericListeners(USER_EDIT);
         UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-        userEditView.addSubmitButtonListener(new UserCreateButtonListener());
-        userEditView.addPasswordButtonListener(new UserPasswordSetButtonListener());
+        userEditView.addSubmitButtonListener(new UserPermissionUpdateListener());
+        userEditView.addPasswordButtonListener(new UserPasswordUpdateButtonListener());
         views.put(USER_EDIT, userEditView);
     }
 
@@ -193,6 +194,15 @@ public class Controller
         addGenericListeners(USER_VIEW);
         UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
         views.put(USER_VIEW, userPreviewView);
+    }
+
+    private void addUserCreateListener()
+    {
+        addGenericListeners(USER_CREATE);
+        UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
+        userCreateView.addSubmitButtonListener(new UserCreateButtonListener());
+        userCreateView.addPasswordButtonListener(new UserPasswordCreateButtonListener());
+        views.put(USER_CREATE, userCreateView);
     }
 
     //------------------------------------ BB LISTENER --------------------------------
@@ -658,12 +668,10 @@ public class Controller
             // set username, password and permissions in User Edit View
             userEditView.setUsername(usernameSelected);
 
-
             // Get user permissions from server
-            getUserPermissionsFromServer(userEditView, USER_PROFILE, usernameSelected);
+            // FIXME: JACINTA - what is this doing? Should it be returning something?
+            getUserPermissionsFromServer(userEditView, USER_EDIT, usernameSelected);
 
-            // set Title of Screen
-            userEditView.setBBFrameTitle("EDIT USER");
             views.put(USER_EDIT, userEditView);
 
             // navigate to user edit screen
@@ -680,21 +688,43 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Create User button clicked");
-
-            //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
-
-            // update information in CREATE USER view
-            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            userEditView.setBBFrameTitle("CREATE USER");
-            views.put(USER_EDIT, userEditView);
-
             // navigate to edit user screen
-            updateView(USER_EDIT);
+            updateView(USER_CREATE);
         }
     }
 
     /**
      * Listener to handle Submit New User Button mouse clicks.
+     */
+    private class UserPermissionUpdateListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e) {
+            System.out.println("CONTROLLER LEVEL: Submit new user permission button clicked");
+
+            // update information in EDIT USER view
+            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+
+            ArrayList<Boolean> userArray = userEditView.getUserInfo();
+
+            // Parsing elements from user array for the UserControl method to update user permission
+            Boolean createBillboards = userArray.get(0);
+            Boolean editBillboards = userArray.get(1);
+            Boolean editSchedules = userArray.get(2);
+            Boolean editUsers = userArray.get(3);
+
+            for (Boolean bool : userArray) {
+                System.out.println(bool);
+            }
+
+            // FIXME: JACINTA USERCONTROL SET PERMISSIONS & HANDLE ERRORS ETC.
+            // FIXME: you can use userEditView.showUserConfirmation() for a pop up window asking user to proceed
+        }
+
+    }
+
+    /**
+     * Listener to handle Edit User Button mouse clicks.
      */
     private class UserCreateButtonListener extends MouseAdapter
     {
@@ -704,70 +734,96 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
 
             // update information in EDIT USER view
-            UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            boolean validUserInput = userEditView.checkValidUser();
+            UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
+            boolean validUserInput = userCreateView.checkValidUser();
             // if valid user input, ask user to confirm user creation
             if (validUserInput)
             {
-                int response = userEditView.showCreateUserConfirmation(); // FIXME: Patrice should this be userCreateView?
+                int response = userCreateView.showCreateUserConfirmation();
                 // add user to DB if user confirms user creation
                 if (response == 0)
                 {
-                    ArrayList<Object> userArray = userEditView.getUserInfo();
+                    ArrayList<Object> userArray = userCreateView.getUserInfo();
 
                     // Parsing elements from user array for the UserControl method to create the request to server
                     String username = (String) userArray.get(0);
                     String password = (String) userArray.get(1);
-                    Boolean createBillboards = (Boolean) userArray.get(5);
-                    Boolean editBillboards = (Boolean) userArray.get(2);
-                    Boolean editSchedules = (Boolean) userArray.get(3);
-                    Boolean editUsers = (Boolean) userArray.get(4);
+                    Boolean createBillboards = (Boolean) userArray.get(2);
+                    Boolean editBillboards = (Boolean) userArray.get(3);
+                    Boolean editSchedules = (Boolean) userArray.get(4);
+                    Boolean editUsers = (Boolean) userArray.get(5);
 
                     // Retrieve server response
                     try {
                         serverResponse = UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
                     } catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex) {
                         ex.printStackTrace();
-                        userEditView.showFatalError();
+                        userCreateView.showFatalError();
                         // TODO: terminate Control Panel and restart
                     }
 
                     // Filter response and display appropriate action
                     if (serverResponse.equals(Success)) {
-                        userEditView.showCreateSuccess();
+                        userCreateView.showCreateSuccess();
                     }
                     else if (serverResponse.equals(InvalidToken)) {
-                        userEditView.showInvalidTokenException();
+                        userCreateView.showInvalidTokenException();
                         // TODO: navigate to logout/login screen
                     } else if (serverResponse.equals(InsufficientPermission)) {
-                        userEditView.showInsufficientPermissionsException();
+                        userCreateView.showInsufficientPermissionsException();
                     } else if (serverResponse.equals(PrimaryKeyClash)) {
-                        userEditView.showUsernamePrimaryKeyClashException();
+                        userCreateView.showUsernamePrimaryKeyClashException();
                         // TODO: Give user a chance to type in a new username (clear existing)
-                }
-                views.put(USER_EDIT, userEditView);
-                System.out.println(model.getCurrentView());
+                    }
+                    views.put(USER_CREATE, userCreateView);
+                    System.out.println(model.getCurrentView());
 
-                // navigate to edit menu screen
-                updateView(USERS_MENU);
+                    // navigate to edit menu screen
+                    updateView(USERS_MENU);
                 }
             }
             else
             {
-                userEditView.showErrorMessage();
+                userCreateView.showErrorMessage();
             }
         }
     }
 
-    private class UserPasswordSetButtonListener extends MouseAdapter
+    private class UserPasswordUpdateButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: User Password Set button clicked");
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
-            userEditView.showNewPasswordInput();
+            String password = userEditView.showNewPasswordInput();
+
+            if (password != null)
+            {
+                // FIXME: JACINTA - USERCONTROL UPDATE PASSWORD - HANDLE ERRORS
+                try {
+                    ServerAcknowledge serverAcknowledge = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
+                    // FIXME: JACINTA maybe add a pop up window saying that password has been changed successfully?
+                } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                    ex.printStackTrace();
+                }
+            }
+
+
             views.put(USER_EDIT, userEditView);
+        }
+    }
+
+
+    private class UserPasswordCreateButtonListener extends MouseAdapter
+    {
+        @Override
+        public void mouseClicked(MouseEvent e)
+        {
+            System.out.println("CONTROLLER LEVEL: User Password Set button clicked");
+            UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
+            userCreateView.showNewPasswordInput();
+            views.put(USER_CREATE, userCreateView);
         }
     }
 
@@ -820,7 +876,7 @@ public class Controller
                 }
 
                 // navigate back to the same page to refresh view
-                updateView(USER_LIST);
+                updateView(USERS_MENU);
             }
         }
     }
@@ -929,10 +985,10 @@ public class Controller
             ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
             // FIXME: setPermissions is wrong mapping
             userView.setPermissions(userPermissions);
-            //views.put(viewType, userView);
+            views.put(viewType, userView);
         } catch (IOException | ClassNotFoundException ex) {
             userView.showFatalError();
-            //views.put(viewType, userView);
+            views.put(viewType, userView);
             // TODO: terminate Control Panel and restart
             ex.printStackTrace();
             // If the return is not an array list of booleans, an exception occurred
@@ -946,7 +1002,7 @@ public class Controller
                 userView.showNoSuchUserException();
                 // TODO: navigate to logout/login screen
             }
-            //views.put(viewType, userView);
+            views.put(viewType, userView);
         }
     }
 
@@ -1059,7 +1115,7 @@ public class Controller
                     ex.printStackTrace();
                 }
                 // navigate to bb list screen to refresh screen
-                updateView(BB_LIST);
+                updateView(BB_MENU);
             }
             views.put(BB_LIST, bbListView);
         }

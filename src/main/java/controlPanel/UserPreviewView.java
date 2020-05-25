@@ -16,7 +16,8 @@ public class UserPreviewView extends AbstractUserView
         super("Preview User");
         view_type = VIEW_TYPE.USER_VIEW;
         setEditable(false);
-        setBBFrameTitle("VIEW USER");
+        usernameText.setEditable(false);
+        title.setText("VIEW USER");
     }
 
     @Override
