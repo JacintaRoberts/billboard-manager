@@ -1,17 +1,13 @@
 package controlPanel;
 
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.Server;
+import server.DbUser;
 import server.Server.ServerAcknowledge;
-
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.login;
 
@@ -21,6 +17,19 @@ class UserControlTest {
      * Expected Output: UserAdmin object is declared
      */
     UserControl userControl;
+    private String sessionToken;
+    private String callingUser = "testUser";
+    private String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
+    private String dummyPasswordFromCp = "password";
+    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash("password");
+    private String dummyHashedSaltedPassword = "6df8615d2bf6d4a2f43287b0061682ffad743230739fba51c97777d6a51545ce"; // hash(dummyHashedPassword + dummySalt);
+    private Boolean createBillboard = true;
+    private Boolean editBillboard = true;
+    private Boolean scheduleBillboard = true;
+    private Boolean editUser = true;
+    // Defining additional testing users
+    private String basicUser = "basicUser";
+    private String testUser = "test";
 
     /* Test 1: Constructing a UserControl object
      * Description: UserControl Object should be able to be created on logged in user request from control panel
@@ -28,8 +37,15 @@ class UserControlTest {
      */
     @BeforeEach
     @Test
-    public void setUpUserControl() {
-      userControl = new UserControl();
+    public void setUpUserControl() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
+        userControl = new UserControl();
+        // Start with a fresh test user each test
+        if (!DbUser.retrieveUser(callingUser).isEmpty()) {
+            DbUser.deleteUser(callingUser);
+        }
+        DbUser.addUser(callingUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
+        // generate a test token to be used by other functions
+        sessionToken = (String) userControl.loginRequest(callingUser, dummyPasswordFromCp);
     }
 
     /* Test 2: Log out Request (Success)
@@ -38,8 +54,8 @@ class UserControlTest {
      */
     @Test
     public void logOut() throws IOException, ClassNotFoundException {
-      ServerAcknowledge serverResponse = userControl.logoutRequest("sessionToken");
-      assertEquals(Success, serverResponse);
+        ServerAcknowledge serverResponse = userControl.logoutRequest(sessionToken);
+        assertEquals(Success, serverResponse);
     }
 
 
@@ -473,17 +489,13 @@ class UserControlTest {
      *              a password string and a valid sessionToken to create a new user.
      * Expected Output: Server will return "Success: User Created"
      */
-    //TODO: FOR SOME REASON THIS IS NOT PASSING? NO IDEA WHY IT CAN'T SEEM TO CREATE THE SESSION TOKEN WHEN WE CALL
-    // DIRECTLY FROM USER CONTROL. IT DOESN'T MAKE SENSE, THE ISSUE IS VALIDATING A SESSION TOKEN FROM CP, WORKS FINE
-    // IN THE ACTUAL PROGRAM JUST THIS UNIT TEST IDK...I ONLY ADDED THE GETTERS AND SETTERS FOR VALID SESSION TOKEN
-    // TO TRY AND FIX THE ISSUE BUT I DON'T THINK ITS DONE ANYTHING?
     @Test
     public void createUserRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
-        String callingUsername = "testUser";
-        String testToken = (String) login(callingUsername, "pass");
-        assertTrue(Server.validateToken(testToken));
-        ServerAcknowledge serverResponse = userControl.createUserRequest(testToken, "NewUser1",
-                "myPass", true, true, true, true);
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        ServerAcknowledge serverResponse = userControl.createUserRequest(sessionToken, testUser, dummyPasswordFromCp,
+                true, true, true, true);
         assertEquals(serverResponse, Success);
     }
 
@@ -494,17 +506,17 @@ class UserControlTest {
      *              permissions on the calling user.
      * Expected Output: Server will return "Fail: Invalid Session Token"
      *                  will be thrown
-     * //TODO: NEED TO IMPLEMENT SOME WAY TO CHANGE THE "CALLING USERNAME" IN THIS METHOD RATHER THAN JUST
-     *    "USERNAME TO BE CREATED" SO THAT THIS CAN BE ADEQUATELY TESTED
      */
-//    public void createUserRequestCallingUsernameDeleted() {
-//      assertThrows(CallingUsernameDeletedException.class, () -> {
-//        String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken"));
-//      }
-//      // Check for correct message received
-//      //TODO: CHECK INSTANCES OF Fail: Invalid Session Token AND CHANGE TO INVALID SESSION TOKEN WHICH MAKES MORE SENSE!
-//      assertEquals("Fail: Invalid Session Token", serverResponse);
-//    }
+    @Test
+    public void createUserRequestCallingUsernameDeleted() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        ServerAcknowledge serverResponse = userControl.createUserRequest("badToken", testUser, dummyPasswordFromCp,
+                true, true, true, true);
+      // Check for correct message received
+      assertEquals(InvalidToken, serverResponse);
+    }
 
 
     /* Test 30: Request to server to Create New Users (Exception Handling)
@@ -513,14 +525,21 @@ class UserControlTest {
      * permissions on the calling user.
      * Expected Output: An InsufficientPermissionsException will be thrown
      */
-//    public void createUserRequestInsufficientPermissions() {
-//      // Check for correct exception thrown
-//      assertThrows(InsufficientPermissionsException.class, () -> {
-//          String serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken"));
-//      }
-//      // Check for correct message received
-//      assertEquals("Fail: Insufficient User Permissions", serverResponse);
-//    }
+    @Test
+    public void createUserRequestInsufficientPermissions() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
+        // Setup - Create basic user without edit user permission and generate corresponding session token
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser); // Clean user
+        }
+        if (DbUser.retrieveUser(basicUser).isEmpty()) {
+            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
+        }
+        String basicToken = (String) UserControl.loginRequest(basicUser, dummyPasswordFromCp);
+        ServerAcknowledge serverResponse = userControl.createUserRequest(basicToken, testUser, dummyPasswordFromCp,
+                true, true, true, true);
+      // Check for correct message received
+      assertEquals(InsufficientPermission, serverResponse);
+    }
 
 
     /* Test 31: Request to server to Create New Users (Exception Handling)
@@ -530,17 +549,16 @@ class UserControlTest {
      * Expected Output: Server will return "Fail: Username Already Taken" and an InsufficientPermissionsException
      *                  will be thrown
      */
-//    public void createUserRequestDuplicateUsername() {
-//      // Check for correct exception thrown
-//      assertThrows(InsufficientPermissionsException.class, () -> {
-//          String serverResponse == userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken");
-//          // If username did not already exist, need to call this method again to throw exception
-//          if (serverResponse == "Success: User Created") {
-//              serverResponse = userControl.createUserRequest("NewUser1", {0,0,0,0}, "Pass1", "sessionToken");
-//          }
-//      });
-//      // Check for correct message received
-//      assertEquals("Fail: Username Already Taken", serverResponse);
-//    }
+    @Test
+    public void createUserRequestDuplicateUsername() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
+        // Setup - Ensure test user already exist in database
+        if (DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, true, true, true ,true);
+        }
+        ServerAcknowledge serverResponse = userControl.createUserRequest(sessionToken, testUser, dummyPasswordFromCp,
+                true, true, true, true);
+      // Check for correct message received
+      assertEquals(PrimaryKeyClash, serverResponse);
+    }
 
 }

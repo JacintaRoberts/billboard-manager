@@ -22,8 +22,6 @@ import static server.Server.ServerAcknowledge.*;
 public class Server {
     // Session tokens are stored in memory on server as per the specification
     private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
-    //TODO: USE UUID FOR SESSION TOKENS TO ENSURE UNIQUENESS
-
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
@@ -64,12 +62,7 @@ public class Server {
         ArrayList<Object> values = new ArrayList<>();
         values.add(username);
         values.add(creationTime);
-        // Generate session token key
-        //TODO: Could change this to
-        Random rng = new Random();
-        byte[] sessionTokenBytes = new byte[TOKEN_SIZE]; // Technically there is a very small chance the same token could be generated (primary key clash)
-        rng.nextBytes(sessionTokenBytes);
-        String sessionToken = bytesToString(sessionTokenBytes);
+        String sessionToken = String.valueOf(UUID.randomUUID()); // Generate UUID to ensure unique session token key
         validSessionTokens.put(sessionToken, values);
         return sessionToken;
     }
@@ -196,12 +189,12 @@ public class Server {
             case "Schedule":
                 return callScheduleAdminMethod();
             case "Logout":
+                String sessionToken = clientArgs[1]; // No module required.
                 return logout(sessionToken);
             case "Login":
-                // Does not require method argument or session token
-                String username = clientArgs[1];
+                String username = clientArgs[1]; // No module or session token required.
                 String hashedPassword = clientArgs[2];
-                return login(username, hashedPassword); // Returns session token or fail message
+                return login(username, hashedPassword);
             default:
                 return "No server method requested";
         }
@@ -362,7 +355,11 @@ public class Server {
         return InvalidToken; // Session token was already expired/did not exist
     }
 
-    // Expires all session tokens with an associated user
+
+    /**
+     Expires all session tokens with an associated user
+     @param username The string username which will have all of its related tokens expired.
+     */
     public static ServerAcknowledge expireTokens(String username){
         // Collect Session Tokens to be expired
         ServerAcknowledge serverAcknowledge = NoSuchUser;

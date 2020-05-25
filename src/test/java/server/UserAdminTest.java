@@ -26,7 +26,7 @@ class UserAdminTest {
     private String sessionToken;
     private String callingUser = "testUser";
     private String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
-    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash(password);
+    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash("password");
     private String newHashedPassword = "05da7dd57905dca05ed787d6f1be93bc0e4d279bee43553c2e08874f38fda93b"; // hash("newpass");
     private String dummyHashedSaltedPassword = "6df8615d2bf6d4a2f43287b0061682ffad743230739fba51c97777d6a51545ce"; // hash(dummyHashedPassword + dummySalt);
     private Boolean createBillboard = true;
@@ -58,7 +58,6 @@ class UserAdminTest {
     public void setUpUserAdmin() throws IOException, SQLException, NoSuchAlgorithmException {
         userAdmin = new UserAdmin();
         mockUserTable = new MockUserTable();
-
         // Populate Mock User Table and Generate Values as required - For Unit Testing
         sessionToken = MockSessionTokens.generateMockToken(callingUser);
         dummyValues = new ArrayList<>();
