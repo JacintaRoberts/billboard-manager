@@ -18,7 +18,7 @@ public abstract class AbstractUserView extends AbstractGenericView
     private JPanel userPermissionsPanel;
     private JLabel userPermissionsLabel;
     private JLabel usernameLabel;
-    private JLabel title;
+    protected JLabel title;
     // --- CheckBox ---
     protected JCheckBox editUsersPermission;
     protected JCheckBox editBBPermission;
@@ -82,15 +82,10 @@ public abstract class AbstractUserView extends AbstractGenericView
 
     protected void setPermissions(ArrayList<Boolean> permissions)
     {
-        editUsersPermission.setSelected(permissions.get(0));
-        scheduleBBPermission.setSelected(permissions.get(1));
-        editBBPermission.setSelected(permissions.get(2));
-        createBBPermission.setSelected(permissions.get(3));
-    }
-
-    protected void setBBFrameTitle(String titleName)
-    {
-        title.setText(titleName);
+        editUsersPermission.setSelected(permissions.get(3));
+        scheduleBBPermission.setSelected(permissions.get(2));
+        editBBPermission.setSelected(permissions.get(1));
+        createBBPermission.setSelected(permissions.get(0));
     }
 
     protected void setEditable(boolean editable)

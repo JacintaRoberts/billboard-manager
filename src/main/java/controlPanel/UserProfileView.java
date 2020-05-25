@@ -23,8 +23,9 @@ public class UserProfileView extends AbstractUserView
         super("Profile View");
         view_type = VIEW_TYPE.USER_PROFILE;
         setEditable(false);
+        usernameText.setEditable(false);
         addEditButton();
-        setBBFrameTitle("PROFILE");
+        title.setText("PROFILE");
     }
 
     protected void addEditButton()
