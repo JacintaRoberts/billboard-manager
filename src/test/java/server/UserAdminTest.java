@@ -26,7 +26,7 @@ class UserAdminTest {
     private String sessionToken;
     private String callingUser = "testUser";
     private String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
-    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash(password);
+    private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash("password");
     private String newHashedPassword = "05da7dd57905dca05ed787d6f1be93bc0e4d279bee43553c2e08874f38fda93b"; // hash("newpass");
     private String dummyHashedSaltedPassword = "6df8615d2bf6d4a2f43287b0061682ffad743230739fba51c97777d6a51545ce"; // hash(dummyHashedPassword + dummySalt);
     private Boolean createBillboard = true;
@@ -49,6 +49,9 @@ class UserAdminTest {
     private ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
     private ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
 
+// TODO: ADD UNIT TESTS
+// TODO: FIX COMMENTS
+// TODO: END CLEAN UP TO REMOVE TEST DATA
 
     /* Test 1: Constructing a UserAdmin and Mock User Table object
      * Description: UserAdmin and MockUserTable Objects should be able to be created
@@ -58,7 +61,6 @@ class UserAdminTest {
     public void setUpUserAdmin() throws IOException, SQLException, NoSuchAlgorithmException {
         userAdmin = new UserAdmin();
         mockUserTable = new MockUserTable();
-
         // Populate Mock User Table and Generate Values as required - For Unit Testing
         sessionToken = MockSessionTokens.generateMockToken(callingUser);
         dummyValues = new ArrayList<>();
@@ -145,47 +147,13 @@ class UserAdminTest {
       );
     }
 
-
-    /* Test 3: View Other User's Permissions
-     * Description: Check that only users with "Edit Permissions" can see any user's permissions
-     * Order - Create Billboards, Edit All Billboards, Schedule Billboards, Edit Users
-     * Expected Output: Given the requested username, the method should return associated permissions.
-     */
-    @Test
-    public void getOtherUserPermissions() throws IOException, SQLException {
-        // Test Setup - Create the users if they do not exist
-        if (DbUser.retrieveUser(basicUser).isEmpty()) {
-            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
-        }
-        if (DbUser.retrieveUser(createBillboardUser).isEmpty()) {
-            DbUser.addUser(createBillboardUser, dummyHashedSaltedPassword, dummySalt, true, false, false, false);
-        }
-        if (DbUser.retrieveUser(editBillboardUser).isEmpty()) {
-            DbUser.addUser(editBillboardUser, dummyHashedSaltedPassword, dummySalt, false, true, false, false);
-        }
-        if (DbUser.retrieveUser(editScheduleUser).isEmpty()) {
-            DbUser.addUser(editScheduleUser, dummyHashedSaltedPassword, dummySalt, false, false, true, false);
-        }
-        if (DbUser.retrieveUser(editUserUser).isEmpty()) {
-            DbUser.addUser(editUserUser, dummyHashedSaltedPassword, dummySalt, false, false, false, true);
-        }
-        assertAll("Check for a few Possible User Permission Combinations",
-            ()-> assertEquals(basicPermissions, getPermissions(sessionToken, basicUser)),
-            ()-> assertEquals(createBillboardPermission, getPermissions(sessionToken, createBillboardUser)),
-            ()-> assertEquals(editBillboardPermission, getPermissions(sessionToken, editBillboardUser)),
-            ()-> assertEquals(editSchedulePermission, getPermissions(sessionToken, editScheduleUser)),
-            ()-> assertEquals(editUserPermission, getPermissions(sessionToken, editUserUser))
-        );
-    }
-
-
     /* Test 4: Get Own User Permissions
      * Description: Check that any user can see their own user permissions (int[4])
      * Order - Create Billboards, Edit All Billboards, Schedule Billboards, Edit Users
      * Expected Output: Given the user's own username, the method should return associated permissions
      */
     @Test
-    public void getOwnUserPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
+    public void getOwnPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
         // Test Setup - Create the users if they do not exist
         if (DbUser.retrieveUser(basicUser).isEmpty()) {
             DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
@@ -219,12 +187,48 @@ class UserAdminTest {
     }
 
 
+
+    /* Test 3: View Other User's Permissions
+     * Description: Check that only users with "Edit Permissions" can see any user's permissions
+     * Order - Create Billboards, Edit All Billboards, Schedule Billboards, Edit Users
+     * Expected Output: Given the requested username, the method should return associated permissions.
+     */
+    @Test
+    public void getOtherPermissions() throws IOException, SQLException {
+        // Test Setup - Create the users if they do not exist
+        if (DbUser.retrieveUser(basicUser).isEmpty()) {
+            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
+        }
+        if (DbUser.retrieveUser(createBillboardUser).isEmpty()) {
+            DbUser.addUser(createBillboardUser, dummyHashedSaltedPassword, dummySalt, true, false, false, false);
+        }
+        if (DbUser.retrieveUser(editBillboardUser).isEmpty()) {
+            DbUser.addUser(editBillboardUser, dummyHashedSaltedPassword, dummySalt, false, true, false, false);
+        }
+        if (DbUser.retrieveUser(editScheduleUser).isEmpty()) {
+            DbUser.addUser(editScheduleUser, dummyHashedSaltedPassword, dummySalt, false, false, true, false);
+        }
+        if (DbUser.retrieveUser(editUserUser).isEmpty()) {
+            DbUser.addUser(editUserUser, dummyHashedSaltedPassword, dummySalt, false, false, false, true);
+        }
+        assertAll("Check for a few Possible User Permission Combinations",
+            ()-> assertEquals(basicPermissions, getPermissions(sessionToken, basicUser)),
+            ()-> assertEquals(createBillboardPermission, getPermissions(sessionToken, createBillboardUser)),
+            ()-> assertEquals(editBillboardPermission, getPermissions(sessionToken, editBillboardUser)),
+            ()-> assertEquals(editSchedulePermission, getPermissions(sessionToken, editScheduleUser)),
+            ()-> assertEquals(editUserPermission, getPermissions(sessionToken, editUserUser))
+        );
+    }
+
+
+
+
     /* Test 5: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent calling username in DB
      * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Invalid Session Token"
      */
     @Test
-    public void getOtherUserPermissionsCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
+    public void getOtherPermissionsCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
         // Temporarily change calling username to something unknown (via the session token)
         // Test setup - Create another admin user to delete the calling user
         if (!DbUser.retrieveUser(testUser).isEmpty()) {
@@ -252,7 +256,7 @@ class UserAdminTest {
      * Expected Output: User's Permissions unable to be retrieved and returns InsufficientUserPermission
      */
     @Test
-    public void getOtherUserPermissionsInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
+    public void getOtherPermissionsInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
         // Temporarily change to basic user as the calling user (via the session token)
         String basicToken = (String) login(basicUser, dummyHashedPassword);
         Object dbResponse =  getPermissions(basicToken, testUser);
@@ -266,7 +270,7 @@ class UserAdminTest {
      * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Username Does Not Exist"
      */
     @Test
-    public void getOtherUserPermissionsNoUsernameInDb() throws IOException, SQLException {
+    public void getOtherPermissionsNoUsernameInDb() throws IOException, SQLException {
         // Test setup - Ensure the user to be deleted does not exist in DB
         if (UserAdmin.userExists(testUser)) {
             System.out.println("The test user exists, so it will be deleted for this test.");
@@ -342,19 +346,12 @@ class UserAdminTest {
      */
     @Test
     public void setOwnUserPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
-        // Test setup - Ensure that the user starts with all permissions
-        if (!DbUser.retrieveUser(testUser).isEmpty()) {
-            DbUser.deleteUser(testUser); // Clean user
-        }
-        System.out.println("The test user does not exists, so it will be created.");
-        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
-        String testToken = (String) login(testUser, dummyHashedPassword); // calling user
         // Attempt to remove all permissions except for EditUsers
-        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(testToken, testUser, false, false, false, true);
+        ServerAcknowledge dbResponse = userAdmin.setPermissions(sessionToken, callingUser, false, false, false, true);
         // Check return value
         assertEquals(Success, dbResponse);
         // Check that the user permissions are actually updated in the DB
-        assertEquals(editUserPermission, userAdmin.getPermissions(testToken, testUser));
+        assertEquals(editUserPermission, userAdmin.getPermissions(sessionToken, callingUser));
     }
 
 
@@ -365,19 +362,12 @@ class UserAdminTest {
      */
     @Test
     public void removeOwnUserEditUsersPermission() throws IOException, SQLException, NoSuchAlgorithmException {
-        // Test setup - Ensure that the user starts with all permissions
-        if (!DbUser.retrieveUser(testUser).isEmpty()) {
-            DbUser.deleteUser(testUser); // Clean user
-        }
-        System.out.println("The test user does not exists, so it will be created.");
-        DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
-        String testToken = (String) login(testUser, dummyHashedPassword); // calling user
         // Attempt to remove own EditUsersPermission (last element)
-        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(testToken, testUser, true,true,true,false);
+        ServerAcknowledge dbResponse = userAdmin.setPermissions(sessionToken, callingUser, true,true,true,false);
         // Check return value
         assertEquals(CannotRemoveOwnAdminPermission, dbResponse);
         // Check that the user permissions are not updated in the DB
-        assertEquals(fullPermissions, userAdmin.getPermissions(testToken,testUser));
+        assertEquals(fullPermissions, userAdmin.getPermissions(sessionToken,callingUser));
     }
 
 
@@ -400,7 +390,7 @@ class UserAdminTest {
         // Test setup - Ensure that the calling user does not exist
         String otherToken = (String) login(testUser, dummyHashedPassword);
         UserAdmin.deleteUser(otherToken, callingUser); // Should expire all tokens (sessionToken) associated with the user deleted
-        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(sessionToken, testUser, true,true,true,true);
+        ServerAcknowledge dbResponse = userAdmin.setPermissions(sessionToken, testUser, true,true,true,true);
         // Check return value
         assertEquals(InvalidToken, dbResponse);
         // Check that the user permissions are not able to be retrieved from DB (due to deletion)
@@ -429,7 +419,7 @@ class UserAdminTest {
 
         // Check return value - calling username (basicUser) should have insufficient permissions
         String basicToken = (String) login(basicUser, dummyHashedPassword);
-        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(basicToken, testUser, false, false, false, false);
+        ServerAcknowledge dbResponse = userAdmin.setPermissions(basicToken, testUser, false, false, false, false);
         // Check return value
         assertEquals(InsufficientPermission, dbResponse);
         // Check that the user permissions are not updated in the DB
@@ -455,7 +445,7 @@ class UserAdminTest {
         assertEquals(fullPermissions, userAdmin.getPermissions(sessionToken, testUser));
         // Calling user is "callingUser" which is associated with "sessionToken" in the beforeEachTest
         // Attempt to remove all of test user's permissions (verify that it can remove other user's EditUser permission)
-        ServerAcknowledge dbResponse = userAdmin.setUserPermissions(sessionToken, testUser, false, false, false, false);
+        ServerAcknowledge dbResponse = userAdmin.setPermissions(sessionToken, testUser, false, false, false, false);
         // Check return value
         assertEquals(Success, dbResponse);
         // Check that the user permissions are actually updated in the DB
@@ -616,10 +606,10 @@ class UserAdminTest {
      * Expected Output: Username is deleted in DB and returns string "Pass: User Deleted"
      */
     @Test
-    public void deleteUser() throws IOException, SQLException, NoSuchAlgorithmException {
+    public void deleteUser() throws IOException, SQLException {
         // Test setup - Ensure the user to be deleted exists in DB
         if (!UserAdmin.userExists(testUser)) {
-            System.out.println("The test user does not exists, so it will be created.");
+            System.out.println("The test user does not exist, so it will be created.");
             DbUser.addUser(testUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
         }
         // Check return value

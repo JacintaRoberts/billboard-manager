@@ -2,8 +2,6 @@ package server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.Server.ServerAcknowledge;
-
 import java.io.IOException;
 import java.net.BindException;
 import java.security.NoSuchAlgorithmException;
@@ -11,6 +9,7 @@ import java.sql.SQLException;
 import static controlPanel.UserControl.hash;
 import static org.junit.jupiter.api.Assertions.*;
 import static server.Server.ServerAcknowledge.*;
+import static server.Server.validateToken;
 
 class ServerTest {
     /* Test 0: Declaring Server object
@@ -68,7 +67,7 @@ class ServerTest {
         // Ensure this test user exists with this password in the fake DB where this method is implemented
         String serverResponse = (String) Server.login(callingUser, dummyHashedPassword);
         assertTrue(serverResponse != null);
-        assertEquals(64, serverResponse.length());
+        assertTrue(validateToken(serverResponse)); // Validation of session token
     }
 
     /* Test 4: Login Response (error handling)
@@ -103,10 +102,10 @@ class ServerTest {
     @Test
     public void logOut() throws IOException, SQLException, NoSuchAlgorithmException {
         String sessionToken = (String) Server.login(callingUser, dummyHashedPassword); // Test set up
-        assertTrue(Server.validateToken(sessionToken));
+        assertTrue(validateToken(sessionToken));
         assertEquals(Success, Server.logout(sessionToken));
         // Valid session token holder should not hold the sessionToken anymore
-        assertFalse(Server.validateToken(sessionToken));
+        assertFalse(validateToken(sessionToken));
     }
 
 
@@ -119,7 +118,7 @@ class ServerTest {
     @Test
     public void verifySession() throws IOException, SQLException, NoSuchAlgorithmException {
       String sessionToken = (String) Server.login(callingUser, dummyHashedPassword);
-      assertTrue(Server.validateToken(sessionToken));
+      assertTrue(validateToken(sessionToken));
     }
 
 
@@ -132,9 +131,9 @@ class ServerTest {
       String sessionToken = (String) Server.login(callingUser, dummyHashedPassword);
       Server.logout(sessionToken); // Should expire token
       // Check Expired Token
-      assertFalse(Server.validateToken(sessionToken));
+      assertFalse(validateToken(sessionToken));
       // Also Check Empty
-      assertFalse(Server.validateToken(""));
+      assertFalse(validateToken(""));
     }
 
 
