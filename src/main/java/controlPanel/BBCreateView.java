@@ -944,7 +944,7 @@ public class BBCreateView extends AbstractGenericView
     protected void addBBXML(Document docToDisplay)
     {
         // FIXME: remove later
-        fileToDisplay = extractXMLFile(6);
+        //fileToDisplay = extractXMLFile(6);
 
         //Document document = null;
 

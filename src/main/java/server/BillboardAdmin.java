@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
+import static server.Server.getUsernameFromToken;
+
 public class BillboardAdmin {
 
     // Custom SQL Strings for Specific Queries
@@ -156,16 +158,19 @@ public class BillboardAdmin {
      * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database.
      * <p>
      * This method always returns immediately.
-     * @param  userName A String which provides username to store into database
+     * @param  sessionToken A String which provides username to store into database
      * @param  billboard A String which provides Billboard Name to store into database
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public static String createBillboard(String userName,
-                                         String billboard,
-                                         String xmlCode) throws IOException, SQLException {
+    public static String createBillboard(String sessionToken, String billboard, String xmlCode)
+                                                            throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_ ]+)";
+        String userName = getUsernameFromToken(sessionToken);
+        if (userName.isEmpty()) {
+            return "Fail: Invalid Token";
+        }
         if (billboard.matches(validCharacters)) {
             connection = DbConnection.getInstance();
             countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);

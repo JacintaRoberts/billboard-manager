@@ -124,5 +124,5 @@ public class UserEditView extends AbstractUserView
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
         passwordText = null;
     }
-    
+
 }
