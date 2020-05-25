@@ -41,17 +41,15 @@ public class Viewer extends JFrame implements Runnable {
     private JLabel informationLabel;
 
     // Dimensions of screen the viewer will display on
-    private double screenHeight;
-    private double screenWidth;
-
-    // Contains the server's response (Billboard XML) as a string
-    private String serverResponse;
+    private double SCREEN_HEIGHT;
+    private double SCREEN_WIDTH;
 
 
     /**
-     * Constructor method
+     * Constructor method for Viewer class.
+     * @throws HeadlessException
      */
-    public Viewer() throws HeadlessException{
+    public Viewer() throws HeadlessException {
         // Set up the panels, labels, image icons etc. to display the different parts of the billboard
         mainPanel = new JPanel();
         messageLabel = new JLabel();
@@ -59,18 +57,24 @@ public class Viewer extends JFrame implements Runnable {
         pictureLabel = new JLabel();
         informationLabel = new JLabel();
 
-        // FIXME: KANU, Patrice moved this from showViewer() to the constructor
+        // Remove the borders of the JFrame
         setUndecorated(true);
 
         // Dimensions of screen the viewer will display on
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        screenHeight = screenSize.height;
-        screenWidth = screenSize.width;
+        SCREEN_HEIGHT = screenSize.height;
+        SCREEN_WIDTH = screenSize.width;
     }
 
+
     /**
-     * Extracts the xml file that we want to display from the given test xml files stored in resources.
-     * TODO: This function is used to extract an xml file from a mock "database" of provided xml files for testing.
+     * Parses in the xml file from a mock "database", that we want to display from the given test xml files. These xml
+     * files are stored in resources. The mock database simply stores the file names.
+     * @param fileNum An int which is the file name (number), of the example xml files from the mock "database".
+     * @return Document Returns the xml file as a Document object so that the xml tags can be extracted.
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
      */
     public static Document extractXMLFile(int fileNum) throws ParserConfigurationException, IOException, SAXException {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
@@ -86,13 +90,13 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Extracts data from an xml file for creating the billboard - i.e. it gets the content from the
-     * message, picture and information tags as well as the custom colours
+     * Extracts data from an xml file for creating the billboard. It gets the content from the message, picture and
+     * information tags as well as the custom colours for specified the billboard.
      * @param xmlDoc An xml file as a Document, from which to extract information from.
-     * @return billboardTags Returns a HashMap which stores the background colour, message, message colour, picture,
-     *      picture type (data or url), information, and information colour of the billboard, if there is no content
-     *      for one or more of these tags, the string is null.
-     * TODO: Create a class which is billboardData and is of the form HashMap<String, String>
+     * @return billboardTags Returns a HashMap<String, String> which stores the background colour, message, message
+     *      colour, picture, picture type (data or url), information, and information colour of the billboard, if there
+     *      is no content for one or more of these tags, the string is null.
+     * TODO: Create a class which is billboardData and is of the form HashMap<String, String>.
      */
     public static HashMap<String, String> extractDataFromXML(Document xmlDoc) {
         // Initiate an ArrayList to return
@@ -178,10 +182,12 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Reads in a picture from a file based on whether it is url or data
-     * @param picture - a string which is the picture to read in, this could be in the form of a url or data attribute
-     * @param pictureType - a string which is either url or data, so that we can decode the image
-     * @return pictureImage - a BufferedImage which is the picture so it can be displayed on the billboard
+     * Reads in a picture from a file based on whether it is url or data and returns it in a form so that it can be
+     * displayed properly on the billboard.
+     * @param picture A String which is the picture to read in, this could be in the form of a url or data attribute
+     * @param pictureType A String which is either url or data, so that we can decode the image
+     * @return pictureImage Returns the picture as a BufferedImage so it can be displayed on the billboard. Returns
+     *      null if the picture cannot be read in.
      */
     public static BufferedImage readPictureFromFile(String picture, String pictureType) {
         BufferedImage pictureImage = null;
@@ -215,11 +221,11 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Scales the given image to be no larger than the maximum width and no larger than the maximum height
-     * @param image - the image that needs to be scaled
-     * @param maxImageWidth - the largest width the image can be displayed as on the screen
-     * @param maxImageHeight - the largest height the image can be displayed as on the screen
-     * @return scaledImage - an Image which is the scaled version of the input image
+     * Scales the given image to be no larger than the provided maximum width and no larger than the maximum height.
+     * @param image A BufferedImage which is the image that needs to be scaled.
+     * @param maxImageWidth A double which represents the largest width the image can be displayed as on the screen.
+     * @param maxImageHeight A double which represents the largest height the image can be displayed as on the screen.
+     * @return scaledImage Returns an Image which is the scaled version of the input image.
      */
     public static Image getScaledImage(BufferedImage image, double maxImageWidth, double maxImageHeight) {
         // Find the current dimensions of the picture
@@ -283,8 +289,9 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Calculates the largest font size for the message string, which must fit on one line on the screen.
-     * @param message - the string to display on the screen
-     * @return fontSize - the largest font size that the message can be displayed at
+     * @param message A String which is the message display on the screen.
+     * @return fontSize Returns an int which is the largest font size that the message can be displayed at
+     * TODO: There should be a maximum font size here based on some leftover screen height it needs to fit in
      */
     public int getMessageFontSize(String message) {
         // Get the current font size and initialise the variable to return
@@ -300,7 +307,7 @@ public class Viewer extends JFrame implements Runnable {
         double stringWidth = fontMetrics.stringWidth(message);
 
         // While the current width of the string is less than the screen width minus some threshold for the border
-        while (stringWidth < (screenWidth - screenWidthBorder *2)) {
+        while (stringWidth < (SCREEN_WIDTH - screenWidthBorder *2)) {
             // Increase the font size
             fontSize = fontSize + 1;
 
@@ -316,11 +323,10 @@ public class Viewer extends JFrame implements Runnable {
     /**
      * Calculates and sets the largest font size for the information string so that the text fills up no more than
      * 50% of the screen's height. The information font size is always smaller than the message font size.
-     * @param information - the string to display on the screen
-     * @param maxStringHeight - the maximum height the string can be
-     * @param message - a boolean which is true if there is a message displayed on the screen and false if there isn't
+     * @param maxStringHeight A double which is the maximum height the string can be.
+     * @param message A boolean which is true if there is a message displayed on the screen and false if there isn't.
      */
-    public void setInformationFontSize(String information, double maxStringHeight, boolean message) {
+    public void setInformationFontSize(double maxStringHeight, boolean message) {
         // Get the current font size and initialise the variable to return
         int fontSize = informationLabel.getFont().getSize();
 
@@ -360,10 +366,10 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Returns a string which formats the information string so that the text is wrapped, centered, and does not exceed
-     * the maximum string width
-     * @param information - the information string to format
-     * @param maxStringWidth - the maximum string width for information string
-     * @return informationHTML - formatted HTML version of information string
+     * the maximum string width. This can then be used when setting the information label text.
+     * @param information A String of the information to format for displaying.
+     * @param maxStringWidth An int which is the maximum string width for information string.
+     * @return informationHTML Returns the formatted HTML version of information string.
      */
     public static String getInformationHTMLString(String information, int maxStringWidth) {
         String informationHTML = "<html><div style='width: " + maxStringWidth + "; text-align: center;'>"
@@ -373,9 +379,10 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Sets up the message so that it can be added to the billboard.
-     * @param message - a string which stores the message to display
-     * @return messageHeight - a double which is the height of the message (for formatting and spacing later)
+     * Sets up the message so that it can be added to the billboard and returns the height of the message label for
+     * formatting and spacing purposes.
+     * @param message A String which stores the message to display.
+     * @return messageHeight Returns a double which represents the height of the message.
      */
     public double setUpMessage(String message) {
         // Set the text of the message label
@@ -395,12 +402,13 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Sets up the picture so that it can be added to the billboard.
-     * @param picture - a string which stores the picture to display
-     * @param pictureType - a string which specifies the type of picture - either "url" or "data
-     * @param maxImageWidth - the maximum width of the image
-     * @param maxImageHeight - the maximum height of the image
-     * @return pictureHeight - a double which is the height of the picture (for formatting and spacing later)
+     * Sets up the picture so that it can be added to the billboard, given a maximum image width and height. Returns the
+     * height of the picture for formatting and spacing purposes.
+     * @param picture A String which stores the picture to display.
+     * @param pictureType A String which specifies the type of picture, either as a "url" or "data.
+     * @param maxImageWidth A double which represents the maximum width of the image.
+     * @param maxImageHeight A double which represents the maximum height of the image.
+     * @return pictureHeight Returns a double which represents the height of the picture.
      */
      public double setUpPicture(String picture, String pictureType, double maxImageWidth, double maxImageHeight) {
          // Read in the picture
@@ -433,15 +441,15 @@ public class Viewer extends JFrame implements Runnable {
      }
 
     /**
-     * Sets up the information so that it can be added to the billboard.
-     * @param information - a string which stores the information to display
-     * @param maxStringWidth - the maximum width of the information label
-     * @param maxStringHeight - the maximum height of the information label
-     * @param message - a boolean which is true if there is a message also being displayed and false if there isn't
-     * @return informationHeight - a double which is the height of the information (for formatting and spacing later)
+     * Sets up the information so that it can be added to the billboard, given a maximum string height and width.
+     * Returns the height of the label for formatting and spacing purposes.
+     * @param information A String which stores the information to display.
+     * @param maxStringWidth A double which represents the maximum width of the information label.
+     * @param maxStringHeight A double which represents the maximum height of the information label.
+     * @param message A boolean which is true if there is a message also being displayed and false if there isn't.
+     * @return informationHeight Returns a double which represents the height of the information.
      */
-     public double setUpInformation(String information, double maxStringWidth, double maxStringHeight,
-                                    boolean message) {
+     public double setUpInformation(String information, double maxStringWidth, double maxStringHeight, boolean message) {
          // Use html styling
          String informationHTML = getInformationHTMLString(information, (int) maxStringWidth);
 
@@ -449,7 +457,7 @@ public class Viewer extends JFrame implements Runnable {
          informationLabel.setText(informationHTML);
 
          // Choose and set the font size based on the maximum height of the information label
-         setInformationFontSize(information, maxStringHeight, message);
+         setInformationFontSize(maxStringHeight, message);
 
          // Calculate the height of the information label
          double informationHeight = informationLabel.getSize().height;
@@ -460,16 +468,15 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Sets up a grid bag constraints for an element which will be added to the billboard
-     * @param gridx - the x position of the element
-     * @param gridy - the y position of the element
-     * @param gridHeight - the grid height of the element
-     * @param topPadding - the padding to add on the top of the element
-     * @param bottomPadding - the padding to add on the bottom of the element
-     * @return constraints - a GridBagConstraints which has all of the above constraints
+     * Sets the grid bag constraints for an element which will be added to the billboard.
+     * @param gridx An int which is the x position of the element.
+     * @param gridy An int which is the y position of the element.
+     * @param gridHeight An int which is the grid height of the element.
+     * @param topPadding An int which is the padding to add on the top of the element.
+     * @param bottomPadding An int which is the padding to add on the bottom of the element.
+     * @return constraints Returns a GridBagConstraints which has all of the parameters as constraints.
      */
-     public static GridBagConstraints setGridBagConstraints(int gridx, int gridy, int gridHeight, int topPadding,
-                                                     int bottomPadding) {
+     public static GridBagConstraints setGridBagConstraints(int gridx, int gridy, int gridHeight, int topPadding, int bottomPadding) {
          // Initialise a grid bag constraints
          GridBagConstraints constraints = new GridBagConstraints();
 
@@ -485,8 +492,9 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has only a message
-     * @param message - a string which stores the message to display
+     * Displays a billboard which has only a message. The is displayed in the centre of the screen with the maximum
+     * possible font size.
+     * @param message A String which stores the message to display.
      */
     public void messageOnlyBillboard(String message) {
         // Set up the message and add the message label to the central panel in the JFrame
@@ -496,15 +504,15 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has only a picture which is no more than 50% of the screen height and no more than
-     * 50% of the screen width
-     * @param picture - a string which stores the picture to display, in the form of a url or data attribute
-     * @param pictureType - a string which specifies the type of picture, either url or data
+     * Displays a billboard which has only a picture. The picture takes up no more than 50% of the screen height and no
+     * more than 50% of the screen width. The picture is displayed in the centre of the screen.
+     * @param picture A String which stores the picture to display, in the form of a url or data attribute
+     * @param pictureType A String which specifies the type of picture, either url or data.
      */
     public void pictureOnlyBillboard(String picture, String pictureType) {
         // Define the maximum image dimensions based on the screen dimensions
-        double maxImageWidth = screenWidth/2;
-        double maxImageHeight = screenHeight/2;
+        double maxImageWidth = SCREEN_WIDTH /2;
+        double maxImageHeight = SCREEN_HEIGHT /2;
 
         // Set up the picture and add it to the main panel
         setUpPicture(picture, pictureType, maxImageWidth, maxImageHeight);
@@ -513,14 +521,14 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has only a information, which is no more than 75% of the screen's width and 50% of
-     * the screen's height.
-     * @param information - a string which stores the information to display
+     * Displays a billboard which only has information. The information takes up no more than 75% of the screen's width
+     * and 50% of the screen's height. The information is displayed in the centre of the screen.
+     * @param information A String which stores the information to display.
      */
     public void informationOnlyBillboard(String information) {
         // Calculate the maximum string width and height for the information
-        double maxStringWidth = screenWidth*0.75;
-        double maxStringHeight = screenHeight*0.5;
+        double maxStringWidth = SCREEN_WIDTH *0.75;
+        double maxStringHeight = SCREEN_HEIGHT *0.5;
 
         // Set up the information label and add it to the main panel
         setUpInformation(information, maxStringWidth, maxStringHeight, false);
@@ -529,16 +537,16 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has a message and picture. The picture is displayed in the center of the bottom 2/3
-     * of the screen, and the message is displayed in the center of the remaining top of the screen.
-     * @param message - a string which stores the message to display
-     * @param picture - a string which stores the picture to display, in the form of a url or data attribute
-     * @param pictureType - a string which specifies the type of picture, either url or data
+     * Displays a billboard which has a message and a picture. The picture is displayed in the center of the bottom 2/3
+     * of the screen, and the message is displayed in the center of the remaining top part of the screen.
+     * @param message A String which stores the message to display.
+     * @param picture A String which stores the picture to display, in the form of a url or data attribute.
+     * @param pictureType A String which specifies the type of picture, either url or data.
      */
     public void messagePictureBillboard(String message, String picture, String pictureType) {
         // Define the maximum image dimensions based on the screen dimensions
-        double maxImageWidth = screenWidth/2;
-        double maxImageHeight = screenHeight/2;
+        double maxImageWidth = SCREEN_WIDTH /2;
+        double maxImageHeight = SCREEN_HEIGHT /2;
 
         // Set up the elements and get their height
         double messageHeight = setUpMessage(message);
@@ -556,17 +564,17 @@ public class Viewer extends JFrame implements Runnable {
 
             // Calculate vertical padding for image. It should fit in the center of bottom 2/3 of screen.
             topPicturePadding = (int) ((maxImageHeight - pictureHeight) / 2);
-            bottomPicturePadding = (int) (((2*(screenHeight/3)) - pictureHeight) / 2);
+            bottomPicturePadding = (int) (((2*(SCREEN_HEIGHT /3)) - pictureHeight) / 2);
 
             // Calculate vertical padding for message. It should fit in the centre of the remaining space at the top.
-            messagePadding = (int) (((screenHeight/3) - messageHeight ) / 2);
+            messagePadding = (int) (((SCREEN_HEIGHT /3) - messageHeight ) / 2);
         }
         else {
             // Calculate vertical padding for image. It should fit in the center of bottom 2/3 of screen.
-            bottomPicturePadding = (int) (((2*(screenHeight/3)) - pictureHeight) / 2);
+            bottomPicturePadding = (int) (((2*(SCREEN_HEIGHT /3)) - pictureHeight) / 2);
 
             // Calculate vertical padding for message. It should fit in the centre of the remaining space at the top.
-            messagePadding = (int) (((screenHeight/3) + bottomPicturePadding - messageHeight ) / 2);
+            messagePadding = (int) (((SCREEN_HEIGHT /3) + bottomPicturePadding - messageHeight ) / 2);
         }
 
         // Create grid bag constraints for the message and picture
@@ -583,26 +591,27 @@ public class Viewer extends JFrame implements Runnable {
 
     /**
      * Displays a billboard which has a message and information. The message is displayed in the center of the top half
-     * of the screen and the information is displayed in the center of the bottom half of the screen.
-     * @param message - a string which stores the message to display
-     * @param information - a string which stores the information to display
+     * of the screen and the information is displayed in the center of the bottom half of the screen. The message font
+     * size is always larger than the information font size.
+     * @param message A String which stores the message to display.
+     * @param information A String which stores the information to display
      */
     public void messageInformationBillboard(String message, String information) {
         // Set up the message label and get it's height
         double messageHeight = setUpMessage(message);
 
         // Calculate the maximum string width and height for the information
-        double maxStringWidth = screenWidth*0.75;
-        double maxStringHeight = screenHeight*0.25;
+        double maxStringWidth = SCREEN_WIDTH *0.75;
+        double maxStringHeight = SCREEN_HEIGHT *0.25;
 
         // Set up the message label and get it's height
         double informationHeight = setUpInformation(information, maxStringWidth, maxStringHeight, true);
 
         // Calculate vertical padding for the message. It should be in the centre of the top half of the screen.
-        int messagePadding = (int) (((screenHeight/2)  - messageHeight) / 2);
+        int messagePadding = (int) (((SCREEN_HEIGHT /2)  - messageHeight) / 2);
 
         // Calculate vertical padding for the information. It should be in the centre of the top half of the screen.
-        int informationPadding = (int) (((screenHeight/2)  - informationHeight) / 2);
+        int informationPadding = (int) (((SCREEN_HEIGHT /2)  - informationHeight) / 2);
 
         // Create grid bag constraints for message and information
         GridBagConstraints messageConstraints = setGridBagConstraints(0, 0, 1, messagePadding,
@@ -616,15 +625,16 @@ public class Viewer extends JFrame implements Runnable {
     }
 
     /**
-     * Displays a billboard which has a picture and information
-     * @param picture - a string which stores the picture to display, in the form of a url or data attribute
-     * @param pictureType - a string which specifies the type of picture, either url or data
-     * @param information - a string which stores the information to display
+     * Displays a billboard which has a picture and information. The picture is displayed in the center of the top 2/3
+     * of the screen, and the information is displayed in the center of the remaining bottom part of the screen.
+     * @param picture A String which stores the picture to display, in the form of a url or data attribute.
+     * @param pictureType A String which specifies the type of picture, either url or data.
+     * @param information A String which stores the information to display.
      */
     public void pictureInformationBillboard(String picture, String pictureType, String information) {
         // Define the maximum image dimensions based on the screen dimensions
-        double maxImageWidth = screenWidth/2;
-        double maxImageHeight = screenHeight/2;
+        double maxImageWidth = SCREEN_WIDTH /2;
+        double maxImageHeight = SCREEN_HEIGHT /2;
 
         // Set up the picture and get it's height
         double pictureHeight = setUpPicture(picture, pictureType, maxImageWidth, maxImageHeight);
@@ -635,7 +645,7 @@ public class Viewer extends JFrame implements Runnable {
         int informationPadding;
 
         // Calculate vertical padding for picture. It should be in the centre of the top 2/3 of the screen.
-        int topPicturePadding = (int) ( ((2*(screenHeight/3)) - pictureHeight) / 2 );
+        int topPicturePadding = (int) ( ((2*(SCREEN_HEIGHT /3)) - pictureHeight) / 2 );
         int bottomPicturePadding = 0;
 
         // If the picture couldn't be read in properly - still display the contents nicely
@@ -647,25 +657,25 @@ public class Viewer extends JFrame implements Runnable {
             bottomPicturePadding = (int) ((maxImageHeight - pictureHeight) / 2);
 
             // Calculate the maximum string width and height for the information
-            maxStringWidth = screenWidth*0.75;
-            maxStringHeight = (screenHeight - pictureHeight - topPicturePadding - bottomPicturePadding) / 2;
+            maxStringWidth = SCREEN_WIDTH *0.75;
+            maxStringHeight = (SCREEN_HEIGHT - pictureHeight - topPicturePadding - bottomPicturePadding) / 2;
 
             // Set up the information and get it's height
             double informationHeight = setUpInformation(information, maxStringWidth, maxStringHeight, false);
 
             // Calculate vertical padding for information. It should be in the centre of remaining space at the bottom.
-            informationPadding = (int) ( ((screenHeight/3) - informationHeight)/2 );
+            informationPadding = (int) ( ((SCREEN_HEIGHT /3) - informationHeight)/2 );
         }
         else {
             // Calculate the maximum string width and height for the information
-            maxStringWidth = screenWidth*0.75;
-            maxStringHeight = (screenHeight - pictureHeight - topPicturePadding) / 2;
+            maxStringWidth = SCREEN_WIDTH *0.75;
+            maxStringHeight = (SCREEN_HEIGHT - pictureHeight - topPicturePadding) / 2;
 
             // Set up the information and get it's height
             double informationHeight = setUpInformation(information, maxStringWidth, maxStringHeight, false);
 
             // Calculate vertical padding for information. It should be in the centre of remaining space at the bottom.
-            informationPadding = (int) ( ((screenHeight/3) + topPicturePadding - informationHeight)/2 );
+            informationPadding = (int) ( ((SCREEN_HEIGHT /3) + topPicturePadding - informationHeight)/2 );
         }
 
         // Create grid bag constraints for the picture and information
@@ -681,16 +691,18 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Displays a billboard which has all the features: a message, picture and information
-     * @param message - a string which stores the message to display
-     * @param picture - a string which stores the picture to display, in the form of a url or data attribute
-     * @param pictureType - a string which specifies the type of picture, either url or data
-     * @param information - a string which stores the information to display
+     * Displays a billboard which has all the features: a message, picture and information. The picture is displayed in
+     * the centre of the screen, the message is displayed in the remaining top part of the screen, and the information
+     * is displayed in the remaining bottom part of the screen.
+     * @param message A String which stores the message to display
+     * @param picture A String which stores the picture to display, in the form of a url or data attribute
+     * @param pictureType A String which specifies the type of picture, either url or data
+     * @param information A String which stores the information to display
      */
     public void allFeaturesBillboard (String message, String picture, String pictureType, String information) {
         // Define the maximum image dimensions based on the screen dimensions
-        double maxImageWidth = screenWidth/3;
-        double maxImageHeight = screenHeight/3;
+        double maxImageWidth = SCREEN_WIDTH /3;
+        double maxImageHeight = SCREEN_HEIGHT /3;
 
         // Set up the picture and the message and get their heights
         double messageHeight = setUpMessage(message);
@@ -710,33 +722,33 @@ public class Viewer extends JFrame implements Runnable {
             picturePadding = (int) ((maxImageHeight - pictureHeight) / 2);
 
             // Calculate vertical padding of message. It should be centred in the top part of the screen.
-            messagePadding = (int) (((screenHeight/2) - (maxImageHeight/2) - messageHeight) / 2);
+            messagePadding = (int) (((SCREEN_HEIGHT /2) - (maxImageHeight/2) - messageHeight) / 2);
 
             // Calculate the maximum string width and height for the information
-            double maxInformationWidth = screenWidth*0.75;
-            double maxInformationHeight = ((screenHeight/2) - (maxImageHeight/2)) / 2;
+            double maxInformationWidth = SCREEN_WIDTH *0.75;
+            double maxInformationHeight = ((SCREEN_HEIGHT /2) - (maxImageHeight/2)) / 2;
 
             // Set up the information and get it's height
             double informationHeight = setUpInformation(information, maxInformationWidth, maxInformationHeight,
                     true);
 
             // Calculate vertical padding of information. It should be centred in the bottom part of the screen.
-            informationPadding = (int) (((screenHeight/2) - (maxImageHeight/2) - informationHeight) / 2);
+            informationPadding = (int) (((SCREEN_HEIGHT /2) - (maxImageHeight/2) - informationHeight) / 2);
         }
         else {
             // Calculate vertical padding of message. It should be centred in the top part of the screen.
-            messagePadding = (int) (((screenHeight/2) - (pictureHeight/2) - messageHeight) / 2);
+            messagePadding = (int) (((SCREEN_HEIGHT /2) - (pictureHeight/2) - messageHeight) / 2);
 
             // Calculate the maximum string width and height for the information
-            double maxInformationWidth = screenWidth*0.75;
-            double maxInformationHeight = ((screenHeight/2) - (pictureHeight/2)) / 2;
+            double maxInformationWidth = SCREEN_WIDTH *0.75;
+            double maxInformationHeight = ((SCREEN_HEIGHT /2) - (pictureHeight/2)) / 2;
 
             // Set up the information and get it's height
             double informationHeight = setUpInformation(information, maxInformationWidth, maxInformationHeight,
                     true);
 
             // Calculate vertical padding of information. It should be centred in the bottom part of the screen.
-            informationPadding = (int) (((screenHeight/2) - (pictureHeight/2) - informationHeight) / 2);
+            informationPadding = (int) (((SCREEN_HEIGHT /2) - (pictureHeight/2) - informationHeight) / 2);
         }
 
         // Create grid bag constraints for the elements
@@ -755,11 +767,11 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Formats the display window using the mock database depending on whether there is a message,
-     * picture, information or a combination.
-     * @param billboardData - a HashMap which stores the background colour, message, message colour, picture,
-     *        picture type (data or url), information, and information colour of the billboard, if there is no content
-     *        for one or more of these tags, the string is null
+     * Formats the display window using depending on whether there is a message, picture, information or any combination
+     * of the three.
+     * @param billboardData A HashMap<String, String> which stores the background colour, message, message colour,
+     *      picture, picture type (data or url), information, and information colour of the billboard, if there is no
+     *      content for one or more of these tags, the string is null.
      */
     public void formatBillboard(HashMap<String, String> billboardData) {
         // Retrieve all the data from the HashMap
@@ -830,7 +842,7 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Setups the basics of the billboard regardless of what is being displayed
+     * Sets up the basic layout of the billboard.
      */
     public void setupBillboard() {
         // Create a border layout and aff the main panel to the billboard
@@ -878,19 +890,18 @@ public class Viewer extends JFrame implements Runnable {
 
 
     /**
-     * Show the GUI for displaying the billboard.
+     * Shows the GUI to display the Viewer.
      */
     public void showViewer() {
-        // Displaying the window to be completely full screen
+        // Displaying the window to be completely full screen and visible
         setExtendedState(Frame.MAXIMIZED_BOTH);
-        // FIXME: moved setDecorated to constructor
         setVisible(true);
     }
 
 
     /**
-     * Displays the billboards to the viewer.
-     * @param billboardXML A File extracted from the database which can be examined to display the billboard.
+     * Displays the billboard on the viewer.
+     * @param billboardXML A String which stores the xml file to be displayed.
      */
     public void displayBillboard(String billboardXML) {
         // TODO: Might need to do something to clean up the current screen.
@@ -906,11 +917,12 @@ public class Viewer extends JFrame implements Runnable {
 
             // Testing from the provided xml files
             // TODO: Remove (or comment out) the testing of provided xml files.
-           // Document xmlDoc = extractXMLFile(6);
-           // HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
+            // Document xmlDoc = extractXMLFile(6);
+            // HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
 
             // Display the billboard
             formatBillboard(billboardDataServer);
+
         } catch (ParserConfigurationException | IOException | SAXException e) {
             // Display an error is the xml File couldn't be parsed in
             displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");
@@ -922,8 +934,8 @@ public class Viewer extends JFrame implements Runnable {
     }
 
     /**
-     * Displays a special message on the billboard e.g. an error message.
-     * @param message - the message to display on the screen
+     * Displays just a special message on the billboard e.g. an error message.
+     * @param message A String which represents the message to display on the screen.
      */
     public void displaySpecialMessage(String message) {
         // TODO: Might need to do something to clean up the current screen.
@@ -939,14 +951,8 @@ public class Viewer extends JFrame implements Runnable {
     }
 
 
-    /**
-     * Determines whether a billboard xml was received from the server
-     * @return - a boolean which tells us if we received an xml (true) or an empty string (false)
-     */
-    public Boolean noBillboard() {
-        if ( serverResponse.isEmpty() ) { return true; }
-        else { return false; }
-    }
+    // Contains the server's response (Billboard XML) as a string
+    private String serverResponse;
 
 
     @Override
@@ -955,8 +961,9 @@ public class Viewer extends JFrame implements Runnable {
             // TODO: Check this works
             serverResponse = ScheduleAdmin.getCurrentBillboardXML();
             System.out.println("Received from server: " + serverResponse);
-            displayBillboard(serverResponse);
-            if (noBillboard()) {
+            if (!serverResponse.isEmpty()) {
+                displayBillboard(serverResponse);
+            } else {
                 displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             }
         } catch (IOException | SQLException e) {
@@ -968,6 +975,9 @@ public class Viewer extends JFrame implements Runnable {
 
     public static void main(String[] args ) {
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate(new Viewer(), 0, 15, TimeUnit.SECONDS);
+        executor.scheduleAtFixedRate( new Viewer(), 0, 15, TimeUnit.SECONDS);
     }
+
+
+
 }
