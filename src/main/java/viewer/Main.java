@@ -18,6 +18,7 @@ public class Main implements Runnable {
     @Override
     public void run() {
         Viewer viewer = new Viewer();
+        System.out.println("Instantiated viewer");
         try {
             serverResponse = ScheduleAdmin.getCurrentBillboardXML();
             System.out.println("Received from server: " + serverResponse);
@@ -29,8 +30,9 @@ public class Main implements Runnable {
             }
         } catch (IOException | SQLException e) {
             viewer.displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
+        } catch (Exception e) {
+            e.printStackTrace(); // Something else occurred
         }
-        // displayBillboard(serverResponse);
     }
 
 
