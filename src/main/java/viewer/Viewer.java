@@ -31,7 +31,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 
-public class Viewer extends JFrame implements Runnable {
+public class Viewer extends JFrame {
 
     // Set up the panels, labels, image icons etc. to display the different parts of the billboard
     private JPanel mainPanel;
@@ -951,32 +951,6 @@ public class Viewer extends JFrame implements Runnable {
     }
 
 
-    // Contains the server's response (Billboard XML) as a string
-    private String serverResponse;
-
-
-    @Override
-    public void run() {
-        try {
-            // TODO: Check this works
-            serverResponse = ScheduleAdmin.getCurrentBillboardXML();
-            System.out.println("Received from server: " + serverResponse);
-            if (!serverResponse.isEmpty()) {
-                displayBillboard(serverResponse);
-            } else {
-                displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
-            }
-        } catch (IOException | SQLException e) {
-            displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
-        }
-        // displayBillboard(serverResponse);
-    }
-
-
-    public static void main(String[] args ) {
-        ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
-        executor.scheduleAtFixedRate( new Viewer(), 0, 15, TimeUnit.SECONDS);
-    }
 
 
 
