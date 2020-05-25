@@ -29,16 +29,24 @@ public class UserEditView extends AbstractUserView
         setEditable(true);
         passwordText = null;
         addSubmitButton();
+        addSetPasswordButton();
     }
 
     protected void addSubmitButton()
     {
         submitButton = new JButton("Submit");
-        setPasswordButton = new JButton("Set Password");
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
         navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
-        navPanel.add(setPasswordButton, setGBC(gbc,4,1,1,1));
+
+    }
+
+    private void addSetPasswordButton()
+    {
+        JPanel userPanel = getUserPanel();
+        GridBagConstraints gbc = getUserPanelGBC();
+        setPasswordButton = new JButton("Set Password");
+        userPanel.add(setPasswordButton, setGBC(gbc,1,5,1,1));
     }
 
     protected ArrayList<Object> getUserInfo()

@@ -102,6 +102,16 @@ public abstract class AbstractUserView extends AbstractGenericView
         createBBPermission.setEnabled(editable);
     }
 
+    protected JPanel getUserPanel()
+    {
+        return userDetailsPane;
+    }
+
+    protected GridBagConstraints getUserPanelGBC()
+    {
+        return gbc;
+    }
+
     @Override
     public void update(Subject s) {
 

@@ -168,8 +168,6 @@ public class Controller
     private void addUserListListener()
     {
         addGenericListeners(USER_LIST);
-//        UserListView userListView = (UserListView) views.get(USER_LIST);
-//        views.put(USER_LIST, userListView);
     }
 
 
@@ -207,7 +205,6 @@ public class Controller
     {
         addGenericListeners(BB_MENU);
         BBMenuView bbMenuView = (BBMenuView) views.get(BB_MENU);
-        // add listeners
         bbMenuView.addBBCreateButtonListener(new BBCreateButtonListener());
         bbMenuView.addBBListListener(new ListBBListener());
         views.put(BB_MENU, bbMenuView);
@@ -241,8 +238,6 @@ public class Controller
     private void addBBListListener()
     {
         addGenericListeners(BB_LIST);
-//        BBListView bbListView = (BBListView) views.get(BB_LIST);
-//        views.put(BB_LIST, bbListView);
     }
 
     //---------------------------------- SCHEDULE LISTENER ------------------------------
@@ -287,6 +282,10 @@ public class Controller
      */
     private void updateView(VIEW_TYPE newView)
     {
+        System.out.println(model.getCurrentView());
+        System.out.println(newView);
+
+
         hideView(model.getCurrentView());
         // set up new frame
         showView(newView);
@@ -327,7 +326,6 @@ public class Controller
         // attach observer (this listens for model updates)
         model.attachObserver(view);
         // set current view in model
-        // FIXME: make this generic for setting current and previous view
         model.setCurrentView(view.getEnum());
         // set view as visible
         view.setVisible(true);
@@ -347,22 +345,21 @@ public class Controller
             case HOME:
                 HomeView homeView = (HomeView) views.get(VIEW_TYPE.HOME);
                 homeView.setWelcomeText(model.getUsername());
-                // FIXME: this is where Requests would be made to the Server
-                // FIXME: checkPermission(model.getUsername(), 2, model.getSessionToken());
                 homeView.usersButton.setVisible(true);
-                // TODO: at the end - store updated version of view in HashMap
+                views.put(HOME, homeView);
                 break;
+
             case LOGIN:
                 System.out.println("Check LogIn permission");
                 break;
+
             case SCHEDULE_WEEK:
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
                 scheduleWeekView.setWelcomeText(model.getUsername());
 
-                // FIXME: SERVER CALL: getBillboardSchedule(Monday), getBillboardSchedule(Tuesday) which will return ArrayList<ArrayList<String>>
-
                 //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
 
+                // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
                 // Billboard Schedule: day, time, bb name
                 ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
                 billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
@@ -383,11 +380,12 @@ public class Controller
                 schedule.add(billboardScheduleTuesday);
 
                 scheduleWeekView.populateSchedule(schedule);
+                views.put(SCHEDULE_WEEK, scheduleWeekView);
                 break;
+
             case SCHEDULE_UPDATE:
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
                 scheduleUpdateView.setWelcomeText(model.getUsername());
-                // FIXME: call to server: get BB names
 
                 BillboardList billboardList = null;
                 try {
@@ -401,9 +399,71 @@ public class Controller
                 scheduleUpdateView.setBBNamesFromDB(stringArray);
                 scheduleUpdateView.showInstructionMessage();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                break;
+
+            case SCHEDULE_MENU:
+                ScheduleMenuView scheduleMenuView = (ScheduleMenuView) views.get(SCHEDULE_MENU);
+                scheduleMenuView.setWelcomeText(model.getUsername());
+                views.put(SCHEDULE_MENU, scheduleMenuView);
+                break;
+
+
             case USER_LIST:
                 listUserHandling();
+                break;
 
+            case USER_EDIT:
+                UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+                userEditView.setWelcomeText(model.getUsername());
+                views.put(USER_EDIT, userEditView);
+                break;
+
+            case USER_PROFILE:
+                UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
+                userProfileView.setWelcomeText(model.getUsername());
+                views.put(USER_PROFILE, userProfileView);
+                break;
+
+            case USER_VIEW:
+                UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
+                userPreviewView.setWelcomeText(model.getUsername());
+                views.put(USER_VIEW, userPreviewView);
+                break;
+
+            case USERS_MENU:
+                UsersMenuView usersMenuView = (UsersMenuView) views.get(USERS_MENU);
+                usersMenuView.setWelcomeText(model.getUsername());
+                views.put(USERS_MENU, usersMenuView);
+                break;
+
+            case BB_LIST:
+                // get list BB view
+                BBListView bbListView = (BBListView) views.get(BB_LIST);
+                bbListView.setWelcomeText(model.getUsername());
+                ArrayList<String> BBListArray = null;
+                try {
+                    BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+                    BBListArray = billboard_List.getBillboardNames();
+                } catch (IOException | ClassNotFoundException ex) {
+                    ex.printStackTrace();
+                    // FIXME: pop up error window!
+                }
+                // FIXME: if null is returned handle correctly!!!
+                bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+                views.put(BB_LIST, bbListView);
+                break;
+
+            case BB_CREATE:
+                BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+                bbCreateView.setWelcomeText(model.getUsername());
+                views.put(BB_CREATE, bbCreateView);
+                break;
+
+            case BB_MENU:
+                BBMenuView bbMenuView = (BBMenuView) views.get(BB_MENU);
+                bbMenuView.setWelcomeText(model.getUsername());
+                views.put(BB_MENU, bbMenuView);
+                break;
         }
     }
 
@@ -462,6 +522,8 @@ public class Controller
 
             // Get user permissions from server
             getUserPermissionsFromServer(userProfileView, USER_PROFILE, username);
+
+            views.put(USER_PROFILE, userProfileView);
 
             // navigate to home screen
             updateView(USER_PROFILE);
@@ -684,6 +746,7 @@ public class Controller
                         // TODO: Give user a chance to type in a new username (clear existing)
                 }
                 views.put(USER_EDIT, userEditView);
+                System.out.println(model.getCurrentView());
 
                 // navigate to edit menu screen
                 updateView(USERS_MENU);
@@ -866,10 +929,10 @@ public class Controller
             ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
             // FIXME: setPermissions is wrong mapping
             userView.setPermissions(userPermissions);
-            views.put(viewType, userView);
+            //views.put(viewType, userView);
         } catch (IOException | ClassNotFoundException ex) {
             userView.showFatalError();
-            views.put(viewType, userView);
+            //views.put(viewType, userView);
             // TODO: terminate Control Panel and restart
             ex.printStackTrace();
             // If the return is not an array list of booleans, an exception occurred
@@ -883,7 +946,7 @@ public class Controller
                 userView.showNoSuchUserException();
                 // TODO: navigate to logout/login screen
             }
-            views.put(viewType, userView);
+            //views.put(viewType, userView);
         }
     }
 
@@ -1018,9 +1081,8 @@ public class Controller
 
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
-                // FIXME: getXMLCode should return file not a string
                 String xmlFile = billboardObject.getXMLCode();
-                System.out.println("xml file from BB list "+xmlFile);
+                System.out.println("XML " + xmlFile);
                 BBViewer.displayBillboard(xmlFile);
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
@@ -1042,22 +1104,6 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: List BB button clicked");
-
-            // get list BB view
-            BBListView bbListView = (BBListView) views.get(BB_LIST);
-
-            ArrayList<String> stringArray = null;
-            try {
-                BillboardList billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
-                stringArray = billboardList.getBillboardNames();
-            } catch (IOException | ClassNotFoundException ex) {
-                ex.printStackTrace();
-                // FIXME: pop up error window!
-            }
-            // FIXME: if null is returned handle correctly!!!
-            bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
-            views.put(BB_LIST, bbListView);
-
             // navigate to bb list screen
             updateView(BB_LIST);
         }
