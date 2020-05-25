@@ -298,6 +298,7 @@ public class Viewer extends JFrame {
         int currentFontSize = messageLabel.getFont().getSize();
         int fontSize = currentFontSize;
 
+
         // Horizontal spacing on borders
         double screenWidthBorder = 75;
 
