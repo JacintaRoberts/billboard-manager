@@ -550,7 +550,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      * Add BB Names to the ComboBox Selector such that users are able to select their Billboard to schedule.
      * @param BBNames string array of all billboard names
      */
-    protected void setBBNamesFromDB(String[] BBNames)
+    protected void setBBNamesFromDB(ArrayList<String> BBNames)
     {
         // add each billboard name to the combobox selector
         for (String name: BBNames)
@@ -575,7 +575,6 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void calcDuration()
     {
-        System.out.println("Set DURATION");
         // ################## USER INPUT ##################
         // get user input: start and end hour
         int startHour = (int) startHourSelector.getSelectedItem();
@@ -707,12 +706,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         scheduleInfo.add(duration);
         scheduleInfo.add(recurrenceButton);
         scheduleInfo.add(min_repeat);
-
-        // FIXME: remove later after debugging
-//        for (Object object : scheduleInfo)
-//        {
-//            System.out.println("item scheduled " + object);
-//        }
 
         // return schedule information
         return scheduleInfo;

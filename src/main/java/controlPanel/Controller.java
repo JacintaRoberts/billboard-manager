@@ -388,8 +388,17 @@ public class Controller
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
                 scheduleUpdateView.setWelcomeText(model.getUsername());
                 // FIXME: call to server: get BB names
-                String[] names = {"Myer", "Anaconda", "David Jones"};
-                scheduleUpdateView.setBBNamesFromDB(names);
+
+                BillboardList billboardList = null;
+                try {
+                    billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+                } catch (IOException | ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
+                // FIXME: handle when BB name is null
+                ArrayList<String> stringArray = billboardList.getBillboardNames();
+
+                scheduleUpdateView.setBBNamesFromDB(stringArray);
                 scheduleUpdateView.showInstructionMessage();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             case USER_LIST:
@@ -1253,17 +1262,23 @@ public class Controller
 
             String bbName = bbCreateView.getSelectedBBName();
 
-            try {
-                DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), bbName);
-                String xmlFile = billboardObject.getXMLCode();
-                System.out.println("full BB preview from BB Create" + xmlFile);
-                BBViewer.displayBillboard(xmlFile);
-            }
-            catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
+            if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
             {
-                ex.printStackTrace();
+                try {
+                    String xmlFile = bbCreateView.getBBXMLString();
+                    System.out.println("full BB preview from BB Create" + xmlFile);
+                    BBViewer.displayBillboard(xmlFile);
+                }
+                catch (IllegalComponentStateException | TransformerException | ParserConfigurationException ex)
+                {
+                    ex.printStackTrace();
+                    bbCreateView.showInvalidXMLMessage();
+                    views.put(BB_CREATE, bbCreateView);
+                }
+            }
+            else
+            {
                 bbCreateView.showInvalidXMLMessage();
-                views.put(BB_CREATE, bbCreateView);
             }
         }
     }

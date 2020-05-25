@@ -59,6 +59,9 @@ public class Viewer extends JFrame implements Runnable {
         pictureLabel = new JLabel();
         informationLabel = new JLabel();
 
+        // FIXME: KANU, Patrice moved this from showViewer() to the constructor
+        setUndecorated(true);
+
         // Dimensions of screen the viewer will display on
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         screenHeight = screenSize.height;
@@ -880,7 +883,7 @@ public class Viewer extends JFrame implements Runnable {
     public void showViewer() {
         // Displaying the window to be completely full screen
         setExtendedState(Frame.MAXIMIZED_BOTH);
-        setUndecorated(true);
+        // FIXME: moved setDecorated to constructor
         setVisible(true);
     }
 
