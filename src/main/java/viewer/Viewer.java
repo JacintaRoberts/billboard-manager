@@ -903,11 +903,11 @@ public class Viewer extends JFrame implements Runnable {
 
             // Testing from the provided xml files
             // TODO: Remove (or comment out) the testing of provided xml files.
-            Document xmlDoc = extractXMLFile(6);
-            HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
+           // Document xmlDoc = extractXMLFile(6);
+           // HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
 
             // Display the billboard
-            formatBillboard(billboardData);
+            formatBillboard(billboardDataServer);
         } catch (ParserConfigurationException | IOException | SAXException e) {
             // Display an error is the xml File couldn't be parsed in
             displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");

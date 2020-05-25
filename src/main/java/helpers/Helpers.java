@@ -106,7 +106,7 @@ public class Helpers {
         // Write message to server and receive server's return object
         oos.writeUTF(message);
         oos.flush();
-        System.out.println("Sent message to server: " + message);
+        //System.out.println("Sent message to server: " + message);
         Object serverResponse = ois.readObject();
         System.out.println("Received from server: " + serverResponse);
 

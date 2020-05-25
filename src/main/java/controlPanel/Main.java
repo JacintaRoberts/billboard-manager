@@ -16,7 +16,7 @@ public class Main {
     // create enum for all application views
     protected enum VIEW_TYPE {
         LOGIN, HOME,
-        BB_MENU, BB_LIST, BB_CREATE, BB_PREVIEW,
+        BB_MENU, BB_LIST, BB_CREATE,
         USERS_MENU, USER_VIEW,USER_LIST, USER_EDIT, USER_PROFILE,
         SCHEDULE_WEEK, SCHEDULE_MENU, SCHEDULE_UPDATE;
     }

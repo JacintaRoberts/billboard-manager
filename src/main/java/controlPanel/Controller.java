@@ -5,9 +5,12 @@ import org.w3c.dom.Document;
 import org.xml.sax.SAXException;
 import server.*;
 import server.Server.ServerAcknowledge;
+import viewer.Viewer;
+
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
+import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.io.IOException;
@@ -33,6 +36,7 @@ public class Controller
     private HashMap<VIEW_TYPE, AbstractView> views;
     private Object serverResponse;
     private String sessionToken;
+    private BBFullPreview BBViewer;
 
     /*
      #################################### CONSTRUCTOR ####################################
@@ -67,6 +71,9 @@ public class Controller
         addBBMenuListener();
         addBBCreateListener();
         addBBListListener();
+
+        BBViewer = new BBFullPreview();
+        // FIXME: do I need to hide?
 
         // set up Log In view
         showView(LOGIN);
@@ -1003,9 +1010,7 @@ public class Controller
 
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
-                // FIXME: getXMLCode should return file not a string
-                File xmlFile = null;
-                //File xmlFile = billboardObject.getXMLCode();
+                String xmlFile = billboardObject.getXMLCode();
                 bbCreateView.addBBXML(xmlFile);
             }
             catch (IOException | ClassNotFoundException ex)
@@ -1071,25 +1076,20 @@ public class Controller
             JButton button = (JButton) e.getSource();
             String BBName = button.getName();
 
-            BBPreviewView bbPreviewView = (BBPreviewView) views.get(BB_PREVIEW);
-
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 // FIXME: getXMLCode should return file not a string
-                //File xmlFile = billboardObject.getXMLCode();
-                //bbPreviewView.addBBXML(xmlFile);
-                views.put(BB_PREVIEW, bbPreviewView);
-                updateView(BB_PREVIEW);
+                String xmlFile = billboardObject.getXMLCode();
+                System.out.println("xml file from BB list "+xmlFile);
+                BBViewer.displayBillboard(xmlFile);
             }
-            catch (IOException | ClassNotFoundException ex)
+            catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
-                ex.printStackTrace();
+                //ex.printStackTrace();
+                BBListView bbListView = (BBListView) views.get(BB_LIST);
+                bbListView.showBBInvalid();
+                views.put(BB_LIST, bbListView);
             }
-
-            // FIXME: show pop up window to say the BB cannot be previewed as XML is invalid
-            BBListView bbListView = (BBListView) views.get(BB_LIST);
-            bbListView.showBBInvalid();
-            views.put(BB_LIST, bbListView);
         }
     }
 
@@ -1112,24 +1112,9 @@ public class Controller
                 stringArray = billboardList.getBillboardNames();
             } catch (IOException | ClassNotFoundException ex) {
                 ex.printStackTrace();
+                // FIXME: pop up error window!
             }
             // FIXME: if null is returned handle correctly!!!
-//            ArrayList<String> stringArray = new ArrayList<>();
-//            stringArray.add("Myer's Biggest Sale");
-//            stringArray.add("Kathmandu Summer Sale");
-//            stringArray.add("Quilton's Covid Special");
-//            stringArray.add("Macca's New Essentials Range");
-//            stringArray.add("David Jones's Biggest Sale");
-//            stringArray.add("BigW Summer Sale");
-//            stringArray.add("Kmarts's Covid Special");
-//            stringArray.add("Mecca's New Essentials Range");
-//            stringArray.add("Peter Alexanders's Biggest Sale");
-//            stringArray.add("Target Summer Sale");
-//            stringArray.add("BigW Summer Sale");
-//            stringArray.add("Kmarts's Covid Special");
-//            stringArray.add("Mecca's New Essentials Range");
-//            stringArray.add("Peter Alexanders's Biggest Sale");
-//            stringArray.add("Target Summer Sale");
             bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
             views.put(BB_LIST, bbListView);
 
@@ -1202,34 +1187,47 @@ public class Controller
                 // if user confirms BB creation, show scheduling option
                 if (confirmCreation == 0)
                 {
-//                    try {
-//                        //String BBXMLFile = bbCreateView.getBBXML();
-//                    } catch (ParserConfigurationException ex)
-//                    {
-//                        ex.printStackTrace();
-//                    }
+                    String createBBReq = null;
 
-                    // FIXME: xmlCode will be an XML File
-                    //String createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile, model.getUsername());
-
-                    // show scheduling option - asking user if they want to schedule BB now
-                    int optionSelected = bbCreateView.showSchedulingOption();
-
-                    // User Selected YES to schedule BB
-                    if (optionSelected == 0)
+                    try {
+                        String BBXMLFile = bbCreateView.getBBXMLString();
+                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), model.getUsername(), bbName, BBXMLFile);
+                    } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
                     {
-                        // set BB name selected in schedule view to the newly added BB
-                        ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-                        scheduleUpdateView.setBBSelected(bbName);
-                        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
-                        // navigate to schedule create view
-                        updateView(SCHEDULE_UPDATE);
+                        ex.printStackTrace();
+                        createBBReq = "Error encountered whilst creating BB. Exception " + ex.toString();
+                        System.out.println("Error encountered whilst creating BB. Exception " + ex.toString());
                     }
-                    // User Selected NO to skip scheduling the BB
-                    else if (optionSelected == 1)
+
+                    if (createBBReq != null)
                     {
-                        // you have just created a bb message
-                        bbCreateView.showBBCreatedSuccessMessage();
+                        if (createBBReq.equals("Fail: Billboard Already Exists"))
+                        {
+                            // show pop up error - bb name already exists
+                            System.out.println("BB Name already exists!");
+                        }
+                        else
+                        {
+                            // show scheduling option - asking user if they want to schedule BB now
+                            int optionSelected = bbCreateView.showSchedulingOption();
+
+                            // User Selected YES to schedule BB
+                            if (optionSelected == 0)
+                            {
+                                // set BB name selected in schedule view to the newly added BB
+                                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                                scheduleUpdateView.setBBSelected(bbName);
+                                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                                // navigate to schedule create view
+                                updateView(SCHEDULE_UPDATE);
+                            }
+                            // User Selected NO to skip scheduling the BB
+                            else if (optionSelected == 1)
+                            {
+                                // you have just created a bb message
+                                bbCreateView.showBBCreatedSuccessMessage();
+                            }
+                        }
                     }
                 }
             }
@@ -1252,19 +1250,21 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Preview BB button clicked");
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            //ArrayList<Object> xml = bbCreateView.getBBXML();
 
+            String bbName = bbCreateView.getSelectedBBName();
 
-//            if (xml != null)
-//            {
-//                BBPreviewView bbPreviewView = (BBPreviewView) views.get(BB_PREVIEW);
-//                bbPreviewView.addBBXML(xml);
-//                views.put(BB_PREVIEW, bbPreviewView);
-//            }
-
-            // FIXME: show a pop up message to alert user that the XML is invalid and hence the BB cannot be previewed
-            views.put(BB_CREATE, bbCreateView);
-            updateView(BB_PREVIEW);
+            try {
+                DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), bbName);
+                String xmlFile = billboardObject.getXMLCode();
+                System.out.println("full BB preview from BB Create" + xmlFile);
+                BBViewer.displayBillboard(xmlFile);
+            }
+            catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
+            {
+                ex.printStackTrace();
+                bbCreateView.showInvalidXMLMessage();
+                views.put(BB_CREATE, bbCreateView);
+            }
         }
     }
 
@@ -1386,11 +1386,30 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-            try {
-                bbCreateView.browseExportFolder();
-            } catch (ParserConfigurationException | TransformerException ex) {
-                ex.printStackTrace();
+            if (bbCreateView.checkBBValid())
+            {
+                int value = bbCreateView.showFolderChooserSelector();
+
+                if(value == JFileChooser.APPROVE_OPTION)
+                {
+                    String filename = bbCreateView.enterXMLFileName();
+                    if (filename != null || !filename.equals(""))
+                    {
+                        try {
+                            bbCreateView.browseExportFolder(filename);
+                            bbCreateView.showSuccessfulExport();
+                        } catch (ParserConfigurationException | TransformerException ex) {
+                            ex.printStackTrace();
+                            bbCreateView.showBBInvalidErrorMessage();
+                        }
+                    }
+                }
             }
+            else
+            {
+                bbCreateView.showBBInvalidErrorMessage();
+            }
+
             views.put(BB_CREATE, bbCreateView);
         }
     }
