@@ -19,7 +19,6 @@ public class Model extends Subject
     public Model()
     {
         // set the current to LOGIN frame & previous to HOME
-        // FIXME: is there a better way of doing this?
         currentView = VIEW_TYPE.LOGIN;
         previousView = VIEW_TYPE.HOME;
     }
@@ -51,6 +50,7 @@ public class Model extends Subject
         // redefine previous and current view
         this.previousView = this.currentView;
         this.currentView = newView;
+
     }
 
     /**

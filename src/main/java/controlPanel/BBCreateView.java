@@ -27,6 +27,7 @@ import controlPanel.Main.VIEW_TYPE;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import static javax.swing.JOptionPane.*;
 import static viewer.Viewer.*;
@@ -883,6 +884,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected boolean addBBXML(String xmlStringToDisplay)
     {
+        System.out.println("XML file " + xmlStringToDisplay);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         Document document;
@@ -892,7 +894,7 @@ public class BBCreateView extends AbstractGenericView
             document = builder.parse( new InputSource( new StringReader( xmlStringToDisplay)));
             setXMLBB(document);
             return true;
-        } catch (Exception e) {
+        } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();
             return false;
         }
