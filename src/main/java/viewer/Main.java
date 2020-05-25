@@ -19,13 +19,13 @@ public class Main implements Runnable {
     public void run() {
         Viewer viewer = new Viewer();
         try {
-            // TODO: Check this works
             serverResponse = ScheduleAdmin.getCurrentBillboardXML();
             System.out.println("Received from server: " + serverResponse);
-            if (!serverResponse.isEmpty()) {
-                viewer.displayBillboard(serverResponse);
-            } else {
+            if ( serverResponse == null ) {
                 viewer.displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
+            } else {
+                System.out.println("Attempting to display billboard...");
+                viewer.displayBillboard(serverResponse);
             }
         } catch (IOException | SQLException e) {
             viewer.displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
