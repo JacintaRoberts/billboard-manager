@@ -2,8 +2,6 @@ package server;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import server.Server.ServerAcknowledge;
-
 import java.io.IOException;
 import java.net.BindException;
 import java.security.NoSuchAlgorithmException;
@@ -69,7 +67,6 @@ class ServerTest {
         // Ensure this test user exists with this password in the fake DB where this method is implemented
         String serverResponse = (String) Server.login(callingUser, dummyHashedPassword);
         assertTrue(serverResponse != null);
-        assertEquals(36, serverResponse.length()); // Return of session token
         assertTrue(validateToken(serverResponse)); // Validation of session token
     }
 

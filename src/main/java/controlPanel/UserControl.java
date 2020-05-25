@@ -143,4 +143,25 @@ public class UserControl {
         return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
+
+    /**
+     * Sends a user's request to set a user's permissions in the database to the server
+     * Receives a server acknowledgement from the server - Success or Failure acknowledgment
+     * @param sessionToken Session token for the current log in (contains calling user)
+     * @param username the username of the user's permissions to be set
+     * @param createBillboard Boolean value to indicate whether the user has the createBillboards permission
+     * @param editBillboard Boolean value to indicate whether the user has the editBillboards permission
+     * @param scheduleBillboard Boolean value to indicate whether the user has the scheduleBillboards permission
+     * @param editUser Boolean value to indicate whether the user has the editUsers permission
+     * @return ServerAcknowledge for success or error message
+     * @throws IOException Thrown if unknown server host when communicating through sockets.
+     * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
+     */
+    public ServerAcknowledge setPermissionsRequest(String sessionToken, String username, Boolean createBillboard,
+                                                   Boolean editBillboard, Boolean scheduleBillboard, Boolean editUser)
+                                                    throws IOException, ClassNotFoundException {
+        String message = String.format("User,setPermissions,%s,%s,%s,%s,%s,%s", sessionToken, username, createBillboard,
+                                                                        editBillboard, scheduleBillboard, editUser);
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    }
 }

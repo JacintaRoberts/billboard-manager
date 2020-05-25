@@ -265,8 +265,9 @@ public class UserAdmin {
 
 
 
-    public ServerAcknowledge setUserPermissions(String sessionToken, String username, boolean createBillboards,
-                                     boolean editBillboards, boolean editSchedules, boolean editUsers) throws IOException, SQLException {
+    public static ServerAcknowledge setPermissions(String sessionToken, String username, boolean createBillboards,
+                                                   boolean editBillboards, boolean editSchedules, boolean editUsers)
+                                                                            throws IOException, SQLException {
         if (validateToken(sessionToken)) {
             String callingUsername = getUsernameFromToken(sessionToken);
             if (!hasPermission(callingUsername, EditUser)) {

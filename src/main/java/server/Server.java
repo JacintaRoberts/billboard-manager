@@ -226,6 +226,14 @@ public class Server {
             case "getPermissions":
                 username = additionalArgs[0];
                 return UserAdmin.getPermissions(sessionToken, username); // Returns boolean array list of usernames or server acknowledge error
+            case "setPermissions":
+                username = additionalArgs[0];
+                createBillboard = parseBoolean(additionalArgs[1]);
+                editBillboard = parseBoolean(additionalArgs[2]);
+                scheduleBillboard = parseBoolean(additionalArgs[3]);
+                editUser = parseBoolean(additionalArgs[4]);
+                // Returns boolean array list of usernames or server acknowledge error
+                return UserAdmin.setPermissions(sessionToken, username, createBillboard, editBillboard, scheduleBillboard, editUser);
             case "setPassword":
                 username = additionalArgs[0];
                 hashedPassword = additionalArgs[1];
