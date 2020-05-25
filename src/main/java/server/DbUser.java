@@ -95,10 +95,8 @@ public class DbUser {
                 for (int i = 0; i < columnCount; i++) {
                     String value = rs.getString(i + 1);
                     retrievedUser.add(value);
-                    System.out.printf("%-20s", value);
                 }
             }
-            System.out.println(""); // newline
             return retrievedUser; // populated
         } catch (SQLIntegrityConstraintViolationException err) {
             return retrievedUser; // empty
@@ -157,7 +155,6 @@ public class DbUser {
                     rowCount++;
                     String value = rs.getString("username");
                     usernameList.add(value);
-                    System.out.println(value + " was found in the database");
                 }
                 System.out.println(rowCount + " users were found in the database");
                 return usernameList;
