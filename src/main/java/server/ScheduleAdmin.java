@@ -8,6 +8,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -851,57 +852,65 @@ public class ScheduleAdmin {
      * @param currentTime A LocalTime object which notes the current time of request
      * @return Returns a CurrentSchedule object noting any active schedules. Each field is an array and can be read via getters.
      */
-    public static CurrentSchedule viewCurrentSchedule(ScheduleList allDaySchedule, LocalTime currentTime) throws IOException, SQLException {
-        // Initialise currentSchedule
-        CurrentSchedule currentSchedule = null;
-        // Initialise Variable
-        ArrayList<String> retrievedBillboard = new ArrayList<>();
-        ArrayList<String> retrievedStartTime = new ArrayList<>();
-        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
-        // Create looping Variable
-        int numBillboards = allDaySchedule.getScheduleBillboardName().size();
-        // Initialise local variables for calculations
-        LocalTime startTime ;
-        LocalTime endTime ;
-        int repeatMinutes ;
-        int minTillEnd ;
-        int extraSched;
-        int duration ;
-        int counter = 0;
-        String billboardName;
-        String creationDateTime;
-        String serverResponse;
-        // Loop through all billboards and see if it is within range
-        for (int i = 0; i < numBillboards; i++) {
-            billboardName = allDaySchedule.getScheduleBillboardName().get(i);
-            startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i)) ;
-            duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
-            endTime =  startTime.plusMinutes(duration);
-            creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
-            if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)){
-                retrievedBillboard.add(billboardName);
-                retrievedStartTime.add(String.valueOf(startTime));
-                retrievedCreationDateTime.add(creationDateTime);
-                counter++;
+    public static CurrentSchedule viewCurrentSchedule(ScheduleList allDaySchedule, LocalTime currentTime) {
+        try {
+            // Initialise currentSchedule
+            CurrentSchedule currentSchedule = null;
+            // Initialise Variable
+            ArrayList<String> retrievedBillboard = new ArrayList<>();
+            ArrayList<String> retrievedStartTime = new ArrayList<>();
+            ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+            // Create looping Variable
+            int numBillboards = allDaySchedule.getScheduleBillboardName().size();
+            // Initialise local variables for calculations
+            LocalTime startTime ;
+            LocalTime endTime ;
+            int repeatMinutes ;
+            int minTillEnd ;
+            int extraSched;
+            int duration ;
+            int counter = 0;
+            String billboardName;
+            String creationDateTime;
+            String serverResponse;
+            // Loop through all billboards and see if it is within range
+            for (int i = 0; i < numBillboards; i++) {
+                billboardName = allDaySchedule.getScheduleBillboardName().get(i);
+                startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i));
+                duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
+                endTime =  startTime.plusMinutes(duration);
+                creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
+                if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)){
+                    retrievedBillboard.add(billboardName);
+                    retrievedStartTime.add(String.valueOf(startTime));
+                    retrievedCreationDateTime.add(creationDateTime);
+                    counter++;
+                    System.out.println("counter inc");
+                }
             }
+            // Return message setting
+            System.out.println("Counter value: " + counter);
+            if (counter > 0){
+                serverResponse = "Pass: Current Active Schedule Returned";
+            } else {
+                serverResponse = "Fail: No current Active Schedule";
+                retrievedBillboard.add("0");
+                retrievedStartTime.add("0");
+                retrievedCreationDateTime.add("0");
+            }
+            System.out.println(serverResponse);
+            // Create currentSchedule Object
+            currentSchedule = new CurrentSchedule(serverResponse,
+                    retrievedBillboard,
+                    retrievedStartTime,
+                    retrievedCreationDateTime
+            );
+            System.out.println("Current schedule object created");
+            // Return currentSchedule
+            return currentSchedule;
+        } catch (DateTimeParseException e) { // FIXME: Band-aid fix. If no schedule exists it will try to parse "0" to a date-time
+            return null;
         }
-        // Return message setting
-        if (counter > 0){
-            serverResponse = "Pass: Current Active Schedule Returned";
-        } else {
-            serverResponse = "Fail: No current Active Schedule";
-            retrievedBillboard.add("0");
-            retrievedStartTime.add("0");
-            retrievedCreationDateTime.add("0");
-        }
-        // Create currentSchedule Object
-        currentSchedule = new CurrentSchedule(serverResponse,
-                retrievedBillboard,
-                retrievedStartTime,
-                retrievedCreationDateTime
-        );
-        // Return currentSchedule
-        return currentSchedule;
     }
 
 
@@ -944,43 +953,39 @@ public class ScheduleAdmin {
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalTime currentTime = localDateTime.toLocalTime();
         String currentDayOfWeek = localDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
-
         // Get today's schedule
         ScheduleList todayScheduleList = listFilteredScheduleInformation(currentDayOfWeek);
-
         // Get the current schedule (based on the time) and the billboard name
         CurrentSchedule currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
-        ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
-        String currentBillboardName;
+        try {
+            ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
+            String currentBillboardName;
+            if (!currentScheduleBillboardNames.isEmpty()) {
+                if (currentScheduleBillboardNames.size() == 1) {
+                    // There is only one billboard
+                    currentBillboardName = String.valueOf(currentScheduleBillboardNames);
+                } else {
+                    // There is more than one billboard scheduled for right now, so get their creation date time
+                    ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
+                    ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
+                    // Parse strings into LocalDateTime with the correct formatting
+                    for (int i = 0; i < creationDateTimeStrings.size(); i++) {
+                        LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                        creationLocalDateTimes.set(i, dateTime);
+                    }
 
-        if (!currentScheduleBillboardNames.isEmpty()) {
-            if (currentScheduleBillboardNames.size() == 1) {
-                // There is only one billboard
-                currentBillboardName = String.valueOf(currentScheduleBillboardNames);
-            }
-            else{
-                // There is more than one billboard scheduled for right now, so get their creation date time
-                ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
-                ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
-
-                // Parse strings into LocalDateTime with the correct formatting
-                for (int i = 0; i < creationDateTimeStrings.size(); i++) {
-                    LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                    creationLocalDateTimes.set(i, dateTime);
+                    // Find latest date from creation date time array and get the corresponding billboard name
+                    int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
+                    currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
                 }
-
-                // Find latest date from creation date time array and get the corresponding billboard name
-                int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
-                currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
+                // Get the chosen billboard's schedule and extract the xml code
+                DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
+                billboardXML = dbBillboardSchedule.getXMLCode();
             }
-            // Get the chosen billboard's schedule and extract the xml code
-            DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
-            billboardXML = dbBillboardSchedule.getXMLCode();
+            return billboardXML;
+        } catch (NullPointerException e) { // If no billboards currently scheduled //FIXME: THIS IS A BAND-AID FIX, PROBABLY IMPROVE THIS.
+            return null;
         }
-
-        return billboardXML;
     }
-
-
 }
