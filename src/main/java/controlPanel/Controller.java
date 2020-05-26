@@ -1,31 +1,28 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import server.*;
+import server.BillboardList;
+import server.DbBillboard;
+import server.ScheduleInfo;
 import server.Server.ServerAcknowledge;
-import viewer.Viewer;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 
-import static controlPanel.BillboardControl.deleteBillboardRequest;
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
-import static server.Server.ServerAcknowledge.*;
-import static viewer.Viewer.extractXMLFile;
 import static controlPanel.UserControl.logoutRequest;
+import static server.Server.ServerAcknowledge.*;
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
@@ -369,13 +366,7 @@ public class Controller
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
                 scheduleWeekView.setWelcomeText(model.getUsername());
 
-                try {
-                    ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
+                //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
 
                 // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
                 // Billboard Schedule: day, time, bb name
@@ -714,25 +705,21 @@ public class Controller
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            ArrayList<Boolean> userArray = userEditView.getUserInfo();
+            ArrayList<Object> userArray = userEditView.getUserInfo();
 
-            // Parsing elements from user array for the UserControl method to update user permission
-            Boolean createBillboards = userArray.get(0);
-            Boolean editBillboards = userArray.get(1);
-            Boolean editSchedules = userArray.get(2);
-            Boolean editUsers = userArray.get(3);
-            // FIXME: PATRICE - CAN YOU HAVE A LOOK, NEED TO GET USERNAME FROM USERNAME BOX RATHER THAN MODEL
-            //  TO ALLOW EDIT OF OTHER USERS. THIS IS NOT WORKING HOW I EXPECT PLS HELP
-            JButton usernameText = (JButton) e.getSource();
-            // get selected user
-            String usernameSelected = usernameText.getText();
-            System.out.println("usernameSelected is : " + usernameSelected);
+            // Parsing elements from user array for the UserControl method to update user permission/password
+            String username = (String) userArray.get(0);
+            Boolean createBillboards = (Boolean) userArray.get(1);
+            Boolean editBillboards = (Boolean) userArray.get(2);
+            Boolean editSchedules = (Boolean) userArray.get(3);
+            Boolean editUsers = (Boolean) userArray.get(4);
+
             int response = userEditView.showUserConfirmation();
             // add permissions to DB if user confirms permissions
             if (response == 0) {
                 // Store selected permissions in database
                 try {
-                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, usernameSelected,
+                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, username,
                             createBillboards, editBillboards, editSchedules, editUsers);
                     if (serverResponse.equals(Success)) {
                         userEditView.showEditPermissionsSuccess();
@@ -1276,8 +1263,17 @@ public class Controller
                     String createBBReq = null;
 
                     try {
-                        String BBXMLFile = bbCreateView.getBBXMLString();
-                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile);
+                        String BBXMLString = bbCreateView.getBBXMLString();
+                        System.out.println("Original BBXMLString is : " + BBXMLString);
+                        String BBXMLStringImageDataRemoved = RemoveImageData(BBXMLString);
+                        // Create image file from image data
+                        String imageFilePath = "src\\main\\resources\\tempImage.txt";
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(imageFilePath,false), 8); // overwrite, partition into 8kB
+                        writer.write(GetPictureData(BBXMLString));
+                        writer.close();
+                        String creator = model.getUsername();
+                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, imageFilePath, BBXMLStringImageDataRemoved);
+                        System.out.println(createBBReq);
                     } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
                     {
                         ex.printStackTrace();
@@ -1323,6 +1319,37 @@ public class Controller
                 bbCreateView.showBBInvalidErrorMessage();
             }
         }
+    }
+
+    /*
+    private String EscapeQuotations(String bbXMLString) {
+        String escapedString = bbXMLString.replace("\"", "\\\"");
+        return escapedString;
+    }*/
+
+    /**
+     * Method to extract the picture data from the original billboard xml for file storage
+     * @param bbXMLString Original billboard xml code generated from user inputs
+     * @return String representation of the base-64 encoded image data
+     */
+    private String GetPictureData(String bbXMLString) {
+        String[] splitString = bbXMLString.split("<picture data=\\\"");
+        String[] imageStrings = splitString[1].split("\"/>");
+        System.out.println("Image data returned is " + imageStrings[0]);
+        return imageStrings[0];
+    }
+
+
+    /**
+     * Method to remove the picture data tag from xml for sending to server.
+     * @param bbXMLString Original billboard xml code generated from user inputs
+     * @return bbXMLString with removed picture data tag.
+     */
+    private String RemoveImageData(String bbXMLString) {
+        String[] splitString = bbXMLString.split("<picture data=");
+        String[] imageStrings = splitString[1].split("/>");
+        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
+        return splitString[0]+imageStrings[1];
     }
 
     /**
@@ -1698,35 +1725,13 @@ public class Controller
 
                 // FIXME: ALAN - FORMAT CORRECTLY
 
-                Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
-                Boolean monday = Boolean.parseBoolean(schedule.getMonday());
-                Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
-                Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
-                Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
-                Boolean friday = Boolean.parseBoolean(schedule.getFriday());
-                Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
-                String startTime = schedule.getStartTime();
-                Integer duration = Integer.parseInt(schedule.getDuration().trim());
-                Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
+//                String monday = schedule.getMonday();
+//                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
+//                schedule.getStartTime(); // hh:mm
+//                schedule.getDuration();
+//                schedule.getRepeat(); // get repeat minutes
 
-
-
-                ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
-                String recurrenceButton;
-
-                if(minRepeat.equals(60)){
-                    recurrenceButton = "hourly";
-                } else if (minRepeat.equals(0)){
-                    recurrenceButton = "no repeats";
-                } else{
-                    recurrenceButton = "minute";
-                }
-
-                Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
-                Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
-
-
-                scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                //scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
 
 //                if (bbName.equals("Myer"))
 //                {
@@ -1805,13 +1810,7 @@ public class Controller
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
                     // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects
 
-//                    try {
-//                        ScheduleControl.updateScheduleBillboardRequest("sessionToken",scheduleInfo);
-//                    } catch (IOException ioException) {
-//                        ioException.printStackTrace();
-//                    } catch (ClassNotFoundException classNotFoundException) {
-//                        classNotFoundException.printStackTrace();
-//                    }
+                    //ScheduleControl.scheduleBillboardRequest(scheduleInfo);
 
                     scheduleUpdateView.showConfirmationDialog();
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);

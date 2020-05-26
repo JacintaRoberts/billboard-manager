@@ -1,8 +1,9 @@
 package controlPanel;
 
 import helpers.Helpers;
-import server.DbBillboard;
+import server.CpBillboard;
 
+import java.io.File;
 import java.io.IOException;
 
 public class BillboardControl
@@ -15,13 +16,15 @@ public class BillboardControl
      * This method always returns immediately.
      * @param  sessionToken A sessionToken generated when logged in
      * @param  billboardName A String which provides Billboard Name to store into database
-     * @param  xmlCode A String which provides xmlCode to store into database
+     * @param  XMLCode A String which provides xmlCode to store into database
      * @return ServerAcknowledge TODO: Refactor BillboardAdmin/ScheduleAdmin to use ServerAcknowledge Return type
      */
-    public static String createBillboardRequest(String sessionToken, String billboardName,
-                                                String xmlCode) throws IOException, ClassNotFoundException {
-    String message = String.format("Billboard,CreateBillboard,%s,%s,%s", sessionToken, billboardName, xmlCode);
-    return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+    public static String createBillboardRequest(String sessionToken, String billboardName, String creator,
+                                                String imageFilePointer, String XMLCode) throws IOException, ClassNotFoundException {
+        //CpBillboard billboard = new CpBillboard(billboardName, creator, XMLCode, imageFilePointer);
+        //String message = String.format("Billboard,CreateBillboard,%s,%s,%s,%s,%s", sessionToken,billboardName,creator,XMLCode,imageFilePointer);
+        String message = String.format("Billboard,CreateBillboard,%s,%s,%s,%s,%s", sessionToken,billboardName,creator,imageFilePointer,XMLCode);
+        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
     /**

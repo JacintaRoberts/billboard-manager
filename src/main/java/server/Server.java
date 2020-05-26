@@ -2,6 +2,7 @@ package server;
 
 import helpers.Helpers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -173,6 +174,7 @@ public class Server {
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
     private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
+        System.out.println("Received from client: " + clientRequest);
         String [] clientArgs = clientRequest.split(",");
         if (clientArgs.length >= 4) { additionalArgs = Arrays.copyOfRange(clientArgs, 3, clientArgs.length); }
         if (clientArgs.length >= 3) { sessionToken = clientArgs[2]; } // Third argument is the session token
@@ -252,19 +254,25 @@ public class Server {
     private static Object callBillboardAdminMethod() throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
-//            case "CreateBillboard":
-//                String billboardName = additionalArgs[0];
-//                String xmlCode = additionalArgs[1]; // default
-//                if ( xmlHasCommas() ) {
-//                    // Rejoin the XML code into a single variable
-//                    concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
-//                    xmlCode = String.join(",", concatString);
-//                }
-//                return BillboardAdmin.createBillboard(sessionToken, billboardName, xmlCode);
-//            case "EditBillboard":
-//                String originalBillboardName = additionalArgs[0];
-//                String newXmlCode = additionalArgs[1];
-//                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
+            case "CreateBillboard":
+                String billboardName = additionalArgs[0];
+                String creator = additionalArgs[1];
+                String imageFilePath = additionalArgs[2]; // Note this could sometimes be xmlCode if not provided
+                String XMLCode = additionalArgs[3];
+                if ( XMLHasCommas() ) {
+                    // Rejoin the XML code into a single variable
+                    concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
+                    XMLCode = String.join(",", concatString);
+                }
+                System.out.println("received contents!");
+                System.out.println("imageFilePath is: " + imageFilePath);
+                System.out.println("xmlCode: " + XMLCode);
+                //return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, imageFilePath, XMLCode);
+                return null;
+            case "EditBillboard":
+                String originalBillboardName = additionalArgs[0];
+                String newXmlCode = additionalArgs[1];
+                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
             case "DeleteBillboard":
                 String deleteBillboardName = additionalArgs[0];
                 return BillboardAdmin.deleteBillboard(deleteBillboardName);
@@ -283,8 +291,8 @@ public class Server {
     /*
     Method to determine whether the xml provided has commas in the message
      */
-    private static Boolean xmlHasCommas() {
-        if ( additionalArgs.length > 2 ) {
+    private static Boolean XMLHasCommas() {
+        if ( additionalArgs.length > 5 ) {
             return true;
         }
         return false;

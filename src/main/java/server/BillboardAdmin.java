@@ -3,8 +3,10 @@ package server;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Base64;
 
 import static server.Server.getUsernameFromToken;
 
@@ -38,6 +40,9 @@ public class BillboardAdmin {
     public static PreparedStatement listaBillboard;
     public static PreparedStatement countFilterBillboard;
 
+    public BillboardAdmin() throws UnsupportedEncodingException {
+    }
+
     /**
      * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database.
      * <p>
@@ -65,7 +70,17 @@ public class BillboardAdmin {
         return queryList;
     }
 
-
+//TODO: JACINTA HELPING
+    //CREATE SERIALIZABLE OWNXML CLASS (XML, BLOB PIC)
+    //GETBILLBOARDREQUEST
+    //DBBILLBOARD (ALSO HAS PICTURE FIELD)
+    //SEND SIMILAR DBBILLBOARD
+    //ADJUST INPUT PARAMETER TYPE TO OBJECT FOR SERVER
+    //SPLIT ON PICTURE DATA (END ON />)
+    //byte[] byteData = pictureData.getBytes("UTF-8");
+    // Send byteData to server, then to store in db:
+    //Blob blobData = dbConnection.createBlob();
+    //blobData.setBytes(1, byteData);
     /**
      * Stores Database Queries: Billboard. This is a generic method which Make sures billboard is made with default data.
      * <p>
