@@ -713,14 +713,18 @@ public class Controller
             Boolean editBillboards = userArray.get(1);
             Boolean editSchedules = userArray.get(2);
             Boolean editUsers = userArray.get(3);
-            String username = model.getUsername();
-
+            // FIXME: PATRICE - CAN YOU HAVE A LOOK, NEED TO GET USERNAME FROM USERNAME BOX RATHER THAN MODEL
+            //  TO ALLOW EDIT OF OTHER USERS. THIS IS NOT WORKING HOW I EXPECT PLS HELP
+            JButton usernameText = (JButton) e.getSource();
+            // get selected user
+            String usernameSelected = usernameText.getText();
+            System.out.println("usernameSelected is : " + usernameSelected);
             int response = userEditView.showUserConfirmation();
             // add permissions to DB if user confirms permissions
             if (response == 0) {
                 // Store selected permissions in database
                 try {
-                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, username,
+                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, usernameSelected,
                             createBillboards, editBillboards, editSchedules, editUsers);
                     if (serverResponse.equals(Success)) {
                         userEditView.showEditPermissionsSuccess();
