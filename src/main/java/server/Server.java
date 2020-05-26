@@ -267,7 +267,7 @@ public class Server {
                 System.out.println("received contents!");
                 System.out.println("imageFilePath is: " + imageFilePath);
                 System.out.println("xmlCode: " + XMLCode);
-                //return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, imageFilePath, xmlCode);
+                //return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, imageFilePath, XMLCode);
                 return null;
             case "EditBillboard":
                 String originalBillboardName = additionalArgs[0];
