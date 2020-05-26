@@ -3,9 +3,13 @@ package controlPanel;
 import observer.Subject;
 
 import controlPanel.Main.VIEW_TYPE;
+import server.Server;
 
 import javax.swing.*;
 import java.awt.event.MouseListener;
+
+import static server.Server.ServerAcknowledge.*;
+import static server.Server.ServerAcknowledge.NoSuchUser;
 
 public class BBListView extends AbstractListView
 {
@@ -37,8 +41,18 @@ public class BBListView extends AbstractListView
         return view_type;
     }
 
-    protected void showBBDeletedMessage(String message)
+    protected void showBBDeletedMessage(Server.ServerAcknowledge serverResponse)
     {
+        String message = "";
+        if ( serverResponse.equals(Success) ) {
+            message = "Billboard Successfully deleted";
+        }  else if ( serverResponse.equals(InvalidToken) ) {
+            message = "Invalid Session Token";
+        } else if ( serverResponse.equals(InsufficientPermission) ) {
+            message = "Not enough Permission";
+        } else if ( serverResponse.equals(BillboardNotExists) ) {
+            message = "Billboard Does not Exists";
+        }
         JOptionPane.showMessageDialog(null, message);
     }
 

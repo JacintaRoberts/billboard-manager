@@ -1140,7 +1140,7 @@ public class Controller
             if (response == 0)
             {
                 try {
-                    String result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName);
+                    ServerAcknowledge result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName,model.getUsername());
                     bbListView.showBBDeletedMessage(result);
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();
@@ -1272,7 +1272,10 @@ public class Controller
                         writer.write(GetPictureData(BBXMLString));
                         writer.close();
                         String creator = model.getUsername();
-                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, imageFilePath, BBXMLStringImageDataRemoved);
+                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, imageFilePath, BBXMLStringImageDataRemoved);
+                        if (createBillboardAction.equals(Success)){
+                            createBBReq = "Pass: Billboard Created";
+                        }
                         System.out.println(createBBReq);
                     } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
                     {
