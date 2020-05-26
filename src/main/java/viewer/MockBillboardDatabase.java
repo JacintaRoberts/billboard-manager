@@ -12,7 +12,7 @@ public class MockBillboardDatabase {
 
     // Initialise ArrayList to store the XML files in
     private static ArrayList<File> xmlFiles = new ArrayList<>();
-    private static int numFiles = 16;
+    private static int numFiles = 17;
 
     /**
      * Import xml billboard files and store it an ArrayList - this will act as the mock database.
