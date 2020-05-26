@@ -1,19 +1,21 @@
 package server;
 
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.UnsupportedEncodingException;
+import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Base64;
 
+import static controlPanel.UserControl.hash;
+import static server.Server.Permission.*;
+import static server.Server.ServerAcknowledge.*;
+import static server.Server.ServerAcknowledge.InvalidToken;
 import static server.Server.getUsernameFromToken;
+import static server.Server.validateToken;
 
 public class BillboardAdmin {
 
     // Custom SQL Strings for Specific Queries
-    public static final String STORE_BILLBOARD_SQL = "INSERT INTO Billboards VALUES (?,?,?) ";
+    public static final String STORE_BILLBOARD_SQL = "INSERT INTO Billboards VALUES (?,?,?,?) ";
     public static final String EDIT_BILLBOARD_SQL = "UPDATE Billboards " +
                                                     "SET XMLCode = ?" +
                                                     "WHERE BillboardName = ?";
@@ -24,7 +26,8 @@ public class BillboardAdmin {
     public static final String CREATE_BILLBOARD_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (\n" +
             "    `BillboardName` varchar(255) NOT NULL default '',\n" +
             "      `Creator` varchar(255) NOT NULL default '',\n" +
-            "      `XMLCode` MEDIUMBLOB,\n" +
+            "      `Image` MEDIUMBLOB,\n" +
+            "      `XMLCode` TEXT,\n" +
             "      PRIMARY KEY (`BillboardName`)\n" +
             "  )";
     public static final String DROP_BILLBOARD_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`";
@@ -70,57 +73,47 @@ public class BillboardAdmin {
         return queryList;
     }
 
-//TODO: JACINTA HELPING
-    //CREATE SERIALIZABLE OWNXML CLASS (XML, BLOB PIC)
-    //GETBILLBOARDREQUEST
-    //DBBILLBOARD (ALSO HAS PICTURE FIELD)
-    //SEND SIMILAR DBBILLBOARD
-    //ADJUST INPUT PARAMETER TYPE TO OBJECT FOR SERVER
-    //SPLIT ON PICTURE DATA (END ON />)
-    //byte[] byteData = pictureData.getBytes("UTF-8");
-    // Send byteData to server, then to store in db:
-    //Blob blobData = dbConnection.createBlob();
-    //blobData.setBytes(1, byteData);
+
     /**
      * Stores Database Queries: Billboard. This is a generic method which Make sures billboard is made with default data.
      * <p>
      * This method always returns immediately.
      * @return
      */
-    public String createGenericBillboard() throws IOException, SQLException{
-        String resultMessage;
-
-        connection = DbConnection.getInstance();
-        Statement countBillboard = connection.createStatement();
-        ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
-        rs.next();
-        String count = rs.getString(1);
-        if (count.equals("0")){
-            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
-            createBillboard.setString(1,"TestBillboard");
-            createBillboard.setString(2,"TestUser");
-            createBillboard.setString(3, "TestXMLCODE");
-            createBillboard.executeQuery();
-
-            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
-            createBillboard.setString(1,"TestBillboard2");
-            createBillboard.setString(2,"TestUser2");
-            createBillboard.setString(3, "TestXMLCODE2");
-            createBillboard.executeQuery();
-
-            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
-            createBillboard.setString(1,"TestBillboard3");
-            createBillboard.setString(2,"TestUser3");
-            createBillboard.setString(3, "TestXMLCODE3");
-            createBillboard.executeQuery();
-
-            resultMessage = "Pass: Billboard Database Created";
-
-        } else {
-            resultMessage = "Pass: Billboard Database Already Created";
-        }
-        return resultMessage;
-    }
+//    public static String createGenericBillboard() throws IOException, SQLException{
+//        String resultMessage;
+//
+//        connection = DbConnection.getInstance();
+//        Statement countBillboard = connection.createStatement();
+//        ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
+//        rs.next();
+//        String count = rs.getString(1);
+//        if (count.equals("0")){
+//            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+//            createBillboard.setString(1,"TestBillboard");
+//            createBillboard.setString(2,"TestUser");
+//            createBillboard.setString(3, "TestXMLCODE");
+//            createBillboard.executeQuery();
+//
+//            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+//            createBillboard.setString(1,"TestBillboard2");
+//            createBillboard.setString(2,"TestUser2");
+//            createBillboard.setString(3, "TestXMLCODE2");
+//            createBillboard.executeQuery();
+//
+//            createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+//            createBillboard.setString(1,"TestBillboard3");
+//            createBillboard.setString(2,"TestUser3");
+//            createBillboard.setString(3, "TestXMLCODE3");
+//            createBillboard.executeQuery();
+//
+//            resultMessage = "Pass: Billboard Database Created";
+//
+//        } else {
+//            resultMessage = "Pass: Billboard Database Already Created";
+//        }
+//        return resultMessage;
+//    }
 
 
     /**
@@ -129,7 +122,7 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public String dropBillboardTable() throws IOException, SQLException{
+    public static String dropBillboardTable() throws IOException, SQLException{
         String resultMessage;
 
         connection = DbConnection.getInstance();
@@ -146,7 +139,7 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public String createBillboardTable() throws IOException, SQLException{
+    public static String createBillboardTable() throws IOException, SQLException{
         String resultMessage;
 
         connection = DbConnection.getInstance();
@@ -157,20 +150,31 @@ public class BillboardAdmin {
             rs.next();
             String count = rs.getString(1);
             if (count.equals("0")){
-                createGenericBillboard();
                 resultMessage = "Data Filled";
             } else {
                 resultMessage = "Data Exists";
             }
         } catch (SQLSyntaxErrorException throwables) {
             rs = countBillboard.executeQuery(CREATE_BILLBOARD_TABLE);
-            createGenericBillboard();
             resultMessage = "Table Created";
         }
         return resultMessage;
     }
 
 
+
+
+    //TODO: JACINTA HELPING
+    //CREATE SERIALIZABLE OWNXML CLASS (XML, BLOB PIC)
+    //GETBILLBOARDREQUEST
+    //DBBILLBOARD (ALSO HAS PICTURE FIELD)
+    //SEND SIMILAR DBBILLBOARD
+    //ADJUST INPUT PARAMETER TYPE TO OBJECT FOR SERVER
+    //SPLIT ON PICTURE DATA (END ON />)
+    //byte[] byteData = pictureData.getBytes("UTF-8");
+    // Send byteData to server, then to store in db:
+    //Blob blobData = dbConnection.createBlob();
+    //blobData.setBytes(1, byteData);
     /**
      * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database.
      * <p>
@@ -180,39 +184,75 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public static String createBillboard(String sessionToken, String billboard, InputStream xmlCode)
+    public static Server.ServerAcknowledge createBillboard(String sessionToken, String billboard, String creator, String imageFilePath, String xmlCode)
                                                             throws IOException, SQLException {
-        String resultMessage;
         String validCharacters = "([A-Za-z0-9-_ ]+)";
-//        String userName = getUsernameFromToken(sessionToken);
-        String userName = sessionToken;
-        if (userName.isEmpty()) {
-            return "Fail: Invalid Token";
-        }
-        if (billboard.matches(validCharacters)) {
-            connection = DbConnection.getInstance();
-            countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
-            countFilterBillboard.setString(1,billboard);
-            ResultSet rs = countFilterBillboard.executeQuery();
-            rs.next();
-            String count = rs.getString(1);
-            if (count.equals("1")){
-                resultMessage = "Fail: Billboard Already Exists";
-            }else {
-                connection = DbConnection.getInstance();
-                createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
-                createBillboard.setString(1,billboard);
-                createBillboard.setString(2,userName);
-                createBillboard.setBlob(3, xmlCode);
-                rs = createBillboard.executeQuery();
-                resultMessage = "Pass: Billboard Created";
-            }
 
+        if (validateToken(sessionToken)) {
+            System.out.println("Session is valid");
+            if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
+                if (billboard.matches(validCharacters)) {
+                    String count = countFilterBillboardSql(billboard);
+                    if (count.equals("1")){
+                        System.out.println("Billboard Name Already Exists.");
+                        return BillboardNameExists;
+                    }else {
+                        try {
+                            InputStream imageInputStream = new FileInputStream(new File(imageFilePath));
+                            addBillboardSQL(billboard,creator,imageInputStream,xmlCode);
+                            return Success;
+                        } catch (SQLIntegrityConstraintViolationException e) {
+                            return PrimaryKeyClash;
+                        }
+                    }
+                } else {
+                    System.out.println("Billboard Name Contains Invalid Characters");
+                    return InvalidCharacters; // 2. Valid token but insufficient permission
+                }
+            } else {
+                System.out.println("Permissions were not sufficient, no Billboard was Created");
+                return InsufficientPermission; // 3. Valid token but insufficient permission
+            }
         } else {
-            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
+            System.out.println("Session was not valid");
+            return InvalidToken; // 4. Invalid token
         }
-        return resultMessage;
     }
+
+    /**
+     * Method to put a billboard from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countFilterBillboardSql(String billboardName) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
+        countFilterBillboard.setString(1,billboardName);
+        ResultSet rs = countFilterBillboard.executeQuery();
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+    /**
+     * Method to put a billboard from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void addBillboardSQL(String billboardName, String creator,
+                                       InputStream imageFilePointer, String XMLCode) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
+        createBillboard.setString(1,billboardName);
+        createBillboard.setString(2,creator);
+        createBillboard.setBlob(3,imageFilePointer);
+        createBillboard.setString(4, XMLCode);
+        ResultSet rs = createBillboard.executeQuery();
+    }
+
+
 
 
     /**

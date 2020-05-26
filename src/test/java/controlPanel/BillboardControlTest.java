@@ -231,5 +231,8 @@ class BillboardControlTest {
 //    }
 
 //    @Test
+    public void customPicTtest(){
+
+    }
 
 }

@@ -116,7 +116,7 @@ public class ScheduleAdmin {
      * SQLException error as the method was unable to be completed
      * @return Drops Schedule Table if exists.
      */
-    public String dropScheduleTable() throws IOException, SQLException{
+    public static String dropScheduleTable() throws IOException, SQLException{
         // Initialise String
         String resultMessage;
         // Get Connection
