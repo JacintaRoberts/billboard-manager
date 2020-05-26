@@ -1,16 +1,14 @@
 package server;
 
-import javax.xml.transform.Result;
+import javax.sql.rowset.serial.SerialBlob;
 import java.io.*;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.Base64;
+import java.util.Scanner;
 
-import static controlPanel.UserControl.hash;
 import static server.Server.Permission.*;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.ServerAcknowledge.InvalidToken;
-import static server.Server.getUsernameFromToken;
 import static server.Server.validateToken;
 
 public class BillboardAdmin {
@@ -114,7 +112,7 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public static Server.ServerAcknowledge createBillboard(String sessionToken, String billboard, String creator, String imageFilePath, String xmlCode)
+    public static Server.ServerAcknowledge createBillboard(String sessionToken, String billboard, String creator, String xmlCode, byte[] pictureData)
                                                             throws IOException, SQLException {
         String validCharacters = "([A-Za-z0-9-_ ]+)";
 
@@ -128,8 +126,7 @@ public class BillboardAdmin {
                 if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                     if (billboard.matches(validCharacters)) {
                         try {
-                            InputStream imageInputStream = new FileInputStream(new File(imageFilePath));
-                            addBillboardSQL(billboard,creator,imageInputStream,xmlCode);
+                            addBillboardSQL(billboard,creator,pictureData,xmlCode);
                             return Success;
                         } catch (SQLIntegrityConstraintViolationException e) {
                             return PrimaryKeyClash;
@@ -151,8 +148,7 @@ public class BillboardAdmin {
                     if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                         if (billboard.matches(validCharacters)) {
                             try {
-                                InputStream imageInputStream = new FileInputStream(new File(imageFilePath));
-                                addBillboardSQL(billboard,creator,imageInputStream,xmlCode);
+                                addBillboardSQL(billboard,creator,pictureData,xmlCode);
                                 return Success;
                             } catch (SQLIntegrityConstraintViolationException e) {
                                 return PrimaryKeyClash;
@@ -169,8 +165,7 @@ public class BillboardAdmin {
                     if (UserAdmin.checkSinglePermission(sessionToken, EditBillboard)) {
                         if (billboard.matches(validCharacters)) {
                             try {
-                                InputStream imageInputStream = new FileInputStream(new File(imageFilePath));
-                                addBillboardSQL(billboard,creator,imageInputStream,xmlCode);
+                                addBillboardSQL(billboard,creator,pictureData,xmlCode);
                                 return Success;
                             } catch (SQLIntegrityConstraintViolationException e) {
                                 return PrimaryKeyClash;
@@ -381,13 +376,14 @@ public class BillboardAdmin {
      * @throws SQLException
      */
     public static void addBillboardSQL(String billboardName, String creator,
-                                       InputStream imageFilePointer, String XMLCode) throws IOException, SQLException {
+                                       byte[] pictureData, String XMLCode) throws IOException, SQLException {
         connection = DbConnection.getInstance();
         createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
         createBillboard.setString(1,billboardName);
         createBillboard.setString(2,creator);
-        createBillboard.setBlob(3,imageFilePointer);
-        createBillboard.setString(4, XMLCode);
+        createBillboard.setString(3, XMLCode);
+        Blob pictureBlob = new javax.sql.rowset.serial.SerialBlob(pictureData); // Construct blob to store picture from byte array
+        createBillboard.setBlob(4, pictureBlob);
         ResultSet rs = createBillboard.executeQuery();
     }
 

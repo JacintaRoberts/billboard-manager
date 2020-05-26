@@ -92,7 +92,7 @@ public class Helpers {
      * @throws IOException Thrown if unknown server host when communicating through sockets
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      * */
-    public static Object initClient(String message) throws ClassNotFoundException, IOException {
+    public static Object initClient(Object message) throws ClassNotFoundException, IOException {
         final int port = Helpers.getPort(networkPropsFilePath);
         final String ip = Helpers.getIp(networkPropsFilePath);
         Socket socket = new Socket(ip, port);
@@ -104,7 +104,7 @@ public class Helpers {
         ObjectInputStream ois = new ObjectInputStream(inputStream);
 
         // Write message to server and receive server's return object
-        oos.writeUTF(message);
+        oos.writeObject(message);
         oos.flush();
         System.out.println("Sent message to server: " + message);
         Object serverResponse = ois.readObject();

@@ -1265,14 +1265,12 @@ public class Controller
                     try {
                         String BBXMLString = bbCreateView.getBBXMLString();
                         System.out.println("Original BBXMLString is : " + BBXMLString);
-                        String BBXMLStringImageDataRemoved = RemoveImageData(BBXMLString);
-                        // Create image file from image data
-                        String imageFilePath = "src\\main\\resources\\tempImage.txt";
-                        BufferedWriter writer = new BufferedWriter(new FileWriter(imageFilePath,false), 8); // overwrite, partition into 8kB
-                        writer.write(GetPictureData(BBXMLString));
-                        writer.close();
+                        String BBXMLStringPictureDataRemoved = RemovePictureData(BBXMLString);
+                        // Create the byte array for sending picture data
+                        // TODO: CHECK HANDLING OF NULL PICTURE DATA
+                        byte[] pictureData = GetPictureData(BBXMLString).getBytes("UTF-8");
                         String creator = model.getUsername();
-                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, imageFilePath, BBXMLStringImageDataRemoved);
+                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLStringPictureDataRemoved, pictureData);
                         if (createBillboardAction.equals(Success)){
                             createBBReq = "Pass: Billboard Created";
                         }
@@ -1348,7 +1346,7 @@ public class Controller
      * @param bbXMLString Original billboard xml code generated from user inputs
      * @return bbXMLString with removed picture data tag.
      */
-    private String RemoveImageData(String bbXMLString) {
+    private String RemovePictureData(String bbXMLString) {
         String[] splitString = bbXMLString.split("<picture data=");
         String[] imageStrings = splitString[1].split("/>");
         System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
