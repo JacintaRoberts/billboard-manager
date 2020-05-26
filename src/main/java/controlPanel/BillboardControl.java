@@ -1,9 +1,9 @@
 package controlPanel;
 
 import helpers.Helpers;
-import server.CpBillboard;
+import server.Server;
+import static server.Server.*;
 
-import java.io.File;
 import java.io.IOException;
 
 public class BillboardControl
@@ -19,12 +19,12 @@ public class BillboardControl
      * @param  XMLCode A String which provides xmlCode to store into database
      * @return ServerAcknowledge TODO: Refactor BillboardAdmin/ScheduleAdmin to use ServerAcknowledge Return type
      */
-    public static String createBillboardRequest(String sessionToken, String billboardName, String creator,
-                                                String imageFilePointer, String XMLCode) throws IOException, ClassNotFoundException {
+    public static ServerAcknowledge createBillboardRequest(String sessionToken, String billboardName, String creator,
+                                                                  String imageFilePointer, String XMLCode) throws IOException, ClassNotFoundException {
         //CpBillboard billboard = new CpBillboard(billboardName, creator, XMLCode, imageFilePointer);
         //String message = String.format("Billboard,CreateBillboard,%s,%s,%s,%s,%s", sessionToken,billboardName,creator,XMLCode,imageFilePointer);
         String message = String.format("Billboard,CreateBillboard,%s,%s,%s,%s,%s", sessionToken,billboardName,creator,imageFilePointer,XMLCode);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 //    /**
@@ -58,13 +58,13 @@ public class BillboardControl
      * @param  billboardName A String which provides Billboard Name to store into database
      * @return
      */
-    public static String deleteBillboardRequest(String sessionToken,
+    public static ServerAcknowledge deleteBillboardRequest(String sessionToken,
                                        String billboardName, String requestor) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,DeleteBillboard,%s,%s, %s",
                 sessionToken,
                 billboardName,
                 requestor);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
     /**
@@ -75,10 +75,10 @@ public class BillboardControl
      * @param  sessionToken A sessionToken generated when logged in
      * @return
      */
-    public static String deleteAllBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
+    public static ServerAcknowledge deleteAllBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,DeleteAllBillboard,%s",
                 sessionToken);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
 
