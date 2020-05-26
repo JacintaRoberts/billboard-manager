@@ -21,7 +21,7 @@ import static server.Server.ServerAcknowledge.*;
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification
-    static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
+    private static HashMap<String, ArrayList<Object>> validSessionTokens = new HashMap<String, ArrayList<Object>>();
     // Private connection to database declaration
     private static Connection db;
     // Initialise parameters for determining server method to call
@@ -62,15 +62,23 @@ public class Server {
         ArrayList<Object> values = new ArrayList<>();
         values.add(username);
         values.add(creationTime);
-        // Generate session token key
-        Random rng = new Random();
-        byte[] sessionTokenBytes = new byte[TOKEN_SIZE]; // Technically there is a very small chance the same token could be generated (primary key clash)
-        rng.nextBytes(sessionTokenBytes);
-        String sessionToken = bytesToString(sessionTokenBytes);
-        System.out.println("Before keys: " + validSessionTokens.keySet());
+        String sessionToken = String.valueOf(UUID.randomUUID()); // Generate UUID to ensure unique session token key
         validSessionTokens.put(sessionToken, values);
-        System.out.println("After keys: " + validSessionTokens.keySet());
         return sessionToken;
+    }
+
+
+    /**
+     * Method to determine whether the creation time of a token is acceptable
+     * @param creationTime The creation time of the token
+     * @return Boolean true if the creation time is within 24 hours, false if it is more than 24 hours since creation.
+     */
+    private static boolean tokenIsCurrent(LocalDateTime creationTime){
+        LocalDateTime currentTime = LocalDateTime.now(); // Generate current date time
+        LocalDateTime acceptableTime = currentTime.minusHours(24);
+        System.out.println("Acceptable time is: " + acceptableTime);
+        System.out.println("Session token creation time is: " + creationTime);
+        return creationTime.isAfter(acceptableTime);
     }
 
     /**
@@ -80,17 +88,21 @@ public class Server {
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
         try {
-            System.out.println("All keys: " + validSessionTokens.keySet());
             String username = getUsernameFromToken(sessionToken);
             System.out.println("Username of the session token: " + username);
             if (UserAdmin.userExists(username)) {
-                return validSessionTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
+                // Check if there is a valid session token for the existing user
+                if (validSessionTokens.containsKey(sessionToken)){
+                    LocalDateTime creationTime = (LocalDateTime) validSessionTokens.get(sessionToken).get(1);
+                    return tokenIsCurrent(creationTime); // Determine whether the creation time is still valid
+                }
             }
-        } catch (NullPointerException err) {
+        } catch (NullPointerException err) { // Token does not exist at all
             return false;
         }
         return false; // Return false as the user does not exist anymore or never did
     }
+
 
     /**
      * Retrieves the username of the provided session token
@@ -177,11 +189,12 @@ public class Server {
             case "Schedule":
                 return callScheduleAdminMethod();
             case "Logout":
-                return logout(sessionToken); // Returns string acknowledgement
+                String sessionToken = clientArgs[1]; // No module required.
+                return logout(sessionToken);
             case "Login":
-                String username = clientArgs[1]; // Overwrites method position
-                String hashedPassword = clientArgs[2]; // Overwrites session token position (does not require)
-                return login(username, hashedPassword); // Returns session token or fail message
+                String username = clientArgs[1]; // No module or session token required.
+                String hashedPassword = clientArgs[2];
+                return login(username, hashedPassword);
             default:
                 return "No server method requested";
         }
@@ -213,6 +226,14 @@ public class Server {
             case "getPermissions":
                 username = additionalArgs[0];
                 return UserAdmin.getPermissions(sessionToken, username); // Returns boolean array list of usernames or server acknowledge error
+            case "setPermissions":
+                username = additionalArgs[0];
+                createBillboard = parseBoolean(additionalArgs[1]);
+                editBillboard = parseBoolean(additionalArgs[2]);
+                scheduleBillboard = parseBoolean(additionalArgs[3]);
+                editUser = parseBoolean(additionalArgs[4]);
+                // Returns boolean array list of usernames or server acknowledge error
+                return UserAdmin.setPermissions(sessionToken, username, createBillboard, editBillboard, scheduleBillboard, editUser);
             case "setPassword":
                 username = additionalArgs[0];
                 hashedPassword = additionalArgs[1];
@@ -227,22 +248,19 @@ public class Server {
      * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
      * @return Server's response (Object which contains data from database/acknowledgement)
-     */
+     */ // TODO: JACINTA WILL REFACTOR THESE METHODS TO RETURN SERVER ACKNOWLEDGE RATHER THAN HARD-CODED STRING
     private static Object callBillboardAdminMethod() throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
             case "CreateBillboard":
-                String creator = additionalArgs[0];
-                String billboardName = additionalArgs[1];
-                System.out.println(additionalArgs.length);
-                String xmlCode;
-                if (additionalArgs.length > 3){
+                String billboardName = additionalArgs[0];
+                String xmlCode = additionalArgs[1]; // default
+                if ( xmlHasCommas() ) {
+                    // Rejoin the XML code into a single variable
                     concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
-                    xmlCode = String.join(",",concatString);
-                } else {
-                    xmlCode = additionalArgs[2];
+                    xmlCode = String.join(",", concatString);
                 }
-                return BillboardAdmin.createBillboard(creator,billboardName,xmlCode);
+                return BillboardAdmin.createBillboard(sessionToken, billboardName, xmlCode);
             case "EditBillboard":
                 String originalBillboardName = additionalArgs[0];
                 String newXmlCode = additionalArgs[1];
@@ -262,6 +280,15 @@ public class Server {
         }
     }
 
+    /*
+    Method to determine whether the xml provided has commas in the message
+     */
+    private static Boolean xmlHasCommas() {
+        if ( additionalArgs.length > 2 ) {
+            return true;
+        }
+        return false;
+    }
 
 
     /**
@@ -336,7 +363,11 @@ public class Server {
         return InvalidToken; // Session token was already expired/did not exist
     }
 
-    // Expires all session tokens with an associated user
+
+    /**
+     Expires all session tokens with an associated user
+     @param username The string username which will have all of its related tokens expired.
+     */
     public static ServerAcknowledge expireTokens(String username){
         // Collect Session Tokens to be expired
         ServerAcknowledge serverAcknowledge = NoSuchUser;

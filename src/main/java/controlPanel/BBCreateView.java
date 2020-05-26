@@ -15,10 +15,7 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.StringWriter;
+import java.io.*;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
@@ -28,7 +25,9 @@ import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.w3c.dom.*;
+import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
+import org.xml.sax.SAXParseException;
 
 import static javax.swing.JOptionPane.*;
 import static viewer.Viewer.*;
@@ -54,6 +53,7 @@ public class BBCreateView extends AbstractGenericView
     // --- Labels ---
     private JLabel photoLabel;
     private JLabel BBNameLabel;
+    private JLabel disclaimerText;
     // --- ENUM ---
     private VIEW_TYPE view_type;
 
@@ -175,6 +175,7 @@ public class BBCreateView extends AbstractGenericView
 
         cancelButton = new JButton("Cancel");
         createButton = new JButton("Create");
+        disclaimerText = new JLabel("Please note, the BB display is not to scale. Please select Preview Billboard to view");
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc_nav = getNavGBCPanel();
         navPanel.add(cancelButton, setGBC(gbc_nav,4,1,1,1));
@@ -214,7 +215,6 @@ public class BBCreateView extends AbstractGenericView
     @Override
     public void update(Subject s)
     {
-
     }
 
     @Override
@@ -346,16 +346,11 @@ public class BBCreateView extends AbstractGenericView
 
     protected String getSelectedBBName() {return BBNameLabel.getText();}
 
-
     protected boolean checkBBValid()
     {
         boolean infoNull = (BBTextField.getText().equals("") || BBTextField.getText() == null);
         boolean titleNull = (titleLabel.getText().equals("") || titleLabel.getText() == null);
         boolean pictureNull = (photoPath == null);
-
-        System.out.println(infoNull);
-        System.out.println(titleNull);
-        System.out.println(pictureNull);
 
         if (infoNull && titleNull && pictureNull)
         {
@@ -364,8 +359,7 @@ public class BBCreateView extends AbstractGenericView
         return true;
     }
 
-    // FIXME: RETURN NULL IF THIS XML is currently invalid! ADD CHECKS!!
-    protected String getBBXML() throws ParserConfigurationException, TransformerException {
+    protected Document getBBXMLDocument() throws ParserConfigurationException {
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
@@ -388,8 +382,11 @@ public class BBCreateView extends AbstractGenericView
 
         if (titleExists)
         {
+            System.out.println(titleLabel.getText());
+
             // ------- MESSAGE / TITLE -------
             Element message = document.createElement("message");
+            message.setTextContent(titleLabel.getText());
             root.appendChild(message);
 
             // set a colour attribute to message element
@@ -402,7 +399,7 @@ public class BBCreateView extends AbstractGenericView
         if (infoExists)
         {
             Element information = document.createElement("information");
-            information.setNodeValue(BBTextField.getText());
+            information.setTextContent(BBTextField.getText());
             root.appendChild(information);
 
             // set a colour attribute to information element
@@ -432,6 +429,12 @@ public class BBCreateView extends AbstractGenericView
             picture.setAttributeNode(attr_picture);
         }
 
+        return document;
+    }
+
+
+    protected String getBBXMLString() throws TransformerException, ParserConfigurationException {
+        Document document = getBBXMLDocument();
         TransformerFactory tf = TransformerFactory.newInstance();
         Transformer t = tf.newTransformer();
         StringWriter sw = new StringWriter();
@@ -523,7 +526,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showInvalidXMLMessage()
     {
-        JOptionPane.showMessageDialog(null, "Invalid XML Uploaded");
+        JOptionPane.showMessageDialog(null, "Invalid Billboard XML");
     }
 
     /**
@@ -620,6 +623,11 @@ public class BBCreateView extends AbstractGenericView
             return null;
         }
     }
+    protected void showSuccessfulExport()
+    {
+        String messageDialog = "Successful Export of Billboard. Saved in " + xmlExportPath;
+        JOptionPane.showMessageDialog(null, messageDialog);
+    }
 
     protected void showURLErrorMessage()
     {
@@ -657,17 +665,15 @@ public class BBCreateView extends AbstractGenericView
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    protected void browseExportFolder() throws TransformerException, ParserConfigurationException {
-        String XMLFileName = enterXMLFileName();
-        if (XMLFileName != null)
-        {
-            int value = xmlFolderChooser.showSaveDialog(null);
-            if(value == JFileChooser.APPROVE_OPTION)
-            {
-                xmlExportPath = xmlFolderChooser.getSelectedFile().getAbsolutePath();
-                xmlExport(xmlExportPath + "\\" + XMLFileName + ".xml");
-            }
-        }
+    protected void browseExportFolder(String filename) throws TransformerException, ParserConfigurationException
+    {
+        xmlExportPath = xmlFolderChooser.getSelectedFile().getAbsolutePath();
+        xmlExport(xmlExportPath + "\\" + filename + ".xml");
+    }
+
+    protected int showFolderChooserSelector()
+    {
+        return xmlFolderChooser.showSaveDialog(null);
     }
 
     protected int photoTypeSelection()
@@ -700,36 +706,8 @@ public class BBCreateView extends AbstractGenericView
         return stringBuilder.toString();
     }
 
-    /**
-     * Import BB XML file from personal files and set title, text and photo on Drawing Panel
-     * @param xmlImportPath String path to xml file
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
-     */
-    private boolean xmlImport(String xmlImportPath)
+    protected boolean setXMLBB(Document doc)
     {
-        //creating a constructor of file class and parsing an XML file
-        File file = new File(xmlImportPath);
-
-        //an instance of factory that gives a document builder
-        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-
-        //an instance of builder to parse the specified xml file
-        Document doc;
-        DocumentBuilder db;
-        try {
-            db = dbf.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            return false;
-        }
-
-        try {
-            doc = db.parse(file);
-        } catch (SAXException | IOException e) {
-            return false;
-        }
-
         // normalise the XML structure
         doc.getDocumentElement().normalize();
 
@@ -777,6 +755,39 @@ public class BBCreateView extends AbstractGenericView
         {
             return false;
         }
+    }
+
+    /**
+     * Import BB XML file from personal files and set title, text and photo on Drawing Panel
+     * @param xmlImportPath String path to xml file
+     * @throws ParserConfigurationException
+     * @throws IOException
+     * @throws SAXException
+     */
+    private boolean xmlImport(String xmlImportPath)
+    {
+        //creating a constructor of file class and parsing an XML file
+        File file = new File(xmlImportPath);
+
+        //an instance of factory that gives a document builder
+        DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
+        //an instance of builder to parse the specified xml file
+        Document doc;
+
+        DocumentBuilder db;
+        try {
+            db = dbf.newDocumentBuilder();
+        } catch (ParserConfigurationException e) {
+            return false;
+        }
+
+        try {
+            doc = db.parse(file);
+        } catch (SAXException | IOException e) {
+            return false;
+        }
+
+        return setXMLBB(doc);
     }
 
     private boolean manageXMLPicture(NodeList photoList)
@@ -844,22 +855,7 @@ public class BBCreateView extends AbstractGenericView
      */
     private void xmlExport(String xmlExportPath) throws ParserConfigurationException, TransformerException
     {
-        // create doc builder factory to build a new document
-        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-        DocumentBuilder builder = factory.newDocumentBuilder();
-
-        // create a new document
-        Document doc = builder.newDocument();
-
-        // create a root element and add it to the doc
-        Element root = doc.createElement("billboard");
-        root.setAttribute("background",backgroundColour);
-        doc.appendChild(root);
-
-        // append three child elements to the root element
-        root.appendChild(createMessage(doc, titleColour, titleLabel.getText()));
-        root.appendChild(createPicture(doc, photoPath));
-        root.appendChild(createInfo(doc, infoColour,BBTextField.getText()));
+        Document doc = getBBXMLDocument();
 
         // create transformer which is designed to transform document to XML
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
@@ -880,134 +876,28 @@ public class BBCreateView extends AbstractGenericView
 
         transf.transform(source, console);
         transf.transform(source, file);
-
-        String messageDialog = "Successful Export of Billboard. Saved in " + xmlExportPath;
-        JOptionPane.showMessageDialog(null, messageDialog);
-    }
-
-    /**
-     * In XML document, set Message text and colour
-     * @param doc XML document representing BB
-     * @param colour colour of message
-     * @param message text of message
-     * @return
-     */
-    private Node createMessage(Document doc, String colour, String message) {
-
-        Element user = doc.createElement("message");
-        user.setAttribute("colour", colour);
-        user.appendChild(doc.createTextNode(message));
-        return user;
-    }
-
-    /**
-     * In XML document, set image URL
-     * @param doc XML document representing BB
-     * @param image image as url or data
-     * @return
-     */
-    private Node createPicture(Document doc, String image) {
-
-        Element user = doc.createElement("picture");
-        if (photoType == PhotoType.URL)
-        {
-            user.setAttribute("url", image);
-        }
-        else if (photoType == PhotoType.DATA)
-        {
-            user.setAttribute("data", image);
-        }
-        // FIXME: ELSE CONDITION
-
-        return user;
-    }
-
-    /**
-     * In XML document, set information text and colour
-     * @param doc XML document representing BB
-     * @param colour colour of info text
-     * @param info text of info
-     * @return
-     */
-    private Node createInfo(Document doc, String colour, String info) {
-
-        Element user = doc.createElement("information");
-        user.setAttribute("colour", colour);
-        user.appendChild(doc.createTextNode(info));
-        return user;
     }
 
     /**
      * Display BB details, upon Editing the BB selected
-     * @param fileToDisplay path to BB XML
+     * @param xmlStringToDisplay document of BB XML
      */
-    protected void addBBXML(File fileToDisplay)
+    protected boolean addBBXML(String xmlStringToDisplay)
     {
-        // FIXME: remove later
-        fileToDisplay = extractXMLFile(6);
-
-        //Document document = null;
-
-        // extract xml data into hash map using viewer code
-        HashMap<String, String> billboardData = extractDataFromXML(fileToDisplay);
-
-        String backgroundColour = billboardData.get("Background Colour");
-        String message = billboardData.get("Message");
-        String messageColour = billboardData.get("Message Colour");
-        String picture = billboardData.get("Picture");
-        String pictureType = billboardData.get("Picture Type");
-        String information = billboardData.get("Information");
-        String informationColour = billboardData.get("Information Colour");
-
-        // Read in the picture
-        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
-        PhotoType photoType = null;
-        if (pictureType.equals("url"))
+        System.out.println("XML file " + xmlStringToDisplay);
+        DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        DocumentBuilder builder;
+        Document document;
+        try
         {
-            photoType = PhotoType.URL;
+            builder = factory.newDocumentBuilder();
+            document = builder.parse( new InputSource( new StringReader( xmlStringToDisplay)));
+            setXMLBB(document);
+            return true;
+        } catch (ParserConfigurationException | IOException | SAXException e) {
+            e.printStackTrace();
+            return false;
         }
-        else if (pictureType.equals("data"))
-        {
-            photoType = PhotoType.DATA;
-        }
-        setPhoto(new ImageIcon(pictureImage),photoType, picture);
-
-        setBBTitle(message);
-        setBBText(information);
-
-        // Check if there's a specific background colour & set, else set it to be white
-        if (backgroundColour != null)
-        {
-            setBackgroundColour(backgroundColour);
-        }
-        else {
-            setBackgroundColour(toHexString(Color.WHITE));
-        }
-
-        // Check if there's a specific message text colour, else set it to be black
-        if (message != null)
-        {
-            if (messageColour != null) {
-                setBBTitleColour(messageColour);
-            }
-            else {
-                setBBTitleColour(toHexString(Color.BLACK));
-            }
-        }
-
-        // Check if there's a specific information text colour, else set it to be black
-        if (information != null)
-        {
-            if (informationColour != null)
-            {
-                setBBTextColour(informationColour);
-            }
-            else {
-                setBBTextColour(toHexString(Color.BLACK));
-            }
-        }
-        // disable billboard name button as user should not be able to change BB name
-        setBBNameEnabled(false);
     }
 
     // ###################### LISTENERS ######################
@@ -1099,3 +989,119 @@ public class BBCreateView extends AbstractGenericView
         DATA
     }
 }
+
+//    /**
+//     * In XML document, set Message text and colour
+//     * @param doc XML document representing BB
+//     * @param colour colour of message
+//     * @param message text of message
+//     * @return
+//     */
+//    private Node createMessage(Document doc, String colour, String message) {
+//
+//        Element user = doc.createElement("message");
+//        user.setAttribute("colour", colour);
+//        user.appendChild(doc.createTextNode(message));
+//        return user;
+//    }
+//
+//    /**
+//     * In XML document, set image URL
+//     * @param doc XML document representing BB
+//     * @param image image as url or data
+//     * @return
+//     */
+//    private Node createPicture(Document doc, String image) {
+//
+//        Element user = doc.createElement("picture");
+//        if (photoType == PhotoType.URL)
+//        {
+//            user.setAttribute("url", image);
+//        }
+//        else if (photoType == PhotoType.DATA)
+//        {
+//            user.setAttribute("data", image);
+//        }
+//        // FIXME: ELSE CONDITION
+//
+//        return user;
+//    }
+//
+//    /**
+//     * In XML document, set information text and colour
+//     * @param doc XML document representing BB
+//     * @param colour colour of info text
+//     * @param info text of info
+//     * @return
+//     */
+//    private Node createInfo(Document doc, String colour, String info) {
+//
+//        Element user = doc.createElement("information");
+//        user.setAttribute("colour", colour);
+//        user.appendChild(doc.createTextNode(info));
+//        return user;
+//    }
+
+
+
+
+//        // extract xml data into hash map using viewer code
+//        HashMap<String, String> billboardData = extractDataFromXML(docToDisplay);
+//
+//        String backgroundColour = billboardData.get("Background Colour");
+//        String message = billboardData.get("Message");
+//        String messageColour = billboardData.get("Message Colour");
+//        String picture = billboardData.get("Picture");
+//        String pictureType = billboardData.get("Picture Type");
+//        String information = billboardData.get("Information");
+//        String informationColour = billboardData.get("Information Colour");
+//
+//        // Read in the picture
+//        BufferedImage pictureImage = readPictureFromFile(picture, pictureType);
+//        PhotoType photoType = null;
+//        if (pictureType.equals("url"))
+//        {
+//            photoType = PhotoType.URL;
+//        }
+//        else if (pictureType.equals("data"))
+//        {
+//            photoType = PhotoType.DATA;
+//        }
+//        setPhoto(new ImageIcon(pictureImage),photoType, picture);
+//
+//        setBBTitle(message);
+//        setBBText(information);
+//
+//        // Check if there's a specific background colour & set, else set it to be white
+//        if (backgroundColour != null)
+//        {
+//            setBackgroundColour(backgroundColour);
+//        }
+//        else {
+//            setBackgroundColour(toHexString(Color.WHITE));
+//        }
+//
+//        // Check if there's a specific message text colour, else set it to be black
+//        if (message != null)
+//        {
+//            if (messageColour != null) {
+//                setBBTitleColour(messageColour);
+//            }
+//            else {
+//                setBBTitleColour(toHexString(Color.BLACK));
+//            }
+//        }
+//
+//        // Check if there's a specific information text colour, else set it to be black
+//        if (information != null)
+//        {
+//            if (informationColour != null)
+//            {
+//                setBBTextColour(informationColour);
+//            }
+//            else {
+//                setBBTextColour(toHexString(Color.BLACK));
+//            }
+//        }
+//        // disable billboard name button as user should not be able to change BB name
+//        setBBNameEnabled(false);
