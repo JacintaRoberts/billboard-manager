@@ -43,14 +43,23 @@ public class Server {
 
     // Different server acknowledgments that are available
     public enum ServerAcknowledge {
+        // General Enums
         Success,
-        InsufficientPermission,
+        BadPassword, // Login
+        NoSuchUser, // Login
         InvalidToken,
         PrimaryKeyClash, // DB issue
+        // User Based Enums
+        InsufficientPermission,
         CannotDeleteSelf, // Delete user handling
         CannotRemoveOwnAdminPermission, // Set user permissions handling
-        BadPassword, // Login
-        NoSuchUser; // Login
+
+        // Schedule Based Enums
+
+        // Billboard Based Enums
+        BillboardNameExists,
+        BillboardNotExists,
+        InvalidCharacters;
     }
 
     /**
@@ -141,6 +150,9 @@ public class Server {
         // Bind port number and begin listening, loop to keep receiving connections from clients
         ServerSocket serverSocket = listenForConnections(port);
         System.out.println("Server has begun listening on port: " + port);
+        BillboardAdmin.createBillboardTable();
+        ScheduleAdmin.createScheduleTable();
+        DbUser.createUserTable();
         for (;;) {
             // Accept client
             Socket socket = serverSocket.accept();
@@ -267,22 +279,23 @@ public class Server {
                 System.out.println("received contents!");
                 System.out.println("imageFilePath is: " + imageFilePath);
                 System.out.println("xmlCode: " + XMLCode);
-                //return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, imageFilePath, XMLCode);
-                return null;
-            case "EditBillboard":
-                String originalBillboardName = additionalArgs[0];
-                String newXmlCode = additionalArgs[1];
-                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
+                return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, imageFilePath, XMLCode);
+//                return null;
+//            case "EditBillboard":
+//                String originalBillboardName = additionalArgs[0];
+//                String newXmlCode = additionalArgs[1];
+//                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
             case "DeleteBillboard":
                 String deleteBillboardName = additionalArgs[0];
-                return BillboardAdmin.deleteBillboard(deleteBillboardName);
+                String deleteBillboardRequestor = additionalArgs[1];
+                return BillboardAdmin.deleteBillboard(sessionToken,deleteBillboardName,deleteBillboardRequestor);
             case "DeleteAllBillboard":
                 return BillboardAdmin.deleteAllBillboard();
             case "GetBillboard":
                 String getBillboardName = additionalArgs[0];
-                return BillboardAdmin.getBillboardInformation(getBillboardName);
+                return BillboardAdmin.getBillboardInformation(sessionToken,getBillboardName);
             case "ListBillboard":
-                return BillboardAdmin.listBillboard();
+                return BillboardAdmin.listBillboard(sessionToken);
             default:
                 return "No BillboardAdmin method requested";
         }

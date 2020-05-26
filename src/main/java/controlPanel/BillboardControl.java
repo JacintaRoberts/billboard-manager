@@ -27,26 +27,26 @@ public class BillboardControl
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
-    /**
-     * Send Queries: Billboard. This is a generic method which sends a request to edit a billboard
-     * from control panel to server.
-     * <p>
-     * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  billboardName A String which provides Billboard Name to store into database
-     * @param  xmlCode A String which provides xmlCode to store into database
-     * @return
-     */
-    public static String editBillboardRequest(String sessionToken,
-                                         String billboardName,
-                                         String xmlCode) throws IOException, ClassNotFoundException {
-        String message = String.format("Billboard,EditBillboard,%s,%s,%s",
-                sessionToken,
-                billboardName,
-                xmlCode);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
-
-    }
+//    /**
+//     * Send Queries: Billboard. This is a generic method which sends a request to edit a billboard
+//     * from control panel to server.
+//     * <p>
+//     * This method always returns immediately.
+//     * @param  sessionToken A sessionToken generated when logged in
+//     * @param  billboardName A String which provides Billboard Name to store into database
+//     * @param  xmlCode A String which provides xmlCode to store into database
+//     * @return
+//     */
+//    public static String editBillboardRequest(String sessionToken,
+//                                         String billboardName,
+//                                         String xmlCode) throws IOException, ClassNotFoundException {
+//        String message = String.format("Billboard,EditBillboard,%s,%s,%s",
+//                sessionToken,
+//                billboardName,
+//                xmlCode);
+//        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+//
+//    }
 
 
     /**
@@ -59,10 +59,11 @@ public class BillboardControl
      * @return
      */
     public static String deleteBillboardRequest(String sessionToken,
-                                       String billboardName) throws IOException, ClassNotFoundException {
-        String message = String.format("Billboard,DeleteBillboard,%s,%s",
+                                       String billboardName, String requestor) throws IOException, ClassNotFoundException {
+        String message = String.format("Billboard,DeleteBillboard,%s,%s, %s",
                 sessionToken,
-                billboardName);
+                billboardName,
+                requestor);
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
@@ -89,7 +90,6 @@ public class BillboardControl
      * This method always returns immediately.
      * @param  sessionToken A sessionToken generated when logged in
      * @return
-     * // TODO: CHECK RETURN
      */
     public static Object listBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,ListBillboard,%s",
