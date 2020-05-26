@@ -1805,13 +1805,13 @@ public class Controller
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
                     // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects
 
-                    try {
-                        ScheduleControl.updateScheduleBillboardRequest("sessionToken",scheduleInfo);
-                    } catch (IOException ioException) {
-                        ioException.printStackTrace();
-                    } catch (ClassNotFoundException classNotFoundException) {
-                        classNotFoundException.printStackTrace();
-                    }
+//                    try {
+//                        ScheduleControl.updateScheduleBillboardRequest("sessionToken",scheduleInfo);
+//                    } catch (IOException ioException) {
+//                        ioException.printStackTrace();
+//                    } catch (ClassNotFoundException classNotFoundException) {
+//                        classNotFoundException.printStackTrace();
+//                    }
 
                     scheduleUpdateView.showConfirmationDialog();
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);

@@ -3,7 +3,10 @@ package server;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.SQLException;
 import java.time.LocalTime;
 import java.util.ArrayList;
@@ -72,7 +75,10 @@ class ScheduleAdminTest {
     @Test
     public void scheduleBillboardData() throws IOException, SQLException {
         scheduleAdmin.deleteAllSchedules();
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode = new FileInputStream(new File(filePath));
+
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard",xmlCode);
       String dbResponse = scheduleAdmin.createSchedule("ScheduledBillboard",
               "05:00", "30", "2020-05-18 12:55", "120",
               "0","0","1","1","0","0","0");
@@ -123,7 +129,10 @@ class ScheduleAdminTest {
     @Test
     public void scheduleBillboardDuplicateSchedule() throws IOException, SQLException {
         scheduleAdmin.deleteAllSchedules();
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode = new FileInputStream(new File(filePath));
+
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard",xmlCode);
         scheduleAdmin.createSchedule("ScheduledBillboard",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
@@ -143,7 +152,9 @@ class ScheduleAdminTest {
     @Test
     public void removeFromSchedule() throws IOException, SQLException {
         scheduleAdmin.deleteAllSchedules();
-        BillboardAdmin.createBillboard("TestUser","TestDeleteBillboard","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode = new FileInputStream(new File(filePath));
+        BillboardAdmin.createBillboard("TestUser","TestDeleteBillboard",xmlCode);
         scheduleAdmin.createSchedule("TestDeleteBillboard",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
@@ -191,7 +202,9 @@ class ScheduleAdminTest {
     @Test
     public void removeFromScheduleAlreadyDeleted() throws IOException, SQLException {
       scheduleAdmin.deleteAllSchedules();
-      BillboardAdmin.createBillboard("TestUser","NoSchedBillboard","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode = new FileInputStream(new File(filePath));
+      BillboardAdmin.createBillboard("TestUser","NoSchedBillboard",xmlCode);
       String dbResponse = scheduleAdmin.deleteSchedule("NoSchedBillboard");
       assertEquals(dbResponse, "Fail: Billboard Schedule Does not Exist");
     }
@@ -260,19 +273,25 @@ class ScheduleAdminTest {
       ExpectedSaturdayList.add("0");
       ExpectedSaturdayList.add("1");
 
+        String filePath = "src\\main\\resources\\billboards\\12.xml";
+        InputStream xmlCode1 = new FileInputStream(new File(filePath));
+        String filePath2 = "src\\main\\resources\\billboards\\14.xml";
+        InputStream xmlCode2 = new FileInputStream(new File(filePath2));
+        String filePath3 = "src\\main\\resources\\billboards\\11.xml";
+        InputStream xmlCode3 = new FileInputStream(new File(filePath3));
 
-      BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1",xmlCode1);
       scheduleAdmin.createSchedule("ScheduledBillboard1",
               "05:00", "30", "2020-05-18 12:55", "120",
               "0","0","1","1","0","0","0");
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2",xmlCode2);
         scheduleAdmin.createSchedule("ScheduledBillboard2",
                 "06:00", "20", "2020-05-18 13:55", "40",
                 "0","1","1","1","1","1","0");
 
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3",xmlCode3);
         scheduleAdmin.createSchedule("ScheduledBillboard3",
                 "13:00", "50", "2020-05-20 15:55", "0",
                 "0","0","0","0","0","0","1");
@@ -338,7 +357,9 @@ class ScheduleAdminTest {
     @Test
     public void editBillboardTest() throws IOException, SQLException {
         scheduleAdmin.deleteAllSchedules();
-        BillboardAdmin.createBillboard("TestUser","EditScheduledBillboard","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode = new FileInputStream(new File(filePath));
+        BillboardAdmin.createBillboard("TestUser","EditScheduledBillboard",xmlCode);
         scheduleAdmin.createSchedule("EditScheduledBillboard",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
@@ -382,7 +403,9 @@ class ScheduleAdminTest {
     @Test
     public void editBillboardTestNoSchedule() throws IOException, SQLException {
         scheduleAdmin.deleteAllSchedules();
-        BillboardAdmin.createBillboard("TestUser","EditScheduledBillboard","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode = new FileInputStream(new File(filePath));
+        BillboardAdmin.createBillboard("TestUser","EditScheduledBillboard",xmlCode);
         String dbResponse = scheduleAdmin.editSchedule("EditScheduledBillboard",
                 "05:00", "20", "2020-05-20 12:55", "40",
                 "0","1","1","1","0","0","1");
@@ -461,18 +484,25 @@ class ScheduleAdminTest {
 
         String day = "Wednesday";
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode1 = new FileInputStream(new File(filePath));
+        String filePath2 = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode2 = new FileInputStream(new File(filePath2));
+        String filePath3 = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode3 = new FileInputStream(new File(filePath3));
+
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1",xmlCode1);
         scheduleAdmin.createSchedule("ScheduledBillboard1",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2",xmlCode2);
         scheduleAdmin.createSchedule("ScheduledBillboard2",
                 "06:00", "20", "2020-05-18 13:55", "40",
                 "0","1","1","1","1","1","0");
 
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3",xmlCode3);
         scheduleAdmin.createSchedule("ScheduledBillboard3",
                 "13:00", "50", "2020-05-20 15:55", "0",
                 "0","0","0","0","0","0","1");
@@ -511,18 +541,23 @@ class ScheduleAdminTest {
 
         String day = "Wednssssesday";
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1","testXML");
+        String filePath = "src\\main\\resources\\billboards\\16.xml";
+        InputStream xmlCode1 = new FileInputStream(new File(filePath));
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1",xmlCode1);
         scheduleAdmin.createSchedule("ScheduledBillboard1",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2","testXML");
+        String filePath2 = "src\\main\\resources\\billboards\\5.xml";
+        InputStream xmlCode2 = new FileInputStream(new File(filePath2));
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2",xmlCode2);
         scheduleAdmin.createSchedule("ScheduledBillboard2",
                 "06:00", "20", "2020-05-18 13:55", "40",
                 "0","1","1","1","1","1","0");
 
-
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3","testXML");
+        String filePath3 = "src\\main\\resources\\billboards\\5.xml";
+        InputStream xmlCode3 = new FileInputStream(new File(filePath3));
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3",xmlCode3);
         scheduleAdmin.createSchedule("ScheduledBillboard3",
                 "13:00", "50", "2020-05-20 15:55", "0",
                 "0","0","0","0","0","0","1");
@@ -619,12 +654,17 @@ class ScheduleAdminTest {
 
         String day = "Wednesday";
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1","testXML");
+        String filePath = "src\\main\\resources\\billboards\\2.xml";
+        InputStream xmlCode1 = new FileInputStream(new File(filePath));
+        String filePath2 = "src\\main\\resources\\billboards\\5.xml";
+        InputStream xmlCode2 = new FileInputStream(new File(filePath2));
+
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1",xmlCode1);
         scheduleAdmin.createSchedule("ScheduledBillboard1",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2",xmlCode2);
         scheduleAdmin.createSchedule("ScheduledBillboard2",
                 "06:00", "20", "2020-05-18 13:55", "40",
                 "0","1","1","1","1","1","0");
@@ -675,17 +715,24 @@ class ScheduleAdminTest {
         LocalTime currentTime = LocalTime.parse("07:20");
 
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1","testXML");
+        String filePath = "src\\main\\resources\\billboards\\2.xml";
+        InputStream xmlCode1 = new FileInputStream(new File(filePath));
+        String filePath2 = "src\\main\\resources\\billboards\\5.xml";
+        InputStream xmlCode2 = new FileInputStream(new File(filePath2));
+        String filePath3 = "src\\main\\resources\\billboards\\2.xml";
+        InputStream xmlCode3 = new FileInputStream(new File(filePath3));
+
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard1",xmlCode1);
         scheduleAdmin.createSchedule("ScheduledBillboard1",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard2",xmlCode2);
         scheduleAdmin.createSchedule("ScheduledBillboard2",
                 "06:00", "20", "2020-05-18 13:55", "40",
                 "0","1","1","1","1","1","0");
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3","testXML");
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard3",xmlCode3);
         scheduleAdmin.createSchedule("ScheduledBillboard3",
                 "13:00", "50", "2020-05-20 15:55", "0",
                 "0","0","0","0","0","0","1");
@@ -728,7 +775,10 @@ class ScheduleAdminTest {
         String ExpectedSaturdayList = "0";
 
 
-        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard","testXML");
+
+        String filePath = "src\\main\\resources\\billboards\\2.xml";
+        InputStream xmlCode1 = new FileInputStream(new File(filePath));
+        BillboardAdmin.createBillboard("TestUser","ScheduledBillboard",xmlCode1);
         String dbResponse = scheduleAdmin.createSchedule("ScheduledBillboard",
                 "05:00", "30", "2020-05-18 12:55", "120",
                 "0","0","1","1","0","0","0");

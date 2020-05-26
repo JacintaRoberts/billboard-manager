@@ -1,6 +1,8 @@
 package server;
 
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -20,7 +22,7 @@ public class BillboardAdmin {
     public static final String CREATE_BILLBOARD_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (\n" +
             "    `BillboardName` varchar(255) NOT NULL default '',\n" +
             "      `Creator` varchar(255) NOT NULL default '',\n" +
-            "      `XMLCode` TEXT,\n" +
+            "      `XMLCode` MEDIUMBLOB,\n" +
             "      PRIMARY KEY (`BillboardName`)\n" +
             "  )";
     public static final String DROP_BILLBOARD_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`";
@@ -163,11 +165,12 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public static String createBillboard(String sessionToken, String billboard, String xmlCode)
+    public static String createBillboard(String sessionToken, String billboard, InputStream xmlCode)
                                                             throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_ ]+)";
-        String userName = getUsernameFromToken(sessionToken);
+//        String userName = getUsernameFromToken(sessionToken);
+        String userName = sessionToken;
         if (userName.isEmpty()) {
             return "Fail: Invalid Token";
         }
@@ -185,7 +188,7 @@ public class BillboardAdmin {
                 createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
                 createBillboard.setString(1,billboard);
                 createBillboard.setString(2,userName);
-                createBillboard.setString(3, xmlCode);
+                createBillboard.setBlob(3, xmlCode);
                 rs = createBillboard.executeQuery();
                 resultMessage = "Pass: Billboard Created";
             }
@@ -206,7 +209,7 @@ public class BillboardAdmin {
      * @return
      */
     public static String editBillboard(String billboard,
-                                       String xmlCode) throws IOException, SQLException {
+                                       InputStream xmlCode) throws IOException, SQLException {
         String resultMessage;
         String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
@@ -218,7 +221,7 @@ public class BillboardAdmin {
             String count = rs.getString(1);
             if (count.equals("1")){
                 editBillboard = connection.prepareStatement(EDIT_BILLBOARD_SQL);
-                editBillboard.setString(1,xmlCode);
+                editBillboard.setBlob(1,xmlCode);
                 editBillboard.setString(2,billboard);
                 rs = editBillboard.executeQuery();
                 resultMessage = "Pass: Billboard Edited";
