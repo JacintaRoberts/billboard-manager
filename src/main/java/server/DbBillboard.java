@@ -20,7 +20,7 @@ public class DbBillboard implements Serializable {
         this.BillboardName = BillboardName;
         this.Creator = Creator;
         this.XMLCode = XMLCode;
-        this.returnString = returnString;
+        this.returnString = returnString; // server success or fail message
     }
 
 

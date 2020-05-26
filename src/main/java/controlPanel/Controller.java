@@ -11,6 +11,9 @@ import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -1261,8 +1264,20 @@ public class Controller
                     String createBBReq = null;
 
                     try {
-                        String BBXMLFile = bbCreateView.getBBXMLString();
-                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile);
+                        //TODO: TESTING - JACINTA
+                        String BBXMLString = bbCreateView.getBBXMLString();
+                        System.out.println("BBXMLString is : " + BBXMLString);
+                        String BBXMLStringEscaped = EscapeQuotations(BBXMLString);
+                        System.out.println("BBXMLStringEscaped is : " + BBXMLStringEscaped);
+                        // Create image file from image data
+                        String imageFilePath = "src\\main\\resources\\imageTest.txt";
+                        String imageData = "PBzhu8QUR/9u+M72Py54Yb9j+O7jc5T6iWPz3s2Mes0vD1EmRXVT+R3z6rNQdc6Imk2c/vGB2MrR4Ew2KNIe57twzJYuxyVrGccyNKZufAhdtT3o4ry0o6n1kn13/8f9fz7uI3GKGfU885fb7xYzN8zl1WZnLpPNoJ9sRr/o5Yv1a6TQ+taMdGsoT39BCkOX7s0h0F+QwtY7X3hPf/uDP/jfX+8+KYWem/1FQ33zDm3y9TT+UMvt/9za93+W+//ZvNtvu737LmLHsp35per75X+/vf3238e9/fO7rTSs/DaIcu73kLLq9f6/392fwdf2vYaPXlJfRdyQrZdDl3J0laj/wyx79XEpxlilvv/uoMjDER6VO5Li6N8NxfY/Lnhhv2MolV7qmas31ox6zf17HI7qpvI75tVnoeqcEfWae4WHB2IrR4Mz2aDIptRPdDkuWcs45dF0/NSND6GrtgddnJd2NLVeMmzXe0skTjEbhSSY8QxZxNwwl1ebnblMNoN+shn9opcv1q+RQutbM9KtoTz9BSkMXbo3h0B/QQpb73zhPf3t93//f312Cj03OxkYKiIDH3dfeyNzlUIGPtvvGOoziQxMBra7OJMNimxKTQY2uzgv7WhqvWTYrveWSJxiNgpJMOMZsoi5YS5k4Fwz+kUvX6xfI4XWt2akW0N5+gtSGLp0bw6B/oIUtt75wpv62x/8wf+6BbYpfE4KPTc7GRgqIgMfd197I3OVQgY+2+8Y6jOJDEwGtrs4kw2KbEpNBja7OC/taGq9ZNiu95ZInGI2Ckkw4xmyiLlhLmTgXDP6RS9frF8jhda3ZqRbQ3n6C1IYunRvDoH+ghS23vnCH/UPAL4FinnzWSj03OxkYKiIDHzcfe2NzFUKGfhsv2OozyQyMBnY7uJMNiiyKTUZ2OzivLSjqfWSYbveWyJxitkoJMGMZ8gi5oa5kIFzzegXvXyxfo0UWt+akW4N5ekvSGHo0r05BPoLUth65wuv9Lff//3/eRkKPTc7GRgqIgMfd197I3OVQgY+2+8Y6jOJDEwGtrs4kw2KbEpNBj";
+                        BufferedWriter writer = new BufferedWriter(new FileWriter(imageFilePath));
+                        writer.write(imageData);
+                        writer.close();
+                        String creator = "root"; // hardcoded - need to retrieve from CP.
+                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, imageFilePath, BBXMLStringEscaped);
+                        System.out.println(createBBReq);
                     } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
                     {
                         ex.printStackTrace();
@@ -1309,6 +1324,16 @@ public class Controller
             }
         }
     }
+
+    private String EscapeQuotations(String bbxmlString) {
+        // Example: <?xml version="1.0" encoding="UTF-8" standalone="no"?><billboard background="#0000cc"><message colour="#cc6600">squeak</message>
+        //          01234567890123456789
+        // Output:  <?xml version=\"1.0\" ...
+        //          01234567890123456890
+        String outString = bbxmlString.replace("\"", "\\\"");
+        return outString;
+    }
+
 
     /**
      * BB Preview Listener to handle mouse clicks made to the Preview button in the Create BB View
