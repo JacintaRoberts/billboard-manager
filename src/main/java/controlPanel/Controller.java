@@ -1,29 +1,26 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import server.*;
+import server.BillboardList;
+import server.DbBillboard;
+import server.ScheduleInfo;
 import server.Server.ServerAcknowledge;
-import viewer.Viewer;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import static controlPanel.BillboardControl.deleteBillboardRequest;
+
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
-import static server.Server.ServerAcknowledge.*;
-import static viewer.Viewer.extractXMLFile;
 import static controlPanel.UserControl.logoutRequest;
+import static server.Server.ServerAcknowledge.*;
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
@@ -706,18 +703,15 @@ public class Controller
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            ArrayList<Boolean> userArray = userEditView.getUserInfo();
+            ArrayList<Object> userArray = userEditView.getUserInfo();
 
-            // Parsing elements from user array for the UserControl method to update user permission
-            Boolean createBillboards = userArray.get(0);
-            Boolean editBillboards = userArray.get(1);
-            Boolean editSchedules = userArray.get(2);
-            Boolean editUsers = userArray.get(3);
-            // FIXME: PATRICE - CAN YOU HAVE A LOOK, NEED TO GET USERNAME FROM USERNAME BOX RATHER THAN MODEL
-            //  TO ALLOW EDIT OF OTHER USERS. THIS IS NOT WORKING HOW I EXPECT PLS HELP
-            JButton button = (JButton) e.getSource();
-            String username = button.getName();
-            System.out.println("usernameSelected is : " + username);
+            // Parsing elements from user array for the UserControl method to update user permission/password
+            String username = (String) userArray.get(0);
+            Boolean createBillboards = (Boolean) userArray.get(1);
+            Boolean editBillboards = (Boolean) userArray.get(2);
+            Boolean editSchedules = (Boolean) userArray.get(3);
+            Boolean editUsers = (Boolean) userArray.get(4);
+
             int response = userEditView.showUserConfirmation();
             // add permissions to DB if user confirms permissions
             if (response == 0) {

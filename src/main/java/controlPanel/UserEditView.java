@@ -51,9 +51,10 @@ public class UserEditView extends AbstractUserView
         userPanel.add(setPasswordButton, setGBC(gbc,2,5,1,1));
     }
 
-    protected ArrayList<Boolean> getUserInfo()
+    protected ArrayList<Object> getUserInfo()
     {
-        ArrayList<Boolean> userInfoArray = new ArrayList<>();
+        ArrayList<Object> userInfoArray = new ArrayList<>();
+        userInfoArray.add(usernameText.getText());
         userInfoArray.add(createBBPermission.isSelected());
         userInfoArray.add(editBBPermission.isSelected());
         userInfoArray.add(scheduleBBPermission.isSelected());
