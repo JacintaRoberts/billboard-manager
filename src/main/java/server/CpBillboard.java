@@ -4,24 +4,30 @@ import java.io.Serializable;
 
 public class CpBillboard implements Serializable {
 
-    // Set Fields for DbBillboard
+    // Set Fields for CpBillboard
+    private String message;
     private String billboardName;
     private String creator;
     private String XMLCode;
-    private File image;
+    private byte[] pictureData;
 
     // Set Constructor for DbBillboard
-    public CpBillboard(String billboardName, String creator, String XMLCode, File image) {
+    public CpBillboard(String sessionToken, String billboardName, String creator, String XMLCode, byte[] pictureData) {
+        // Construct message to be sent to server
+        String message = String.format("Billboard,CreateBillboard,%s,%s,%s,%s", sessionToken, billboardName, creator, XMLCode);
+        this.message = message;
         this.billboardName = billboardName;
         this.creator = creator;
         this.XMLCode = XMLCode;
-        this.image = image; // server success or fail message
+        this.pictureData = pictureData;
     }
 
-    // Set Getters for DbBillboard
-    public String getBillboardName() {
-        return billboardName;
+    // Set Getters for CpBillboard
+    public String getMessage() {
+        return message;
     }
+
+    public String getBillboardName() { return billboardName; }
 
     public String getCreator() {
         return creator;
@@ -31,16 +37,18 @@ public class CpBillboard implements Serializable {
         return XMLCode;
     }
 
-    public File getImage() {
-        return image;
+    public byte[] getPictureData() { return pictureData; }
+
+    // Set Setters for CpBillboard
+    public void setMessage(String message) {
+        this.message = message;
     }
 
-    // Set Setters for DbBillboard
     public void setBillboardName(String billboardName) {
         this.billboardName = billboardName;
     }
 
-    public void setName(String creator) {
+    public void setCreator(String creator) {
         this.creator = creator;
     }
 
@@ -48,7 +56,5 @@ public class CpBillboard implements Serializable {
         this.XMLCode = XMLCode;
     }
 
-    public void setImage(File image) {
-        this.image = image;
-    }
+    public void setPictureData(byte[] pictureData) { this.pictureData = pictureData; }
 }

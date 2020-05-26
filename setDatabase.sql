@@ -23,9 +23,10 @@ CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (
 
 CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (
     `BillboardName` varchar(255) NOT NULL default '',
-      `Creator` varchar(255) NOT NULL default '',
-      `XMLCode` TEXT,
-      PRIMARY KEY (`BillboardName`)
+    `Creator` varchar(255) NOT NULL default '',
+    `XMLCode` TEXT NOT NULL default '',
+    `Image` MEDIUMBLOB NOT NULL default '',
+    PRIMARY KEY (`BillboardName`)
   );
 
 

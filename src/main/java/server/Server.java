@@ -144,7 +144,7 @@ public class Server {
      * are in the same order. Write, read on client = Read, write on server (flush in between).
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
      */
-    private static void initServer() throws IOException, SQLException, NoSuchAlgorithmException {
+    private static void initServer() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
         // Read port number from network.props
         final int port = Helpers.getPort(networkPropsFilePath);
         // Bind port number and begin listening, loop to keep receiving connections from clients
@@ -163,7 +163,7 @@ public class Server {
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
             // Read client's request
-            String clientRequest = ois.readUTF();
+            Object clientRequest = ois.readObject();
             System.out.println("Received from client: " + clientRequest);
 
             // Work out what method to call and send back to client
@@ -185,13 +185,25 @@ public class Server {
      * @param clientRequest String to indicate the method that the client requests
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
-    private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
+    private static Object callServerMethod(Object clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
         System.out.println("Received from client: " + clientRequest);
-        String [] clientArgs = clientRequest.split(",");
+        String clientStringRequest;
+        byte[] pictureData = null;
+        try { // Try to cast the received request immediately to a string
+            clientStringRequest = (String) clientRequest;
+        } catch ( ClassCastException e) {
+            // A billboard object was instead sent, retrieve message field
+            CpBillboard billboardReceived = (CpBillboard) clientRequest;
+            clientStringRequest = billboardReceived.getMessage();
+            pictureData = billboardReceived.getPictureData();
+        }
+        // Filter string message
+        String[] clientArgs = clientStringRequest.split(",");
         if (clientArgs.length >= 4) { additionalArgs = Arrays.copyOfRange(clientArgs, 3, clientArgs.length); }
         if (clientArgs.length >= 3) { sessionToken = clientArgs[2]; } // Third argument is the session token
         if (clientArgs.length >= 2) { method = clientArgs[1]; } // Second argument is the method
         if (clientArgs.length >= 1) { module = clientArgs[0]; } // First argument is the module
+
         // Determine which method to execute
         switch (module) {
             case "Viewer":
@@ -199,7 +211,7 @@ public class Server {
             case "User":
                 return callUserAdminMethod();
             case "Billboard":
-                return callBillboardAdminMethod();
+                return callBillboardAdminMethod(pictureData);
             case "Schedule":
                 return callScheduleAdminMethod();
             case "Logout":
@@ -262,24 +274,25 @@ public class Server {
      * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
      * @return Server's response (Object which contains data from database/acknowledgement)
+     * @param pictureData
      */ // TODO: JACINTA WILL REFACTOR THESE METHODS TO RETURN SERVER ACKNOWLEDGE RATHER THAN HARD-CODED STRING
-    private static Object callBillboardAdminMethod() throws IOException, SQLException {
+    private static Object callBillboardAdminMethod(byte[] pictureData) throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
             case "CreateBillboard":
                 String billboardName = additionalArgs[0];
                 String creator = additionalArgs[1];
-                String imageFilePath = additionalArgs[2]; // Note this could sometimes be xmlCode if not provided
-                String XMLCode = additionalArgs[3];
+                String XMLCode = additionalArgs[2];
                 if ( XMLHasCommas() ) {
+                    System.out.println("XML has commas!");
                     // Rejoin the XML code into a single variable
                     concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
                     XMLCode = String.join(",", concatString);
                 }
                 System.out.println("received contents!");
-                System.out.println("imageFilePath is: " + imageFilePath);
-                System.out.println("xmlCode: " + XMLCode);
-                return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, imageFilePath, XMLCode);
+                System.out.println("pictureData is: " + pictureData);
+                System.out.println("xmlCode is: " + XMLCode);
+                return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, XMLCode, pictureData);
 //                return null;
 //            case "EditBillboard":
 //                String originalBillboardName = additionalArgs[0];
@@ -305,7 +318,7 @@ public class Server {
     Method to determine whether the xml provided has commas in the message
      */
     private static Boolean XMLHasCommas() {
-        if ( additionalArgs.length > 5 ) {
+        if ( additionalArgs.length > 3 ) {
             return true;
         }
         return false;
@@ -442,7 +455,7 @@ public class Server {
         } catch (SQLException e) {
             System.err.println("Database Connection Exception caught: " + e);
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
