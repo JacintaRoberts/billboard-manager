@@ -1,5 +1,9 @@
 package controlPanel;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -26,8 +30,7 @@ public class Main {
      * Schedules threads to run application.
      * @param args
      */
-    public static void main(String[] args)
-    {
+    public static void main(String[] args) throws IOException {
         //Schedule a job for the event-dispatching thread:
         //creating and showing this application's GUI.
         javax.swing.SwingUtilities.invokeLater(() -> setUpMVC());

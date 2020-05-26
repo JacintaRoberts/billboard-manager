@@ -4,6 +4,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,7 +25,7 @@ class BillboardAdminTest {
      */
     @BeforeEach
     @Test
-    public void setUpBillboardAdmin() {
+    public void setUpBillboardAdmin() throws UnsupportedEncodingException {
         billboardAdmin = new BillboardAdmin();
     }
 
