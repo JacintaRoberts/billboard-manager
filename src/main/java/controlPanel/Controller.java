@@ -693,6 +693,7 @@ public class Controller
         }
     }
 
+
     /**
      * Listener to handle Submit New User Button mouse clicks.
      */
@@ -712,13 +713,36 @@ public class Controller
             Boolean editBillboards = userArray.get(1);
             Boolean editSchedules = userArray.get(2);
             Boolean editUsers = userArray.get(3);
-
-            for (Boolean bool : userArray) {
-                System.out.println(bool);
-            }
-
-            // FIXME: JACINTA USERCONTROL SET PERMISSIONS & HANDLE ERRORS ETC.
-            // FIXME: you can use userEditView.showUserConfirmation() for a pop up window asking user to proceed
+            // FIXME: PATRICE - CAN YOU HAVE A LOOK, NEED TO GET USERNAME FROM USERNAME BOX RATHER THAN MODEL
+            //  TO ALLOW EDIT OF OTHER USERS. THIS IS NOT WORKING HOW I EXPECT PLS HELP
+            JButton usernameText = (JButton) e.getSource();
+            // get selected user
+            String usernameSelected = usernameText.getText();
+            System.out.println("usernameSelected is : " + usernameSelected);
+            int response = userEditView.showUserConfirmation();
+            // add permissions to DB if user confirms permissions
+            if (response == 0) {
+                // Store selected permissions in database
+                try {
+                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, usernameSelected,
+                            createBillboards, editBillboards, editSchedules, editUsers);
+                    if (serverResponse.equals(Success)) {
+                        userEditView.showEditPermissionsSuccess();
+                    } else if (serverResponse.equals(InsufficientPermission)) {
+                        userEditView.showInsufficientPermissionsException();
+                    } else if (serverResponse.equals(InvalidToken)) {
+                        userEditView.showInvalidTokenException();
+                    } else if (serverResponse.equals(CannotRemoveOwnAdminPermission)) {
+                        userEditView.showCannotRemoveOwnAdminPermissionException();
+                    } else if (serverResponse.equals(NoSuchUser)) {
+                        userEditView.showNoSuchUserException();
+                    }
+                } catch (IOException | ClassNotFoundException ex) {
+                    userEditView.showFatalError();
+                    // TODO: terminate Control Panel and restart
+                    ex.printStackTrace();
+                }
+            } // TODO: Should we do anything else if the response is not 0?
         }
 
     }
@@ -797,20 +821,32 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: User Password Set button clicked");
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             String password = userEditView.showNewPasswordInput();
+            int response = userEditView.showUserConfirmation();
 
-            if (password != null)
-            {
-                // FIXME: JACINTA - USERCONTROL UPDATE PASSWORD - HANDLE ERRORS
-                try {
-                    ServerAcknowledge serverAcknowledge = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
-                    // FIXME: JACINTA maybe add a pop up window saying that password has been changed successfully?
-                } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
-                    ex.printStackTrace();
+            // Confirm response of updated password
+            if  (response == 0) {
+                if (password == null) { // Ensure the user enters a valid password (not empty)
+                    userEditView.showEnterValidPasswordException();
+                } else {
+                    try {
+                        ServerAcknowledge serverResponse = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
+                        if ( serverResponse.equals(Success) ) {
+                            userEditView.showEditPasswordSuccess();
+                        }  else if ( serverResponse.equals(InvalidToken) ) {
+                            userEditView.showInvalidTokenException();
+                        } else if ( serverResponse.equals(InsufficientPermission) ) {
+                            userEditView.showInsufficientPermissionsException();
+                        } else if ( serverResponse.equals(NoSuchUser) ) {
+                            userEditView.showNoSuchUserException();
+                        }
+                    } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                        userEditView.showFatalError();
+                        // TODO: terminate Control Panel and restart
+                        ex.printStackTrace();
+                    }
                 }
+                views.put(USER_EDIT, userEditView);
             }
-
-
-            views.put(USER_EDIT, userEditView);
         }
     }
 
