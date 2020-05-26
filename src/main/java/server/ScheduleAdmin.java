@@ -985,7 +985,8 @@ public class ScheduleAdmin {
                 currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
             }
             // Get the chosen billboard's schedule and extract the xml code
-            DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
+            //TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
+            DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation("",currentBillboardName);
             billboardXML = dbBillboardSchedule.getXMLCode();
         }
 

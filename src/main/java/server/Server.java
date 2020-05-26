@@ -58,6 +58,7 @@ public class Server {
 
         // Billboard Based Enums
         BillboardNameExists,
+        BillboardNotExists,
         InvalidCharacters;
     }
 
@@ -286,14 +287,15 @@ public class Server {
 //                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
             case "DeleteBillboard":
                 String deleteBillboardName = additionalArgs[0];
-                return BillboardAdmin.deleteBillboard(deleteBillboardName);
+                String deleteBillboardRequestor = additionalArgs[1];
+                return BillboardAdmin.deleteBillboard(sessionToken,deleteBillboardName,deleteBillboardRequestor);
             case "DeleteAllBillboard":
                 return BillboardAdmin.deleteAllBillboard();
             case "GetBillboard":
                 String getBillboardName = additionalArgs[0];
-                return BillboardAdmin.getBillboardInformation(getBillboardName);
+                return BillboardAdmin.getBillboardInformation(sessionToken,getBillboardName);
             case "ListBillboard":
-                return BillboardAdmin.listBillboard();
+                return BillboardAdmin.listBillboard(sessionToken);
             default:
                 return "No BillboardAdmin method requested";
         }
