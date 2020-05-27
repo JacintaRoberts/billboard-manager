@@ -2,6 +2,7 @@ package server;
 
 import helpers.Helpers;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,14 +43,23 @@ public class Server {
 
     // Different server acknowledgments that are available
     public enum ServerAcknowledge {
+        // General Enums
         Success,
-        InsufficientPermission,
+        BadPassword, // Login
+        NoSuchUser, // Login
         InvalidToken,
         PrimaryKeyClash, // DB issue
+        // User Based Enums
+        InsufficientPermission,
         CannotDeleteSelf, // Delete user handling
         CannotRemoveOwnAdminPermission, // Set user permissions handling
-        BadPassword, // Login
-        NoSuchUser; // Login
+
+        // Schedule Based Enums
+        BadTimeRepeatDuration,
+        // Billboard Based Enums
+        BillboardNameExists,
+        BillboardNotExists,
+        InvalidCharacters;
     }
 
     /**
@@ -134,12 +144,15 @@ public class Server {
      * are in the same order. Write, read on client = Read, write on server (flush in between).
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
      */
-    private static void initServer() throws IOException, SQLException, NoSuchAlgorithmException {
+    private static void initServer() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
         // Read port number from network.props
         final int port = Helpers.getPort(networkPropsFilePath);
         // Bind port number and begin listening, loop to keep receiving connections from clients
         ServerSocket serverSocket = listenForConnections(port);
         System.out.println("Server has begun listening on port: " + port);
+        BillboardAdmin.createBillboardTable();
+        ScheduleAdmin.createScheduleTable();
+        DbUser.createUserTable();
         for (;;) {
             // Accept client
             Socket socket = serverSocket.accept();
@@ -150,7 +163,7 @@ public class Server {
             ObjectOutputStream oos = new ObjectOutputStream(socket.getOutputStream());
 
             // Read client's request
-            String clientRequest = ois.readUTF();
+            Object clientRequest = ois.readObject();
             System.out.println("Received from client: " + clientRequest);
 
             // Work out what method to call and send back to client
@@ -172,12 +185,25 @@ public class Server {
      * @param clientRequest String to indicate the method that the client requests
      * @return Server's response (Object which contains data from database/acknowledgement)
      */
-    private static Object callServerMethod(String clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
-        String [] clientArgs = clientRequest.split(",");
+    private static Object callServerMethod(Object clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
+        System.out.println("Received from client: " + clientRequest);
+        String clientStringRequest;
+        byte[] pictureData = null;
+        try { // Try to cast the received request immediately to a string
+            clientStringRequest = (String) clientRequest;
+        } catch ( ClassCastException e) {
+            // A billboard object was instead sent, retrieve message field
+            CpBillboard billboardReceived = (CpBillboard) clientRequest;
+            clientStringRequest = billboardReceived.getMessage();
+            pictureData = billboardReceived.getPictureData();
+        }
+        // Filter string message
+        String[] clientArgs = clientStringRequest.split(",");
         if (clientArgs.length >= 4) { additionalArgs = Arrays.copyOfRange(clientArgs, 3, clientArgs.length); }
         if (clientArgs.length >= 3) { sessionToken = clientArgs[2]; } // Third argument is the session token
         if (clientArgs.length >= 2) { method = clientArgs[1]; } // Second argument is the method
         if (clientArgs.length >= 1) { module = clientArgs[0]; } // First argument is the module
+
         // Determine which method to execute
         switch (module) {
             case "Viewer":
@@ -185,7 +211,7 @@ public class Server {
             case "User":
                 return callUserAdminMethod();
             case "Billboard":
-                return callBillboardAdminMethod();
+                return callBillboardAdminMethod(pictureData);
             case "Schedule":
                 return callScheduleAdminMethod();
             case "Logout":
@@ -248,33 +274,41 @@ public class Server {
      * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
      * @return Server's response (Object which contains data from database/acknowledgement)
+     * @param pictureData
      */ // TODO: JACINTA WILL REFACTOR THESE METHODS TO RETURN SERVER ACKNOWLEDGE RATHER THAN HARD-CODED STRING
-    private static Object callBillboardAdminMethod() throws IOException, SQLException {
+    private static Object callBillboardAdminMethod(byte[] pictureData) throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
             case "CreateBillboard":
                 String billboardName = additionalArgs[0];
-                String xmlCode = additionalArgs[1]; // default
-                if ( xmlHasCommas() ) {
+                String creator = additionalArgs[1];
+                String XMLCode = additionalArgs[2];
+                if ( XMLHasCommas() ) {
+                    System.out.println("XML has commas!");
                     // Rejoin the XML code into a single variable
                     concatString = Arrays.copyOfRange(additionalArgs, 2, additionalArgs.length);
-                    xmlCode = String.join(",", concatString);
+                    XMLCode = String.join(",", concatString);
                 }
-                return BillboardAdmin.createBillboard(sessionToken, billboardName, xmlCode);
-            case "EditBillboard":
-                String originalBillboardName = additionalArgs[0];
-                String newXmlCode = additionalArgs[1];
-                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
+                System.out.println("received contents!");
+                System.out.println("pictureData is: " + pictureData);
+                System.out.println("xmlCode is: " + XMLCode);
+                return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, XMLCode, pictureData);
+//                return null;
+//            case "EditBillboard":
+//                String originalBillboardName = additionalArgs[0];
+//                String newXmlCode = additionalArgs[1];
+//                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
             case "DeleteBillboard":
                 String deleteBillboardName = additionalArgs[0];
-                return BillboardAdmin.deleteBillboard(deleteBillboardName);
+                String deleteBillboardRequestor = additionalArgs[1];
+                return BillboardAdmin.deleteBillboard(sessionToken,deleteBillboardName,deleteBillboardRequestor);
             case "DeleteAllBillboard":
                 return BillboardAdmin.deleteAllBillboard();
             case "GetBillboard":
                 String getBillboardName = additionalArgs[0];
-                return BillboardAdmin.getBillboardInformation(getBillboardName);
+                return BillboardAdmin.getBillboardInformation(sessionToken,getBillboardName);
             case "ListBillboard":
-                return BillboardAdmin.listBillboard();
+                return BillboardAdmin.listBillboard(sessionToken);
             default:
                 return "No BillboardAdmin method requested";
         }
@@ -283,8 +317,8 @@ public class Server {
     /*
     Method to determine whether the xml provided has commas in the message
      */
-    private static Boolean xmlHasCommas() {
-        if ( additionalArgs.length > 2 ) {
+    private static Boolean XMLHasCommas() {
+        if ( additionalArgs.length > 3 ) {
             return true;
         }
         return false;
@@ -299,22 +333,22 @@ public class Server {
     private static Object callScheduleAdminMethod() throws IOException, SQLException {
         // Determine which method from ScheduleAdmin to execute
         switch (method) {
-            case "CreateSchedule":
-                String billboardName = additionalArgs[0];
-                String startTime = additionalArgs[1];
-                String duration = additionalArgs[2];
-                String creationDateTime = additionalArgs[3];
-                String repeat = additionalArgs[4];
-                String sunday = additionalArgs[5];
-                String monday = additionalArgs[6];
-                String tuesday = additionalArgs[7];
-                String wednesday = additionalArgs[8];
-                String thursday = additionalArgs[9];
-                String friday = additionalArgs[10];
-                String saturday = additionalArgs[11];
-                return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
-                sunday,monday,tuesday,wednesday,thursday,friday,saturday);
-            case "EditSchedule":
+//            case "CreateSchedule":
+//                String billboardName = additionalArgs[0];
+//                String startTime = additionalArgs[1];
+//                String duration = additionalArgs[2];
+//                String creationDateTime = additionalArgs[3];
+//                String repeat = additionalArgs[4];
+//                String sunday = additionalArgs[5];
+//                String monday = additionalArgs[6];
+//                String tuesday = additionalArgs[7];
+//                String wednesday = additionalArgs[8];
+//                String thursday = additionalArgs[9];
+//                String friday = additionalArgs[10];
+//                String saturday = additionalArgs[11];
+//                return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
+//                sunday,monday,tuesday,wednesday,thursday,friday,saturday);
+            case "UpdateSchedule":
                 String editBillboardName = additionalArgs[0];
                 String editStartTime = additionalArgs[1];
                 String editDuration = additionalArgs[2];
@@ -327,7 +361,7 @@ public class Server {
                 String editThursday = additionalArgs[9];
                 String editFriday = additionalArgs[10];
                 String editSaturday = additionalArgs[11];
-                return ScheduleAdmin.editSchedule(editBillboardName,editStartTime,editDuration,editCreationDateTime,editRepeat,
+                return ScheduleAdmin.updateSchedule(sessionToken, editBillboardName,editStartTime,editDuration,editCreationDateTime,editRepeat,
                         editSunday,editMonday,editTuesday,editWednesday,editThursday,editFriday,editSaturday);
             case "DeleteSchedule":
                 String deleteScheduleName = additionalArgs[0];
@@ -421,7 +455,7 @@ public class Server {
         } catch (SQLException e) {
             System.err.println("Database Connection Exception caught: " + e);
             e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
+        } catch (NoSuchAlgorithmException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }

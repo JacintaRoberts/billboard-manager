@@ -9,6 +9,7 @@ public class ScheduleList  implements Serializable {
     private ArrayList<String> BillboardName;
     private ArrayList<String> StartTime;
     private ArrayList<String> Duration;
+    private ArrayList<String> EndTime;
     private ArrayList<String> CreationDateTime;
     private ArrayList<String> Repeat;
     private ArrayList<String> Sunday;
@@ -24,6 +25,7 @@ public class ScheduleList  implements Serializable {
                         ArrayList<String> BillboardName,
                         ArrayList<String> StartTime,
                         ArrayList<String> Duration,
+                        ArrayList<String> EndTime,
                         ArrayList<String> CreationDateTime,
                         ArrayList<String> Repeat,
                         ArrayList<String> Sunday,
@@ -60,6 +62,9 @@ public class ScheduleList  implements Serializable {
     }
     public ArrayList<String> getDuration() {
         return Duration;
+    }
+    public ArrayList<String> getEndTime() {
+        return EndTime;
     }
     public ArrayList<String> getCreationDateTime() {
         return CreationDateTime;

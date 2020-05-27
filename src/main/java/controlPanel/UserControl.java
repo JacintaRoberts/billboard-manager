@@ -157,8 +157,8 @@ public class UserControl {
      * @throws IOException Thrown if unknown server host when communicating through sockets.
      * @throws ClassNotFoundException If the object received from the server is instantiated from a class that is not found
      */
-    public ServerAcknowledge setPermissionsRequest(String sessionToken, String username, Boolean createBillboard,
-                                                   Boolean editBillboard, Boolean scheduleBillboard, Boolean editUser)
+    public static ServerAcknowledge setPermissionsRequest(String sessionToken, String username, Boolean createBillboard,
+                                                          Boolean editBillboard, Boolean scheduleBillboard, Boolean editUser)
                                                     throws IOException, ClassNotFoundException {
         String message = String.format("User,setPermissions,%s,%s,%s,%s,%s,%s", sessionToken, username, createBillboard,
                                                                         editBillboard, scheduleBillboard, editUser);

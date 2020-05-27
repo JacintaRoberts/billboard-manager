@@ -8,11 +8,13 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
+
+import static server.Server.ServerAcknowledge.*;
+import static server.Server.validateToken;
 
 public class ScheduleAdmin {
 
@@ -117,7 +119,7 @@ public class ScheduleAdmin {
      * SQLException error as the method was unable to be completed
      * @return Drops Schedule Table if exists.
      */
-    public String dropScheduleTable() throws IOException, SQLException{
+    public static String dropScheduleTable() throws IOException, SQLException{
         // Initialise String
         String resultMessage;
         // Get Connection
@@ -131,89 +133,89 @@ public class ScheduleAdmin {
     }
 
 
-    /**
-     * CreateSchedule will create Schedules from existing billboards. Each parameter for the function are fed in through the
-     * Control Panel and can be assumed to be valid.
-     * <p>
-     * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
-     * gets created successfully.
-     * @param  billboard A String which provides Billboard Name to store into database
-     * @param  StartTime A String in format of Java Time to store into database
-     * @param  Duration A String representing an integer which provides Duration which to store into database
-     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
-     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
-     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
-     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
-     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
-     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
-     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
-     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
-     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
-     * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
-     */
-    public static String createSchedule(String billboard,
-                                        String StartTime,
-                                        String Duration,
-                                        String CreationDateTime,
-                                        String Repeat,
-                                        String Sunday,
-                                        String Monday,
-                                        String Tuesday,
-                                        String Wednesday,
-                                        String Thursday,
-                                        String Friday,
-                                        String Saturday) throws IOException, SQLException {
-        // Set Parameters and Varaibles
-        String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_ ]+)";
-        // First Check Valid Characters for Billboard String
-        if (billboard.matches(validCharacters)) {
-            // Get Connection to see if there is a billboard that exists
-            connection = DbConnection.getInstance();
-            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-            countFilterSchedule.setString(1,billboard);
-            ResultSet rs = countFilterSchedule.executeQuery();
-            rs.next();
-            String count = rs.getString(1);
-            if (count.equals("1")){
-                resultMessage = "Fail: Schedule Already Exists";
-            }else {
-                // Get connection to see if Billboard Exists to create a Schedule
-                connection = DbConnection.getInstance();
-                BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
-                BillboardAdmin.countFilterBillboard.setString(1,billboard);
-                rs = BillboardAdmin.countFilterBillboard.executeQuery();
-                rs.next();
-                String count2 = rs.getString(1);
-                if (count2.equals("0")){
-                    resultMessage = "Fail: Billboard does not Exist";
-                } else{
-                    // Create Schedule to store parameters
-                    connection = DbConnection.getInstance();
-                    createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
-                    createSchedule.setString(1,billboard);
-                    createSchedule.setString(2,StartTime);
-                    createSchedule.setString(3,Duration);
-                    createSchedule.setString(4,CreationDateTime);
-                    createSchedule.setString(5,Repeat);
-                    createSchedule.setString(6,Sunday);
-                    createSchedule.setString(7,Monday);
-                    createSchedule.setString(8,Tuesday);
-                    createSchedule.setString(9,Wednesday);
-                    createSchedule.setString(10,Thursday);
-                    createSchedule.setString(11,Friday);
-                    createSchedule.setString(12,Saturday);
-                    rs = createSchedule.executeQuery();
-                    resultMessage = "Pass: Billboard Scheduled";
-                }
-            }
-
-        } else {
-            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
-        }
-        return resultMessage;
-    }
-
+//    /**
+//     * CreateSchedule will create Schedules from existing billboards. Each parameter for the function are fed in through the
+//     * Control Panel and can be assumed to be valid.
+//     * <p>
+//     * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
+//     * gets created successfully.
+//     * @param  billboard A String which provides Billboard Name to store into database
+//     * @param  StartTime A String in format of Java Time to store into database
+//     * @param  Duration A String representing an integer which provides Duration which to store into database
+//     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
+//     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
+//     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
+//     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
+//     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
+//     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
+//     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
+//     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
+//     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
+//     * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
+//     */
+//    public static String createSchedule(String billboard,
+//                                        String StartTime,
+//                                        String Duration,
+//                                        String CreationDateTime,
+//                                        String Repeat,
+//                                        String Sunday,
+//                                        String Monday,
+//                                        String Tuesday,
+//                                        String Wednesday,
+//                                        String Thursday,
+//                                        String Friday,
+//                                        String Saturday) throws IOException, SQLException {
+//        // Set Parameters and Varaibles
+//        String resultMessage;
+//        String validCharacters = "([A-Za-z0-9-_ ]+)";
+//        // First Check Valid Characters for Billboard String
+//        if (billboard.matches(validCharacters)) {
+//            // Get Connection to see if there is a billboard that exists
+//            connection = DbConnection.getInstance();
+//            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+//            countFilterSchedule.setString(1,billboard);
+//            ResultSet rs = countFilterSchedule.executeQuery();
+//            rs.next();
+//            String count = rs.getString(1);
+//            if (count.equals("1")){
+//                resultMessage = "Fail: Schedule Already Exists";
+//            }else {
+//                // Get connection to see if Billboard Exists to create a Schedule
+//                connection = DbConnection.getInstance();
+//                BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
+//                BillboardAdmin.countFilterBillboard.setString(1,billboard);
+//                rs = BillboardAdmin.countFilterBillboard.executeQuery();
+//                rs.next();
+//                String count2 = rs.getString(1);
+//                if (count2.equals("0")){
+//                    resultMessage = "Fail: Billboard does not Exist";
+//                } else{
+//                    // Create Schedule to store parameters
+//                    connection = DbConnection.getInstance();
+//                    createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
+//                    createSchedule.setString(1,billboard);
+//                    createSchedule.setString(2,StartTime);
+//                    createSchedule.setString(3,Duration);
+//                    createSchedule.setString(4,CreationDateTime);
+//                    createSchedule.setString(5,Repeat);
+//                    createSchedule.setString(6,Sunday);
+//                    createSchedule.setString(7,Monday);
+//                    createSchedule.setString(8,Tuesday);
+//                    createSchedule.setString(9,Wednesday);
+//                    createSchedule.setString(10,Thursday);
+//                    createSchedule.setString(11,Friday);
+//                    createSchedule.setString(12,Saturday);
+//                    rs = createSchedule.executeQuery();
+//                    resultMessage = "Pass: Billboard Scheduled";
+//                }
+//            }
+//
+//        } else {
+//            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
+//        }
+//        return resultMessage;
+//    }
+//
 
 
     /**
@@ -305,6 +307,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedEndTime = new ArrayList<>();
         ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
@@ -327,6 +330,7 @@ public class ScheduleAdmin {
             retrievedBillboard.add("0");
             retrievedStartTime.add("0");
             retrievedDuration.add("0");
+            retrievedEndTime.add("0");
             retrievedCreationDateTime.add("0");
             retrievedRepeat.add("0");
             retrievedSunday.add("0");
@@ -347,6 +351,7 @@ public class ScheduleAdmin {
                 retrievedBillboard.add(rs.getString(1));
                 retrievedStartTime.add(rs.getString(2));
                 retrievedDuration.add(rs.getString(3));
+                retrievedEndTime.add("0");
                 retrievedCreationDateTime.add(rs.getString(4));
                 retrievedRepeat.add(rs.getString(5));
                 retrievedSunday.add(rs.getString(6));
@@ -365,6 +370,7 @@ public class ScheduleAdmin {
                 retrievedBillboard,
                 retrievedStartTime,
                 retrievedDuration,
+                retrievedEndTime,
                 retrievedCreationDateTime,
                 retrievedRepeat,
                 retrievedSunday,
@@ -400,70 +406,132 @@ public class ScheduleAdmin {
      * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
      * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
      */
-    public static String editSchedule(String billboard,
-                                       String StartTime,
-                                       String Duration,
-                                       String CreationDateTime,
-                                       String Repeat,
-                                       String Sunday,
-                                       String Monday,
-                                       String Tuesday,
-                                       String Wednesday,
-                                       String Thursday,
-                                       String Friday,
-                                       String Saturday) throws IOException, SQLException {
-        // Set Parameters
-        String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_ ]+)";
-        // Check Valid Characters for billboardName
-        if (billboard.matches(validCharacters)) {
-            // Start conenction to see if billboard exists
-            connection = DbConnection.getInstance();
-            BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
-            BillboardAdmin.countFilterBillboard.setString(1,billboard);
-            ResultSet rs = BillboardAdmin.countFilterBillboard.executeQuery();
-            rs.next();
-            String count2 = rs.getString(1);
-            if (count2.equals(0)){
-                // Return Fail Message
-                resultMessage = "Fail: Billboard Does Not Exist";
-            } else{
-                //Check if Schedule Exists and updates as required
-                connection = DbConnection.getInstance();
-                countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-                countFilterSchedule.setString(1,billboard);
-                rs = countFilterSchedule.executeQuery();
-                rs.next();
-                String count = rs.getString(1);
-                if (count.equals("1")){
+    public static Server.ServerAcknowledge updateSchedule(String sessionToken,
+                                                          String billboard,
+                                                          String StartTime,
+                                                          String Duration,
+                                                          String CreationDateTime,
+                                                          String Repeat,
+                                                          String Sunday,
+                                                          String Monday,
+                                                          String Tuesday,
+                                                          String Wednesday,
+                                                          String Thursday,
+                                                          String Friday,
+                                                          String Saturday) throws IOException, SQLException {
+        if (validateToken(sessionToken)) {
+            System.out.println("Session is valid");
+            if (UserAdmin.checkSinglePermission(sessionToken, Server.Permission.ScheduleBillboard)){
+                // Start conenction to see if billboard exists
+                String billboardExist = BillboardAdmin.countFilterBillboardSql(billboard);
+                if (billboardExist.equals("0")){
+                    // Return Fail Message
+                    System.out.println("Billboard does not exist");
+                    return BillboardNotExists;
+                } else{
                     // Update Schedule and return pass
-                    connection = DbConnection.getInstance();
-                    editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
-                    editSchedule.setString(1,StartTime);
-                    editSchedule.setString(2,Duration);
-                    editSchedule.setString(3,CreationDateTime);
-                    editSchedule.setString(4,Repeat);
-                    editSchedule.setString(5,Sunday);
-                    editSchedule.setString(6,Monday);
-                    editSchedule.setString(7,Tuesday);
-                    editSchedule.setString(8,Wednesday);
-                    editSchedule.setString(9,Thursday);
-                    editSchedule.setString(10,Friday);
-                    editSchedule.setString(11,Saturday);
-                    editSchedule.setString(12,billboard);
-                    editSchedule.executeQuery();
-                    resultMessage = "Pass: Schedule Edited";
-                }else {
-                    // Return Fail message
-                    resultMessage = "Fail: Schedule Does not Exist";
+                    updateScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
+                            Wednesday,Thursday,Friday,Saturday);
+                    return Success;
                 }
+            } else {
+                System.out.println("Permissions were not sufficient, no Schedule was Updated");
+                return InsufficientPermission; // 3. Valid token but insufficient permission
             }
         } else {
-            // Return Fail message
-            resultMessage = "Fail: Scheduled Billboard Name Contains Illegal Characters";
+            System.out.println("Session was not valid");
+            return InvalidToken; // 4. Invalid token
         }
-        // Return
-        return resultMessage;
+    }
+
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void createScheduleSQL(String billboard,
+                                         String StartTime,
+                                         String Duration,
+                                         String CreationDateTime,
+                                         String Repeat,
+                                         String Sunday,
+                                         String Monday,
+                                         String Tuesday,
+                                         String Wednesday,
+                                         String Thursday,
+                                         String Friday,
+                                         String Saturday) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+        editSchedule.setString(1,StartTime);
+        editSchedule.setString(2,Duration);
+        editSchedule.setString(3,CreationDateTime);
+        editSchedule.setString(4,Repeat);
+        editSchedule.setString(5,Sunday);
+        editSchedule.setString(6,Monday);
+        editSchedule.setString(7,Tuesday);
+        editSchedule.setString(8,Wednesday);
+        editSchedule.setString(9,Thursday);
+        editSchedule.setString(10,Friday);
+        editSchedule.setString(11,Saturday);
+        editSchedule.setString(12,billboard);
+        editSchedule.executeQuery();
+        System.out.println("query RUn");
+    }
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void updateScheduleSQL(String billboard,
+                                         String StartTime,
+                                         String Duration,
+                                         String CreationDateTime,
+                                         String Repeat,
+                                         String Sunday,
+                                         String Monday,
+                                         String Tuesday,
+                                         String Wednesday,
+                                         String Thursday,
+                                         String Friday,
+                                         String Saturday) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+        editSchedule.setString(1,StartTime);
+        editSchedule.setString(2,Duration);
+        editSchedule.setString(3,CreationDateTime);
+        editSchedule.setString(4,Repeat);
+        editSchedule.setString(5,Sunday);
+        editSchedule.setString(6,Monday);
+        editSchedule.setString(7,Tuesday);
+        editSchedule.setString(8,Wednesday);
+        editSchedule.setString(9,Thursday);
+        editSchedule.setString(10,Friday);
+        editSchedule.setString(11,Saturday);
+        editSchedule.setString(12,billboard);
+        editSchedule.executeQuery();
+        System.out.println("query RUn");
+    }
+
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countFilterScheduleSql(String billboard) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+        countFilterSchedule.setString(1,billboard);
+        ResultSet rs = countFilterSchedule.executeQuery();
+        rs.next();
+        String count = rs.getString(1);
+        return count;
     }
 
 
@@ -589,6 +657,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedBillboard = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedEndTime = new ArrayList<>();
         ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
@@ -711,6 +780,7 @@ public class ScheduleAdmin {
                 retrievedBillboard.add(rs.getString(1));
                 retrievedStartTime.add(rs.getString(2));
                 retrievedDuration.add(rs.getString(3));
+                retrievedEndTime.add("0");
                 retrievedCreationDateTime.add(rs.getString(4).substring(0, rs.getString(4).length() - 5));
                 retrievedRepeat.add(rs.getString(5));
                 retrievedSunday.add(rs.getString(6));
@@ -730,6 +800,7 @@ public class ScheduleAdmin {
                 retrievedBillboard,
                 retrievedStartTime,
                 retrievedDuration,
+                retrievedEndTime,
                 retrievedCreationDateTime,
                 retrievedRepeat,
                 retrievedSunday,
@@ -755,95 +826,94 @@ public class ScheduleAdmin {
      * @return Returns a ScheduleList object with imputed results for schedules.
      * Contains information on all fields. Each field is an array and can be read via getters.
      */
-    public static ScheduleList viewAllDaySchedule(ScheduleList scheduleList) {
-        try {
-            // Initialise allDaySchedule object
-            ScheduleList allDaySchedule = null;
-            // Initialise ArrayList to build return Variable
-            ArrayList<String> retrievedBillboard = new ArrayList<>();
-            ArrayList<String> retrievedStartTime = new ArrayList<>();
-            ArrayList<String> retrievedDuration = new ArrayList<>();
-            ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
-            ArrayList<String> retrievedRepeat = new ArrayList<>();
-            ArrayList<String> retrievedSunday = new ArrayList<>();
-            ArrayList<String> retrievedMonday = new ArrayList<>();
-            ArrayList<String> retrievedTuesday = new ArrayList<>();
-            ArrayList<String> retrievedWednesday = new ArrayList<>();
-            ArrayList<String> retrievedThursday = new ArrayList<>();
-            ArrayList<String> retrievedFriday = new ArrayList<>();
-            ArrayList<String> retrievedSaturday = new ArrayList<>();
-            // Set Constant Variables used for computation
-            int numBillboards = scheduleList.getScheduleBillboardName().size();
-            LocalTime endTime = LocalTime.parse("23:59");
-            // Set Local Variables for temporary storage and computation
-            LocalTime startTime;
-            int repeatMinutes;
-            int minTillEnd;
-            int extraSched;
-            int duration;
-            String billboardName;
-            String creationDateTime;
-            String Sunday;
-            String Monday;
-            String Tuesday;
-            String Wednesday;
-            String Thursday;
-            String Friday;
-            String Saturday;
-            // Run through all of the billboard schedule present
-            for (int i = 0; i < numBillboards; i++) {
-                billboardName = scheduleList.getScheduleBillboardName().get(i);
-                startTime = LocalTime.parse(scheduleList.getStartTime().get(i));
-                repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
-                duration = Integer.parseInt(scheduleList.getDuration().get(i));
-                creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
-                minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
-                extraSched = minTillEnd / repeatMinutes;
-                Sunday = scheduleList.getSunday().get(i);
-                Monday = scheduleList.getMonday().get(i);
-                Tuesday = scheduleList.getTuesday().get(i);
-                Wednesday = scheduleList.getWednesday().get(i);
-                Thursday = scheduleList.getThursday().get(i);
-                Friday = scheduleList.getFriday().get(i);
-                Saturday = scheduleList.getSaturday().get(i);
-                // Genearte all possible imputation of schedules and store into temporary arraylist
-                for (int j = 0; j <= extraSched; j++) {
-                    retrievedBillboard.add(billboardName);
-                    retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j * repeatMinutes)));
-                    retrievedDuration.add(String.valueOf(duration));
-                    retrievedCreationDateTime.add(creationDateTime);
-                    retrievedRepeat.add(String.valueOf(repeatMinutes));
-                    retrievedSunday.add(Sunday);
-                    retrievedMonday.add(Monday);
-                    retrievedTuesday.add(Tuesday);
-                    retrievedWednesday.add(Wednesday);
-                    retrievedThursday.add(Thursday);
-                    retrievedFriday.add(Friday);
-                    retrievedSaturday.add(Saturday);
-                }
+    public static ScheduleList viewAllDaySchedule(ScheduleList scheduleList) throws IOException, SQLException {
+        // Initialise allDaySchedule object
+        ScheduleList allDaySchedule = null;
+        // Initialise ArrayList to build return Variable
+        ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedStartTime = new ArrayList<>();
+        ArrayList<String> retrievedDuration = new ArrayList<>();
+        ArrayList<String> retrievedEndTime = new ArrayList<>();
+        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+        ArrayList<String> retrievedRepeat = new ArrayList<>();
+        ArrayList<String> retrievedSunday = new ArrayList<>();
+        ArrayList<String> retrievedMonday = new ArrayList<>();
+        ArrayList<String> retrievedTuesday = new ArrayList<>();
+        ArrayList<String> retrievedWednesday = new ArrayList<>();
+        ArrayList<String> retrievedThursday = new ArrayList<>();
+        ArrayList<String> retrievedFriday = new ArrayList<>();
+        ArrayList<String> retrievedSaturday = new ArrayList<>();
+        // Set Constant Variables used for computation
+        int numBillboards = scheduleList.getScheduleBillboardName().size();
+        LocalTime endTime = LocalTime.parse("23:59");
+        // Set Local Variables for temporary storage and computation
+        LocalTime startTime ;
+        int repeatMinutes ;
+        int minTillEnd ;
+        int extraSched;
+        int duration ;
+        String billboardName;
+        String creationDateTime;
+        String Sunday;
+        String Monday;
+        String Tuesday;
+        String Wednesday;
+        String Thursday;
+        String Friday;
+        String Saturday;
+        // Run through all of the billboard schedule present
+        for (int i = 0; i < numBillboards; i++) {
+            billboardName = scheduleList.getScheduleBillboardName().get(i);
+            startTime = LocalTime.parse(scheduleList.getStartTime().get(i)) ;
+            repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
+            duration = Integer.parseInt(scheduleList.getDuration().get(i));
+            creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
+            minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
+            extraSched = minTillEnd / repeatMinutes;
+            Sunday = scheduleList.getSunday().get(i);
+            Monday = scheduleList.getMonday().get(i);
+            Tuesday = scheduleList.getTuesday().get(i);
+            Wednesday = scheduleList.getWednesday().get(i);
+            Thursday = scheduleList.getThursday().get(i);
+            Friday = scheduleList.getFriday().get(i);
+            Saturday = scheduleList.getSaturday().get(i);
+            // Genearte all possible imputation of schedules and store into temporary arraylist
+            for (int j = 0; j <= extraSched; j++){
+                retrievedBillboard.add(billboardName);
+                retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes)));
+                retrievedEndTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes).plusMinutes(duration)));
+                retrievedDuration.add(String.valueOf(duration));
+                retrievedCreationDateTime.add(creationDateTime);
+                retrievedRepeat.add(String.valueOf(repeatMinutes));
+                retrievedSunday.add(Sunday);
+                retrievedMonday.add(Monday);
+                retrievedTuesday.add(Tuesday);
+                retrievedWednesday.add(Wednesday);
+                retrievedThursday.add(Thursday);
+                retrievedFriday.add(Friday);
+                retrievedSaturday.add(Saturday);
             }
-            // Generate Response message
-            String serverResponse = "Pass: All Day Schedule Returned";
-            // Create ruturn allDayScheduleObject
-            allDaySchedule = new ScheduleList(serverResponse,
-                    retrievedBillboard,
-                    retrievedStartTime,
-                    retrievedDuration,
-                    retrievedCreationDateTime,
-                    retrievedRepeat,
-                    retrievedSunday,
-                    retrievedMonday,
-                    retrievedTuesday,
-                    retrievedWednesday,
-                    retrievedThursday,
-                    retrievedFriday,
-                    retrievedSaturday
-            );
-            // Return Schedule
-            return allDaySchedule;
-        } catch (DateTimeParseException e) {
-            return null; // FIXME: Band-aid fix. If no schedule exists it will try to parse "0" to a date-time
         }
+        // Generate Response message
+        String serverResponse = "Pass: All Day Schedule Returned";
+        // Create ruturn allDayScheduleObject
+        allDaySchedule = new ScheduleList(serverResponse,
+                retrievedBillboard,
+                retrievedStartTime,
+                retrievedDuration,
+                retrievedEndTime,
+                retrievedCreationDateTime,
+                retrievedRepeat,
+                retrievedSunday,
+                retrievedMonday,
+                retrievedTuesday,
+                retrievedWednesday,
+                retrievedThursday,
+                retrievedFriday,
+                retrievedSaturday
+        );
+        // Return Schedule
+        return allDaySchedule;
     }
 
     /**
@@ -856,65 +926,57 @@ public class ScheduleAdmin {
      * @param currentTime A LocalTime object which notes the current time of request
      * @return Returns a CurrentSchedule object noting any active schedules. Each field is an array and can be read via getters.
      */
-    public static CurrentSchedule viewCurrentSchedule(ScheduleList allDaySchedule, LocalTime currentTime) {
-        try {
-            // Initialise currentSchedule
-            CurrentSchedule currentSchedule = null;
-            // Initialise Variable
-            ArrayList<String> retrievedBillboard = new ArrayList<>();
-            ArrayList<String> retrievedStartTime = new ArrayList<>();
-            ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
-            // Create looping Variable
-            int numBillboards = allDaySchedule.getScheduleBillboardName().size();
-            // Initialise local variables for calculations
-            LocalTime startTime ;
-            LocalTime endTime ;
-            int repeatMinutes ;
-            int minTillEnd ;
-            int extraSched;
-            int duration ;
-            int counter = 0;
-            String billboardName;
-            String creationDateTime;
-            String serverResponse;
-            // Loop through all billboards and see if it is within range
-            for (int i = 0; i < numBillboards; i++) {
-                billboardName = allDaySchedule.getScheduleBillboardName().get(i);
-                startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i));
-                duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
-                endTime =  startTime.plusMinutes(duration);
-                creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
-                if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)){
-                    retrievedBillboard.add(billboardName);
-                    retrievedStartTime.add(String.valueOf(startTime));
-                    retrievedCreationDateTime.add(creationDateTime);
-                    counter++;
-                    System.out.println("counter inc");
-                }
+    public static CurrentSchedule viewCurrentSchedule(ScheduleList allDaySchedule, LocalTime currentTime) throws IOException, SQLException {
+        // Initialise currentSchedule
+        CurrentSchedule currentSchedule = null;
+        // Initialise Variable
+        ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedStartTime = new ArrayList<>();
+        ArrayList<String> retrievedCreationDateTime = new ArrayList<>();
+        // Create looping Variable
+        int numBillboards = allDaySchedule.getScheduleBillboardName().size();
+        // Initialise local variables for calculations
+        LocalTime startTime ;
+        LocalTime endTime ;
+        int repeatMinutes ;
+        int minTillEnd ;
+        int extraSched;
+        int duration ;
+        int counter = 0;
+        String billboardName;
+        String creationDateTime;
+        String serverResponse;
+        // Loop through all billboards and see if it is within range
+        for (int i = 0; i < numBillboards; i++) {
+            billboardName = allDaySchedule.getScheduleBillboardName().get(i);
+            startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i)) ;
+            duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
+            endTime =  startTime.plusMinutes(duration);
+            creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
+            if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)){
+                retrievedBillboard.add(billboardName);
+                retrievedStartTime.add(String.valueOf(startTime));
+                retrievedCreationDateTime.add(creationDateTime);
+                counter++;
             }
-            // Return message setting
-            System.out.println("Counter value: " + counter);
-            if (counter > 0){
-                serverResponse = "Pass: Current Active Schedule Returned";
-            } else {
-                serverResponse = "Fail: No current Active Schedule";
-                retrievedBillboard.add("0");
-                retrievedStartTime.add("0");
-                retrievedCreationDateTime.add("0");
-            }
-            System.out.println(serverResponse);
-            // Create currentSchedule Object
-            currentSchedule = new CurrentSchedule(serverResponse,
-                    retrievedBillboard,
-                    retrievedStartTime,
-                    retrievedCreationDateTime
-            );
-            System.out.println("Current schedule object created");
-            // Return currentSchedule
-            return currentSchedule;
-        } catch (DateTimeParseException e) { // FIXME: Band-aid fix. If no schedule exists it will try to parse "0" to a date-time
-            return null;
         }
+        // Return message setting
+        if (counter > 0){
+            serverResponse = "Pass: Current Active Schedule Returned";
+        } else {
+            serverResponse = "Fail: No current Active Schedule";
+            retrievedBillboard.add("0");
+            retrievedStartTime.add("0");
+            retrievedCreationDateTime.add("0");
+        }
+        // Create currentSchedule Object
+        currentSchedule = new CurrentSchedule(serverResponse,
+                retrievedBillboard,
+                retrievedStartTime,
+                retrievedCreationDateTime
+        );
+        // Return currentSchedule
+        return currentSchedule;
     }
 
 
@@ -957,39 +1019,44 @@ public class ScheduleAdmin {
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalTime currentTime = localDateTime.toLocalTime();
         String currentDayOfWeek = localDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
+
         // Get today's schedule
         ScheduleList todayScheduleList = listFilteredScheduleInformation(currentDayOfWeek);
+
         // Get the current schedule (based on the time) and the billboard name
         CurrentSchedule currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
-        try {
-            ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
-            String currentBillboardName;
-            if (!currentScheduleBillboardNames.isEmpty()) {
-                if (currentScheduleBillboardNames.size() == 1) {
-                    // There is only one billboard
-                    currentBillboardName = String.valueOf(currentScheduleBillboardNames);
-                } else {
-                    // There is more than one billboard scheduled for right now, so get their creation date time
-                    ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
-                    ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
-                    // Parse strings into LocalDateTime with the correct formatting
-                    for (int i = 0; i < creationDateTimeStrings.size(); i++) {
-                        LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
-                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                        creationLocalDateTimes.set(i, dateTime);
-                    }
+        ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
+        String currentBillboardName;
 
-                    // Find latest date from creation date time array and get the corresponding billboard name
-                    int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
-                    currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
-                }
-                // Get the chosen billboard's schedule and extract the xml code
-                DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation(currentBillboardName);
-                billboardXML = dbBillboardSchedule.getXMLCode();
+        if (!currentScheduleBillboardNames.isEmpty()) {
+            if (currentScheduleBillboardNames.size() == 1) {
+                // There is only one billboard
+                currentBillboardName = String.valueOf(currentScheduleBillboardNames);
             }
-            return billboardXML;
-        } catch (NullPointerException e) { // If no billboards currently scheduled //FIXME: THIS IS A BAND-AID FIX, PROBABLY IMPROVE THIS.
-            return null;
+            else{
+                // There is more than one billboard scheduled for right now, so get their creation date time
+                ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
+                ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
+
+                // Parse strings into LocalDateTime with the correct formatting
+                for (int i = 0; i < creationDateTimeStrings.size(); i++) {
+                    LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
+                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                    creationLocalDateTimes.set(i, dateTime);
+                }
+
+                // Find latest date from creation date time array and get the corresponding billboard name
+                int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
+                currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
+            }
+            // Get the chosen billboard's schedule and extract the xml code
+            //TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
+            DbBillboard dbBillboardSchedule = BillboardAdmin.getBillboardInformation("",currentBillboardName);
+            billboardXML = dbBillboardSchedule.getXMLCode();
         }
+
+        return billboardXML;
     }
+
+
 }

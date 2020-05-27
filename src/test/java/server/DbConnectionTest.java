@@ -368,14 +368,14 @@ class DbConnectionTest {
     @Test
     public void checkBillboardsTable2() throws IOException, SQLException {
 
+//        BillboardAdmin.dropBillboardTable();
+//        ScheduleAdmin.dropScheduleTable();
+//        DbUser.dropUserTable();
+//        BillboardAdmin.createBillboardTable();
+//        ScheduleAdmin.createScheduleTable();
+//        DbUser.createUserTable();
         // Set SQL Query
-        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Billboards ";
-//        final String SHOW_BILLBOARD_CONTENT = "UPDATE Schedules SET `StartTime` = '00:00:00'  ";
-
-        // Set predetermined test cases
-        String BillboardName = "BillboardName";
-        String Creator = "Creator";
-        String XMLCode = "XMLCode";
+        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Schedules ";
 
         // Set connection
         Connection connection = DbConnection.getInstance();

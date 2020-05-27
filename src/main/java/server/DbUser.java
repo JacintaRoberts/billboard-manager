@@ -17,11 +17,23 @@ public class DbUser {
     private String EditUser;
 
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
+    public static final String COUNT_USER_SQL = "SELECT COUNT(*) FROM Users";
     public static final String ADD_USER_SQL = "INSERT INTO users VALUES (?, ?, ?, ?, ?, ?, ?)";
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
     public static final String LIST_USERS_SQL = "SELECT Username FROM users;";
     public static final String UPDATE_PERMISSIONS_SQL = "UPDATE users SET CreateBillboard=?, EditBillboard=?, ScheduleBillboard=?, EditUser=? WHERE Username = ?";
     public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, RandomSalt=? WHERE Username = ?";
+    public static final String CREATE_USER_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (\n" +
+            "      `Username` varchar(255) NOT NULL default '',\n" +
+            "      `Password` varchar(255) NOT NULL,\n" +
+            "      `Salt` varchar(255) NOT NULL,\n" +
+            "      `CreateBillboard` bool NOT NULL default 0,\n" +
+            "      `EditBillboard` bool NOT NULL default 0,\n" +
+            "      `ScheduleBillboard` bool NOT NULL default 0,\n" +
+            "      `EditUser` bool NOT NULL default 0,\n" +
+            "      PRIMARY KEY (`Username`))";
+    public static final String DROP_USER_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Users`";
+
     private static Connection connection;
     private static PreparedStatement selectUser;
     private static PreparedStatement addUser;
@@ -42,7 +54,64 @@ public class DbUser {
     }
 
 
-    // TODO: REDUNDANT METHOD - CAN ALAN HAVE A LOOK AT THE WAY I HAVE DONE THIS INSTEAD...
+
+    /**
+     * Ensures that the ScheduleTable is created inside the database. The method should be called when the server is being
+     * set up to ensure the Schedule Table exists if it is not in the database.
+     * <p>
+     * This method always returns immediately. It will either return a success message "Schedule Table Created", or further
+     * information such as Schedule Table exists with/without data pre-populated inside
+     * @return Ensures Schedule Table exists within the Database
+     */
+    public static String createUserTable() throws IOException, SQLException {
+        // Initialise Variable
+        String resultMessage;
+        // Set Connection
+        connection = DbConnection.getInstance();
+        Statement countUser = connection.createStatement();
+        ResultSet rs = null;
+        try {
+            // Check if Table exists, and if Data exists
+            rs = countUser.executeQuery(COUNT_USER_SQL);
+            rs.next();
+            String count = rs.getString(1);
+            if (count.equals("0")){
+                addUser("root", "a461ab9266dbbec4623de686f806a23e69337f524527e282bb325092159f0d87",
+                        "8bca1326370a157d9c33acd5a173440d9475d3955ae559872f47cfe34aa793bd",
+                        true, true, true, true);
+                resultMessage = "User Table Exists and has No Data. Root has been added";
+            } else {
+                resultMessage = "User Table Exists and has Data";
+            }
+        } catch (SQLSyntaxErrorException throwables) {
+            // If dosent exist, create table
+            rs = countUser.executeQuery(CREATE_USER_TABLE);
+            addUser("root", "a461ab9266dbbec4623de686f806a23e69337f524527e282bb325092159f0d87",
+                    "8bca1326370a157d9c33acd5a173440d9475d3955ae559872f47cfe34aa793bd",
+                    true, true, true, true);
+            resultMessage = "User Table Created";
+        }
+        return resultMessage;
+    }
+
+
+    /**
+     * Delete Table: User. This is a generic method which deletes the table.
+     * <p>
+     * This method always returns immediately.
+     * @return
+     */
+    public static String dropUserTable() throws IOException, SQLException{
+        String resultMessage;
+
+        connection = DbConnection.getInstance();
+        Statement dropUserTable = connection.createStatement();
+        ResultSet rs = dropUserTable.executeQuery(DROP_USER_TABLE);
+        resultMessage = "User Table Dropped";
+        return resultMessage;
+    }
+
+
     /**
      * Stores Database Queries: Users. This is a generic method which stores any query sent to the database.
      * <p>

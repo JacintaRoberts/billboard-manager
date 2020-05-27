@@ -1,29 +1,28 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
-import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
-import server.*;
+import server.BillboardList;
+import server.DbBillboard;
+import server.ScheduleInfo;
 import server.Server.ServerAcknowledge;
-import viewer.Viewer;
 
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.BufferedWriter;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import static controlPanel.BillboardControl.deleteBillboardRequest;
+
 import static controlPanel.Main.VIEW_TYPE.*;
 import static controlPanel.UserControl.loginRequest;
-import static server.Server.ServerAcknowledge.*;
-import static viewer.Viewer.extractXMLFile;
 import static controlPanel.UserControl.logoutRequest;
+import static server.Server.ServerAcknowledge.*;
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
@@ -370,6 +369,7 @@ public class Controller
                 //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
 
                 // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
+
                 // Billboard Schedule: day, time, bb name
                 ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
                 billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
@@ -693,6 +693,7 @@ public class Controller
         }
     }
 
+
     /**
      * Listener to handle Submit New User Button mouse clicks.
      */
@@ -706,17 +707,37 @@ public class Controller
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
             ArrayList<Object> userArray = userEditView.getUserInfo();
-
-            // Parsing elements from user array for the UserControl method to update user permission
+            // Parsing elements from user array for the UserControl method to update user permission/password
             String username = (String) userArray.get(0);
             Boolean createBillboards = (Boolean) userArray.get(1);
             Boolean editBillboards = (Boolean) userArray.get(2);
             Boolean editSchedules = (Boolean) userArray.get(3);
             Boolean editUsers = (Boolean) userArray.get(4);
 
-
-            // FIXME: JACINTA USERCONTROL SET PERMISSIONS & HANDLE ERRORS ETC.
-            // FIXME: you can use userEditView.showUserConfirmation() for a pop up window asking user to proceed
+            int response = userEditView.showUserConfirmation();
+            // add permissions to DB if user confirms permissions
+            if (response == 0) {
+                // Store selected permissions in database
+                try {
+                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, username,
+                            createBillboards, editBillboards, editSchedules, editUsers);
+                    if (serverResponse.equals(Success)) {
+                        userEditView.showEditPermissionsSuccess();
+                    } else if (serverResponse.equals(InsufficientPermission)) {
+                        userEditView.showInsufficientPermissionsException();
+                    } else if (serverResponse.equals(InvalidToken)) {
+                        userEditView.showInvalidTokenException();
+                    } else if (serverResponse.equals(CannotRemoveOwnAdminPermission)) {
+                        userEditView.showCannotRemoveOwnAdminPermissionException();
+                    } else if (serverResponse.equals(NoSuchUser)) {
+                        userEditView.showNoSuchUserException();
+                    }
+                } catch (IOException | ClassNotFoundException ex) {
+                    userEditView.showFatalError();
+                    // TODO: terminate Control Panel and restart
+                    ex.printStackTrace();
+                }
+            } // TODO: Should we do anything else if the response is not 0?
         }
 
     }
@@ -795,20 +816,32 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: User Password Set button clicked");
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
             String password = userEditView.showNewPasswordInput();
+            int response = userEditView.showUserConfirmation();
 
-            if (password != null)
-            {
-                // FIXME: JACINTA - USERCONTROL UPDATE PASSWORD - HANDLE ERRORS
-                try {
-                    ServerAcknowledge serverAcknowledge = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
-                    // FIXME: JACINTA maybe add a pop up window saying that password has been changed successfully?
-                } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
-                    ex.printStackTrace();
+            // Confirm response of updated password
+            if  (response == 0) {
+                if (password == null) { // Ensure the user enters a valid password (not empty)
+                    userEditView.showEnterValidPasswordException();
+                } else {
+                    try {
+                        ServerAcknowledge serverResponse = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
+                        if ( serverResponse.equals(Success) ) {
+                            userEditView.showEditPasswordSuccess();
+                        }  else if ( serverResponse.equals(InvalidToken) ) {
+                            userEditView.showInvalidTokenException();
+                        } else if ( serverResponse.equals(InsufficientPermission) ) {
+                            userEditView.showInsufficientPermissionsException();
+                        } else if ( serverResponse.equals(NoSuchUser) ) {
+                            userEditView.showNoSuchUserException();
+                        }
+                    } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
+                        userEditView.showFatalError();
+                        // TODO: terminate Control Panel and restart
+                        ex.printStackTrace();
+                    }
                 }
+                views.put(USER_EDIT, userEditView);
             }
-
-
-            views.put(USER_EDIT, userEditView);
         }
     }
 
@@ -1107,7 +1140,7 @@ public class Controller
             if (response == 0)
             {
                 try {
-                    String result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName);
+                    ServerAcknowledge result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName,model.getUsername());
                     bbListView.showBBDeletedMessage(result);
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();
@@ -1230,8 +1263,18 @@ public class Controller
                     String createBBReq = null;
 
                     try {
-                        String BBXMLFile = bbCreateView.getBBXMLString();
-                        createBBReq = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, BBXMLFile);
+                        String BBXMLString = bbCreateView.getBBXMLString();
+                        System.out.println("Original BBXMLString is : " + BBXMLString);
+                        String BBXMLStringPictureDataRemoved = RemovePictureData(BBXMLString);
+                        // Create the byte array for sending picture data
+                        // TODO: CHECK HANDLING OF NULL PICTURE DATA
+                        byte[] pictureData = GetPictureData(BBXMLString).getBytes("UTF-8");
+                        String creator = model.getUsername();
+                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLStringPictureDataRemoved, pictureData);
+                        if (createBillboardAction.equals(Success)){
+                            createBBReq = "Pass: Billboard Created";
+                        }
+                        System.out.println(createBBReq);
                     } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
                     {
                         ex.printStackTrace();
@@ -1277,6 +1320,37 @@ public class Controller
                 bbCreateView.showBBInvalidErrorMessage();
             }
         }
+    }
+
+    /*
+    private String EscapeQuotations(String bbXMLString) {
+        String escapedString = bbXMLString.replace("\"", "\\\"");
+        return escapedString;
+    }*/
+
+    /**
+     * Method to extract the picture data from the original billboard xml for file storage
+     * @param bbXMLString Original billboard xml code generated from user inputs
+     * @return String representation of the base-64 encoded image data
+     */
+    private String GetPictureData(String bbXMLString) {
+        String[] splitString = bbXMLString.split("<picture data=\\\"");
+        String[] imageStrings = splitString[1].split("\"/>");
+        System.out.println("Image data returned is " + imageStrings[0]);
+        return imageStrings[0];
+    }
+
+
+    /**
+     * Method to remove the picture data tag from xml for sending to server.
+     * @param bbXMLString Original billboard xml code generated from user inputs
+     * @return bbXMLString with removed picture data tag.
+     */
+    private String RemovePictureData(String bbXMLString) {
+        String[] splitString = bbXMLString.split("<picture data=");
+        String[] imageStrings = splitString[1].split("/>");
+        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
+        return splitString[0]+imageStrings[1];
     }
 
     /**
@@ -1652,6 +1726,35 @@ public class Controller
 
                 // FIXME: ALAN - FORMAT CORRECTLY
 
+
+                Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
+                Boolean monday = Boolean.parseBoolean(schedule.getMonday());
+                Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
+                Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
+                Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
+                Boolean friday = Boolean.parseBoolean(schedule.getFriday());
+                Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
+                String startTime = schedule.getStartTime();
+                Integer duration = Integer.parseInt(schedule.getDuration().trim());
+                Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
+
+                ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
+                String recurrenceButton;
+
+                if(minRepeat.equals(60)){
+                    recurrenceButton = "hourly";
+                } else if (minRepeat.equals(0)){
+                    recurrenceButton = "no repeats";
+                } else{
+                    recurrenceButton = "minute";
+                }
+
+                Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
+                Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+
+
+                scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+
 //                String monday = schedule.getMonday();
 //                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
 //                schedule.getStartTime(); // hh:mm
@@ -1735,9 +1838,14 @@ public class Controller
                 if (response == 0)
                 {
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects
-
-                    //ScheduleControl.scheduleBillboardRequest(scheduleInfo);
+                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects.. this is implemented but sessiontoken error
+                    try {
+                        ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    } catch (ClassNotFoundException classNotFoundException) {
+                        classNotFoundException.printStackTrace();
+                    }
 
                     scheduleUpdateView.showConfirmationDialog();
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);

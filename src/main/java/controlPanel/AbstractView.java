@@ -198,4 +198,39 @@ public abstract class AbstractView extends JFrame implements Observer
         JOptionPane.showMessageDialog(null, message);
     }
 
+
+    /**
+     * Pop-up window to let the user know the user's permissions were successfully updated
+     */
+    protected void showEditPermissionsSuccess() {
+        String message = "Permissions were successfully updated";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+    /**
+     * Pop-up window to let the user know the user's password was successfully updated
+     */
+    protected void showEditPasswordSuccess() {
+        String message = "Password was successfully updated";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+    /**
+     * Pop-up window to let the user know that they cannot remove their own edit user permissions
+     */
+    protected void showCannotRemoveOwnAdminPermissionException() {
+        String message = "You cannot remove your own edit user permissions (admin)!";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+    /**
+     * Pop-up window to let the user know that they cannot remove their own edit user permissions
+     */
+    protected void showEnterValidPasswordException() {
+        String message = "Please enter a valid password";
+        JOptionPane.showMessageDialog(null, message);
+    }
 }
