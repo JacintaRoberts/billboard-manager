@@ -388,38 +388,30 @@ public class Controller
                     e.printStackTrace();
                 }
 
-                // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
-//                for (int i = 0; i < allDaysched.getScheduleBillboardName().size(); i++){
-//                    ArrayList tempStore = new ArrayList<>(Arrays.asList(allDaysched.getStartTime()+"~"+allDaysched.getEndTime(),
-//                            allDaysched.getScheduleBillboardName(),
-//                            allDaysched.getScheduleBillboardCreator()),
-//                            billboardDayScheduleDisplay.add());
-//                    billboardDayScheduleDisplay.add(tempStore);
-//                }
-
+                // FIXME: ALAN DONE :D
                 // Billboard Schedule: day, time, bb name
-                ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
-//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//
-//                ArrayList<ArrayList<String>> billboardScheduleTuesday = new ArrayList<>();
-//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-//
                 ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
-                schedule.add(scheduleMonday);
-                schedule.add(scheduleTuesday);
-                schedule.add(scheduleWednesday);
-                schedule.add(scheduleThursday);
-                schedule.add(scheduleFriday);
-                schedule.add(scheduleSaturday);
-                schedule.add(scheduleSunday);
+                if(scheduleMonday.get(0).get(1) != null){
+                    schedule.add(scheduleMonday);
+                }
+                if(scheduleTuesday.get(0).get(1) != null){
+                    schedule.add(scheduleTuesday);
+                }
+                if(scheduleWednesday.get(0).get(1) != null){
+                    schedule.add(scheduleWednesday);
+                }
+                if(scheduleThursday.get(0).get(1) != null){
+                    schedule.add(scheduleThursday);
+                }
+                if(scheduleFriday.get(0).get(1) != null){
+                    schedule.add(scheduleFriday);
+                }
+                if(scheduleSaturday.get(0).get(1) != null){
+                    schedule.add(scheduleSaturday);
+                }
+                if(scheduleSunday.get(0).get(1) != null){
+                    schedule.add(scheduleSunday);
+                }
 
                 scheduleWeekView.populateSchedule(schedule);
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
@@ -1789,7 +1781,6 @@ public class Controller
 
                 // FIXME: ALAN - FORMAT CORRECTLY
 
-
                 Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
                 Boolean monday = Boolean.parseBoolean(schedule.getMonday());
                 Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
@@ -1817,55 +1808,6 @@ public class Controller
 
                 scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
 
-//                String monday = schedule.getMonday();
-//                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
-//                schedule.getStartTime(); // hh:mm
-//                schedule.getDuration();
-//                schedule.getRepeat(); // get repeat minutes
-
-                //scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-
-//                if (bbName.equals("Myer"))
-//                {
-//                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    int startHour = 5;
-//                    int startMin = 6;
-//                    int duration = 30;
-//                    int minRepeat = 220;
-//                    String recurrenceButton = "minute";
-//                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-//                }
-//                else if (bbName.equals("Anaconda"))
-//                {
-//                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    int startHour = 1;
-//                    int startMin = 0;
-//                    int duration = 30;
-//                    int minRepeat = -1;
-//                    String recurrenceButton = "hourly";
-//                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-//                }
-//                else
-//                {
-//                    // alert user that no schedule exists in db
-//                    scheduleUpdateView.showNoExistingScheduleMessage();
-//                    // clear the schedule
-//                    scheduleUpdateView.removeScheduleSelection();
-//                }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
         }
@@ -1900,7 +1842,7 @@ public class Controller
                 if (response == 0)
                 {
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects.. this is implemented but sessiontoken error
+                    // FIXME: SCHEDULE CONTROL: ALAN Done :D
                     try {
                         ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
                     } catch (IOException ioException) {
