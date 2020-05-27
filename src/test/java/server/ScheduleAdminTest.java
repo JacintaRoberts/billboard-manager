@@ -93,14 +93,14 @@ class ScheduleAdminTest {
      *              This test is for when the billboard does not exist
      * Expected Output: A schedule is not added to the table and returns "Fail: Billboard does not Exist"
      */
-    @Test
-    public void scheduleBillboardNoBillboard() throws IOException, SQLException {
-        scheduleAdmin.deleteAllSchedules();
-        String dbResponse = scheduleAdmin.createSchedule("BADBILLBOARDYOUDONTBELONGHERE",
-                "05:00", "30", "2020-05-18 12:55", "120",
-                "0","0","1","1","0","0","0");
-      assertEquals(dbResponse, "Fail: Billboard does not Exist");
-    }
+//    @Test
+//    public void scheduleBillboardNoBillboard() throws IOException, SQLException {
+//        scheduleAdmin.deleteAllSchedules();
+//        String dbResponse = scheduleAdmin.createSchedule("BADBILLBOARDYOUDONTBELONGHERE",
+//                "05:00", "30", "2020-05-18 12:55", "120",
+//                "0","0","1","1","0","0","0");
+//      assertEquals(dbResponse, "Fail: Billboard does not Exist");
+//    }
 
 
     /* Test 6: Create Schedule - Insufficient Permissions (Exception Handling)

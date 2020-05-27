@@ -13,6 +13,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import static server.Server.ServerAcknowledge.*;
+import static server.Server.validateToken;
+
 public class ScheduleAdmin {
 
     // Custom SQL Strings for Specific Queries
@@ -130,89 +133,89 @@ public class ScheduleAdmin {
     }
 
 
-    /**
-     * CreateSchedule will create Schedules from existing billboards. Each parameter for the function are fed in through the
-     * Control Panel and can be assumed to be valid.
-     * <p>
-     * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
-     * gets created successfully.
-     * @param  billboard A String which provides Billboard Name to store into database
-     * @param  StartTime A String in format of Java Time to store into database
-     * @param  Duration A String representing an integer which provides Duration which to store into database
-     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
-     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
-     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
-     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
-     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
-     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
-     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
-     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
-     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
-     * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
-     */
-    public static String createSchedule(String billboard,
-                                        String StartTime,
-                                        String Duration,
-                                        String CreationDateTime,
-                                        String Repeat,
-                                        String Sunday,
-                                        String Monday,
-                                        String Tuesday,
-                                        String Wednesday,
-                                        String Thursday,
-                                        String Friday,
-                                        String Saturday) throws IOException, SQLException {
-        // Set Parameters and Varaibles
-        String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_ ]+)";
-        // First Check Valid Characters for Billboard String
-        if (billboard.matches(validCharacters)) {
-            // Get Connection to see if there is a billboard that exists
-            connection = DbConnection.getInstance();
-            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-            countFilterSchedule.setString(1,billboard);
-            ResultSet rs = countFilterSchedule.executeQuery();
-            rs.next();
-            String count = rs.getString(1);
-            if (count.equals("1")){
-                resultMessage = "Fail: Schedule Already Exists";
-            }else {
-                // Get connection to see if Billboard Exists to create a Schedule
-                connection = DbConnection.getInstance();
-                BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
-                BillboardAdmin.countFilterBillboard.setString(1,billboard);
-                rs = BillboardAdmin.countFilterBillboard.executeQuery();
-                rs.next();
-                String count2 = rs.getString(1);
-                if (count2.equals("0")){
-                    resultMessage = "Fail: Billboard does not Exist";
-                } else{
-                    // Create Schedule to store parameters
-                    connection = DbConnection.getInstance();
-                    createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
-                    createSchedule.setString(1,billboard);
-                    createSchedule.setString(2,StartTime);
-                    createSchedule.setString(3,Duration);
-                    createSchedule.setString(4,CreationDateTime);
-                    createSchedule.setString(5,Repeat);
-                    createSchedule.setString(6,Sunday);
-                    createSchedule.setString(7,Monday);
-                    createSchedule.setString(8,Tuesday);
-                    createSchedule.setString(9,Wednesday);
-                    createSchedule.setString(10,Thursday);
-                    createSchedule.setString(11,Friday);
-                    createSchedule.setString(12,Saturday);
-                    rs = createSchedule.executeQuery();
-                    resultMessage = "Pass: Billboard Scheduled";
-                }
-            }
-
-        } else {
-            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
-        }
-        return resultMessage;
-    }
-
+//    /**
+//     * CreateSchedule will create Schedules from existing billboards. Each parameter for the function are fed in through the
+//     * Control Panel and can be assumed to be valid.
+//     * <p>
+//     * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
+//     * gets created successfully.
+//     * @param  billboard A String which provides Billboard Name to store into database
+//     * @param  StartTime A String in format of Java Time to store into database
+//     * @param  Duration A String representing an integer which provides Duration which to store into database
+//     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
+//     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
+//     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
+//     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
+//     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
+//     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
+//     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
+//     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
+//     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
+//     * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
+//     */
+//    public static String createSchedule(String billboard,
+//                                        String StartTime,
+//                                        String Duration,
+//                                        String CreationDateTime,
+//                                        String Repeat,
+//                                        String Sunday,
+//                                        String Monday,
+//                                        String Tuesday,
+//                                        String Wednesday,
+//                                        String Thursday,
+//                                        String Friday,
+//                                        String Saturday) throws IOException, SQLException {
+//        // Set Parameters and Varaibles
+//        String resultMessage;
+//        String validCharacters = "([A-Za-z0-9-_ ]+)";
+//        // First Check Valid Characters for Billboard String
+//        if (billboard.matches(validCharacters)) {
+//            // Get Connection to see if there is a billboard that exists
+//            connection = DbConnection.getInstance();
+//            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+//            countFilterSchedule.setString(1,billboard);
+//            ResultSet rs = countFilterSchedule.executeQuery();
+//            rs.next();
+//            String count = rs.getString(1);
+//            if (count.equals("1")){
+//                resultMessage = "Fail: Schedule Already Exists";
+//            }else {
+//                // Get connection to see if Billboard Exists to create a Schedule
+//                connection = DbConnection.getInstance();
+//                BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
+//                BillboardAdmin.countFilterBillboard.setString(1,billboard);
+//                rs = BillboardAdmin.countFilterBillboard.executeQuery();
+//                rs.next();
+//                String count2 = rs.getString(1);
+//                if (count2.equals("0")){
+//                    resultMessage = "Fail: Billboard does not Exist";
+//                } else{
+//                    // Create Schedule to store parameters
+//                    connection = DbConnection.getInstance();
+//                    createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
+//                    createSchedule.setString(1,billboard);
+//                    createSchedule.setString(2,StartTime);
+//                    createSchedule.setString(3,Duration);
+//                    createSchedule.setString(4,CreationDateTime);
+//                    createSchedule.setString(5,Repeat);
+//                    createSchedule.setString(6,Sunday);
+//                    createSchedule.setString(7,Monday);
+//                    createSchedule.setString(8,Tuesday);
+//                    createSchedule.setString(9,Wednesday);
+//                    createSchedule.setString(10,Thursday);
+//                    createSchedule.setString(11,Friday);
+//                    createSchedule.setString(12,Saturday);
+//                    rs = createSchedule.executeQuery();
+//                    resultMessage = "Pass: Billboard Scheduled";
+//                }
+//            }
+//
+//        } else {
+//            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
+//        }
+//        return resultMessage;
+//    }
+//
 
 
     /**
@@ -403,70 +406,132 @@ public class ScheduleAdmin {
      * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
      * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
      */
-    public static String editSchedule(String billboard,
-                                       String StartTime,
-                                       String Duration,
-                                       String CreationDateTime,
-                                       String Repeat,
-                                       String Sunday,
-                                       String Monday,
-                                       String Tuesday,
-                                       String Wednesday,
-                                       String Thursday,
-                                       String Friday,
-                                       String Saturday) throws IOException, SQLException {
-        // Set Parameters
-        String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_ ]+)";
-        // Check Valid Characters for billboardName
-        if (billboard.matches(validCharacters)) {
-            // Start conenction to see if billboard exists
-            connection = DbConnection.getInstance();
-            BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
-            BillboardAdmin.countFilterBillboard.setString(1,billboard);
-            ResultSet rs = BillboardAdmin.countFilterBillboard.executeQuery();
-            rs.next();
-            String count2 = rs.getString(1);
-            if (count2.equals(0)){
-                // Return Fail Message
-                resultMessage = "Fail: Billboard Does Not Exist";
-            } else{
-                //Check if Schedule Exists and updates as required
-                connection = DbConnection.getInstance();
-                countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-                countFilterSchedule.setString(1,billboard);
-                rs = countFilterSchedule.executeQuery();
-                rs.next();
-                String count = rs.getString(1);
-                if (count.equals("1")){
+    public static Server.ServerAcknowledge updateSchedule(String sessionToken,
+                                                          String billboard,
+                                                          String StartTime,
+                                                          String Duration,
+                                                          String CreationDateTime,
+                                                          String Repeat,
+                                                          String Sunday,
+                                                          String Monday,
+                                                          String Tuesday,
+                                                          String Wednesday,
+                                                          String Thursday,
+                                                          String Friday,
+                                                          String Saturday) throws IOException, SQLException {
+        if (validateToken(sessionToken)) {
+            System.out.println("Session is valid");
+            if (UserAdmin.checkSinglePermission(sessionToken, Server.Permission.ScheduleBillboard)){
+                // Start conenction to see if billboard exists
+                String billboardExist = BillboardAdmin.countFilterBillboardSql(billboard);
+                if (billboardExist.equals("0")){
+                    // Return Fail Message
+                    System.out.println("Billboard does not exist");
+                    return BillboardNotExists;
+                } else{
                     // Update Schedule and return pass
-                    connection = DbConnection.getInstance();
-                    editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
-                    editSchedule.setString(1,StartTime);
-                    editSchedule.setString(2,Duration);
-                    editSchedule.setString(3,CreationDateTime);
-                    editSchedule.setString(4,Repeat);
-                    editSchedule.setString(5,Sunday);
-                    editSchedule.setString(6,Monday);
-                    editSchedule.setString(7,Tuesday);
-                    editSchedule.setString(8,Wednesday);
-                    editSchedule.setString(9,Thursday);
-                    editSchedule.setString(10,Friday);
-                    editSchedule.setString(11,Saturday);
-                    editSchedule.setString(12,billboard);
-                    editSchedule.executeQuery();
-                    resultMessage = "Pass: Schedule Edited";
-                }else {
-                    // Return Fail message
-                    resultMessage = "Fail: Schedule Does not Exist";
+                    updateScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
+                            Wednesday,Thursday,Friday,Saturday);
+                    return Success;
                 }
+            } else {
+                System.out.println("Permissions were not sufficient, no Schedule was Updated");
+                return InsufficientPermission; // 3. Valid token but insufficient permission
             }
         } else {
-            // Return Fail message
-            resultMessage = "Fail: Scheduled Billboard Name Contains Illegal Characters";
+            System.out.println("Session was not valid");
+            return InvalidToken; // 4. Invalid token
         }
-        // Return
-        return resultMessage;
+    }
+
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void createScheduleSQL(String billboard,
+                                         String StartTime,
+                                         String Duration,
+                                         String CreationDateTime,
+                                         String Repeat,
+                                         String Sunday,
+                                         String Monday,
+                                         String Tuesday,
+                                         String Wednesday,
+                                         String Thursday,
+                                         String Friday,
+                                         String Saturday) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+        editSchedule.setString(1,StartTime);
+        editSchedule.setString(2,Duration);
+        editSchedule.setString(3,CreationDateTime);
+        editSchedule.setString(4,Repeat);
+        editSchedule.setString(5,Sunday);
+        editSchedule.setString(6,Monday);
+        editSchedule.setString(7,Tuesday);
+        editSchedule.setString(8,Wednesday);
+        editSchedule.setString(9,Thursday);
+        editSchedule.setString(10,Friday);
+        editSchedule.setString(11,Saturday);
+        editSchedule.setString(12,billboard);
+        editSchedule.executeQuery();
+        System.out.println("query RUn");
+    }
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void updateScheduleSQL(String billboard,
+                                         String StartTime,
+                                         String Duration,
+                                         String CreationDateTime,
+                                         String Repeat,
+                                         String Sunday,
+                                         String Monday,
+                                         String Tuesday,
+                                         String Wednesday,
+                                         String Thursday,
+                                         String Friday,
+                                         String Saturday) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+        editSchedule.setString(1,StartTime);
+        editSchedule.setString(2,Duration);
+        editSchedule.setString(3,CreationDateTime);
+        editSchedule.setString(4,Repeat);
+        editSchedule.setString(5,Sunday);
+        editSchedule.setString(6,Monday);
+        editSchedule.setString(7,Tuesday);
+        editSchedule.setString(8,Wednesday);
+        editSchedule.setString(9,Thursday);
+        editSchedule.setString(10,Friday);
+        editSchedule.setString(11,Saturday);
+        editSchedule.setString(12,billboard);
+        editSchedule.executeQuery();
+        System.out.println("query RUn");
+    }
+
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countFilterScheduleSql(String billboard) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+        countFilterSchedule.setString(1,billboard);
+        ResultSet rs = countFilterSchedule.executeQuery();
+        rs.next();
+        String count = rs.getString(1);
+        return count;
     }
 
 

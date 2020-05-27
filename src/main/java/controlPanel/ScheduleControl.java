@@ -1,6 +1,7 @@
 package controlPanel;
 
 import helpers.Helpers;
+import server.Server;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -79,7 +80,7 @@ public class ScheduleControl {
      *
      * @param scheduleInfo@return
      */
-    public static  String updateScheduleBillboardRequest(String sessionToken, ArrayList<Object> scheduleInfo) throws IOException, ClassNotFoundException {
+    public static Server.ServerAcknowledge updateScheduleBillboardRequest(String sessionToken, ArrayList<Object> scheduleInfo) throws IOException, ClassNotFoundException {
         // Define Varaibles
         String billboardName = String.valueOf(scheduleInfo.get(0));
         ArrayList<Boolean>  daysOfWeek = (ArrayList<Boolean>) scheduleInfo.get(1);
@@ -96,36 +97,32 @@ public class ScheduleControl {
         Integer Repeat = (Integer) scheduleInfo.get(6);
         String startTime = startHour + ":" + startMin;
         // Create Formatter
-        DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm");
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
 
         // Parse Formatted Time Variables
         LocalDateTime CreationDateTime = LocalDateTime.now();
         String formatCreationDateTime = CreationDateTime.format(dateTimeFormatter);
-//        String formatCreationDateTime = String.valueOf(LocalDateTime.parse(CreationDateTime, dateTimeFormatter));
 
-        // Check Valid Duration Repeat variable
-        if(Duration < Repeat){
-            String message = String.format("Schedule,EditSchedule,%s,%s,%s,%d,%s,%d,%d,%d,%d,%d,%d,%d,%d",
-                    sessionToken,
-                    billboardName,
-                    startTime,
-                    Duration,
-                    formatCreationDateTime,
-                    Repeat,
-                    Sunday,
-                    Monday,
-                    Tuesday,
-                    Wednesday,
-                    Thursday,
-                    Friday,
-                    Saturday);
-            return (String) Helpers.initClient(message);
-        } else {
-            String serverResponse;
-            return serverResponse = "Fail: Invalid Duration Repeat Combination";
+        // Ensure its 0
+        if (Repeat == null){
+            Repeat = 0;
         }
+
+        String message = String.format("Schedule,UpdateSchedule,%s,%s,%s,%d,%s,%d,%d,%d,%d,%d,%d,%d,%d",
+                sessionToken,
+                billboardName,
+                startTime,
+                Duration,
+                formatCreationDateTime,
+                Repeat,
+                Sunday,
+                Monday,
+                Tuesday,
+                Wednesday,
+                Thursday,
+                Friday,
+                Saturday);
+        return (Server.ServerAcknowledge) Helpers.initClient(message);
     }
 
     /**

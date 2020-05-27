@@ -375,7 +375,7 @@ class DbConnectionTest {
 //        ScheduleAdmin.createScheduleTable();
 //        DbUser.createUserTable();
         // Set SQL Query
-        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Billboards ";
+        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Schedules ";
 
         // Set connection
         Connection connection = DbConnection.getInstance();
