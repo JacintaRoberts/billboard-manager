@@ -412,6 +412,7 @@ public class BBCreateView extends AbstractGenericView
         // FIXME: check photo path? and icon???
         if (pictureExists)
         {
+            System.out.println("PHOTO EXISTS");
             Element picture = document.createElement("picture");
             root.appendChild(picture);
 
@@ -721,6 +722,15 @@ public class BBCreateView extends AbstractGenericView
             if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0) {
                 return false;
             }
+
+//            if (photoByte.size != 0) // or empty
+//            {
+//                boolean setPicture = manageXMLPicture(photoList);
+//                if (!setPicture)
+//                {
+//                    return false;
+//                }
+//            }
 
             if (photoList.getLength() != 0) {
                 boolean setPicture = manageXMLPicture(photoList);

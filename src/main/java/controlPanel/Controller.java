@@ -34,7 +34,6 @@ public class Controller
     private Model model;
     private HashMap<VIEW_TYPE, AbstractView> views;
     private Object serverResponse;
-    private String sessionToken;
     private BBFullPreview BBViewer;
 
     /*
@@ -73,7 +72,6 @@ public class Controller
         addBBListListener();
 
         BBViewer = new BBFullPreview();
-        // FIXME: do I need to hide?
 
         // set up Log In view
         showView(LOGIN);
@@ -619,7 +617,7 @@ public class Controller
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
                     // store username and session token in model
                     model.storeUsername(username);
-                    sessionToken = (String) serverResponse; // Store as a session token
+                    String sessionToken = (String) serverResponse; // Store as a session token
                     model.storeSessionToken(sessionToken);
                     views.put(VIEW_TYPE.LOGIN, logInView);
                     // nav user to home screen
@@ -719,7 +717,7 @@ public class Controller
             if (response == 0) {
                 // Store selected permissions in database
                 try {
-                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, username,
+                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(model.getSessionToken(), username,
                             createBillboards, editBillboards, editSchedules, editUsers);
                     if (serverResponse.equals(Success)) {
                         userEditView.showEditPermissionsSuccess();
@@ -774,7 +772,7 @@ public class Controller
 
                     // Retrieve server response
                     try {
-                        serverResponse = UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+                        serverResponse = UserControl.createUserRequest(model.getSessionToken(), username, password, createBillboards, editBillboards, editSchedules, editUsers);
                     } catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex) {
                         ex.printStackTrace();
                         userCreateView.showFatalError();
@@ -957,7 +955,7 @@ public class Controller
         ArrayList<String> usernames = null;
         ServerAcknowledge errorMessage = Success;
         try {
-            serverResponse = UserControl.listUsersRequest(sessionToken);
+            serverResponse = UserControl.listUsersRequest(model.getSessionToken());
             System.out.println(serverResponse);
             // Attempt to cast to a string ArrayList for successful response
             usernames = (ArrayList<String>) serverResponse;
@@ -1012,7 +1010,7 @@ public class Controller
      */
     private void getUserPermissionsFromServer(AbstractUserView userView, VIEW_TYPE viewType, String username) {
         try {
-            serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
+            serverResponse = UserControl.getPermissionsRequest(model.getSessionToken(), username);
             ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
             // FIXME: setPermissions is wrong mapping
             userView.setPermissions(userPermissions);
@@ -1096,11 +1094,14 @@ public class Controller
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
+                //Byte[] image = billboardObject.getPhoto();
                 boolean valid = bbCreateView.addBBXML(xmlFile);
                 if (valid)
                 {
                     // set BB Name based on selected button
                     bbCreateView.setBBName(button.getName());
+                    bbCreateView.setBBNameEnabled(false);
+
                     updateView(BB_CREATE);
                 }
                 else
@@ -1142,7 +1143,8 @@ public class Controller
                 try {
                     ServerAcknowledge result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName,model.getUsername());
                     bbListView.showBBDeletedMessage(result);
-                } catch (IOException | ClassNotFoundException ex) {
+                } catch (IOException | ClassNotFoundException ex)
+                {
                     ex.printStackTrace();
                 }
                 // navigate to bb list screen to refresh screen
