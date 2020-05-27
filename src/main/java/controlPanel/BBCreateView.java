@@ -57,7 +57,7 @@ public class BBCreateView extends AbstractGenericView
     // --- ENUM ---
     private VIEW_TYPE view_type;
 
-    private String photoPath;
+    private Object photoPath;
     private String backgroundColour;
     private String titleColour;
     private String infoColour;
@@ -238,7 +238,7 @@ public class BBCreateView extends AbstractGenericView
      * Set colour of text in BB Text field in Drawing Panel
      * @param colour colour to set in text field (hexadecimal)
      */
-    protected void setBBTextColour(String colour) throws NumberFormatException
+    protected void setBBTextColour(String colour)
     {
         Color newColour = Color.BLACK;
         // set colour if provided, if not set to BLACK
@@ -302,7 +302,7 @@ public class BBCreateView extends AbstractGenericView
      * Set background colour of Drawing Panel to reflect BB colour set by user
      * @param colour colour to set drawing panel in hexadecimal
      */
-    protected void setBackgroundColour(String colour) throws NumberFormatException
+    protected void setBackgroundColour(String colour)
     {
         Color newColour = Color.WHITE;
         // set colour if provided, if not set to BLACK
@@ -325,7 +325,7 @@ public class BBCreateView extends AbstractGenericView
      * Set Photo in the Drawing Panel
      * @param icon BB image in icon format
      */
-    protected void setPhoto(ImageIcon icon, PhotoType imgType, String imgPath)
+    protected void setPhoto(ImageIcon icon, PhotoType imgType, Object imgPath)
     {
         // FIXME: handle when these are NULL
         photoLabel.setIcon(icon);
@@ -348,8 +348,8 @@ public class BBCreateView extends AbstractGenericView
 
     protected boolean checkBBValid()
     {
-        boolean infoNull = (BBTextField.getText().equals("") || BBTextField.getText() == null);
-        boolean titleNull = (titleLabel.getText().equals("") || titleLabel.getText() == null);
+        boolean infoNull = (BBTextField.getText().equals(""));
+        boolean titleNull = (titleLabel.getText().equals(""));
         boolean pictureNull = (photoPath == null);
 
         if (infoNull && titleNull && pictureNull)
@@ -359,16 +359,18 @@ public class BBCreateView extends AbstractGenericView
         return true;
     }
 
-    protected Document getBBXMLDocument() throws ParserConfigurationException {
+    protected ArrayList<Object> getBBXMLDocument(boolean separatePictureData) throws ParserConfigurationException {
+        byte[] photoData = null;
+
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
 
         Document document = documentBuilder.newDocument();
 
-        boolean infoExists = (!BBTextField.getText().equals("") || BBTextField.getText() != null);
-        boolean titleExists = (!titleLabel.getText().equals("") || titleLabel.getText() != null);
-        boolean pictureExists = (photoPath != null);
+        boolean infoExists = !BBTextField.getText().equals("");
+        boolean titleExists = !titleLabel.getText().equals("");
+        boolean pictureExists = photoPath != null;
 
         // ------- ROOT -------
         // root element - billboard
@@ -382,7 +384,7 @@ public class BBCreateView extends AbstractGenericView
 
         if (titleExists)
         {
-            System.out.println(titleLabel.getText());
+            System.out.println("TITLE " + BBTextField.getText());
 
             // ------- MESSAGE / TITLE -------
             Element message = document.createElement("message");
@@ -398,6 +400,9 @@ public class BBCreateView extends AbstractGenericView
         // ------- INFORMATION -------
         if (infoExists)
         {
+            System.out.println("INFORMATION " + BBTextField.getText());
+            System.out.println("INFORMATION string" + BBTextField.getText().equals(""));
+            System.out.println("INFORMATION null" + BBTextField.getText() != null);
             Element information = document.createElement("information");
             information.setTextContent(BBTextField.getText());
             root.appendChild(information);
@@ -412,35 +417,66 @@ public class BBCreateView extends AbstractGenericView
         // FIXME: check photo path? and icon???
         if (pictureExists)
         {
-            Element picture = document.createElement("picture");
-            root.appendChild(picture);
-
-            Attr attr_picture;
-
             // set a colour attribute to information element
-            if (photoType == PhotoType.DATA) {
-                attr_picture = document.createAttribute("data");
-            }
-            else {
+            if (photoType == PhotoType.URL) {
+                Element picture = document.createElement("picture");
+                root.appendChild(picture);
+                Attr attr_picture;
                 attr_picture = document.createAttribute("url");
+                attr_picture.setValue((String)photoPath);
+                picture.setAttributeNode(attr_picture);
             }
-
-            attr_picture.setValue(photoPath);
-            picture.setAttributeNode(attr_picture);
+            // set a colour attribute to information element
+            else if (photoType == PhotoType.DATA && separatePictureData)
+            {
+                photoData = (byte[])photoPath;
+            }
+            else if (photoType == PhotoType.DATA && !separatePictureData)
+            {
+                Element picture = document.createElement("picture");
+                root.appendChild(picture);
+                Attr attr_picture;
+                attr_picture = document.createAttribute("data");
+                attr_picture.setValue((String)photoPath);
+                picture.setAttributeNode(attr_picture);
+            }
         }
 
-        return document;
+        ArrayList<Object> xmlData = new ArrayList<>();
+        xmlData.add(document);
+        xmlData.add(photoData);
+
+        return xmlData;
     }
 
+    protected ArrayList<Object> getBBXMLString()
+    {
+        ArrayList<Object> xmlDataString;
+        ArrayList<Object> xmlData = null;
+        Transformer t = null;
 
-    protected String getBBXMLString() throws TransformerException, ParserConfigurationException {
-        Document document = getBBXMLDocument();
-        TransformerFactory tf = TransformerFactory.newInstance();
-        Transformer t = tf.newTransformer();
+        try {
+            xmlData = getBBXMLDocument(true);
+            TransformerFactory tf = TransformerFactory.newInstance();
+            t = tf.newTransformer();
+        }
+        catch (TransformerConfigurationException | ParserConfigurationException e)
+        {
+            return null;
+        }
+
         StringWriter sw = new StringWriter();
-        t.transform(new DOMSource(document), new StreamResult(sw));
 
-        return sw.toString();
+        try {
+            t.transform(new DOMSource((Document)xmlData.get(0)), new StreamResult(sw));
+            xmlDataString = new ArrayList<>();
+            xmlDataString.add(sw.toString());
+            xmlDataString.add(xmlData.get(1));
+        } catch (TransformerException | NullPointerException e)
+        {
+            return null;
+        }
+        return xmlDataString;
     }
 
     // ###################### BROWSE FOR BB SETTINGS ######################
@@ -593,9 +629,9 @@ public class BBCreateView extends AbstractGenericView
                 imageDetails.add(new ImageIcon(img));
 
                 byte[] fileContent = Files.readAllBytes(new File(photoPath).toPath());
-                String encodedString = Base64.getEncoder().encodeToString(fileContent);
+//                String encodedString = Base64.getEncoder().encodeToString(fileContent);
 
-                imageDetails.add(encodedString);
+                imageDetails.add(fileContent);
                 return imageDetails;
             }
             catch (IOException e)
@@ -665,11 +701,11 @@ public class BBCreateView extends AbstractGenericView
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    protected void browseExportFolder(String filename) throws TransformerException, ParserConfigurationException
+    protected String browseExportFolder(String filename)
     {
         xmlExportPath = xmlFolderChooser.getSelectedFile().getAbsolutePath();
-        xmlExport(xmlExportPath + "\\" + filename + ".xml");
-    }
+        return xmlExportPath;
+}
 
     protected int showFolderChooserSelector()
     {
@@ -706,24 +742,35 @@ public class BBCreateView extends AbstractGenericView
         return stringBuilder.toString();
     }
 
-    protected boolean setXMLBB(Document doc)
+    protected boolean setXMLBB(Document doc, byte[] pictureData)
     {
         // normalise the XML structure
         doc.getDocumentElement().normalize();
 
         // get root element (billboard)
         Element root = doc.getDocumentElement();
-        if (root.getTagName().equals("billboard")) {
+
+        if (root.getTagName().equals("billboard"))
+        {
             // get title and title colour
             NodeList titleList = doc.getElementsByTagName("message");
             NodeList infoList = doc.getElementsByTagName("information");
             NodeList photoList = doc.getElementsByTagName("picture");
-            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0) {
+
+            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0 && pictureData == null)
+            {
                 return false;
             }
 
             if (photoList.getLength() != 0) {
                 boolean setPicture = manageXMLPicture(photoList);
+                if (!setPicture) {
+                    return false;
+                }
+            }
+            else if (pictureData != null)
+            {
+                boolean setPicture = manageDataPicture(pictureData);
                 if (!setPicture) {
                     return false;
                 }
@@ -787,7 +834,21 @@ public class BBCreateView extends AbstractGenericView
             return false;
         }
 
-        return setXMLBB(doc);
+        return setXMLBB(doc, null);
+    }
+
+    private boolean manageDataPicture(byte[] pictureData)
+    {
+        try
+        {
+            Image image = ImageIO.read(new ByteArrayInputStream(pictureData));
+            setPhoto(new ImageIcon(image), PhotoType.DATA, pictureData);
+            return true;
+        }
+        catch(IOException e)
+        {
+            return false;
+        }
     }
 
     private boolean manageXMLPicture(NodeList photoList)
@@ -853,20 +914,29 @@ public class BBCreateView extends AbstractGenericView
      * @throws ParserConfigurationException
      * @throws TransformerException
      */
-    private void xmlExport(String xmlExportPath) throws ParserConfigurationException, TransformerException
-    {
-        Document doc = getBBXMLDocument();
+    protected boolean xmlExport(String xmlExportPath) {
+        ArrayList<Object> xmlData = null;
+        try {
+            xmlData = getBBXMLDocument(false);
+        } catch (ParserConfigurationException e) {
+            return false;
+        }
 
         // create transformer which is designed to transform document to XML
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
-        Transformer transf = transformerFactory.newTransformer();
+        Transformer transf = null;
+        try {
+            transf = transformerFactory.newTransformer();
+        } catch (TransformerConfigurationException e) {
+            return false;
+        }
 
         // set encoding type, indentation,
         transf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         transf.setOutputProperty(OutputKeys.INDENT, "yes");
 
         // source contains the dom tree
-        DOMSource source = new DOMSource(doc);
+        DOMSource source = new DOMSource((Document)xmlData.get(0));
 
         File myFile = new File(xmlExportPath);
 
@@ -874,15 +944,23 @@ public class BBCreateView extends AbstractGenericView
         StreamResult console = new StreamResult(System.out);
         StreamResult file = new StreamResult(myFile);
 
-        transf.transform(source, console);
-        transf.transform(source, file);
+        try
+        {
+            transf.transform(source, console);
+            transf.transform(source, file);
+        }
+        catch (TransformerException e)
+        {
+            return false;
+        }
+        return true;
     }
 
     /**
      * Display BB details, upon Editing the BB selected
      * @param xmlStringToDisplay document of BB XML
      */
-    protected boolean addBBXML(String xmlStringToDisplay)
+    protected boolean addBBXML(String xmlStringToDisplay, byte[] pictureData)
     {
         System.out.println("XML file " + xmlStringToDisplay);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
@@ -892,7 +970,7 @@ public class BBCreateView extends AbstractGenericView
         {
             builder = factory.newDocumentBuilder();
             document = builder.parse( new InputSource( new StringReader( xmlStringToDisplay)));
-            setXMLBB(document);
+            setXMLBB(document, pictureData);
             return true;
         } catch (ParserConfigurationException | IOException | SAXException e) {
             e.printStackTrace();

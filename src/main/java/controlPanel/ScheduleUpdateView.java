@@ -281,6 +281,8 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // remove all names as these will be re-populated upon entering screen
         bbNameComboBox.removeAllItems();
+        System.out.println("ITEM COUNT " + bbNameComboBox.getItemCount());
+
         removeScheduleSelection();
     }
 
@@ -556,6 +558,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         for (String name: BBNames)
         {
             bbNameComboBox.addItem(name);
+            System.out.println("ADDING NAME " + name);
         }
     }
 
