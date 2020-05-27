@@ -96,7 +96,6 @@ public class Viewer extends JFrame {
      * @return billboardTags Returns a HashMap<String, String> which stores the background colour, message, message
      *      colour, picture, picture type (data or url), information, and information colour of the billboard, if there
      *      is no content for one or more of these tags, the string is null.
-     * TODO: Create a class which is billboardData and is of the form HashMap<String, String>.
      */
     public static HashMap<String, String> extractDataFromXML(Document xmlDoc) {
         // Initiate an ArrayList to return
@@ -351,7 +350,7 @@ public class Viewer extends JFrame {
 
         // Check if the current height of the label is larger than the maximum string height and if the font size is
         // larger than the maximum font size.
-        while (currentHeight < maxStringHeight - threshold && fontSize < maxFontSize - 1) {
+        while (currentHeight < maxStringHeight - threshold && fontSize < maxFontSize - 5) {
             fontSize = fontSize + 1;
 
             // Update font size
@@ -910,7 +909,6 @@ public class Viewer extends JFrame {
      * @param message A String which represents the message to display on the screen.
      */
     public void displaySpecialMessage(String message) {
-        // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
         // Set up the message to display and add it to the main panel
@@ -930,7 +928,6 @@ public class Viewer extends JFrame {
      * @param billboardXML A String which stores the xml file to be displayed.
      */
     public void displayBillboard(String billboardXML) {
-        // TODO: Might need to do something to clean up the current screen.
         setupBillboard();
 
         // Extract the billboard data using the server's response
@@ -943,8 +940,8 @@ public class Viewer extends JFrame {
 
             // Testing from the provided xml files
             // TODO: Remove (or comment out) the testing of provided xml files.
-            // Document xmlDoc = extractXMLFile(17);
-            // HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
+//             Document xmlDoc = extractXMLFile(17);
+//             HashMap<String, String> billboardData = extractDataFromXML(xmlDoc);
 
             // Display the billboard
             formatBillboard(billboardDataServer);
