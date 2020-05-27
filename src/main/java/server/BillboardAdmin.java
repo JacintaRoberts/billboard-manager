@@ -17,6 +17,7 @@ public class BillboardAdmin {
     public static final String STORE_BILLBOARD_SQL = "INSERT INTO Billboards VALUES (?,?,?,?) ";
     public static final String EDIT_BILLBOARD_SQL = "UPDATE Billboards " +
                                                     "SET XMLCode = ?" +
+                                                    "SET Image = ?" +
                                                     "WHERE BillboardName = ?";
     public static final String DELETE_BILLBOARD_SQL = "DELETE FROM Billboards WHERE BillboardName = ?";
     public static final String DELETE_ALL_BILLBOARD_SQL = "DELETE FROM Billboards";
@@ -37,7 +38,7 @@ public class BillboardAdmin {
     public static Connection connection;
     public static PreparedStatement createBillboard;
     public static PreparedStatement deleteBillboard;
-//    public static PreparedStatement editBillboard;
+    public static PreparedStatement editBillboard;
     public static PreparedStatement listaBillboard;
     public static PreparedStatement countFilterBillboard;
 
@@ -148,7 +149,7 @@ public class BillboardAdmin {
                     if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                         if (billboard.matches(validCharacters)) {
                             try {
-                                addBillboardSQL(billboard,creator,pictureData,xmlCode);
+                                editBillboardSQL(billboard,creator,pictureData,xmlCode);
                                 return Success;
                             } catch (SQLIntegrityConstraintViolationException e) {
                                 return PrimaryKeyClash;
@@ -235,6 +236,7 @@ public class BillboardAdmin {
             // Check if Billboard exists
             String count = countFilterBillboardSql(billboard);
             if (count.equals("0")){
+                System.out.println("Billboard does not exist");
                 return BillboardNotExists;
             } else {
                 // Existing billboard case
@@ -285,7 +287,7 @@ public class BillboardAdmin {
                 rs.next();
                 DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
                         rs.getString("Creator"),
-                        rs.getBlob("Image").getBinaryStream(),
+                        rs.getBytes("Image"),
                         rs.getString("XMLCode")
                 );
                 return dbBillboard;
@@ -388,6 +390,25 @@ public class BillboardAdmin {
     }
 
     /**
+     * Method to put a billboard from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void editBillboardSQL(String billboardName, String creator,
+                                       byte[] pictureData, String XMLCode) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        editBillboard = connection.prepareStatement(EDIT_BILLBOARD_SQL);
+        editBillboard.setString(1, XMLCode);
+        Blob pictureBlob = new javax.sql.rowset.serial.SerialBlob(pictureData); // Construct blob to store picture from byte array
+        editBillboard.setBlob(2, pictureBlob);
+        editBillboard.setString(3,billboardName);
+        ResultSet rs = editBillboard.executeQuery();
+    }
+
+
+
+    /**
      * Method to delete a billboard from the database
      * @return
      * @throws IOException
@@ -395,10 +416,9 @@ public class BillboardAdmin {
      */
     public static void deleteBillboardSQL(String billboardName) throws IOException, SQLException {
         connection = DbConnection.getInstance();
-        createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
         deleteBillboard = connection.prepareStatement(DELETE_BILLBOARD_SQL);
         deleteBillboard.setString(1,billboardName);
-        ResultSet rs = createBillboard.executeQuery();
+        ResultSet rs = deleteBillboard.executeQuery();
     }
 
 

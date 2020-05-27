@@ -55,7 +55,7 @@ public class Server {
         CannotRemoveOwnAdminPermission, // Set user permissions handling
 
         // Schedule Based Enums
-
+        BadTimeRepeatDuration,
         // Billboard Based Enums
         BillboardNameExists,
         BillboardNotExists,
@@ -333,22 +333,22 @@ public class Server {
     private static Object callScheduleAdminMethod() throws IOException, SQLException {
         // Determine which method from ScheduleAdmin to execute
         switch (method) {
-            case "CreateSchedule":
-                String billboardName = additionalArgs[0];
-                String startTime = additionalArgs[1];
-                String duration = additionalArgs[2];
-                String creationDateTime = additionalArgs[3];
-                String repeat = additionalArgs[4];
-                String sunday = additionalArgs[5];
-                String monday = additionalArgs[6];
-                String tuesday = additionalArgs[7];
-                String wednesday = additionalArgs[8];
-                String thursday = additionalArgs[9];
-                String friday = additionalArgs[10];
-                String saturday = additionalArgs[11];
-                return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
-                sunday,monday,tuesday,wednesday,thursday,friday,saturday);
-            case "EditSchedule":
+//            case "CreateSchedule":
+//                String billboardName = additionalArgs[0];
+//                String startTime = additionalArgs[1];
+//                String duration = additionalArgs[2];
+//                String creationDateTime = additionalArgs[3];
+//                String repeat = additionalArgs[4];
+//                String sunday = additionalArgs[5];
+//                String monday = additionalArgs[6];
+//                String tuesday = additionalArgs[7];
+//                String wednesday = additionalArgs[8];
+//                String thursday = additionalArgs[9];
+//                String friday = additionalArgs[10];
+//                String saturday = additionalArgs[11];
+//                return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
+//                sunday,monday,tuesday,wednesday,thursday,friday,saturday);
+            case "UpdateSchedule":
                 String editBillboardName = additionalArgs[0];
                 String editStartTime = additionalArgs[1];
                 String editDuration = additionalArgs[2];
@@ -361,7 +361,7 @@ public class Server {
                 String editThursday = additionalArgs[9];
                 String editFriday = additionalArgs[10];
                 String editSaturday = additionalArgs[11];
-                return ScheduleAdmin.editSchedule(editBillboardName,editStartTime,editDuration,editCreationDateTime,editRepeat,
+                return ScheduleAdmin.updateSchedule(sessionToken, editBillboardName,editStartTime,editDuration,editCreationDateTime,editRepeat,
                         editSunday,editMonday,editTuesday,editWednesday,editThursday,editFriday,editSaturday);
             case "DeleteSchedule":
                 String deleteScheduleName = additionalArgs[0];

@@ -35,6 +35,7 @@ public class DbBillboard implements Serializable {
     public String getXMLCode() {
         return XMLCode;
     }
+
     public byte[] getPictureData() {
         return PictureData;
     }

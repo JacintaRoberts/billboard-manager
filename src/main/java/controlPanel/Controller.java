@@ -369,6 +369,7 @@ public class Controller
                 //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
 
                 // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
+
                 // Billboard Schedule: day, time, bb name
                 ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
                 billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
@@ -1732,6 +1733,35 @@ public class Controller
 
                 // FIXME: ALAN - FORMAT CORRECTLY
 
+
+                Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
+                Boolean monday = Boolean.parseBoolean(schedule.getMonday());
+                Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
+                Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
+                Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
+                Boolean friday = Boolean.parseBoolean(schedule.getFriday());
+                Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
+                String startTime = schedule.getStartTime();
+                Integer duration = Integer.parseInt(schedule.getDuration().trim());
+                Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
+
+                ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
+                String recurrenceButton;
+
+                if(minRepeat.equals(60)){
+                    recurrenceButton = "hourly";
+                } else if (minRepeat.equals(0)){
+                    recurrenceButton = "no repeats";
+                } else{
+                    recurrenceButton = "minute";
+                }
+
+                Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
+                Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+
+
+                scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+
 //                String monday = schedule.getMonday();
 //                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
 //                schedule.getStartTime(); // hh:mm
@@ -1815,9 +1845,14 @@ public class Controller
                 if (response == 0)
                 {
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects
-
-                    //ScheduleControl.scheduleBillboardRequest(scheduleInfo);
+                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects.. this is implemented but sessiontoken error
+                    try {
+                        ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
+                    } catch (IOException ioException) {
+                        ioException.printStackTrace();
+                    } catch (ClassNotFoundException classNotFoundException) {
+                        classNotFoundException.printStackTrace();
+                    }
 
                     scheduleUpdateView.showConfirmationDialog();
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);
