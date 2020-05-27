@@ -1096,6 +1096,12 @@ public class Controller
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
+                System.out.println(xmlFile);
+                byte[] pictureData = billboardObject.getPictureData();
+                //TODO: FIX THE PICTURE DATA - KANU & PATRICE - CHANGE YOUR METHODS TO TAKE A BYTE ARRAY FOR PICTURE DATA :)
+                if ( !(pictureData == null) ) {
+                    System.out.println("Billboard contains picture data..."); // Test
+                }
                 boolean valid = bbCreateView.addBBXML(xmlFile);
                 if (valid)
                 {
