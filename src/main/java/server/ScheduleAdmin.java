@@ -11,6 +11,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Locale;
 
 import static server.Server.ServerAcknowledge.*;
@@ -305,6 +306,7 @@ public class ScheduleAdmin {
     public static ScheduleList listScheduleInformation() throws IOException, SQLException {
         // Initialise Variable array
         ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedCreator = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
         ArrayList<String> retrievedEndTime = new ArrayList<>();
@@ -312,7 +314,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
         ArrayList<String> retrievedMonday = new ArrayList<>();
-        ArrayList<String> retrievedTueseday = new ArrayList<>();
+        ArrayList<String> retrievedTuesday = new ArrayList<>();
         ArrayList<String> retrievedWednesday = new ArrayList<>();
         ArrayList<String> retrievedThursday = new ArrayList<>();
         ArrayList<String> retrievedFriday = new ArrayList<>();
@@ -327,19 +329,20 @@ public class ScheduleAdmin {
         if (count.equals("0")) {
             // No Schedules Exists, populate everything with 0 and Fail message.
             serverResponse = "Fail: No Schedule Exists";
-            retrievedBillboard.add("0");
-            retrievedStartTime.add("0");
-            retrievedDuration.add("0");
-            retrievedEndTime.add("0");
-            retrievedCreationDateTime.add("0");
-            retrievedRepeat.add("0");
-            retrievedSunday.add("0");
-            retrievedMonday.add("0");
-            retrievedTueseday.add("0");
-            retrievedWednesday.add("0");
-            retrievedThursday.add("0");
-            retrievedFriday.add("0");
-            retrievedSaturday.add("0");
+            retrievedBillboard.add(null);
+            retrievedCreator.add(null);
+            retrievedStartTime.add(null);
+            retrievedDuration.add(null);
+            retrievedEndTime.add(null);
+            retrievedCreationDateTime.add(null);
+            retrievedRepeat.add(null);
+            retrievedSunday.add(null);
+            retrievedMonday.add(null);
+            retrievedTuesday.add(null);
+            retrievedWednesday.add(null);
+            retrievedThursday.add(null);
+            retrievedFriday.add(null);
+            retrievedSaturday.add(null);
         } else {
             // Schedule Exists, get everything in Database and loop
             connection = DbConnection.getInstance();
@@ -349,14 +352,15 @@ public class ScheduleAdmin {
             // Loop through cursor  to get all data to store
             while (rs.next()) {
                 retrievedBillboard.add(rs.getString(1));
+                retrievedCreator.add(BillboardAdmin.getBillboardSQL(rs.getString(1)).getCreator());
                 retrievedStartTime.add(rs.getString(2));
                 retrievedDuration.add(rs.getString(3));
-                retrievedEndTime.add("0");
+                retrievedEndTime.add(null);
                 retrievedCreationDateTime.add(rs.getString(4));
                 retrievedRepeat.add(rs.getString(5));
                 retrievedSunday.add(rs.getString(6));
                 retrievedMonday.add(rs.getString(7));
-                retrievedTueseday.add(rs.getString(8));
+                retrievedTuesday.add(rs.getString(8));
                 retrievedWednesday.add(rs.getString(9));
                 retrievedThursday.add(rs.getString(10));
                 retrievedFriday.add(rs.getString(11));
@@ -368,6 +372,7 @@ public class ScheduleAdmin {
         // Create ScheduleList object for return
         ScheduleList scheduleList = new ScheduleList(serverResponse,
                 retrievedBillboard,
+                retrievedCreator,
                 retrievedStartTime,
                 retrievedDuration,
                 retrievedEndTime,
@@ -375,7 +380,7 @@ public class ScheduleAdmin {
                 retrievedRepeat,
                 retrievedSunday,
                 retrievedMonday,
-                retrievedTueseday,
+                retrievedTuesday,
                 retrievedWednesday,
                 retrievedThursday,
                 retrievedFriday,
@@ -429,10 +434,19 @@ public class ScheduleAdmin {
                     System.out.println("Billboard does not exist");
                     return BillboardNotExists;
                 } else{
-                    // Update Schedule and return pass
-                    updateScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
-                            Wednesday,Thursday,Friday,Saturday);
-                    return Success;
+                    // Check Create or Update methods
+                    String scheduleExists = countFilterScheduleSql(billboard);
+                    if (scheduleExists.equals("0")){
+                        // Create Schedule and return pass
+                        createScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
+                                Wednesday,Thursday,Friday,Saturday);
+                        return Success;
+                    } else {
+                        // Update Schedule and return pass
+                        updateScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
+                                Wednesday,Thursday,Friday,Saturday);
+                        return Success;
+                    }
                 }
             } else {
                 System.out.println("Permissions were not sufficient, no Schedule was Updated");
@@ -445,94 +459,6 @@ public class ScheduleAdmin {
     }
 
 
-    /**
-     * Method to update Schedule from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
-     */
-    public static void createScheduleSQL(String billboard,
-                                         String StartTime,
-                                         String Duration,
-                                         String CreationDateTime,
-                                         String Repeat,
-                                         String Sunday,
-                                         String Monday,
-                                         String Tuesday,
-                                         String Wednesday,
-                                         String Thursday,
-                                         String Friday,
-                                         String Saturday) throws IOException, SQLException {
-        connection = DbConnection.getInstance();
-        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
-        editSchedule.setString(1,StartTime);
-        editSchedule.setString(2,Duration);
-        editSchedule.setString(3,CreationDateTime);
-        editSchedule.setString(4,Repeat);
-        editSchedule.setString(5,Sunday);
-        editSchedule.setString(6,Monday);
-        editSchedule.setString(7,Tuesday);
-        editSchedule.setString(8,Wednesday);
-        editSchedule.setString(9,Thursday);
-        editSchedule.setString(10,Friday);
-        editSchedule.setString(11,Saturday);
-        editSchedule.setString(12,billboard);
-        editSchedule.executeQuery();
-        System.out.println("query RUn");
-    }
-
-    /**
-     * Method to update Schedule from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
-     */
-    public static void updateScheduleSQL(String billboard,
-                                         String StartTime,
-                                         String Duration,
-                                         String CreationDateTime,
-                                         String Repeat,
-                                         String Sunday,
-                                         String Monday,
-                                         String Tuesday,
-                                         String Wednesday,
-                                         String Thursday,
-                                         String Friday,
-                                         String Saturday) throws IOException, SQLException {
-        connection = DbConnection.getInstance();
-        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
-        editSchedule.setString(1,StartTime);
-        editSchedule.setString(2,Duration);
-        editSchedule.setString(3,CreationDateTime);
-        editSchedule.setString(4,Repeat);
-        editSchedule.setString(5,Sunday);
-        editSchedule.setString(6,Monday);
-        editSchedule.setString(7,Tuesday);
-        editSchedule.setString(8,Wednesday);
-        editSchedule.setString(9,Thursday);
-        editSchedule.setString(10,Friday);
-        editSchedule.setString(11,Saturday);
-        editSchedule.setString(12,billboard);
-        editSchedule.executeQuery();
-        System.out.println("query RUn");
-    }
-
-
-    /**
-     * Method to update Schedule from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
-     */
-    public static String countFilterScheduleSql(String billboard) throws IOException, SQLException {
-        connection = DbConnection.getInstance();
-        countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-        countFilterSchedule.setString(1,billboard);
-        ResultSet rs = countFilterSchedule.executeQuery();
-        rs.next();
-        String count = rs.getString(1);
-        return count;
-    }
 
 
 
@@ -543,7 +469,7 @@ public class ScheduleAdmin {
      * This method always returns immediately. It will either return a success message or fail message if there is nothing
      * to return for billboard schedules
      * @param BillboardName A String to feed in to filter SQL quiries to return only schedules for a specifc Billboard.
-     * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can be read via getters.
      */
     public static ScheduleInfo getScheduleInformation(String BillboardName) throws IOException, SQLException {
         // Initialise Variable array
@@ -554,7 +480,7 @@ public class ScheduleAdmin {
         String retrievedRepeat;
         String retrievedSunday;
         String retrievedMonday;
-        String retrievedTueseday;
+        String retrievedTuesday;
         String retrievedWednesday;
         String retrievedThursday;
         String retrievedFriday;
@@ -562,26 +488,22 @@ public class ScheduleAdmin {
         // Set storage parameters for single
         String serverResponse = null;
         //Check if Schedule Exists and updates as required
-        connection = DbConnection.getInstance();
-        countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-        countFilterSchedule.setString(1,BillboardName);
-        ResultSet rs = countFilterSchedule.executeQuery();
-        rs.next();
-        String count = rs.getString(1);
+        ResultSet rs = null;
+        String count = countFilterScheduleSql(BillboardName);
         if (count.equals("0")) {
             serverResponse = "Fail: No Schedule Exists";
-            retrievedBillboard = "0";
-            retrievedStartTime = "0";
-            retrievedDuration = "0";
-            retrievedCreationDateTime = "0";
-            retrievedRepeat = "0";
-            retrievedSunday = "0";
-            retrievedMonday = "0";
-            retrievedTueseday = "0";
-            retrievedWednesday = "0";
-            retrievedThursday = "0";
-            retrievedFriday = "0";
-            retrievedSaturday = "0";
+            retrievedBillboard = null;
+            retrievedStartTime = null;
+            retrievedDuration = null;
+            retrievedCreationDateTime = null;
+            retrievedRepeat = null;
+            retrievedSunday = null;
+            retrievedMonday = null;
+            retrievedTuesday = null;
+            retrievedWednesday = null;
+            retrievedThursday = null;
+            retrievedFriday = null;
+            retrievedSaturday = null;
         } else {
             getFilterSchedule = connection.prepareStatement(GET_FILTER_SCHEDULE_SQL);
             getFilterSchedule.setString(1,BillboardName);
@@ -595,7 +517,7 @@ public class ScheduleAdmin {
             retrievedRepeat = rs.getString(5);
             retrievedSunday = rs.getString(6);
             retrievedMonday = rs.getString(7);
-            retrievedTueseday = rs.getString(8);
+            retrievedTuesday = rs.getString(8);
             retrievedWednesday = rs.getString(9);
             retrievedThursday = rs.getString(10);
             retrievedFriday = rs.getString(11);
@@ -604,7 +526,7 @@ public class ScheduleAdmin {
             serverResponse = "Pass: Schedule Detail Returned";
         }
 
-        // Create Schedulelist return object
+        // Create scheduleInfo return object
         ScheduleInfo scheduleInfo = new ScheduleInfo(serverResponse,
                 retrievedBillboard,
                 retrievedStartTime,
@@ -613,13 +535,13 @@ public class ScheduleAdmin {
                 retrievedRepeat,
                 retrievedSunday,
                 retrievedMonday,
-                retrievedTueseday,
+                retrievedTuesday,
                 retrievedWednesday,
                 retrievedThursday,
                 retrievedFriday,
                 retrievedSaturday
         );
-        // Return scheduleList Object
+        // Return scheduleInfo Object
         return scheduleInfo;
     }
 
@@ -635,12 +557,32 @@ public class ScheduleAdmin {
      * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
      * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
      */
-    public static ScheduleList listAllFilteredScheduleInformation(String day) throws IOException, SQLException {
-        // Get rawDaySched
-        ScheduleList rawDaySched = ScheduleAdmin.listFilteredScheduleInformation(day);
-        // Impute AlldaySched
-        ScheduleList allDaysched = ScheduleAdmin.viewAllDaySchedule(rawDaySched);
-        return  allDaysched;
+    public static ArrayList<ArrayList<String>> listAllFilteredScheduleInformation(String sessionToken, String day) throws IOException, SQLException {
+        ArrayList<ArrayList<String>> billboardDayScheduleDisplay = new ArrayList<ArrayList<String>>();
+        if (validateToken(sessionToken)) {
+            System.out.println("Session is valid");
+            // Check if Billboard exists
+            // Get rawDaySched
+            ScheduleList rawDaySched = ScheduleAdmin.listFilteredScheduleInformation(day);
+            // Impute AlldaySched
+            ScheduleList allDaysched = ScheduleAdmin.viewAllDaySchedule(rawDaySched);
+            // Generate Return List
+            for (int i = 0; i < allDaysched.getScheduleBillboardName().size(); i++){
+                ArrayList<String> tempStore = new ArrayList<String>();
+                String Time = allDaysched.getStartTime().get(i)+"~"+allDaysched.getEndTime().get(i);
+                String BillboardName = allDaysched.getScheduleBillboardName().get(i);
+                String Creator = allDaysched.getScheduleBillboardCreator().get(i);
+                tempStore.add(Time);
+                tempStore.add(BillboardName);
+                tempStore.add(Creator);
+                billboardDayScheduleDisplay.add(tempStore);
+            }
+            return billboardDayScheduleDisplay;
+        } else{
+            System.out.println("Session was not valid");
+//
+            return billboardDayScheduleDisplay;
+        }
     }
 
     /**
@@ -655,6 +597,7 @@ public class ScheduleAdmin {
     public static ScheduleList listFilteredScheduleInformation(String day) throws IOException, SQLException {
         // Initialise Variable array
         ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedCreator = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
         ArrayList<String> retrievedEndTime = new ArrayList<>();
@@ -669,59 +612,33 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedSaturday = new ArrayList<>();
         // Set storage parameters for single
         String serverResponse = null;
-        Integer dayCheckPass = 0;
+        Integer dayCheckPass = 1;
         // Get instance to check if there is data in the day.
         connection = DbConnection.getInstance();
         Statement st = null;
         ResultSet rs = null;
         String count = "0";
         if (day.matches("Sunday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(SUNDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countSundayScheduleSql();
         } else if (day.matches("Monday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countMondayScheduleSql();
         } else if (day.matches("Tuesday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(TUESDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countTuesdayScheduleSql();
         } else if (day.matches("Wednesday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(WEDNESDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countWednesdayScheduleSql();
         } else if (day.matches("Thursday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(THURSDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countThursdayScheduleSql();
         } else if (day.matches("Friday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(FRIDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countFridayScheduleSql();
         } else if (day.matches("Saturday")){
-            st = connection.createStatement();
-            rs = st.executeQuery(SATURDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
-            dayCheckPass = 1;
-            rs.next();
-            count = rs.getString(1);
+            count = countSaturdayScheduleSql();
         } else {
             serverResponse = "Fail: Not a Valid Day";
             retrievedBillboard.add("0");
+            retrievedCreator.add("0");
             retrievedStartTime.add("0");
             retrievedDuration.add("0");
+            retrievedEndTime.add("0");
             retrievedCreationDateTime.add("0");
             retrievedRepeat.add("0");
             retrievedSunday.add("0");
@@ -740,8 +657,10 @@ public class ScheduleAdmin {
         } else if (count.equals("0") & dayCheckPass.equals(1)) {
             serverResponse = "Fail: No Schedule Exists";
             retrievedBillboard.add("0");
+            retrievedCreator.add("0");
             retrievedStartTime.add("0");
             retrievedDuration.add("0");
+            retrievedEndTime.add("0");
             retrievedCreationDateTime.add("0");
             retrievedRepeat.add("0");
             retrievedSunday.add("0");
@@ -752,32 +671,25 @@ public class ScheduleAdmin {
             retrievedFriday.add("0");
             retrievedSaturday.add("0");
         } else {
-            connection = DbConnection.getInstance();
             if (day.matches("Sunday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(SUNDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getSundayScheduleSql();
             } else if (day.matches("Monday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(MONDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getMondayScheduleSql();
             } else if (day.matches("Tuesday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(TUESDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getTuesdayScheduleSql();
             } else if (day.matches("Wednesday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(WEDNESDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getWednesdayScheduleSql();
             } else if (day.matches("Thursday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(THURSDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getThursdayScheduleSql();
             } else if (day.matches("Friday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(FRIDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getFridayScheduleSql();
             } else if (day.matches("Saturday")){
-                st = connection.createStatement();
-                rs = st.executeQuery(SATURDAY_LIST_FILTERED_SCHEDULE_SQL);
+                rs = getSaturdayScheduleSql();
             }
             // Store return from sql into respective data fields.
             while (rs.next()) {
                 retrievedBillboard.add(rs.getString(1));
+                retrievedCreator.add(BillboardAdmin.getBillboardSQL(rs.getString(1)).getCreator());
                 retrievedStartTime.add(rs.getString(2));
                 retrievedDuration.add(rs.getString(3));
                 retrievedEndTime.add("0");
@@ -798,6 +710,7 @@ public class ScheduleAdmin {
         // Create Schedulelist return object
         ScheduleList scheduleList = new ScheduleList(serverResponse,
                 retrievedBillboard,
+                retrievedCreator,
                 retrievedStartTime,
                 retrievedDuration,
                 retrievedEndTime,
@@ -831,6 +744,7 @@ public class ScheduleAdmin {
         ScheduleList allDaySchedule = null;
         // Initialise ArrayList to build return Variable
         ArrayList<String> retrievedBillboard = new ArrayList<>();
+        ArrayList<String> retrievedCreator = new ArrayList<>();
         ArrayList<String> retrievedStartTime = new ArrayList<>();
         ArrayList<String> retrievedDuration = new ArrayList<>();
         ArrayList<String> retrievedEndTime = new ArrayList<>();
@@ -853,6 +767,7 @@ public class ScheduleAdmin {
         int extraSched;
         int duration ;
         String billboardName;
+        String creator;
         String creationDateTime;
         String Sunday;
         String Monday;
@@ -861,44 +776,76 @@ public class ScheduleAdmin {
         String Thursday;
         String Friday;
         String Saturday;
-        // Run through all of the billboard schedule present
-        for (int i = 0; i < numBillboards; i++) {
-            billboardName = scheduleList.getScheduleBillboardName().get(i);
-            startTime = LocalTime.parse(scheduleList.getStartTime().get(i)) ;
-            repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
-            duration = Integer.parseInt(scheduleList.getDuration().get(i));
-            creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
-            minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
-            extraSched = minTillEnd / repeatMinutes;
-            Sunday = scheduleList.getSunday().get(i);
-            Monday = scheduleList.getMonday().get(i);
-            Tuesday = scheduleList.getTuesday().get(i);
-            Wednesday = scheduleList.getWednesday().get(i);
-            Thursday = scheduleList.getThursday().get(i);
-            Friday = scheduleList.getFriday().get(i);
-            Saturday = scheduleList.getSaturday().get(i);
-            // Genearte all possible imputation of schedules and store into temporary arraylist
-            for (int j = 0; j <= extraSched; j++){
-                retrievedBillboard.add(billboardName);
-                retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes)));
-                retrievedEndTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes).plusMinutes(duration)));
-                retrievedDuration.add(String.valueOf(duration));
-                retrievedCreationDateTime.add(creationDateTime);
-                retrievedRepeat.add(String.valueOf(repeatMinutes));
-                retrievedSunday.add(Sunday);
-                retrievedMonday.add(Monday);
-                retrievedTuesday.add(Tuesday);
-                retrievedWednesday.add(Wednesday);
-                retrievedThursday.add(Thursday);
-                retrievedFriday.add(Friday);
-                retrievedSaturday.add(Saturday);
+        if (scheduleList.getScheduleServerResponse().equals("Pass: Schedule Detail List Returned")){
+            for (int i = 0; i < numBillboards; i++) {
+                billboardName = scheduleList.getScheduleBillboardName().get(i);
+                creator = BillboardAdmin.getBillboardSQL(billboardName).getCreator();
+                startTime = LocalTime.parse(scheduleList.getStartTime().get(i)) ;
+                repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
+                duration = Integer.parseInt(scheduleList.getDuration().get(i));
+                creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
+                minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
+                System.out.println("================================");
+                System.out.println("repeatMinutesBeforeParwse: " + scheduleList.getRepeat());
+                System.out.println("================================");
+                System.out.println("================================");
+                System.out.println("repeatMinutes: " + repeatMinutes);
+                System.out.println("================================");
+                if (repeatMinutes != 0){
+                    extraSched = minTillEnd / repeatMinutes;
+                } else{
+                    extraSched = 0;
+                }
+                Sunday = scheduleList.getSunday().get(i);
+                Monday = scheduleList.getMonday().get(i);
+                Tuesday = scheduleList.getTuesday().get(i);
+                Wednesday = scheduleList.getWednesday().get(i);
+                Thursday = scheduleList.getThursday().get(i);
+                Friday = scheduleList.getFriday().get(i);
+                Saturday = scheduleList.getSaturday().get(i);
+                // Genearte all possible imputation of schedules and store into temporary arraylist
+                System.out.println("================================");
+                System.out.println("extraSched: " + extraSched);
+                System.out.println("================================");
+                for (int j = 0; j <= extraSched; j++){
+                    retrievedBillboard.add(billboardName);
+                    retrievedCreator.add(creator);
+                    retrievedStartTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes)));
+                    retrievedEndTime.add(String.valueOf(startTime.plusMinutes(j*repeatMinutes).plusMinutes(duration)));
+                    retrievedDuration.add(String.valueOf(duration));
+                    retrievedCreationDateTime.add(creationDateTime);
+                    retrievedRepeat.add(String.valueOf(repeatMinutes));
+                    retrievedSunday.add(Sunday);
+                    retrievedMonday.add(Monday);
+                    retrievedTuesday.add(Tuesday);
+                    retrievedWednesday.add(Wednesday);
+                    retrievedThursday.add(Thursday);
+                    retrievedFriday.add(Friday);
+                    retrievedSaturday.add(Saturday);
+                }
             }
+        } else {
+            retrievedBillboard.add(null);
+            retrievedCreator.add(null);
+            retrievedStartTime.add(null);
+            retrievedEndTime.add(null);
+            retrievedDuration.add(null);
+            retrievedCreationDateTime.add(null);
+            retrievedRepeat.add(null);
+            retrievedSunday.add(null);
+            retrievedMonday.add(null);
+            retrievedTuesday.add(null);
+            retrievedWednesday.add(null);
+            retrievedThursday.add(null);
+            retrievedFriday.add(null);
+            retrievedSaturday.add(null);
         }
         // Generate Response message
         String serverResponse = "Pass: All Day Schedule Returned";
-        // Create ruturn allDayScheduleObject
+        // Create return allDayScheduleObject
         allDaySchedule = new ScheduleList(serverResponse,
                 retrievedBillboard,
+                retrievedCreator,
                 retrievedStartTime,
                 retrievedDuration,
                 retrievedEndTime,
@@ -915,6 +862,10 @@ public class ScheduleAdmin {
         // Return Schedule
         return allDaySchedule;
     }
+
+
+
+
 
     /**
      * This function will calculate if there is any current schedule active. The function takes in an ScheduleList object generated
@@ -1055,10 +1006,306 @@ public class ScheduleAdmin {
             billboardXML = dbBillboardSchedule.getXMLCode();
         }
 
-
-
         return billboardXML;
     }
+
+    /**================================================================================================
+     * To be refactored like User
+     ================================================================================================*/
+
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void createScheduleSQL(String billboard,
+                                         String StartTime,
+                                         String Duration,
+                                         String CreationDateTime,
+                                         String Repeat,
+                                         String Sunday,
+                                         String Monday,
+                                         String Tuesday,
+                                         String Wednesday,
+                                         String Thursday,
+                                         String Friday,
+                                         String Saturday) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
+        createSchedule.setString(1,billboard);
+        createSchedule.setString(2,StartTime);
+        createSchedule.setString(3,Duration);
+        createSchedule.setString(4,CreationDateTime);
+        createSchedule.setString(5,Repeat);
+        createSchedule.setString(6,Sunday);
+        createSchedule.setString(7,Monday);
+        createSchedule.setString(8,Tuesday);
+        createSchedule.setString(9,Wednesday);
+        createSchedule.setString(10,Thursday);
+        createSchedule.setString(11,Friday);
+        createSchedule.setString(12,Saturday);
+        createSchedule.executeQuery();
+    }
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void updateScheduleSQL(String billboard,
+                                         String StartTime,
+                                         String Duration,
+                                         String CreationDateTime,
+                                         String Repeat,
+                                         String Sunday,
+                                         String Monday,
+                                         String Tuesday,
+                                         String Wednesday,
+                                         String Thursday,
+                                         String Friday,
+                                         String Saturday) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
+        editSchedule.setString(1,StartTime);
+        editSchedule.setString(2,Duration);
+        editSchedule.setString(3,CreationDateTime);
+        editSchedule.setString(4,Repeat);
+        editSchedule.setString(5,Sunday);
+        editSchedule.setString(6,Monday);
+        editSchedule.setString(7,Tuesday);
+        editSchedule.setString(8,Wednesday);
+        editSchedule.setString(9,Thursday);
+        editSchedule.setString(10,Friday);
+        editSchedule.setString(11,Saturday);
+        editSchedule.setString(12,billboard);
+        editSchedule.executeQuery();
+    }
+
+
+    /**
+     * Method to update Schedule from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countFilterScheduleSql(String billboard) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
+        countFilterSchedule.setString(1,billboard);
+        ResultSet rs = countFilterSchedule.executeQuery();
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+
+    /**
+     * Method to Count any Schedule from the database on a Sunday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countSundayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(SUNDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+    /**
+     * Method to Count any Schedule from the database on a Monday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countMondayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(MONDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+    /**
+     * Method to Count any Schedule from the database on a Tuesday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countTuesdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(TUESDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+    /**
+     * Method to Count any Schedule from the database on a Wednesday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countWednesdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(WEDNESDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+
+    /**
+     * Method to Count any Schedule from the database on a Thursday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countThursdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(THURSDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+
+    /**
+     * Method to Count Schedule from the database on a Saturday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countFridayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(FRIDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+
+    /**
+     * Method to Count Schedule from the database on a Saturday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countSaturdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(SATURDAY_COUNT_LIST_FILTERED_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
+
+    /**
+     * Method to Get any Schedule from the database on a Sunday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getSundayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(SUNDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+    /**
+     * Method to Get any Schedule from the database on a Monday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getMondayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(MONDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+    /**
+     * Method to Get any Schedule from the database on a Tuesday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getTuesdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(TUESDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+    /**
+     * Method to Get any Schedule from the database on a Wednesday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getWednesdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(WEDNESDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+
+    /**
+     * Method to Get any Schedule from the database on a Thursday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getThursdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(THURSDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+
+    /**
+     * Method to Get any Schedule from the database on a Friday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getFridayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(FRIDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+
+    /**
+     * Method to Get any Schedule from the database on a Saturday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static ResultSet getSaturdayScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement st = connection.createStatement();
+        ResultSet rs = st.executeQuery(SATURDAY_LIST_FILTERED_SCHEDULE_SQL);
+        return rs;
+    }
+
+
 
 
 }

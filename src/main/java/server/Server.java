@@ -370,14 +370,14 @@ public class Server {
                 return ScheduleAdmin.deleteAllSchedules();
             case "ListAllDaySchedule":
                 String dayList = additionalArgs[0];
-                return ScheduleAdmin.listAllFilteredScheduleInformation(dayList);
+                return ScheduleAdmin.listAllFilteredScheduleInformation(sessionToken, dayList);
             case "ListABillboardSchedule":
                 String BillboardSchedule = additionalArgs[0];
                 return ScheduleAdmin.getScheduleInformation(BillboardSchedule);
-            case "ListActiveSchedule":
-                String day = additionalArgs[0];
-                LocalTime currentTime = LocalTime.parse(additionalArgs[1]);
-                return ScheduleAdmin.viewCurrentSchedule(ScheduleAdmin.listAllFilteredScheduleInformation(day), currentTime);
+//            case "ListActiveSchedule":
+//                String day = additionalArgs[0];
+//                LocalTime currentTime = LocalTime.parse(additionalArgs[1]);
+//                return ScheduleAdmin.viewCurrentSchedule(ScheduleAdmin.listAllFilteredScheduleInformation(day), currentTime);
             default:
                 return "No ScheduleAdmin method requested";
         }

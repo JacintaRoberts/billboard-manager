@@ -367,7 +367,7 @@ class DbConnectionTest {
 
     @Test
     public void checkBillboardsTable2() throws IOException, SQLException {
-
+//
 //        BillboardAdmin.dropBillboardTable();
 //        ScheduleAdmin.dropScheduleTable();
 //        DbUser.dropUserTable();
