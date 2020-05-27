@@ -705,17 +705,15 @@ public class Controller
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            ArrayList<Boolean> userArray = userEditView.getUserInfo();
+            ArrayList<Object> userArray = userEditView.getUserInfo();
 
             // Parsing elements from user array for the UserControl method to update user permission
-            Boolean createBillboards = userArray.get(0);
-            Boolean editBillboards = userArray.get(1);
-            Boolean editSchedules = userArray.get(2);
-            Boolean editUsers = userArray.get(3);
+            String username = (String) userArray.get(0);
+            Boolean createBillboards = (Boolean) userArray.get(1);
+            Boolean editBillboards = (Boolean) userArray.get(2);
+            Boolean editSchedules = (Boolean) userArray.get(3);
+            Boolean editUsers = (Boolean) userArray.get(4);
 
-            for (Boolean bool : userArray) {
-                System.out.println(bool);
-            }
 
             // FIXME: JACINTA USERCONTROL SET PERMISSIONS & HANDLE ERRORS ETC.
             // FIXME: you can use userEditView.showUserConfirmation() for a pop up window asking user to proceed
