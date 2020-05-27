@@ -1,12 +1,6 @@
 package server;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.Serializable;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.ArrayList;
 
 public class DbBillboard implements Serializable {
 

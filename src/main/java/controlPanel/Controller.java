@@ -1097,7 +1097,6 @@ public class Controller
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
-                System.out.println(xmlFile);
                 byte[] pictureData = billboardObject.getPictureData();
                 //TODO: FIX THE PICTURE DATA - KANU & PATRICE - CHANGE YOUR METHODS TO TAKE A BYTE ARRAY FOR PICTURE DATA :)
                 if ( !(pictureData == null) ) {
@@ -1272,13 +1271,17 @@ public class Controller
                     try {
                         String BBXMLString = bbCreateView.getBBXMLString();
                         System.out.println("Original BBXMLString is : " + BBXMLString);
-                        String BBXMLStringPictureDataRemoved = RemovePictureData(BBXMLString);
-                        // Create the byte array for sending picture data
-                        // TODO: CHECK HANDLING OF NULL PICTURE DATA
-                        byte[] pictureData = GetPictureData(BBXMLString).getBytes("UTF-8");
+                        byte[] pictureData = null;
+                        // Create the byte array for sending picture data if exists
+                        if (BBXMLString.contains("<picture data=")) {
+                            pictureData = GetPictureData(BBXMLString).getBytes("UTF-8");
+                            BBXMLString = RemovePictureData(BBXMLString);
+                            System.out.println("Picture data extracted from xml.");
+                        }
                         String creator = model.getUsername();
-                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLStringPictureDataRemoved, pictureData);
-                        if (createBillboardAction.equals(Success)){
+                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLString, pictureData);
+                        System.out.println("Sent to server from the cp.");
+                        if (createBillboardAction.equals(Success)) {
                             createBBReq = "Pass: Billboard Created";
                         }
                         System.out.println(createBBReq);
@@ -1289,7 +1292,7 @@ public class Controller
                         System.out.println("Error encountered whilst creating BB. Exception " + ex.toString());
                     }
 
-                    if (createBBReq != null)
+                    if (!(createBBReq == null))
                     {
                         if (createBBReq.equals("Fail: Billboard Already Exists"))
                         {
