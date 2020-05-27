@@ -396,17 +396,30 @@ public class Controller
                 scheduleUpdateView.setWelcomeText(model.getUsername());
 
                 BillboardList billboardList = null;
+                ArrayList<String> stringArray = null;
                 try {
                     billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+                    if (billboardList != null)
+                    {
+                        stringArray = billboardList.getBillboardNames();
+                        for (String name : stringArray)
+                        {
+                            System.out.println("BB name " + name);
+                        }
+                    }
                 } catch (IOException | ClassNotFoundException e) {
-                    e.printStackTrace();
+                    // FIXME: ALAN - SHOW MESSAGE TO USER - ERROR OCCURRED
                 }
-                // FIXME: handle when BB name is null
-                ArrayList<String> stringArray = billboardList.getBillboardNames();
 
-                scheduleUpdateView.setBBNamesFromDB(stringArray);
-                scheduleUpdateView.showInstructionMessage();
-                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                if (stringArray != null)
+                {
+                    scheduleUpdateView.setBBNamesFromDB(stringArray);
+                    scheduleUpdateView.showInstructionMessage();
+                    views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                }
+
+                updateView(SCHEDULE_MENU);
+
                 break;
 
             case SCHEDULE_MENU:
@@ -1095,11 +1108,6 @@ public class Controller
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
                 byte[] pictureData = billboardObject.getPictureData();
-
-                //TODO: FIX THE PICTURE DATA - KANU & PATRICE - CHANGE YOUR METHODS TO TAKE A BYTE ARRAY FOR PICTURE DATA :)
-//                if ( !(pictureData == null) ) {
-//                    System.out.println("Billboard contains picture data..."); // Test
-//                }
                 boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
 
                 if (valid)
@@ -1271,21 +1279,20 @@ public class Controller
                     String createBBReq = null;
 
                     try {
-                        String BBXMLString = bbCreateView.getBBXMLString();
-                        System.out.println("Original BBXMLString is : " + BBXMLString);
-                        String BBXMLStringPictureDataRemoved = RemovePictureData(BBXMLString);
-                        // Create the byte array for sending picture data
-                        // TODO: CHECK HANDLING OF NULL PICTURE DATA
-                        byte[] pictureData = GetPictureData(BBXMLString).getBytes("UTF-8");
-                        String creator = model.getUsername();
-                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLStringPictureDataRemoved, pictureData);
-                        if (createBillboardAction.equals(Success)){
-                            createBBReq = "Pass: Billboard Created";
+                        ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
+                        if (BBXMLString != null)
+                        {
+                            System.out.println((String)BBXMLString.get(0));
+                            String creator = model.getUsername();
+                            ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
+
+                            if (createBillboardAction.equals(Success)){
+                                createBBReq = "Pass: Billboard Created";
+                            }
+                            System.out.println(createBBReq);
                         }
-                        System.out.println(createBBReq);
-                    } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
+                    } catch ( IOException | ClassNotFoundException ex)
                     {
-                        ex.printStackTrace();
                         createBBReq = "Error encountered whilst creating BB. Exception " + ex.toString();
                         System.out.println("Error encountered whilst creating BB. Exception " + ex.toString());
                     }
@@ -1335,31 +1342,31 @@ public class Controller
         String escapedString = bbXMLString.replace("\"", "\\\"");
         return escapedString;
     }*/
+//
+//    /**
+//     * Method to extract the picture data from the original billboard xml for file storage
+//     * @param bbXMLString Original billboard xml code generated from user inputs
+//     * @return String representation of the base-64 encoded image data
+//     */
+//    private String GetPictureData(String bbXMLString) {
+//        String[] splitString = bbXMLString.split("<picture data=\\\"");
+//        String[] imageStrings = splitString[1].split("\"/>");
+//        System.out.println("Image data returned is " + imageStrings[0]);
+//        return imageStrings[0];
+//    }
 
-    /**
-     * Method to extract the picture data from the original billboard xml for file storage
-     * @param bbXMLString Original billboard xml code generated from user inputs
-     * @return String representation of the base-64 encoded image data
-     */
-    private String GetPictureData(String bbXMLString) {
-        String[] splitString = bbXMLString.split("<picture data=\\\"");
-        String[] imageStrings = splitString[1].split("\"/>");
-        System.out.println("Image data returned is " + imageStrings[0]);
-        return imageStrings[0];
-    }
 
-
-    /**
-     * Method to remove the picture data tag from xml for sending to server.
-     * @param bbXMLString Original billboard xml code generated from user inputs
-     * @return bbXMLString with removed picture data tag.
-     */
-    private String RemovePictureData(String bbXMLString) {
-        String[] splitString = bbXMLString.split("<picture data=");
-        String[] imageStrings = splitString[1].split("/>");
-        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
-        return splitString[0]+imageStrings[1];
-    }
+//    /**
+//     * Method to remove the picture data tag from xml for sending to server.
+//     * @param bbXMLString Original billboard xml code generated from user inputs
+//     * @return bbXMLString with removed picture data tag.
+//     */
+//    private String RemovePictureData(String bbXMLString) {
+//        String[] splitString = bbXMLString.split("<picture data=");
+//        String[] imageStrings = splitString[1].split("/>");
+//        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
+//        return splitString[0]+imageStrings[1];
+//    }
 
     /**
      * BB Preview Listener to handle mouse clicks made to the Preview button in the Create BB View
@@ -1378,21 +1385,28 @@ public class Controller
             if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
             {
                 try {
-                    String xmlFile = bbCreateView.getBBXMLString();
-                    System.out.println("full BB preview from BB Create" + xmlFile);
-                    BBViewer.displayBillboard(xmlFile);
+                    ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
+                    if (xmlData != null)
+                    {
+                        //BBViewer.displayBillboard((String)xmlData.get(0), byte[]xmlData.get(1));
+                        BBViewer.displayBillboard((String)xmlData.get(0));
+                    }
+                    else
+                    {
+                        bbCreateView.showInvalidXMLMessage();
+                    }
+
                 }
-                catch (IllegalComponentStateException | TransformerException | ParserConfigurationException ex)
+                catch (IllegalComponentStateException ex)
                 {
-                    ex.printStackTrace();
                     bbCreateView.showInvalidXMLMessage();
-                    views.put(BB_CREATE, bbCreateView);
                 }
             }
             else
             {
                 bbCreateView.showInvalidXMLMessage();
             }
+            views.put(BB_CREATE, bbCreateView);
         }
     }
 
@@ -1413,7 +1427,10 @@ public class Controller
             {
                 bbCreateView.setBBTitle(BBTitle);
                 String titleColour = bbCreateView.browseTitleColour();
-                bbCreateView.setBBTitleColour(titleColour);
+                if (titleColour != null)
+                {
+                    bbCreateView.setBBTitleColour(titleColour);
+                }
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1436,7 +1453,10 @@ public class Controller
             {
                 bbCreateView.setBBText(BBText);
                 String textColour = bbCreateView.browseTextColour();
-                bbCreateView.setBBTextColour(textColour);
+                if (textColour != null)
+                {
+                    bbCreateView.setBBTextColour(textColour);
+                }
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1473,8 +1493,7 @@ public class Controller
 
                 if (photoData != null)
                 {
-                    System.out.println("encoded img " + (String)photoData.get(1));
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, (String)photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, photoData.get(1));
                 }
             }
             views.put(BB_CREATE, bbCreateView);
@@ -1523,11 +1542,14 @@ public class Controller
                     String filename = bbCreateView.enterXMLFileName();
                     if (filename != null || !filename.equals(""))
                     {
-                        try {
-                            bbCreateView.browseExportFolder(filename);
+                        String path = bbCreateView.browseExportFolder(filename);
+                        Boolean success = bbCreateView.xmlExport(path + "\\" + filename + ".xml");
+                        if (success)
+                        {
                             bbCreateView.showSuccessfulExport();
-                        } catch (ParserConfigurationException | TransformerException ex) {
-                            ex.printStackTrace();
+                        }
+                        else
+                        {
                             bbCreateView.showBBInvalidErrorMessage();
                         }
                     }
@@ -1582,7 +1604,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
-            // navigate to edit schedule week view
+            // navigate to edit schedule update view
             updateView(SCHEDULE_UPDATE);
         }
     }
@@ -1759,7 +1781,6 @@ public class Controller
 
                 Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
                 Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
-
 
                 scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
 
