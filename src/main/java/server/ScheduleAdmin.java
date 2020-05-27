@@ -1055,6 +1055,8 @@ public class ScheduleAdmin {
             billboardXML = dbBillboardSchedule.getXMLCode();
         }
 
+
+
         return billboardXML;
     }
 

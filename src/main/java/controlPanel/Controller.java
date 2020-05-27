@@ -1289,7 +1289,6 @@ public class Controller
                             if (createBillboardAction.equals(Success)){
                                 createBBReq = "Pass: Billboard Created";
                             }
-                            System.out.println(createBBReq);
                         }
                     } catch ( IOException | ClassNotFoundException ex)
                     {
@@ -1297,7 +1296,7 @@ public class Controller
                         System.out.println("Error encountered whilst creating BB. Exception " + ex.toString());
                     }
 
-                    if (createBBReq != null)
+                    if (!(createBBReq == null))
                     {
                         if (createBBReq.equals("Fail: Billboard Already Exists"))
                         {

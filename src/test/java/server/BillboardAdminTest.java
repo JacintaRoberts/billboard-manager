@@ -311,7 +311,7 @@ class BillboardAdminTest {
         System.out.println(test.getBillboardName());
         System.out.println(test.getXMLCode());
         System.out.println(test.getCreator());
-        System.out.println(test.getImageFilePointer());
+        System.out.println(test.getPictureData());
 
 //        String dbResponse2 = billboardAdmin.dropBillboardTable();
 //        String dbResponse3 = billboardAdmin.createBillboardTable();
