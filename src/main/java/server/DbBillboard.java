@@ -13,11 +13,11 @@ public class DbBillboard implements Serializable {
     // Set Fields for DbBillboard
     private String BillboardName;
     private String Creator;
-    private InputStream imageFilePointer;
+    private byte[] imageFilePointer;
     private String XMLCode;
 
     // Set Constructor for DbBillboard
-    public DbBillboard(String BillboardName, String Creator, InputStream imageFilePointer, String XMLCode) {
+    public DbBillboard(String BillboardName, String Creator, byte[] imageFilePointer, String XMLCode) {
         this.BillboardName = BillboardName;
         this.Creator = Creator;
         this.imageFilePointer = imageFilePointer; // server success or fail message
@@ -35,7 +35,7 @@ public class DbBillboard implements Serializable {
     public String getXMLCode() {
         return XMLCode;
     }
-    public InputStream getImageFilePointer() {
+    public byte[] getImageFilePointer() {
         return imageFilePointer;
     }
 

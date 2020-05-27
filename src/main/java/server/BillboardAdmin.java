@@ -285,7 +285,7 @@ public class BillboardAdmin {
                 rs.next();
                 DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
                         rs.getString("Creator"),
-                        rs.getBlob("Image").getBinaryStream(),
+                        rs.getBytes("Image"),
                         rs.getString("XMLCode")
                 );
                 return dbBillboard;
