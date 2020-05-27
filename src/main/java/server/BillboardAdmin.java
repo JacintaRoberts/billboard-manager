@@ -26,8 +26,8 @@ public class BillboardAdmin {
     public static final String CREATE_BILLBOARD_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (\n" +
             "    `BillboardName` varchar(255) NOT NULL default '',\n" +
             "      `Creator` varchar(255) NOT NULL default '',\n" +
-            "      `XMLCode` TEXT,\n" +
-            "      `Image` MEDIUMBLOB,\n" +
+            "      `Image` MEDIUMBLOB default '',\n" +
+            "      `XMLCode` TEXT default '',\n" +
             "      PRIMARY KEY (`BillboardName`)\n" +
             "  )";
     public static final String DROP_BILLBOARD_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`";
@@ -130,6 +130,7 @@ public class BillboardAdmin {
                             addBillboardSQL(billboard,creator,pictureData,xmlCode);
                             return Success;
                         } catch (SQLIntegrityConstraintViolationException e) {
+                            e.printStackTrace(); // TODO: REMOVE THIS.
                             return PrimaryKeyClash;
                         }
                     } else {
@@ -375,9 +376,12 @@ public class BillboardAdmin {
         createBillboard = connection.prepareStatement(STORE_BILLBOARD_SQL);
         createBillboard.setString(1,billboardName);
         createBillboard.setString(2,creator);
-        createBillboard.setString(3, XMLCode);
-        Blob pictureBlob = new javax.sql.rowset.serial.SerialBlob(pictureData); // Construct blob to store picture from byte array
-        createBillboard.setBlob(4, pictureBlob);
+        Blob pictureBlob = null;
+        if (!(pictureData == null)) {
+            pictureBlob = new javax.sql.rowset.serial.SerialBlob(pictureData); // Construct blob to store picture from byte array
+        }
+        createBillboard.setBlob(3, pictureBlob);
+        createBillboard.setString(4, XMLCode);
         ResultSet rs = createBillboard.executeQuery();
     }
 
