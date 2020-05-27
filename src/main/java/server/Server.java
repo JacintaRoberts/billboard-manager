@@ -2,7 +2,6 @@ package server;
 
 import helpers.Helpers;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -15,7 +14,6 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
 
-import static helpers.Helpers.bytesToString;
 import static helpers.Helpers.networkPropsFilePath;
 import static java.lang.Boolean.parseBoolean;
 import static server.Server.ServerAcknowledge.*;
@@ -370,14 +368,14 @@ public class Server {
                 return ScheduleAdmin.deleteAllSchedules();
             case "ListAllDaySchedule":
                 String dayList = additionalArgs[0];
-                return ScheduleAdmin.listAllFilteredScheduleInformation(sessionToken, dayList);
+                return ScheduleAdmin.scheduleAllDayCP(sessionToken, dayList);
             case "ListABillboardSchedule":
                 String BillboardSchedule = additionalArgs[0];
                 return ScheduleAdmin.getScheduleInformation(BillboardSchedule);
-//            case "ListActiveSchedule":
-//                String day = additionalArgs[0];
-//                LocalTime currentTime = LocalTime.parse(additionalArgs[1]);
-//                return ScheduleAdmin.viewCurrentSchedule(ScheduleAdmin.listAllFilteredScheduleInformation(day), currentTime);
+            case "ListActiveSchedule":
+                String day = additionalArgs[0];
+                LocalTime currentTime = LocalTime.parse(additionalArgs[1]);
+                return ScheduleAdmin.viewCurrentSchedule(ScheduleAdmin.listAllFilteredScheduleInformation(sessionToken, day), currentTime);
             default:
                 return "No ScheduleAdmin method requested";
         }

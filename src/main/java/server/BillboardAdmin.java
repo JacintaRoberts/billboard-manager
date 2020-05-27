@@ -93,18 +93,6 @@ public class BillboardAdmin {
 
 
 
-
-    //TODO: JACINTA HELPING
-    //CREATE SERIALIZABLE OWNXML CLASS (XML, BLOB PIC)
-    //GETBILLBOARDREQUEST
-    //DBBILLBOARD (ALSO HAS PICTURE FIELD)
-    //SEND SIMILAR DBBILLBOARD
-    //ADJUST INPUT PARAMETER TYPE TO OBJECT FOR SERVER
-    //SPLIT ON PICTURE DATA (END ON />)
-    //byte[] byteData = pictureData.getBytes("UTF-8");
-    // Send byteData to server, then to store in db:
-    //Blob blobData = dbConnection.createBlob();
-    //blobData.setBytes(1, byteData);
     /**
      * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database.
      * <p>
@@ -127,13 +115,8 @@ public class BillboardAdmin {
                 // New billboard Case
                 if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                     if (billboard.matches(validCharacters)) {
-                        try {
                             addBillboardSQL(billboard,creator,pictureData,xmlCode);
                             return Success;
-                        } catch (SQLIntegrityConstraintViolationException e) {
-                            e.printStackTrace(); // TODO: REMOVE THIS.
-                            return PrimaryKeyClash;
-                        }
                     } else {
                         System.out.println("Billboard Name Contains Invalid Characters");
                         return InvalidCharacters; // 2. Valid token but insufficient permission
@@ -145,17 +128,12 @@ public class BillboardAdmin {
             } else {
                 // Existing billboard case
                 String OGCreator = getBillboardInformation(sessionToken, billboard).getCreator();
-                if (creator.equals(OGCreator)){
-                    //todo: to edit in if scheduled (need edit)
-                    // Creator only needs Create permission if not scheduled
+                String checkSchedule = ScheduleAdmin.countFilterScheduleSql(billboard);
+                if (creator.equals(OGCreator) && !checkSchedule.equals("1")){
                     if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                         if (billboard.matches(validCharacters)) {
-                            try {
                                 editBillboardSQL(billboard,creator,pictureData,xmlCode);
                                 return Success;
-                            } catch (SQLIntegrityConstraintViolationException e) {
-                                return PrimaryKeyClash;
-                            }
                         } else {
                             System.out.println("Billboard Name Contains Invalid Characters");
                             return InvalidCharacters; // 2. Valid token but insufficient permission
@@ -168,7 +146,7 @@ public class BillboardAdmin {
                     if (UserAdmin.checkSinglePermission(sessionToken, EditBillboard)) {
                         if (billboard.matches(validCharacters)) {
                             try {
-                                addBillboardSQL(billboard,creator,pictureData,xmlCode);
+                                editBillboardSQL(billboard,creator,pictureData,xmlCode);
                                 return Success;
                             } catch (SQLIntegrityConstraintViolationException e) {
                                 return PrimaryKeyClash;
@@ -243,11 +221,11 @@ public class BillboardAdmin {
             } else {
                 // Existing billboard case
                 String OGCreator = getBillboardInformation(sessionToken, billboard).getCreator();
-                if (requestor.equals(OGCreator)){
-                    //todo: to edit in if scheduled (need edit)
-                    // Creator only needs Create permission if not scheduled
+                String checkSchedule = ScheduleAdmin.countFilterScheduleSql(billboard);
+                if (requestor.equals(OGCreator) && !checkSchedule.equals("1")){
                     if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                         deleteBillboardSQL(billboard);
+                        ScheduleAdmin.deleteSchedule(billboard);
                         return Success;
                     } else {
                         System.out.println("Permissions were not sufficient, no Billboard was Edited");
@@ -255,8 +233,9 @@ public class BillboardAdmin {
                     }
                 } else {
                     if (UserAdmin.checkSinglePermission(sessionToken, EditBillboard)) {
-                            deleteBillboardSQL(billboard);
-                            return Success;
+                        deleteBillboardSQL(billboard);
+                        ScheduleAdmin.deleteSchedule(billboard);
+                        return Success;
                     } else {
                         System.out.println("Permissions were not sufficient, no Billboard was Edited");
                         return InsufficientPermission; // 3. Valid token but insufficient permission
@@ -313,7 +292,7 @@ public class BillboardAdmin {
             String count = countBillboardSql();
             if (count.equals("0")) {
                 serverResponse = "Fail: No Billboard Exists";
-                retrievedBillboard.add("0");
+                retrievedBillboard.add(null);
             } else {
                 connection = DbConnection.getInstance();
                 Statement listBillboard = connection.createStatement();
@@ -336,7 +315,7 @@ public class BillboardAdmin {
 
 
     /**================================================================================================
-     * To be refactored like User
+     * SQL Methods
      ================================================================================================*/
 
 
@@ -351,10 +330,11 @@ public class BillboardAdmin {
         countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
         countFilterBillboard.setString(1,billboardName);
         ResultSet rs = countFilterBillboard.executeQuery();
-        rs.next();
-        String count = rs.getString(1);
+        String count = "";
+        while(rs.next()){
+            count = rs.getString(1);
+        }
         rs.close();
-
         return count;
     }
 
@@ -362,8 +342,10 @@ public class BillboardAdmin {
         connection = DbConnection.getInstance();
         Statement countBillboard = connection.createStatement();
         ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
-        rs.next();
-        String count = rs.getString(1);
+        String count = "";
+        while(rs.next()) {
+            count = rs.getString(1);
+        }
         rs.close();
         return count;
     }
@@ -396,6 +378,7 @@ public class BillboardAdmin {
      * @throws IOException
      * @throws SQLException
      */
+    //TODO: BREAKS HERE
     public static void editBillboardSQL(String billboardName, String creator,
                                        byte[] pictureData, String XMLCode) throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -419,12 +402,14 @@ public class BillboardAdmin {
         listaBillboard = connection.prepareStatement(SHOW_BILLBOARD_SQL);
         listaBillboard.setString(1,billboardName);
         ResultSet billboardinfo = listaBillboard.executeQuery();
-        billboardinfo.next();
-        DbBillboard dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
-                billboardinfo.getString("Creator"),
-                billboardinfo.getBytes("Image"),
-                billboardinfo.getString("XMLCode")
-        );
+        DbBillboard dbBillboard = null;
+        while(billboardinfo.next()){
+            dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
+                    billboardinfo.getString("Creator"),
+                    billboardinfo.getBytes("Image"),
+                    billboardinfo.getString("XMLCode")
+            );
+        }
         billboardinfo.close();
         return dbBillboard;
     }

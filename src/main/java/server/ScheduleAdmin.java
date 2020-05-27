@@ -259,28 +259,16 @@ public class ScheduleAdmin {
         String validCharacters = "([A-Za-z0-9-_ ]+)";
         if (billboard.matches(validCharacters)) {
             // Set Connection to see if billboard exists or not
-            connection = DbConnection.getInstance();
-            BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
-            BillboardAdmin.countFilterBillboard.setString(1,billboard);
-            ResultSet rs = BillboardAdmin.countFilterBillboard.executeQuery();
-            rs.next();
-            String count2 = rs.getString(1);
+            ResultSet rs;
+            String count2 = BillboardAdmin.countFilterBillboardSql(billboard);
             if (count2.equals("0")){
                 resultMessage = "Fail: Billboard Does Not Exist";
             } else{
                 // Set Connection to see if Schedule exists or not
-                connection = DbConnection.getInstance();
-                countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-                countFilterSchedule.setString(1,billboard);
-                rs = countFilterSchedule.executeQuery();
-                rs.next();
-                String count = rs.getString(1);
+                String count = countFilterScheduleSql(billboard);
                 if (count.equals("1")){
                     // Delete Billboard Schedule
-                    connection = DbConnection.getInstance();
-                    deleteSchedule = connection.prepareStatement(DELETE_SCHEDULE_SQL);
-                    deleteSchedule.setString(1,billboard);
-                    rs = deleteSchedule.executeQuery();
+                    deleteScheduleSql(billboard);
                     resultMessage = "Pass: Billboard Schedule Deleted";
                 }else {
                     resultMessage = "Fail: Billboard Schedule Does not Exist";
@@ -320,11 +308,8 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedFriday = new ArrayList<>();
         ArrayList<String> retrievedSaturday = new ArrayList<>();
         // Set up connection to see if there are any schedules
-        connection = DbConnection.getInstance();
-        Statement countSchedule = connection.createStatement();
-        ResultSet rs = countSchedule.executeQuery(COUNT_SCHEDULE_SQL);
-        rs.next();
-        String count = rs.getString(1);
+        String count = countScheduleSql();
+        ResultSet rs;
         String serverResponse = null;
         if (count.equals("0")) {
             // No Schedules Exists, populate everything with 0 and Fail message.
@@ -557,7 +542,7 @@ public class ScheduleAdmin {
      * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
      * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
      */
-    public static ArrayList<ArrayList<String>> listAllFilteredScheduleInformation(String sessionToken, String day) throws IOException, SQLException {
+    public static ArrayList<ArrayList<String>> scheduleAllDayCP(String sessionToken, String day) throws IOException, SQLException {
         ArrayList<ArrayList<String>> billboardDayScheduleDisplay = new ArrayList<ArrayList<String>>();
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
@@ -580,10 +565,38 @@ public class ScheduleAdmin {
             return billboardDayScheduleDisplay;
         } else{
             System.out.println("Session was not valid");
-//
             return billboardDayScheduleDisplay;
         }
     }
+
+
+    /**
+     * This function will list all Schedules for billboards for a specific day. The day parameter is parsed into as a string
+     * and filters results to display raw schedules for the day and then the resultant object is then imputed for time. This
+     * function builds on listFilteredScheduleInformation and viewAllDaySchedule methods, and is called by control panel to server
+     * <p>
+     * This method always returns immediately. It will either return a success message or fail message if there is nothing
+     * to return for billboard schedules
+     * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
+     * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     */
+    public static ScheduleList listAllFilteredScheduleInformation(String sessionToken, String day) throws IOException, SQLException {
+        ScheduleList allDayschedule = null;
+        if (validateToken(sessionToken)) {
+            System.out.println("Session is valid");
+            // Check if Billboard exists
+            // Get rawDaySched
+            ScheduleList rawDaySched = ScheduleAdmin.listFilteredScheduleInformation(day);
+            // Impute allDayschedule
+            allDayschedule = ScheduleAdmin.viewAllDaySchedule(rawDaySched);
+            return allDayschedule;
+        } else{
+            System.out.println("Session was not valid");
+            return allDayschedule;
+        }
+    }
+
+
 
     /**
      * This function will list Schedules for billboards for a specific day. The day parameter is parsed into as a string
@@ -785,12 +798,6 @@ public class ScheduleAdmin {
                 duration = Integer.parseInt(scheduleList.getDuration().get(i));
                 creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
                 minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
-                System.out.println("================================");
-                System.out.println("repeatMinutesBeforeParwse: " + scheduleList.getRepeat());
-                System.out.println("================================");
-                System.out.println("================================");
-                System.out.println("repeatMinutes: " + repeatMinutes);
-                System.out.println("================================");
                 if (repeatMinutes != 0){
                     extraSched = minTillEnd / repeatMinutes;
                 } else{
@@ -804,9 +811,6 @@ public class ScheduleAdmin {
                 Friday = scheduleList.getFriday().get(i);
                 Saturday = scheduleList.getSaturday().get(i);
                 // Genearte all possible imputation of schedules and store into temporary arraylist
-                System.out.println("================================");
-                System.out.println("extraSched: " + extraSched);
-                System.out.println("================================");
                 for (int j = 0; j <= extraSched; j++){
                     retrievedBillboard.add(billboardName);
                     retrievedCreator.add(creator);
@@ -1010,7 +1014,7 @@ public class ScheduleAdmin {
     }
 
     /**================================================================================================
-     * To be refactored like User
+     * SQL Methods
      ================================================================================================*/
 
 
@@ -1086,7 +1090,7 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to update Schedule from the database
+     * Method to count a specific Schedule from the database
      * @return
      * @throws IOException
      * @throws SQLException
@@ -1100,6 +1104,22 @@ public class ScheduleAdmin {
         String count = rs.getString(1);
         return count;
     }
+
+    /**
+     * Method to count number of Schedules from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static String countScheduleSql() throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        Statement countSchedule = connection.createStatement();
+        ResultSet rs = countSchedule.executeQuery(COUNT_SCHEDULE_SQL);
+        rs.next();
+        String count = rs.getString(1);
+        return count;
+    }
+
 
 
     /**
@@ -1305,7 +1325,19 @@ public class ScheduleAdmin {
         return rs;
     }
 
+    /**
+     * Method to Delete a Schedule from the database on a Saturday
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static void deleteScheduleSql(String billboard) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
+        deleteSchedule = connection.prepareStatement(DELETE_SCHEDULE_SQL);
+        deleteSchedule.setString(1,billboard);
+        ResultSet rs = deleteSchedule.executeQuery();
 
+    }
 
 
 }
