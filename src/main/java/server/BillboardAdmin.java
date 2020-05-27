@@ -26,8 +26,8 @@ public class BillboardAdmin {
     public static final String CREATE_BILLBOARD_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Billboards` (\n" +
             "    `BillboardName` varchar(255) NOT NULL default '',\n" +
             "      `Creator` varchar(255) NOT NULL default '',\n" +
-            "      `Image` MEDIUMBLOB,\n" +
             "      `XMLCode` TEXT,\n" +
+            "      `Image` MEDIUMBLOB,\n" +
             "      PRIMARY KEY (`BillboardName`)\n" +
             "  )";
     public static final String DROP_BILLBOARD_TABLE = "DROP TABLE IF EXISTS `BillboardDatabase`.`Billboards`";
@@ -281,15 +281,7 @@ public class BillboardAdmin {
             System.out.println("Session is valid");
             String count = countFilterBillboardSql(billboard);
             if (count.equals("1")){
-                listaBillboard = connection.prepareStatement(SHOW_BILLBOARD_SQL);
-                listaBillboard.setString(1,billboard);
-                ResultSet rs = listaBillboard.executeQuery();
-                rs.next();
-                DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
-                        rs.getString("Creator"),
-                        rs.getBytes("Image"),
-                        rs.getString("XMLCode")
-                );
+                DbBillboard dbBillboard = getBillboardSQL(billboard);
                 return dbBillboard;
             }else {
                 DbBillboard dbBillboard = new DbBillboard("0","0",null,"Fail: Billboard Does not Exist");
@@ -406,6 +398,25 @@ public class BillboardAdmin {
         ResultSet rs = editBillboard.executeQuery();
     }
 
+
+    /**
+     * Method to get a billboard from the database
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
+    public static DbBillboard getBillboardSQL(String billboardName) throws IOException, SQLException {
+        listaBillboard = connection.prepareStatement(SHOW_BILLBOARD_SQL);
+        listaBillboard.setString(1,billboardName);
+        ResultSet rs = listaBillboard.executeQuery();
+        rs.next();
+        DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
+                rs.getString("Creator"),
+                rs.getBytes("Image"),
+                rs.getString("XMLCode")
+        );
+        return dbBillboard;
+    }
 
 
     /**

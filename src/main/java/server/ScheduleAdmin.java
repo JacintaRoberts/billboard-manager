@@ -429,10 +429,19 @@ public class ScheduleAdmin {
                     System.out.println("Billboard does not exist");
                     return BillboardNotExists;
                 } else{
-                    // Update Schedule and return pass
-                    updateScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
-                            Wednesday,Thursday,Friday,Saturday);
-                    return Success;
+                    // Check Create or Update methods
+                    String scheduleExists = countFilterScheduleSql(billboard);
+                    if (scheduleExists.equals("0")){
+                        // Create Schedule and return pass
+                        createScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
+                                Wednesday,Thursday,Friday,Saturday);
+                        return Success;
+                    } else {
+                        // Update Schedule and return pass
+                        updateScheduleSQL(billboard,StartTime,Duration,CreationDateTime,Repeat,Sunday,Monday,Tuesday,
+                                Wednesday,Thursday,Friday,Saturday);
+                        return Success;
+                    }
                 }
             } else {
                 System.out.println("Permissions were not sufficient, no Schedule was Updated");
@@ -464,21 +473,20 @@ public class ScheduleAdmin {
                                          String Friday,
                                          String Saturday) throws IOException, SQLException {
         connection = DbConnection.getInstance();
-        editSchedule = connection.prepareStatement(EDIT_SCHEDULE_SQL);
-        editSchedule.setString(1,StartTime);
-        editSchedule.setString(2,Duration);
-        editSchedule.setString(3,CreationDateTime);
-        editSchedule.setString(4,Repeat);
-        editSchedule.setString(5,Sunday);
-        editSchedule.setString(6,Monday);
-        editSchedule.setString(7,Tuesday);
-        editSchedule.setString(8,Wednesday);
-        editSchedule.setString(9,Thursday);
-        editSchedule.setString(10,Friday);
-        editSchedule.setString(11,Saturday);
-        editSchedule.setString(12,billboard);
-        editSchedule.executeQuery();
-        System.out.println("query RUn");
+        createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
+        createSchedule.setString(1,billboard);
+        createSchedule.setString(2,StartTime);
+        createSchedule.setString(3,Duration);
+        createSchedule.setString(4,CreationDateTime);
+        createSchedule.setString(5,Repeat);
+        createSchedule.setString(6,Sunday);
+        createSchedule.setString(7,Monday);
+        createSchedule.setString(8,Tuesday);
+        createSchedule.setString(9,Wednesday);
+        createSchedule.setString(10,Thursday);
+        createSchedule.setString(11,Friday);
+        createSchedule.setString(12,Saturday);
+        createSchedule.executeQuery();
     }
 
     /**
@@ -514,7 +522,6 @@ public class ScheduleAdmin {
         editSchedule.setString(11,Saturday);
         editSchedule.setString(12,billboard);
         editSchedule.executeQuery();
-        System.out.println("query RUn");
     }
 
 
