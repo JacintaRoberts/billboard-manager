@@ -4,9 +4,10 @@ import java.io.Serializable;
 import java.util.ArrayList;
 
 public class ScheduleList  implements Serializable {
-    // Set Fields for DbSchedule
+    // Set Fields for ScheduleList
     private String serverResponse;
     private ArrayList<String> BillboardName;
+    private ArrayList<String> Creator;
     private ArrayList<String> StartTime;
     private ArrayList<String> Duration;
     private ArrayList<String> EndTime;
@@ -20,9 +21,10 @@ public class ScheduleList  implements Serializable {
     private ArrayList<String> Friday;
     private ArrayList<String> Saturday;
 
-    // Constructor for DbSchedule
+    // Constructor for ScheduleList
     public ScheduleList(String serverResponse,
                         ArrayList<String> BillboardName,
+                        ArrayList<String> Creator,
                         ArrayList<String> StartTime,
                         ArrayList<String> Duration,
                         ArrayList<String> EndTime,
@@ -37,8 +39,10 @@ public class ScheduleList  implements Serializable {
                         ArrayList<String> Saturday) {
         this.serverResponse = serverResponse;
         this.BillboardName = BillboardName;
+        this.Creator = Creator;
         this.StartTime = StartTime;
         this.Duration = Duration;
+        this.EndTime = EndTime;
         this.CreationDateTime = CreationDateTime;
         this.Repeat = Repeat;
         this.Sunday = Sunday;
@@ -50,12 +54,15 @@ public class ScheduleList  implements Serializable {
         this.Saturday = Saturday;
     }
 
-    // Set Getters for DbSchedule
+    // Set Getters for ScheduleList
     public String getScheduleServerResponse() {
         return serverResponse;
     }
     public ArrayList<String> getScheduleBillboardName() {
         return BillboardName;
+    }
+    public ArrayList<String> getScheduleBillboardCreator() {
+        return Creator;
     }
     public ArrayList<String> getStartTime() {
         return StartTime;

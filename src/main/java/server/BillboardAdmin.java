@@ -84,7 +84,8 @@ public class BillboardAdmin {
                 resultMessage = "Data Exists";
             }
         } catch (SQLSyntaxErrorException throwables) {
-            rs = countBillboard.executeQuery(CREATE_BILLBOARD_TABLE);
+            Statement createTable = connection.createStatement();
+            rs = createTable.executeQuery(CREATE_BILLBOARD_TABLE);
             resultMessage = "Table Created";
         }
         return resultMessage;
@@ -352,6 +353,8 @@ public class BillboardAdmin {
         ResultSet rs = countFilterBillboard.executeQuery();
         rs.next();
         String count = rs.getString(1);
+        rs.close();
+
         return count;
     }
 
@@ -361,6 +364,7 @@ public class BillboardAdmin {
         ResultSet rs = countBillboard.executeQuery(COUNT_BILLBOARD_SQL);
         rs.next();
         String count = rs.getString(1);
+        rs.close();
         return count;
     }
 
@@ -383,6 +387,7 @@ public class BillboardAdmin {
         createBillboard.setBlob(3, pictureBlob);
         createBillboard.setString(4, XMLCode);
         ResultSet rs = createBillboard.executeQuery();
+        rs.close();
     }
 
     /**
@@ -400,6 +405,7 @@ public class BillboardAdmin {
         editBillboard.setBlob(2, pictureBlob);
         editBillboard.setString(3,billboardName);
         ResultSet rs = editBillboard.executeQuery();
+        rs.close();
     }
 
 
@@ -412,13 +418,14 @@ public class BillboardAdmin {
     public static DbBillboard getBillboardSQL(String billboardName) throws IOException, SQLException {
         listaBillboard = connection.prepareStatement(SHOW_BILLBOARD_SQL);
         listaBillboard.setString(1,billboardName);
-        ResultSet rs = listaBillboard.executeQuery();
-        rs.next();
-        DbBillboard dbBillboard = new DbBillboard(rs.getString("BillboardName"),
-                rs.getString("Creator"),
-                rs.getBytes("Image"),
-                rs.getString("XMLCode")
+        ResultSet billboardinfo = listaBillboard.executeQuery();
+        billboardinfo.next();
+        DbBillboard dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
+                billboardinfo.getString("Creator"),
+                billboardinfo.getBytes("Image"),
+                billboardinfo.getString("XMLCode")
         );
+        billboardinfo.close();
         return dbBillboard;
     }
 
@@ -434,6 +441,7 @@ public class BillboardAdmin {
         deleteBillboard = connection.prepareStatement(DELETE_BILLBOARD_SQL);
         deleteBillboard.setString(1,billboardName);
         ResultSet rs = deleteBillboard.executeQuery();
+        rs.close();
     }
 
 
@@ -447,6 +455,7 @@ public class BillboardAdmin {
         connection = DbConnection.getInstance();
         Statement deleteAllBillboard = connection.createStatement();
         deleteAllBillboard.executeQuery(DELETE_ALL_BILLBOARD_SQL);
+        connection.close();
         return Success;
     }
 

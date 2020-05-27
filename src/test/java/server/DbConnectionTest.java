@@ -367,7 +367,7 @@ class DbConnectionTest {
 
     @Test
     public void checkBillboardsTable2() throws IOException, SQLException {
-
+//
 //        BillboardAdmin.dropBillboardTable();
 //        ScheduleAdmin.dropScheduleTable();
 //        DbUser.dropUserTable();
@@ -375,7 +375,7 @@ class DbConnectionTest {
 //        ScheduleAdmin.createScheduleTable();
 //        DbUser.createUserTable();
         // Set SQL Query
-        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Billboard ";
+        final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Schedules ";
 
         // Set connection
         Connection connection = DbConnection.getInstance();

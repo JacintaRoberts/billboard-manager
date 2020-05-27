@@ -4,6 +4,7 @@ import controlPanel.Main.VIEW_TYPE;
 import server.BillboardList;
 import server.DbBillboard;
 import server.ScheduleInfo;
+import server.ScheduleList;
 import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
@@ -366,28 +367,61 @@ public class Controller
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
                 scheduleWeekView.setWelcomeText(model.getUsername());
 
-                //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+                // Initilaise
+                ArrayList<ArrayList<String>> scheduleMonday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleTuesday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleWednesday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleThursday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleFriday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleSaturday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleSunday = new ArrayList<>();
+
+                try {
+                    scheduleMonday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+                    scheduleTuesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Tuesday");
+                    scheduleWednesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Wednesday");
+                    scheduleThursday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Thursday");
+                    scheduleFriday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Friday");
+                    scheduleSaturday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Saturday");
+                    scheduleSunday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Sunday");
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } catch (ClassNotFoundException e) {
+                    e.printStackTrace();
+                }
 
                 // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
+//                for (int i = 0; i < allDaysched.getScheduleBillboardName().size(); i++){
+//                    ArrayList tempStore = new ArrayList<>(Arrays.asList(allDaysched.getStartTime()+"~"+allDaysched.getEndTime(),
+//                            allDaysched.getScheduleBillboardName(),
+//                            allDaysched.getScheduleBillboardCreator()),
+//                            billboardDayScheduleDisplay.add());
+//                    billboardDayScheduleDisplay.add(tempStore);
+//                }
 
                 // Billboard Schedule: day, time, bb name
                 ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-
-                ArrayList<ArrayList<String>> billboardScheduleTuesday = new ArrayList<>();
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-
+//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//
+//                ArrayList<ArrayList<String>> billboardScheduleTuesday = new ArrayList<>();
+//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+//
                 ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
-                schedule.add(billboardScheduleMonday);
-                schedule.add(billboardScheduleTuesday);
+                schedule.add(scheduleMonday);
+                schedule.add(scheduleTuesday);
+                schedule.add(scheduleWednesday);
+                schedule.add(scheduleThursday);
+                schedule.add(scheduleFriday);
+                schedule.add(scheduleSaturday);
+                schedule.add(scheduleSunday);
 
                 scheduleWeekView.populateSchedule(schedule);
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
