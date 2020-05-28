@@ -7,18 +7,21 @@ import server.ScheduleInfo;
 import server.ScheduleList;
 import server.Server.ServerAcknowledge;
 
+import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.BufferedWriter;
+import java.io.ByteArrayInputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -1140,9 +1143,6 @@ public class Controller
                 String xmlFile = billboardObject.getXMLCode();
                 System.out.println(xmlFile);
                 byte[] pictureData = billboardObject.getPictureData();
-                System.out.println(pictureData);
-                System.out.println(pictureData==null);
-                System.out.println(pictureData.equals(""));
                 boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
 
                 if (valid)
@@ -1515,7 +1515,7 @@ public class Controller
                 ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
                 if (photoData != null)
                 {
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, (String)photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, photoData.get(1));
                 }
                 else
                 {
@@ -1528,7 +1528,8 @@ public class Controller
 
                 if (photoData != null)
                 {
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, photoData.get(1));
+                    String encodedString = Base64.getEncoder().encodeToString((byte[])photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, encodedString);
                 }
             }
             views.put(BB_CREATE, bbCreateView);

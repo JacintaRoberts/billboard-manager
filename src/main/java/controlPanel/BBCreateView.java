@@ -327,7 +327,6 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void setPhoto(ImageIcon icon, PhotoType imgType, Object imgPath)
     {
-        // FIXME: handle when these are NULL
         photoLabel.setIcon(icon);
         photoType = imgType;
         photoPath = imgPath;
@@ -437,7 +436,7 @@ public class BBCreateView extends AbstractGenericView
                 root.appendChild(picture);
                 Attr attr_picture;
                 attr_picture = document.createAttribute("data");
-                attr_picture.setValue((String)photoPath);
+                attr_picture.setValue((String) photoPath);
                 picture.setAttributeNode(attr_picture);
             }
         }
@@ -757,7 +756,7 @@ public class BBCreateView extends AbstractGenericView
             NodeList infoList = doc.getElementsByTagName("information");
             NodeList photoList = doc.getElementsByTagName("picture");
 
-            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0 && pictureData == null)
+            if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0 && pictureData.length == 0)
             {
                 return false;
             }
@@ -768,7 +767,7 @@ public class BBCreateView extends AbstractGenericView
                     return false;
                 }
             }
-            else if (pictureData != null)
+            else if (pictureData.length != 0)
             {
                 boolean setPicture = manageDataPicture(pictureData);
                 if (!setPicture) {
@@ -841,8 +840,10 @@ public class BBCreateView extends AbstractGenericView
     {
         try
         {
-            Image image = ImageIO.read(new ByteArrayInputStream(pictureData));
-            setPhoto(new ImageIcon(image), PhotoType.DATA, pictureData);
+            Image image = ImageIO.read(new ByteArrayInputStream(pictureData)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+            // FIXME: convert pictureData to image, then to an encoded string
+            String encodedString = Base64.getEncoder().encodeToString(pictureData);
+            setPhoto(new ImageIcon(image), PhotoType.DATA, encodedString);
             return true;
         }
         catch(IOException e)
@@ -892,7 +893,7 @@ public class BBCreateView extends AbstractGenericView
                 try
                 {
                     photoImage =ImageIO.read(new ByteArrayInputStream(imgBytes)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-                    setPhoto(new ImageIcon(photoImage),photoPathType, photoPathURL);
+                    setPhoto(new ImageIcon(photoImage),photoPathType, Base64.getEncoder().encodeToString(imgBytes));
                     return true;
                 }
                 catch (IOException e)
@@ -962,7 +963,6 @@ public class BBCreateView extends AbstractGenericView
      */
     protected boolean addBBXML(String xmlStringToDisplay, byte[] pictureData)
     {
-        System.out.println("XML file " + xmlStringToDisplay);
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         Document document;
