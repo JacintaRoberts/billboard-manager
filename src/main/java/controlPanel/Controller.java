@@ -1196,7 +1196,9 @@ public class Controller
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
-                BBViewer.displayBillboard(xmlFile);
+                // System.out.println("XML " + xmlFile);
+                // BBViewer.displayBillboard(xmlFile);
+
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
@@ -1394,11 +1396,15 @@ public class Controller
             if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
             {
                 try {
+//                    String xmlFile = bbCreateView.getBBXMLString();
+//                    System.out.println("full BB preview from BB Create" + xmlFile);
+//                    BBViewer.displayBillboard(xmlFile);
+
                     ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
                     if (xmlData != null)
                     {
                         //BBViewer.displayBillboard((String)xmlData.get(0), byte[]xmlData.get(1));
-                        BBViewer.displayBillboard((String)xmlData.get(0));
+                        //BBViewer.displayBillboard((String)xmlData.get(0));
                     }
                     else
                     {
