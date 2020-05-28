@@ -7,16 +7,13 @@ import server.ScheduleInfo;
 import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedWriter;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -34,7 +31,6 @@ public class Controller
     private Model model;
     private HashMap<VIEW_TYPE, AbstractView> views;
     private Object serverResponse;
-    private String sessionToken;
     private BBFullPreview BBViewer;
 
     /*
@@ -73,7 +69,6 @@ public class Controller
         addBBListListener();
 
         BBViewer = new BBFullPreview();
-        // FIXME: do I need to hide?
 
         // set up Log In view
         showView(LOGIN);
@@ -169,7 +164,6 @@ public class Controller
     {
         addGenericListeners(USER_LIST);
     }
-
 
     /**
      * USER EDIT LISTENERS: designed to add listeners to the USER EDIT VIEW.
@@ -291,10 +285,6 @@ public class Controller
      */
     private void updateView(VIEW_TYPE newView)
     {
-        System.out.println(model.getCurrentView());
-        System.out.println(newView);
-
-
         hideView(model.getCurrentView());
         // set up new frame
         showView(newView);
@@ -344,6 +334,8 @@ public class Controller
         views.put(newViewType, view);
     }
 
+
+
     /**
      * Designed to check Access Permissions in order to hide/show components of the Frame.
      * @param newViewType
@@ -366,30 +358,53 @@ public class Controller
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
                 scheduleWeekView.setWelcomeText(model.getUsername());
 
-                //ScheduleList scheduleMonday = (ScheduleList) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+                // Initilaise
+                ArrayList<ArrayList<String>> scheduleMonday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleTuesday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleWednesday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleThursday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleFriday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleSaturday = new ArrayList<>();
+                ArrayList<ArrayList<String>> scheduleSunday = new ArrayList<>();
 
-                // FIXME: ALAN TO ADD AND REMOVE UNNECESSARY CODE
+                try {
+                    scheduleMonday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+                    scheduleTuesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Tuesday");
+                    scheduleWednesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Wednesday");
+                    scheduleThursday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Thursday");
+                    scheduleFriday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Friday");
+                    scheduleSaturday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Saturday");
+                    scheduleSunday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Sunday");
 
-                // Billboard Schedule: day, time, bb name
-                ArrayList<ArrayList<String>> billboardScheduleMonday = new ArrayList<>();
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleMonday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                    // Billboard Schedule: day, time, bb name
+                    ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
+                    if(scheduleMonday.get(0).get(1) != null){
+                        schedule.add(scheduleMonday);
+                    }
+                    if(scheduleTuesday.get(0).get(1) != null){
+                        schedule.add(scheduleTuesday);
+                    }
+                    if(scheduleWednesday.get(0).get(1) != null){
+                        schedule.add(scheduleWednesday);
+                    }
+                    if(scheduleThursday.get(0).get(1) != null){
+                        schedule.add(scheduleThursday);
+                    }
+                    if(scheduleFriday.get(0).get(1) != null){
+                        schedule.add(scheduleFriday);
+                    }
+                    if(scheduleSaturday.get(0).get(1) != null){
+                        schedule.add(scheduleSaturday);
+                    }
+                    if(scheduleSunday.get(0).get(1) != null){
+                        schedule.add(scheduleSunday);
+                    }
 
-                ArrayList<ArrayList<String>> billboardScheduleTuesday = new ArrayList<>();
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
-                billboardScheduleTuesday.add(new ArrayList<>(Arrays.asList("1-2pm", "Myer's Sale", "Creator")));
+                    scheduleWeekView.populateSchedule(schedule);
+                } catch (IOException | ClassNotFoundException e) {
+                    // FIXME: ALAN!!
+                }
 
-                ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
-                schedule.add(billboardScheduleMonday);
-                schedule.add(billboardScheduleTuesday);
-
-                scheduleWeekView.populateSchedule(schedule);
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
                 break;
 
@@ -400,15 +415,19 @@ public class Controller
                 BillboardList billboardList = null;
                 try {
                     billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
-                } catch (IOException | ClassNotFoundException e) {
+                    if (!billboardList.getBillboardNames().isEmpty())
+                    {
+                        ArrayList<String> stringArray = billboardList.getBillboardNames();
+                        scheduleUpdateView.setBBNamesFromDB(stringArray);
+                        scheduleUpdateView.showInstructionMessage();
+                        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                    }
+                } catch (IOException | ClassNotFoundException e)
+                {
+                    // FIXME: ALAN - SHOW MESSAGE TO USER - ERROR OCCURRED
                     e.printStackTrace();
                 }
-                // FIXME: handle when BB name is null
-                ArrayList<String> stringArray = billboardList.getBillboardNames();
 
-                scheduleUpdateView.setBBNamesFromDB(stringArray);
-                scheduleUpdateView.showInstructionMessage();
-                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
                 break;
 
             case SCHEDULE_MENU:
@@ -454,12 +473,13 @@ public class Controller
                 try {
                     BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
                     BBListArray = billboard_List.getBillboardNames();
+                    bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();
                     // FIXME: pop up error window!
                 }
                 // FIXME: if null is returned handle correctly!!!
-                bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+
                 views.put(BB_LIST, bbListView);
                 break;
 
@@ -619,7 +639,7 @@ public class Controller
                     System.out.println("CONTROLLER LEVEL - Correct Credentials");
                     // store username and session token in model
                     model.storeUsername(username);
-                    sessionToken = (String) serverResponse; // Store as a session token
+                    String sessionToken = (String) serverResponse; // Store as a session token
                     model.storeSessionToken(sessionToken);
                     views.put(VIEW_TYPE.LOGIN, logInView);
                     // nav user to home screen
@@ -707,7 +727,6 @@ public class Controller
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
             ArrayList<Object> userArray = userEditView.getUserInfo();
-
             // Parsing elements from user array for the UserControl method to update user permission/password
             String username = (String) userArray.get(0);
             Boolean createBillboards = (Boolean) userArray.get(1);
@@ -720,7 +739,7 @@ public class Controller
             if (response == 0) {
                 // Store selected permissions in database
                 try {
-                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(sessionToken, username,
+                    ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(model.getSessionToken(), username,
                             createBillboards, editBillboards, editSchedules, editUsers);
                     if (serverResponse.equals(Success)) {
                         userEditView.showEditPermissionsSuccess();
@@ -775,7 +794,7 @@ public class Controller
 
                     // Retrieve server response
                     try {
-                        serverResponse = UserControl.createUserRequest(sessionToken, username, password, createBillboards, editBillboards, editSchedules, editUsers);
+                        serverResponse = UserControl.createUserRequest(model.getSessionToken(), username, password, createBillboards, editBillboards, editSchedules, editUsers);
                     } catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex) {
                         ex.printStackTrace();
                         userCreateView.showFatalError();
@@ -958,7 +977,7 @@ public class Controller
         ArrayList<String> usernames = null;
         ServerAcknowledge errorMessage = Success;
         try {
-            serverResponse = UserControl.listUsersRequest(sessionToken);
+            serverResponse = UserControl.listUsersRequest(model.getSessionToken());
             System.out.println(serverResponse);
             // Attempt to cast to a string ArrayList for successful response
             usernames = (ArrayList<String>) serverResponse;
@@ -1013,7 +1032,7 @@ public class Controller
      */
     private void getUserPermissionsFromServer(AbstractUserView userView, VIEW_TYPE viewType, String username) {
         try {
-            serverResponse = UserControl.getPermissionsRequest(sessionToken, username);
+            serverResponse = UserControl.getPermissionsRequest(model.getSessionToken(), username);
             ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
             // FIXME: setPermissions is wrong mapping
             userView.setPermissions(userPermissions);
@@ -1096,17 +1115,18 @@ public class Controller
             try {
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                System.out.println(billboardObject);
                 String xmlFile = billboardObject.getXMLCode();
+                System.out.println(xmlFile);
                 byte[] pictureData = billboardObject.getPictureData();
-                //TODO: FIX THE PICTURE DATA - KANU & PATRICE - CHANGE YOUR METHODS TO TAKE A BYTE ARRAY FOR PICTURE DATA :)
-                if ( !(pictureData == null) ) {
-                    System.out.println("Billboard contains picture data..."); // Test
-                }
-                boolean valid = bbCreateView.addBBXML(xmlFile);
+                boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
+
                 if (valid)
                 {
                     // set BB Name based on selected button
                     bbCreateView.setBBName(button.getName());
+                    bbCreateView.setBBNameEnabled(false);
+
                     updateView(BB_CREATE);
                 }
                 else
@@ -1148,7 +1168,8 @@ public class Controller
                 try {
                     ServerAcknowledge result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName,model.getUsername());
                     bbListView.showBBDeletedMessage(result);
-                } catch (IOException | ClassNotFoundException ex) {
+                } catch (IOException | ClassNotFoundException ex)
+                {
                     ex.printStackTrace();
                 }
                 // navigate to bb list screen to refresh screen
@@ -1175,12 +1196,12 @@ public class Controller
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
-                System.out.println("XML " + xmlFile);
-//                BBViewer.displayBillboard(xmlFile);
+                // System.out.println("XML " + xmlFile);
+                // BBViewer.displayBillboard(xmlFile);
+
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
-                //ex.printStackTrace();
                 BBListView bbListView = (BBListView) views.get(BB_LIST);
                 bbListView.showBBInvalid();
                 views.put(BB_LIST, bbListView);
@@ -1269,23 +1290,18 @@ public class Controller
                     String createBBReq = null;
 
                     try {
-                        String BBXMLString = bbCreateView.getBBXMLString();
-                        System.out.println("Original BBXMLString is : " + BBXMLString);
-                        byte[] pictureData = null;
-                        // Create the byte array for sending picture data if exists
-                        if (BBXMLString.contains("<picture data=")) {
-                            pictureData = GetPictureData(BBXMLString).getBytes("UTF-8");
-                            BBXMLString = RemovePictureData(BBXMLString);
-                            System.out.println("Picture data extracted from xml.");
+                        ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
+                        if (BBXMLString != null)
+                        {
+                            String creator = model.getUsername();
+
+                            ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
+
+                            if (createBillboardAction.equals(Success)){
+                                createBBReq = "Pass: Billboard Created";
+                            }
                         }
-                        String creator = model.getUsername();
-                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLString, pictureData);
-                        System.out.println("Sent to server from the cp.");
-                        if (createBillboardAction.equals(Success)) {
-                            createBBReq = "Pass: Billboard Created";
-                        }
-                        System.out.println(createBBReq);
-                    } catch (ParserConfigurationException | TransformerException | IOException | ClassNotFoundException ex)
+                    } catch ( IOException | ClassNotFoundException ex)
                     {
                         ex.printStackTrace();
                         createBBReq = "Error encountered whilst creating BB. Exception " + ex.toString();
@@ -1337,31 +1353,31 @@ public class Controller
         String escapedString = bbXMLString.replace("\"", "\\\"");
         return escapedString;
     }*/
+//
+//    /**
+//     * Method to extract the picture data from the original billboard xml for file storage
+//     * @param bbXMLString Original billboard xml code generated from user inputs
+//     * @return String representation of the base-64 encoded image data
+//     */
+//    private String GetPictureData(String bbXMLString) {
+//        String[] splitString = bbXMLString.split("<picture data=\\\"");
+//        String[] imageStrings = splitString[1].split("\"/>");
+//        System.out.println("Image data returned is " + imageStrings[0]);
+//        return imageStrings[0];
+//    }
 
-    /**
-     * Method to extract the picture data from the original billboard xml for file storage
-     * @param bbXMLString Original billboard xml code generated from user inputs
-     * @return String representation of the base-64 encoded image data
-     */
-    private String GetPictureData(String bbXMLString) {
-        String[] splitString = bbXMLString.split("<picture data=\\\"");
-        String[] imageStrings = splitString[1].split("\"/>");
-        System.out.println("Image data returned is " + imageStrings[0]);
-        return imageStrings[0];
-    }
 
-
-    /**
-     * Method to remove the picture data tag from xml for sending to server.
-     * @param bbXMLString Original billboard xml code generated from user inputs
-     * @return bbXMLString with removed picture data tag.
-     */
-    private String RemovePictureData(String bbXMLString) {
-        String[] splitString = bbXMLString.split("<picture data=");
-        String[] imageStrings = splitString[1].split("/>");
-        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
-        return splitString[0]+imageStrings[1];
-    }
+//    /**
+//     * Method to remove the picture data tag from xml for sending to server.
+//     * @param bbXMLString Original billboard xml code generated from user inputs
+//     * @return bbXMLString with removed picture data tag.
+//     */
+//    private String RemovePictureData(String bbXMLString) {
+//        String[] splitString = bbXMLString.split("<picture data=");
+//        String[] imageStrings = splitString[1].split("/>");
+//        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
+//        return splitString[0]+imageStrings[1];
+//    }
 
     /**
      * BB Preview Listener to handle mouse clicks made to the Preview button in the Create BB View
@@ -1380,21 +1396,32 @@ public class Controller
             if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
             {
                 try {
-                    String xmlFile = bbCreateView.getBBXMLString();
-                    System.out.println("full BB preview from BB Create" + xmlFile);
+//                    String xmlFile = bbCreateView.getBBXMLString();
+//                    System.out.println("full BB preview from BB Create" + xmlFile);
 //                    BBViewer.displayBillboard(xmlFile);
+
+                    ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
+                    if (xmlData != null)
+                    {
+                        //BBViewer.displayBillboard((String)xmlData.get(0), byte[]xmlData.get(1));
+                        //BBViewer.displayBillboard((String)xmlData.get(0));
+                    }
+                    else
+                    {
+                        bbCreateView.showInvalidXMLMessage();
+                    }
+
                 }
-                catch (IllegalComponentStateException | TransformerException | ParserConfigurationException ex)
+                catch (IllegalComponentStateException ex)
                 {
-                    ex.printStackTrace();
                     bbCreateView.showInvalidXMLMessage();
-                    views.put(BB_CREATE, bbCreateView);
                 }
             }
             else
             {
                 bbCreateView.showInvalidXMLMessage();
             }
+            views.put(BB_CREATE, bbCreateView);
         }
     }
 
@@ -1415,7 +1442,10 @@ public class Controller
             {
                 bbCreateView.setBBTitle(BBTitle);
                 String titleColour = bbCreateView.browseTitleColour();
-                bbCreateView.setBBTitleColour(titleColour);
+                if (titleColour != null)
+                {
+                    bbCreateView.setBBTitleColour(titleColour);
+                }
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1438,7 +1468,10 @@ public class Controller
             {
                 bbCreateView.setBBText(BBText);
                 String textColour = bbCreateView.browseTextColour();
-                bbCreateView.setBBTextColour(textColour);
+                if (textColour != null)
+                {
+                    bbCreateView.setBBTextColour(textColour);
+                }
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1462,7 +1495,7 @@ public class Controller
                 ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
                 if (photoData != null)
                 {
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, (String)photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, photoData.get(1));
                 }
                 else
                 {
@@ -1475,8 +1508,8 @@ public class Controller
 
                 if (photoData != null)
                 {
-                    System.out.println("encoded img " + (String)photoData.get(1));
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, (String)photoData.get(1));
+                    String encodedString = Base64.getEncoder().encodeToString((byte[])photoData.get(1));
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, encodedString);
                 }
             }
             views.put(BB_CREATE, bbCreateView);
@@ -1525,11 +1558,14 @@ public class Controller
                     String filename = bbCreateView.enterXMLFileName();
                     if (filename != null || !filename.equals(""))
                     {
-                        try {
-                            bbCreateView.browseExportFolder(filename);
+                        String path = bbCreateView.browseExportFolder(filename);
+                        Boolean success = bbCreateView.xmlExport(path + "\\" + filename + ".xml");
+                        if (success)
+                        {
                             bbCreateView.showSuccessfulExport();
-                        } catch (ParserConfigurationException | TransformerException ex) {
-                            ex.printStackTrace();
+                        }
+                        else
+                        {
                             bbCreateView.showBBInvalidErrorMessage();
                         }
                     }
@@ -1584,7 +1620,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
-            // navigate to edit schedule week view
+            // navigate to edit schedule update view
             updateView(SCHEDULE_UPDATE);
         }
     }
@@ -1729,91 +1765,45 @@ public class Controller
                 ScheduleInfo schedule = null;
                 try {
                     schedule = (ScheduleInfo) ScheduleControl.listABillboardSchedule(model.getSessionToken(), bbName);
-                } catch (IOException | ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                    // FIXME: show pop up window to alert user of error
+                    if (schedule.getScheduleBillboardName() != null)
+                    {
+                        Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
+                        Boolean monday = Boolean.parseBoolean(schedule.getMonday());
+                        Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
+                        Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
+                        Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
+                        Boolean friday = Boolean.parseBoolean(schedule.getFriday());
+                        Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
+                        String startTime = schedule.getStartTime();
+                        Integer duration = Integer.parseInt(schedule.getDuration().trim());
+                        Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
+
+                        ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
+                        String recurrenceButton;
+
+                        if(minRepeat.equals(60))
+                        {
+                            recurrenceButton = "hourly";
+                        } else if (minRepeat.equals(0))
+                        {
+                            recurrenceButton = "no repeats";
+                        } else {
+                            recurrenceButton = "minute";
+                        }
+
+                        Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
+                        Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+
+                        scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                    }
+                    else
+                    {
+                        scheduleUpdateView.showNoExistingScheduleMessage();
+                    }
+                } catch (IOException | ClassNotFoundException ex)
+                {
+                    scheduleUpdateView.showScheduleErrorMessage();
                 }
-
-                // FIXME: ALAN - FORMAT CORRECTLY
-
-
-                Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
-                Boolean monday = Boolean.parseBoolean(schedule.getMonday());
-                Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
-                Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
-                Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
-                Boolean friday = Boolean.parseBoolean(schedule.getFriday());
-                Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
-                String startTime = schedule.getStartTime();
-                Integer duration = Integer.parseInt(schedule.getDuration().trim());
-                Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
-
-                ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
-                String recurrenceButton;
-
-                if(minRepeat.equals(60)){
-                    recurrenceButton = "hourly";
-                } else if (minRepeat.equals(0)){
-                    recurrenceButton = "no repeats";
-                } else{
-                    recurrenceButton = "minute";
-                }
-
-                Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
-                Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
-
-
-                scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-
-//                String monday = schedule.getMonday();
-//                boolean monday = Boolean.parseBoolean(schedule.getMonday()); // hh:mm
-//                schedule.getStartTime(); // hh:mm
-//                schedule.getDuration();
-//                schedule.getRepeat(); // get repeat minutes
-
-                //scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-
-//                if (bbName.equals("Myer"))
-//                {
-//                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    int startHour = 5;
-//                    int startMin = 6;
-//                    int duration = 30;
-//                    int minRepeat = 220;
-//                    String recurrenceButton = "minute";
-//                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-//                }
-//                else if (bbName.equals("Anaconda"))
-//                {
-//                    ArrayList<Boolean> daysOfWeek = new ArrayList<>();
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    daysOfWeek.add(true);
-//                    int startHour = 1;
-//                    int startMin = 0;
-//                    int duration = 30;
-//                    int minRepeat = -1;
-//                    String recurrenceButton = "hourly";
-//                    scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-//                }
-//                else
-//                {
-//                    // alert user that no schedule exists in db
-//                    scheduleUpdateView.showNoExistingScheduleMessage();
-//                    // clear the schedule
-//                    scheduleUpdateView.removeScheduleSelection();
-//                }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
         }
@@ -1848,7 +1838,7 @@ public class Controller
                 if (response == 0)
                 {
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                    // FIXME: SCHEDULE CONTROL: ALAN - take in an array list of objects.. this is implemented but sessiontoken error
+                    // FIXME: SCHEDULE CONTROL: ALAN Done :D
                     try {
                         ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
                     } catch (IOException ioException) {

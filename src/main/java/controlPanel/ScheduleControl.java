@@ -95,6 +95,12 @@ public class ScheduleControl {
         String startMin = String.valueOf(scheduleInfo.get(3));
         Integer Duration = (Integer) scheduleInfo.get(4);
         Integer Repeat = (Integer) scheduleInfo.get(6);
+
+        // Condition if hourly
+        if (scheduleInfo.get(5).equals("hourly")){
+            Repeat = 60;
+        }
+
         String startTime = startHour + ":" + startMin;
         // Create Formatter
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");

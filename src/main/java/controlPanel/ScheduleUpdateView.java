@@ -281,6 +281,8 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // remove all names as these will be re-populated upon entering screen
         bbNameComboBox.removeAllItems();
+        System.out.println("ITEM COUNT " + bbNameComboBox.getItemCount());
+
         removeScheduleSelection();
     }
 
@@ -457,6 +459,11 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         int result =  JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the Schedule? Please note, an existing Schedule for this Billboard will be removed from the database.");
         return result;
+    }
+
+    protected void showScheduleErrorMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Error occurred");
     }
 
     // ####################### SET SCHEDULE INFO ON GUI #######################
