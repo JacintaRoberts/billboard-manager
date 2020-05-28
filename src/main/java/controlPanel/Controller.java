@@ -1133,7 +1133,9 @@ public class Controller
             try {
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                System.out.println(billboardObject);
                 String xmlFile = billboardObject.getXMLCode();
+                System.out.println(xmlFile);
                 byte[] pictureData = billboardObject.getPictureData();
                 System.out.println(pictureData);
                 System.out.println(pictureData==null);
@@ -1155,7 +1157,7 @@ public class Controller
             }
             catch (IOException | ClassNotFoundException ex)
             {
-                //ex.printStackTrace();
+                ex.printStackTrace();
                 bbCreateView.showBBInvalidErrorMessage();
             }
             views.put(BB_CREATE, bbCreateView);
@@ -1315,7 +1317,10 @@ public class Controller
                             System.out.println((String)BBXMLString.get(0));
                             System.out.println((String)BBXMLString.get(1));
                             String creator = model.getUsername();
-                            ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
+                            ServerAcknowledge createBillboardAction = null;
+
+                            createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
+
                             if (createBillboardAction.equals(Success)){
                                 createBBReq = "Pass: Billboard Created";
                             }
