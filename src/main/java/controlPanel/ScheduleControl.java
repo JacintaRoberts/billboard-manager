@@ -81,7 +81,7 @@ public class ScheduleControl {
      * @param scheduleInfo@return
      */
     public static Server.ServerAcknowledge updateScheduleBillboardRequest(String sessionToken, ArrayList<Object> scheduleInfo) throws IOException, ClassNotFoundException {
-        // Define Varaibles
+        // Define Variables
         String billboardName = String.valueOf(scheduleInfo.get(0));
         ArrayList<Boolean>  daysOfWeek = (ArrayList<Boolean>) scheduleInfo.get(1);
         Integer Monday = daysOfWeek.get(0) ? 1 : 0;
@@ -140,12 +140,12 @@ public class ScheduleControl {
      * @param  billboardName A String which provides Billboard Name to store into database
      * @return
      */
-    public static  String deleteScheduleRequest(String sessionToken,
-                                         String billboardName) throws IOException, ClassNotFoundException {
+    public static Server.ServerAcknowledge deleteScheduleRequest(String sessionToken,
+                                                                 String billboardName) throws IOException, ClassNotFoundException {
         String message = String.format("Schedule,DeleteSchedule,%s,%s",
                 sessionToken,
                 billboardName);
-        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
+        return (Server.ServerAcknowledge) Helpers.initClient(message); // Send constructed method request and parameters to the server
     }
 
     /**

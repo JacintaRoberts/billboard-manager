@@ -184,12 +184,12 @@ class ScheduleAdminTest {
      *              This tests for appropriate handling when the billboard does not exist
      * Expected Output: The schedule is not removed to the table and returns "Fail: Billboard Does Not Exist"
      */
-    @Test
-    public void removeFromScheduleNoBillboard() throws IOException, SQLException {
-        scheduleAdmin.deleteAllSchedules();
-        String dbResponse = scheduleAdmin.deleteSchedule("nonexistentBillboard");
-      assertEquals(dbResponse, "Fail: Billboard Does Not Exist");
-    }
+//    @Test
+//    public void removeFromScheduleNoBillboard() throws IOException, SQLException {
+//        scheduleAdmin.deleteAllSchedules();
+//        String dbResponse = scheduleAdmin.deleteSchedule("nonexistentBillboard");
+//      assertEquals(dbResponse, "Fail: Billboard Does Not Exist");
+//    }
 
 
     /* Test 11: Remove Schedule - Schedule Does Not Exist

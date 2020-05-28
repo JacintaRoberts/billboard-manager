@@ -222,7 +222,7 @@ public class BillboardAdmin {
                 if (requestor.equals(OGCreator) && !checkSchedule.equals("1")){
                     if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                         deleteBillboardSQL(billboard);
-                        ScheduleAdmin.deleteSchedule(billboard);
+                        ScheduleAdmin.deleteScheduleSql(billboard);
                         return Success;
                     } else {
                         System.out.println("Permissions were not sufficient, no Billboard was Edited");
@@ -231,7 +231,7 @@ public class BillboardAdmin {
                 } else {
                     if (UserAdmin.checkSinglePermission(sessionToken, EditBillboard)) {
                         deleteBillboardSQL(billboard);
-                        ScheduleAdmin.deleteSchedule(billboard);
+                        ScheduleAdmin.deleteScheduleSql(billboard);
                         return Success;
                     } else {
                         System.out.println("Permissions were not sufficient, no Billboard was Edited");
@@ -262,12 +262,13 @@ public class BillboardAdmin {
                 DbBillboard dbBillboard = getBillboardSQL(billboard);
                 return dbBillboard;
             }else {
-                DbBillboard dbBillboard = new DbBillboard("0","0",null,"Fail: Billboard Does not Exist");
+                System.out.println("Fail: Billboard Does not Exist");
+                DbBillboard dbBillboard = new DbBillboard("0","0",null,"","Fail: Billboard Does not Exist");
                 return dbBillboard;
             }
         } else {
-            System.out.println("Session was not valid");
-            DbBillboard dbBillboard = new DbBillboard("0","0",null,"Fail: Session was not valid");
+            System.out.println("Fail: Session was not valid");
+            DbBillboard dbBillboard = new DbBillboard("0","0",null,"","Fail: Session was not valid");
             return dbBillboard;
         }
     }
@@ -407,7 +408,7 @@ public class BillboardAdmin {
             dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
                     billboardinfo.getString("Creator"),
                     billboardinfo.getBytes("Image"),
-                    billboardinfo.getString("XMLCode")
+                    billboardinfo.getString("XMLCode"), "SQL PASS"
             );
         }
         billboardinfo.close();

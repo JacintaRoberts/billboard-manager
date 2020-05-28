@@ -14,6 +14,9 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Locale;
 
+import static server.BillboardAdmin.countFilterBillboardSql;
+import static server.Server.Permission.CreateBillboard;
+import static server.Server.Permission.ScheduleBillboard;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.validateToken;
 
@@ -253,32 +256,37 @@ public class ScheduleAdmin {
      * be done
      * @return Returns a resultMessage string noting if the billboard passes (Pass: Billboard Schedule Deleted) or fails due to reasons.
      */
-    public static String deleteSchedule(String billboard) throws IOException, SQLException {
+    public static Server.ServerAcknowledge deleteSchedule(String sessionToken, String billboard) throws IOException, SQLException {
         // Set Variables
-        String resultMessage;
-        String validCharacters = "([A-Za-z0-9-_ ]+)";
-        if (billboard.matches(validCharacters)) {
-            // Set Connection to see if billboard exists or not
-            ResultSet rs;
-            String count2 = BillboardAdmin.countFilterBillboardSql(billboard);
-            if (count2.equals("0")){
-                resultMessage = "Fail: Billboard Does Not Exist";
-            } else{
-                // Set Connection to see if Schedule exists or not
-                String count = countFilterScheduleSql(billboard);
-                if (count.equals("1")){
-                    // Delete Billboard Schedule
-                    deleteScheduleSql(billboard);
-                    resultMessage = "Pass: Billboard Schedule Deleted";
-                }else {
-                    resultMessage = "Fail: Billboard Schedule Does not Exist";
+        if (validateToken(sessionToken)) {
+            System.out.println("Session is valid");
+            if (UserAdmin.checkSinglePermission(sessionToken, ScheduleBillboard)){
+                // Check if Billboard exists
+                String count = countFilterBillboardSql(billboard);
+                if (count.equals("0")){
+                    System.out.println("Billboard does not exist");
+                    return BillboardNotExists;
+                } else {
+                    String count2 = countScheduleSql();
+                    ResultSet rs;
+                    String serverResponse = null;
+                    if (count2.equals("0")) {
+                        System.out.println("Schedule does not exist");
+                        return ScheduleNotExists;
+                    }else {
+                        deleteScheduleSql(billboard);
+                        return Success;
+                    }
                 }
+            } else {
+                System.out.println("Insufficient User Permission");
+                return InsufficientPermission;
             }
+
         } else {
-            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
+            System.out.println("Session was not valid");
+            return InvalidToken; // 4. Invalid token
         }
-        // Return resultMessage String
-        return resultMessage;
     }
 
 
@@ -413,7 +421,7 @@ public class ScheduleAdmin {
             System.out.println("Session is valid");
             if (UserAdmin.checkSinglePermission(sessionToken, Server.Permission.ScheduleBillboard)){
                 // Start conenction to see if billboard exists
-                String billboardExist = BillboardAdmin.countFilterBillboardSql(billboard);
+                String billboardExist = countFilterBillboardSql(billboard);
                 if (billboardExist.equals("0")){
                     // Return Fail Message
                     System.out.println("Billboard does not exist");
@@ -456,7 +464,7 @@ public class ScheduleAdmin {
      * @param BillboardName A String to feed in to filter SQL quiries to return only schedules for a specifc Billboard.
      * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can be read via getters.
      */
-    public static ScheduleInfo getScheduleInformation(String BillboardName) throws IOException, SQLException {
+    public static ScheduleInfo getScheduleInformation(String sessionToken, String BillboardName) throws IOException, SQLException {
         // Initialise Variable array
         String retrievedBillboard;
         String retrievedStartTime;
@@ -475,7 +483,8 @@ public class ScheduleAdmin {
         //Check if Schedule Exists and updates as required
         ResultSet rs = null;
         String count = countFilterScheduleSql(BillboardName);
-        if (count.equals("0")) {
+        if (count.equals("0") && validateToken(sessionToken)) {
+            System.out.println("System Token Validated");
             serverResponse = "Fail: No Schedule Exists";
             retrievedBillboard = null;
             retrievedStartTime = null;
@@ -489,7 +498,23 @@ public class ScheduleAdmin {
             retrievedThursday = null;
             retrievedFriday = null;
             retrievedSaturday = null;
-        } else {
+        } else if (!validateToken(sessionToken)){
+            System.out.println("System Token is not valid!");
+            serverResponse = "Fail: Invalid Session Token";
+            retrievedBillboard = null;
+            retrievedStartTime = null;
+            retrievedDuration = null;
+            retrievedCreationDateTime = null;
+            retrievedRepeat = null;
+            retrievedSunday = null;
+            retrievedMonday = null;
+            retrievedTuesday = null;
+            retrievedWednesday = null;
+            retrievedThursday = null;
+            retrievedFriday = null;
+            retrievedSaturday = null;
+        }else {
+            System.out.println("System Token Validated");
             getFilterSchedule = connection.prepareStatement(GET_FILTER_SCHEDULE_SQL);
             getFilterSchedule.setString(1,BillboardName);
             rs = getFilterSchedule.executeQuery();
@@ -645,7 +670,6 @@ public class ScheduleAdmin {
         String serverResponse = null;
         Integer dayCheckPass = 1;
         // Get instance to check if there is data in the day.
-        connection = DbConnection.getInstance();
         Statement st = null;
         ResultSet rs = null;
         String count = "0";

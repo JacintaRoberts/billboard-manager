@@ -153,7 +153,7 @@ public abstract class AbstractGenericView extends AbstractView
     }
 
     // TODO: ALAN USE THIS CODE TO SHOW CUSTOM MESSAGES TO USER
-    protected void showMessageToUser(String message)
+    protected static void showMessageToUser(String message)
     {
         JOptionPane.showMessageDialog(null, message);
     }

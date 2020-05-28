@@ -54,6 +54,7 @@ public class Server {
 
         // Schedule Based Enums
         BadTimeRepeatDuration,
+        ScheduleNotExists,
         // Billboard Based Enums
         BillboardNameExists,
         BillboardNotExists,
@@ -363,7 +364,7 @@ public class Server {
                         editSunday,editMonday,editTuesday,editWednesday,editThursday,editFriday,editSaturday);
             case "DeleteSchedule":
                 String deleteScheduleName = additionalArgs[0];
-                return ScheduleAdmin.deleteSchedule(deleteScheduleName);
+                return ScheduleAdmin.deleteSchedule(sessionToken, deleteScheduleName);
             case "DeleteAllSchedule":
                 return ScheduleAdmin.deleteAllSchedules();
             case "ListAllDaySchedule":
@@ -371,7 +372,7 @@ public class Server {
                 return ScheduleAdmin.scheduleAllDayCP(sessionToken, dayList);
             case "ListABillboardSchedule":
                 String BillboardSchedule = additionalArgs[0];
-                return ScheduleAdmin.getScheduleInformation(BillboardSchedule);
+                return ScheduleAdmin.getScheduleInformation(sessionToken, BillboardSchedule);
             case "ListActiveSchedule":
                 String day = additionalArgs[0];
                 LocalTime currentTime = LocalTime.parse(additionalArgs[1]);

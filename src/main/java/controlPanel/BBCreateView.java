@@ -612,6 +612,25 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
+     * Show Error Message as no BB name was provided and it has been deleted indicated by server
+     */
+    protected void showBBInvalidErrorMessageNonExistBillboard()
+    {
+        String message = "Invalid Billboard. Billboard does not exist. Please Refresh to check if it has been deleted.";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Show Error Message due to sessionToken
+     */
+    protected void showBBInvalidErrorMessageTokenError()
+    {
+        String message = "Cannot Retreive Billboard. SessionToken Expired. Please relogin";
+        JOptionPane.showMessageDialog(null, message);
+    }
+
+
+    /**
      * Browse Photos to add to BB
      * @return BB Image (icon format)
      */

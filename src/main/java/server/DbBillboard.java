@@ -9,13 +9,15 @@ public class DbBillboard implements Serializable {
     private String Creator;
     private byte[] PictureData;
     private String XMLCode;
+    private String serverResponse;
 
     // Set Constructor for DbBillboard
-    public DbBillboard(String BillboardName, String Creator, byte[] PictureData, String XMLCode) {
+    public DbBillboard(String BillboardName, String Creator, byte[] PictureData, String XMLCode, String serverResponse) {
         this.BillboardName = BillboardName;
         this.Creator = Creator;
         this.PictureData = PictureData; // server success or fail message
         this.XMLCode = XMLCode;
+        this.serverResponse = serverResponse;
     }
 
 
@@ -28,6 +30,9 @@ public class DbBillboard implements Serializable {
     }
     public String getXMLCode() {
         return XMLCode;
+    }
+    public String getServerResponse() {
+        return serverResponse;
     }
 
     public byte[] getPictureData() {
