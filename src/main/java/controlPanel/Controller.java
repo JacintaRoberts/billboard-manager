@@ -4,21 +4,13 @@ import controlPanel.Main.VIEW_TYPE;
 import server.BillboardList;
 import server.DbBillboard;
 import server.ScheduleInfo;
-import server.ScheduleList;
 import server.Server.ServerAcknowledge;
 
-import javax.imageio.ImageIO;
 import javax.swing.*;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
-import java.io.BufferedWriter;
-import java.io.ByteArrayInputStream;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
@@ -173,7 +165,6 @@ public class Controller
         addGenericListeners(USER_LIST);
     }
 
-
     /**
      * USER EDIT LISTENERS: designed to add listeners to the USER EDIT VIEW.
      * Listeners include: Home, Back and Profile Button.
@@ -294,10 +285,6 @@ public class Controller
      */
     private void updateView(VIEW_TYPE newView)
     {
-        System.out.println(model.getCurrentView());
-        System.out.println(newView);
-
-
         hideView(model.getCurrentView());
         // set up new frame
         showView(newView);
