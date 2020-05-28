@@ -1317,8 +1317,6 @@ public class Controller
                         ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
                         if (BBXMLString != null)
                         {
-                            System.out.println((String)BBXMLString.get(0));
-                            System.out.println((String)BBXMLString.get(1));
                             String creator = model.getUsername();
                             ServerAcknowledge createBillboardAction = null;
 
