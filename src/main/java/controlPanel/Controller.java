@@ -1176,7 +1176,7 @@ public class Controller
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
                 System.out.println("XML " + xmlFile);
-                BBViewer.displayBillboard(xmlFile);
+//                BBViewer.displayBillboard(xmlFile);
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
@@ -1382,7 +1382,7 @@ public class Controller
                 try {
                     String xmlFile = bbCreateView.getBBXMLString();
                     System.out.println("full BB preview from BB Create" + xmlFile);
-                    BBViewer.displayBillboard(xmlFile);
+//                    BBViewer.displayBillboard(xmlFile);
                 }
                 catch (IllegalComponentStateException | TransformerException | ParserConfigurationException ex)
                 {

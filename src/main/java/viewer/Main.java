@@ -3,7 +3,6 @@ package viewer;
 
 import server.ScheduleAdmin;
 
-import javax.swing.text.View;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.concurrent.Executors;
@@ -14,19 +13,23 @@ public class Main implements Runnable {
 
     // Contains the server's response (Billboard XML) as a string
     private String serverResponse;
+    private byte[] pictureData;
     private static Viewer viewer; // Single instance of the viewer class to prevent multiple windows
 
     @Override
     public void run() {
         // Get current billboard from schedule and display
         try {
-            serverResponse = ScheduleAdmin.getCurrentBillboardXML();
-            System.out.println("Received from server: " + serverResponse);
+            // FIXME: Update when method has been written
+            serverResponse = ScheduleAdmin.getCurrentBillboardName();
+            pictureData = ScheduleAdmin.getCurrentBillboardPictureData();
+            System.out.println("XML received from server: " + serverResponse);
+            System.out.println("Picture data received from server: " + pictureData);
             if ( serverResponse == null ) {
                 viewer.displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             } else {
                 System.out.println("Attempting to display billboard...");
-                viewer.displayBillboard(serverResponse);
+                viewer.displayBillboard(serverResponse, pictureData);
             }
         } catch (IOException | SQLException e) {
             viewer.displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
@@ -36,7 +39,7 @@ public class Main implements Runnable {
     }
 
 
-    public static void main(String[] args ) {
+    public static void main(String[] args) {
         Main viewerMain = new Main();
         viewer = new Viewer();
         ScheduledExecutorService executor = Executors.newScheduledThreadPool(1);
