@@ -27,6 +27,7 @@ public class UserEditView extends AbstractUserView
         super("Edit User");
         view_type = VIEW_TYPE.USER_EDIT;
         setEditable(true);
+
         usernameText.setEditable(false);
         passwordText = null;
         addSubmitButton();
@@ -40,7 +41,6 @@ public class UserEditView extends AbstractUserView
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
         navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
-
     }
 
     private void addSetPasswordButton()
