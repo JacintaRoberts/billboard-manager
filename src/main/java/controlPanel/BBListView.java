@@ -55,12 +55,4 @@ public class BBListView extends AbstractListView
         }
         JOptionPane.showMessageDialog(null, message);
     }
-
-    // TODO: ALAN USE THIS CODE TO SHOW CUSTOM MESSAGES TO USER
-    protected void showMessageToUser(String message)
-    {
-        JOptionPane.showMessageDialog(null, message);
-    }
-
-
 }
