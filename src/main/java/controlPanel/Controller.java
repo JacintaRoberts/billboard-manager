@@ -1198,7 +1198,9 @@ public class Controller
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
-                BBViewer.displayBillboard(xmlFile);
+                // System.out.println("XML " + xmlFile);
+                // BBViewer.displayBillboard(xmlFile);
+
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
@@ -1396,11 +1398,15 @@ public class Controller
             if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
             {
                 try {
+//                    String xmlFile = bbCreateView.getBBXMLString();
+//                    System.out.println("full BB preview from BB Create" + xmlFile);
+//                    BBViewer.displayBillboard(xmlFile);
+
                     ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
                     if (xmlData != null)
                     {
                         //BBViewer.displayBillboard((String)xmlData.get(0), byte[]xmlData.get(1));
-                        BBViewer.displayBillboard((String)xmlData.get(0));
+                        //BBViewer.displayBillboard((String)xmlData.get(0));
                     }
                     else
                     {
@@ -1747,16 +1753,11 @@ public class Controller
                 System.out.println("CONTROLLER LEVEL: Schedule Populate button clicked");
 
                 // get bb name that has been selected
-                // TODO: check if this is the best way of getting the menu item selected
                 JComboBox menuItem = (JComboBox) e.getSource();
                 String bbName = (String)menuItem.getSelectedItem();
 
                 // set schedule values based on db info
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-
-                // FIXME: SCHEDULE CONTROL - getBBSchedule(bbName)
-                // FIXME: IF AN OBJECT IS RETURNED, use SET SCHEDULE VALUES(SCHEDULE OBJECT)
-                // FIXME: IF NO OBJECT IS RETURNED, use SHOW NO EXISTING SCHEDULE MESSAGE() & REMOVE SCHEDULE SELECTION()
 
                 ScheduleInfo schedule = null;
                 try {
@@ -1795,6 +1796,7 @@ public class Controller
                     else
                     {
                         scheduleUpdateView.showNoExistingScheduleMessage();
+                        scheduleUpdateView.removeScheduleSelection();
                     }
                 } catch (IOException | ClassNotFoundException ex)
                 {

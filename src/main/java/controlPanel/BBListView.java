@@ -55,6 +55,4 @@ public class BBListView extends AbstractListView
         }
         JOptionPane.showMessageDialog(null, message);
     }
-
-
 }
