@@ -281,8 +281,6 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // remove all names as these will be re-populated upon entering screen
         bbNameComboBox.removeAllItems();
-        System.out.println("ITEM COUNT " + bbNameComboBox.getItemCount());
-
         removeScheduleSelection();
     }
 
@@ -478,6 +476,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // set selected days on the GUI
         for (int dayIndex = 0; dayIndex < selectedDays.size() ;dayIndex++)
         {
+            System.out.println(selectedDays.get(dayIndex));
             weekdayArray.get(dayIndex).setSelected(selectedDays.get(dayIndex));
         }
 
