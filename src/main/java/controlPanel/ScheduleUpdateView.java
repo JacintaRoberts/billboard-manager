@@ -461,6 +461,11 @@ public class ScheduleUpdateView extends AbstractGenericView
         return result;
     }
 
+    protected void showInvalidScheduleMessage()
+    {
+        JOptionPane.showMessageDialog(null, "Invalid Schedule.");
+    }
+
     // ####################### SET SCHEDULE INFO ON GUI #######################
 
     /**

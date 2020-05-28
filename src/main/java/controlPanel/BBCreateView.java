@@ -413,7 +413,6 @@ public class BBCreateView extends AbstractGenericView
         }
 
         // ------- PICTURE -------
-        // FIXME: check photo path? and icon???
         if (pictureExists)
         {
             // set a colour attribute to information element
@@ -428,7 +427,8 @@ public class BBCreateView extends AbstractGenericView
             // set a colour attribute to information element
             else if (photoType == PhotoType.DATA && separatePictureData)
             {
-                photoData = (byte[])photoPath;
+                byte[] imageByteArray = Base64.getDecoder().decode((String) photoPath);
+                photoData = imageByteArray;
             }
             else if (photoType == PhotoType.DATA && !separatePictureData)
             {
@@ -628,7 +628,6 @@ public class BBCreateView extends AbstractGenericView
                 imageDetails.add(new ImageIcon(img));
 
                 byte[] fileContent = Files.readAllBytes(new File(photoPath).toPath());
-//                String encodedString = Base64.getEncoder().encodeToString(fileContent);
 
                 imageDetails.add(fileContent);
                 return imageDetails;

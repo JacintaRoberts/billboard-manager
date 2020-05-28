@@ -368,12 +368,12 @@ class DbConnectionTest {
     @Test
     public void checkBillboardsTable2() throws IOException, SQLException {
 //
-//        BillboardAdmin.dropBillboardTable();
-//        ScheduleAdmin.dropScheduleTable();
-//        DbUser.dropUserTable();
-//        BillboardAdmin.createBillboardTable();
-//        ScheduleAdmin.createScheduleTable();
-//        DbUser.createUserTable();
+        BillboardAdmin.dropBillboardTable();
+        ScheduleAdmin.dropScheduleTable();
+        DbUser.dropUserTable();
+        BillboardAdmin.createBillboardTable();
+        ScheduleAdmin.createScheduleTable();
+        DbUser.createUserTable();
         // Set SQL Query
         final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Billboards ";
 

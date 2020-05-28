@@ -388,38 +388,36 @@ public class Controller
                     scheduleFriday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Friday");
                     scheduleSaturday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Saturday");
                     scheduleSunday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Sunday");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                } catch (ClassNotFoundException e) {
-                    e.printStackTrace();
+
+                    // Billboard Schedule: day, time, bb name
+                    ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
+                    if(scheduleMonday.get(0).get(1) != null){
+                        schedule.add(scheduleMonday);
+                    }
+                    if(scheduleTuesday.get(0).get(1) != null){
+                        schedule.add(scheduleTuesday);
+                    }
+                    if(scheduleWednesday.get(0).get(1) != null){
+                        schedule.add(scheduleWednesday);
+                    }
+                    if(scheduleThursday.get(0).get(1) != null){
+                        schedule.add(scheduleThursday);
+                    }
+                    if(scheduleFriday.get(0).get(1) != null){
+                        schedule.add(scheduleFriday);
+                    }
+                    if(scheduleSaturday.get(0).get(1) != null){
+                        schedule.add(scheduleSaturday);
+                    }
+                    if(scheduleSunday.get(0).get(1) != null){
+                        schedule.add(scheduleSunday);
+                    }
+
+                    scheduleWeekView.populateSchedule(schedule);
+                } catch (IOException | ClassNotFoundException e) {
+                    // FIXME: ALAN!!
                 }
 
-                // FIXME: ALAN DONE :D
-                // Billboard Schedule: day, time, bb name
-                ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
-                if(scheduleMonday.get(0).get(1) != null){
-                    schedule.add(scheduleMonday);
-                }
-                if(scheduleTuesday.get(0).get(1) != null){
-                    schedule.add(scheduleTuesday);
-                }
-                if(scheduleWednesday.get(0).get(1) != null){
-                    schedule.add(scheduleWednesday);
-                }
-                if(scheduleThursday.get(0).get(1) != null){
-                    schedule.add(scheduleThursday);
-                }
-                if(scheduleFriday.get(0).get(1) != null){
-                    schedule.add(scheduleFriday);
-                }
-                if(scheduleSaturday.get(0).get(1) != null){
-                    schedule.add(scheduleSaturday);
-                }
-                if(scheduleSunday.get(0).get(1) != null){
-                    schedule.add(scheduleSunday);
-                }
-
-                scheduleWeekView.populateSchedule(schedule);
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
                 break;
 
@@ -428,26 +426,19 @@ public class Controller
                 scheduleUpdateView.setWelcomeText(model.getUsername());
 
                 BillboardList billboardList = null;
-                ArrayList<String> stringArray = null;
                 try {
                     billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
-                    if (billboardList != null)
+                    if (!billboardList.getBillboardNames().isEmpty())
                     {
-                        stringArray = billboardList.getBillboardNames();
-                        for (String name : stringArray)
-                        {
-                            System.out.println("BB name " + name);
-                        }
+                        ArrayList<String> stringArray = billboardList.getBillboardNames();
+                        scheduleUpdateView.setBBNamesFromDB(stringArray);
+                        scheduleUpdateView.showInstructionMessage();
+                        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
                     }
-                } catch (IOException | ClassNotFoundException e) {
-                    // FIXME: ALAN - SHOW MESSAGE TO USER - ERROR OCCURRED
-                }
-
-                if (stringArray != null)
+                } catch (IOException | ClassNotFoundException e)
                 {
-                    scheduleUpdateView.setBBNamesFromDB(stringArray);
-                    scheduleUpdateView.showInstructionMessage();
-                    views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+                    // FIXME: ALAN - SHOW MESSAGE TO USER - ERROR OCCURRED
+                    e.printStackTrace();
                 }
 
                 updateView(SCHEDULE_MENU);
@@ -1220,12 +1211,10 @@ public class Controller
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
-                System.out.println("XML " + xmlFile);
                 BBViewer.displayBillboard(xmlFile);
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
-                //ex.printStackTrace();
                 BBListView bbListView = (BBListView) views.get(BB_LIST);
                 bbListView.showBBInvalid();
                 views.put(BB_LIST, bbListView);
@@ -1785,40 +1774,45 @@ public class Controller
                 ScheduleInfo schedule = null;
                 try {
                     schedule = (ScheduleInfo) ScheduleControl.listABillboardSchedule(model.getSessionToken(), bbName);
-                } catch (IOException | ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                    // FIXME: show pop up window to alert user of error
+                    if (schedule.getScheduleBillboardName() != null)
+                    {
+                        Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
+                        Boolean monday = Boolean.parseBoolean(schedule.getMonday());
+                        Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
+                        Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
+                        Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
+                        Boolean friday = Boolean.parseBoolean(schedule.getFriday());
+                        Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
+                        String startTime = schedule.getStartTime();
+                        Integer duration = Integer.parseInt(schedule.getDuration().trim());
+                        Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
+
+                        ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
+                        String recurrenceButton;
+
+                        if(minRepeat.equals(60))
+                        {
+                            recurrenceButton = "hourly";
+                        } else if (minRepeat.equals(0))
+                        {
+                            recurrenceButton = "no repeats";
+                        } else {
+                            recurrenceButton = "minute";
+                        }
+
+                        Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
+                        Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+
+                        scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                    }
+                    else
+                    {
+                        scheduleUpdateView.showInvalidScheduleMessage();
+                    }
+                } catch (IOException | ClassNotFoundException ex)
+                {
+                    scheduleUpdateView.showInvalidScheduleMessage();
                 }
-
-                // FIXME: ALAN - FORMAT CORRECTLY
-
-                Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
-                Boolean monday = Boolean.parseBoolean(schedule.getMonday());
-                Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
-                Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
-                Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
-                Boolean friday = Boolean.parseBoolean(schedule.getFriday());
-                Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
-                String startTime = schedule.getStartTime();
-                Integer duration = Integer.parseInt(schedule.getDuration().trim());
-                Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
-
-                ArrayList<Boolean> daysOfWeek= new ArrayList<Boolean>(Arrays.asList(monday,tuesday,wednesday,thursday,friday,saturday,sunday));
-                String recurrenceButton;
-
-                if(minRepeat.equals(60)){
-                    recurrenceButton = "hourly";
-                } else if (minRepeat.equals(0)){
-                    recurrenceButton = "no repeats";
-                } else{
-                    recurrenceButton = "minute";
-                }
-
-                Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
-                Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
-
-                scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
-
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
         }
