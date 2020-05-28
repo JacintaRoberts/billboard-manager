@@ -360,7 +360,7 @@ public class BBCreateView extends AbstractGenericView
     }
 
     protected ArrayList<Object> getBBXMLDocument(boolean separatePictureData) throws ParserConfigurationException {
-        byte[] photoData = null;
+        byte[] photoData = new byte[0];
 
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
 
@@ -608,7 +608,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showBBInvalidErrorMessage()
     {
-        String message = "Invalid BB. Please ensure to select a Billboard Name and at least a title, text or picture.";
+        String message = "Invalid Billboard. Please ensure to select a Billboard Name and at least a title, text or picture.";
         JOptionPane.showMessageDialog(null, message);
     }
 

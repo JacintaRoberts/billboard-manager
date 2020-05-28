@@ -494,12 +494,13 @@ public class Controller
                 try {
                     BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
                     BBListArray = billboard_List.getBillboardNames();
+                    bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();
                     // FIXME: pop up error window!
                 }
                 // FIXME: if null is returned handle correctly!!!
-                bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+
                 views.put(BB_LIST, bbListView);
                 break;
 
@@ -1135,8 +1136,13 @@ public class Controller
             try {
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                System.out.println(billboardObject);
                 String xmlFile = billboardObject.getXMLCode();
+                System.out.println(xmlFile);
                 byte[] pictureData = billboardObject.getPictureData();
+                System.out.println(pictureData);
+                System.out.println(pictureData==null);
+                System.out.println(pictureData.equals(""));
                 boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
 
                 if (valid)
@@ -1311,8 +1317,8 @@ public class Controller
                         ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
                         if (BBXMLString != null)
                         {
-                            System.out.println((String)BBXMLString.get(0));
                             String creator = model.getUsername();
+
                             ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
 
                             if (createBillboardAction.equals(Success)){
@@ -1321,6 +1327,7 @@ public class Controller
                         }
                     } catch ( IOException | ClassNotFoundException ex)
                     {
+                        ex.printStackTrace();
                         createBBReq = "Error encountered whilst creating BB. Exception " + ex.toString();
                         System.out.println("Error encountered whilst creating BB. Exception " + ex.toString());
                     }
