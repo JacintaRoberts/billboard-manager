@@ -473,12 +473,16 @@ public class Controller
                 try {
                     BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
                     BBListArray = billboard_List.getBillboardNames();
-                    bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+                    // Check if not null to add billboard list else return error message
+                    if (!billboard_List.getServerResponse().equals("Fail: No Billboard Exists")){
+                        bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+                    } else {
+                        // TODO: ALAN RECOMMENDS: maybe change text or add popup saying billboard is empty
+                    }
                 } catch (IOException | ClassNotFoundException ex) {
                     ex.printStackTrace();
                     // FIXME: pop up error window!
                 }
-                // FIXME: if null is returned handle correctly!!!
 
                 views.put(BB_LIST, bbListView);
                 break;
@@ -1121,17 +1125,15 @@ public class Controller
                 byte[] pictureData = billboardObject.getPictureData();
                 boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
 
-                if (valid)
-                {
+                if (valid) {
                     // set BB Name based on selected button
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
-
                     updateView(BB_CREATE);
-                }
-                else
-                {
-                    bbCreateView.showBBInvalidErrorMessage();
+                } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist")){
+                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard();
+                } else if (billboardObject.getServerResponse().equals("Fail: Session was not valid")) {
+                    bbCreateView.showBBInvalidErrorMessageTokenError();
                 }
             }
             catch (IOException | ClassNotFoundException ex)
