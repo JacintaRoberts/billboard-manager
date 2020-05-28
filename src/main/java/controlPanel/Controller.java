@@ -16,6 +16,7 @@ import java.io.BufferedWriter;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -342,6 +343,8 @@ public class Controller
         // update hashmap with updated view
         views.put(newViewType, view);
     }
+
+
 
     /**
      * Designed to check Access Permissions in order to hide/show components of the Frame.
