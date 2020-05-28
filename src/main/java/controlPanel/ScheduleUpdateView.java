@@ -461,9 +461,9 @@ public class ScheduleUpdateView extends AbstractGenericView
         return result;
     }
 
-    protected void showInvalidScheduleMessage()
+    protected void showScheduleErrorMessage()
     {
-        JOptionPane.showMessageDialog(null, "Invalid Schedule.");
+        JOptionPane.showMessageDialog(null, "Error occurred");
     }
 
     // ####################### SET SCHEDULE INFO ON GUI #######################
@@ -563,7 +563,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         for (String name: BBNames)
         {
             bbNameComboBox.addItem(name);
-            System.out.println("ADDING NAME " + name);
         }
     }
 
