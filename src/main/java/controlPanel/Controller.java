@@ -428,8 +428,6 @@ public class Controller
                     e.printStackTrace();
                 }
 
-                updateView(SCHEDULE_MENU);
-
                 break;
 
             case SCHEDULE_MENU:
@@ -1794,11 +1792,11 @@ public class Controller
                     }
                     else
                     {
-                        scheduleUpdateView.showInvalidScheduleMessage();
+                        scheduleUpdateView.showNoExistingScheduleMessage();
                     }
                 } catch (IOException | ClassNotFoundException ex)
                 {
-                    scheduleUpdateView.showInvalidScheduleMessage();
+                    scheduleUpdateView.showScheduleErrorMessage();
                 }
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
