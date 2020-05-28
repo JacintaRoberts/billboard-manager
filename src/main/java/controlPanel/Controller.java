@@ -4,6 +4,7 @@ import controlPanel.Main.VIEW_TYPE;
 import server.BillboardList;
 import server.DbBillboard;
 import server.ScheduleInfo;
+import server.Server;
 import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
@@ -402,7 +403,7 @@ public class Controller
 
                     scheduleWeekView.populateSchedule(schedule);
                 } catch (IOException | ClassNotFoundException e) {
-                    // FIXME: ALAN!!
+                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
 
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
@@ -424,8 +425,7 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException e)
                 {
-                    // FIXME: ALAN - SHOW MESSAGE TO USER - ERROR OCCURRED
-                    e.printStackTrace();
+                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
 
                 break;
@@ -478,10 +478,10 @@ public class Controller
                         bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
                     } else {
                         // TODO: ALAN RECOMMENDS: maybe change text or add popup saying billboard is empty
+                        AbstractGenericView.showMessageToUser("Billboard List is empty! Please Create a new Billboard.");
                     }
                 } catch (IOException | ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                    // FIXME: pop up error window!
+                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
 
                 views.put(BB_LIST, bbListView);
@@ -1138,7 +1138,6 @@ public class Controller
             }
             catch (IOException | ClassNotFoundException ex)
             {
-                ex.printStackTrace();
                 bbCreateView.showBBInvalidErrorMessage();
             }
             views.put(BB_CREATE, bbCreateView);
@@ -1721,16 +1720,23 @@ public class Controller
             if (clear == 0)
             {
                 String BBName = scheduleUpdateView.getSelectedBBName();
-
+                Server.ServerAcknowledge result = null;
                 //FIXME: SERVER CALL: removeBBSchedule(BBName)
                 // Noting - this BB may not exist in the Schedule Table!
                 try {
-                    String result = ScheduleControl.deleteScheduleRequest(model.getSessionToken(), BBName);
+                    result = ScheduleControl.deleteScheduleRequest(model.getSessionToken(), BBName);
                 } catch (IOException | ClassNotFoundException ex) {
-                    ex.printStackTrace();
-                    // FIXME: pop up window for error message
+                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
-
+                if(result.equals(Success)){
+                    AbstractGenericView.showMessageToUser("Schedule Removed and Cleared!");
+                } else if (result.equals(BillboardNotExists)) {
+                    AbstractGenericView.showMessageToUser("Billboard does not exist! Please try again or check data!");
+                } else if (result.equals(ScheduleNotExists)) {
+                    AbstractGenericView.showMessageToUser("Schedule does not exist! Please try again or check data!");
+                } else if (result.equals(InvalidToken)) {
+                    AbstractGenericView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
+                }
                 // navigate back to schedule menu
                 updateView(SCHEDULE_MENU);
             }
@@ -1764,6 +1770,7 @@ public class Controller
                     schedule = (ScheduleInfo) ScheduleControl.listABillboardSchedule(model.getSessionToken(), bbName);
                     if (schedule.getScheduleBillboardName() != null)
                     {
+                        // TODO: PATRICE / ALAN. This is just showing theres this method here to parse. Not sure why it is not populating the screen
                         Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
                         Boolean monday = Boolean.parseBoolean(schedule.getMonday());
                         Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
@@ -1835,17 +1842,25 @@ public class Controller
                 // confirmation response
                 if (response == 0)
                 {
+                    Server.ServerAcknowledge returnResult = null;
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
                     // FIXME: SCHEDULE CONTROL: ALAN Done :D
                     try {
-                        ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
+                        returnResult = ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
                     } catch (IOException ioException) {
-                        ioException.printStackTrace();
+                        AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                     } catch (ClassNotFoundException classNotFoundException) {
-                        classNotFoundException.printStackTrace();
+                        AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                     }
-
-                    scheduleUpdateView.showConfirmationDialog();
+                    if(returnResult.equals(Success)){
+                        scheduleUpdateView.showConfirmationDialog();
+                    } else if (returnResult.equals(BillboardNotExists)){
+                        AbstractGenericView.showMessageToUser("Billboard does not exist! Please try again or check data!");
+                    } else if (returnResult.equals(InsufficientPermission)){
+                        AbstractGenericView.showMessageToUser("Schedule not created. Insufficient User Permission!");
+                    } else if (returnResult.equals(InvalidToken)){
+                        AbstractGenericView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
+                    }
                     views.put(SCHEDULE_UPDATE, scheduleUpdateView);
                     // navigate to schedule menu
                     updateView(SCHEDULE_MENU);

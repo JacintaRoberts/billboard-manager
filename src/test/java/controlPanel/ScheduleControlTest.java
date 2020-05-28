@@ -172,17 +172,17 @@ class ScheduleControlTest {
      * Description: Method to remove Billboard. Will require a valid sessiontoken, and name of billboard to remove.
      * Expected Output: An success message from the server
      */
-    @Test
-    public void removeFromScheduleRequestTest() throws IOException, ClassNotFoundException {
-      BillboardControl.deleteAllBillboardRequest("sessionToken");
-      ScheduleControl.deleteAllScheduleRequest("sampleToken");
-      //BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
-      ScheduleControl.scheduleBillboardRequest("sampleToken","Billboard1",
-                "04:00",20,"2020-04-15 13:40",60,1,0,
-                0,1,0,0,1);
-      String serverResponse = scheduleControl.deleteScheduleRequest("sessionToken", "Billboard1");
-      assertEquals(serverResponse, "Pass: Billboard Schedule Deleted");
-    }
+//    @Test
+//    public void removeFromScheduleRequestTest() throws IOException, ClassNotFoundException {
+//      BillboardControl.deleteAllBillboardRequest("sessionToken");
+//      ScheduleControl.deleteAllScheduleRequest("sampleToken");
+//      //BillboardControl.createBillboardRequest("sampleToken", "Billboard1", "xmlCode");
+//      ScheduleControl.scheduleBillboardRequest("sampleToken","Billboard1",
+//                "04:00",20,"2020-04-15 13:40",60,1,0,
+//                0,1,0,0,1);
+//      String serverResponse = scheduleControl.deleteScheduleRequest("sessionToken", "Billboard1");
+//      assertEquals(serverResponse, "Pass: Billboard Schedule Deleted");
+//    }
 
 
     /* Test 11: Request to server to Remove Billboard Schedule (Exception Handling)

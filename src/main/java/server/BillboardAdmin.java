@@ -222,7 +222,7 @@ public class BillboardAdmin {
                 if (requestor.equals(OGCreator) && !checkSchedule.equals("1")){
                     if (UserAdmin.checkSinglePermission(sessionToken, CreateBillboard)) {
                         deleteBillboardSQL(billboard);
-                        ScheduleAdmin.deleteSchedule(billboard);
+                        ScheduleAdmin.deleteScheduleSql(billboard);
                         return Success;
                     } else {
                         System.out.println("Permissions were not sufficient, no Billboard was Edited");
@@ -231,7 +231,7 @@ public class BillboardAdmin {
                 } else {
                     if (UserAdmin.checkSinglePermission(sessionToken, EditBillboard)) {
                         deleteBillboardSQL(billboard);
-                        ScheduleAdmin.deleteSchedule(billboard);
+                        ScheduleAdmin.deleteScheduleSql(billboard);
                         return Success;
                     } else {
                         System.out.println("Permissions were not sufficient, no Billboard was Edited");
