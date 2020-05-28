@@ -1318,9 +1318,8 @@ public class Controller
                         if (BBXMLString != null)
                         {
                             String creator = model.getUsername();
-                            ServerAcknowledge createBillboardAction = null;
 
-                            createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
+                            ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
 
                             if (createBillboardAction.equals(Success)){
                                 createBBReq = "Pass: Billboard Created";
