@@ -15,7 +15,10 @@ public class BillboardAdmin {
 
     // Custom SQL Strings for Specific Queries
     public static final String STORE_BILLBOARD_SQL = "INSERT INTO Billboards VALUES (?,?,?,?) ";
-    public static final String EDIT_BILLBOARD_SQL = "UPDATE Billboards SET XMLCode = ?, Image = ? WHERE BillboardName = ?";
+    public static final String EDIT_BILLBOARD_SQL = "UPDATE Billboards " +
+                                                    "SET XMLCode = ?" +
+                                                    "SET Image = ?" +
+                                                    "WHERE BillboardName = ?";
     public static final String DELETE_BILLBOARD_SQL = "DELETE FROM Billboards WHERE BillboardName = ?";
     public static final String DELETE_ALL_BILLBOARD_SQL = "DELETE FROM Billboards";
     public static final String COUNT_FILTER_BILLBOARD_SQL = "SELECT COUNT(*) FROM Billboards WHERE BillboardName = ?";
@@ -381,10 +384,7 @@ public class BillboardAdmin {
         connection = DbConnection.getInstance();
         editBillboard = connection.prepareStatement(EDIT_BILLBOARD_SQL);
         editBillboard.setString(1, XMLCode);
-        Blob pictureBlob = null;
-        if (!(pictureData == null)) {
-            pictureBlob = new javax.sql.rowset.serial.SerialBlob(pictureData); // Construct blob to store picture from byte array
-        }
+        Blob pictureBlob = new javax.sql.rowset.serial.SerialBlob(pictureData); // Construct blob to store picture from byte array
         editBillboard.setBlob(2, pictureBlob);
         editBillboard.setString(3,billboardName);
         ResultSet rs = editBillboard.executeQuery();

@@ -562,30 +562,12 @@ public class ScheduleAdmin {
                 tempStore.add(Creator);
                 billboardDayScheduleDisplay.add(tempStore);
             }
-//            // Reorder
-//            if(allDaysched.getScheduleBillboardName().size() > 2){
-//
-//            }
             return billboardDayScheduleDisplay;
         } else{
             System.out.println("Session was not valid");
             return billboardDayScheduleDisplay;
         }
     }
-
-//    /**
-//     * Function to order array array list of strings to chronolgoical for display
-//     * @param dayReturn
-//     */
-////    private ArrayList<ArrayList<String>> reorderListing(ArrayList<ArrayList<String>> dayReturn, int numberSched){
-//    private void reorderListing(ArrayList<ArrayList<String>> dayReturn, int numberSched){
-//        ArrayList<ArrayList<String>> orderedDay = new ArrayList<>();
-//        ArrayList<LocalTime> timeArray = null;
-//        for(int i = 0; i < numberSched; i++){
-//            timeArray.add(LocalTime.parse(dayReturn.get(0).get(0).substring(0, 5)));
-//        }
-//        System.out.println(timeArray);
-//    }
 
 
     /**
