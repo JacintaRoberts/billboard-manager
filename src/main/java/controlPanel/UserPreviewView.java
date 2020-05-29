@@ -2,6 +2,9 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+
 /**
  * View designed for editing users.
  */
@@ -23,5 +26,12 @@ public class UserPreviewView extends AbstractUserView
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
+    }
+
+    @Override
+    void cleanUp()
+    {
+        setUsername("");
+        setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
     }
 }

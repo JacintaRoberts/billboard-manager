@@ -24,7 +24,7 @@ import static server.Server.ServerAcknowledge.*;
 
 /**
  * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
- * The constructor stores the model and views, and adds listeners to the views.
+ * The constructor stores a reference to the model and views, and adds listeners to the views.
  */
 public class Controller
 {
@@ -40,7 +40,7 @@ public class Controller
 
     /**
      * Controller Constructor stores instances of Views, adds listeners to Views and sets up Log In View allowing users
-     * to log in to the application.
+     * to log in to the application on startup.
      * @param model application's model
      * @param views hashmap of views
      */
@@ -69,9 +69,10 @@ public class Controller
         addBBCreateListener();
         addBBListListener();
 
+        // instantiate the viewer object which allows users to view the BB in full view from the control panel
         BBViewer = new BBFullPreview();
 
-        // set up Log In view
+        // show the Log In view
         showView(LOGIN);
     }
 
@@ -82,7 +83,7 @@ public class Controller
     //--------------------------------- GENERIC LISTENER --------------------------
     //----------------------- INCL: HOME, BACK, PROFILE BUTTONS -------------------
     /**
-     * addGenericListener is designed to add the Home, Back and Profile button to the defined view.
+     * addGenericListener is designed to add the Home, Back, Log Out and Profile button to the defined view.
      * @param view_type GUI view type
      */
     private void addGenericListeners(VIEW_TYPE view_type)
@@ -103,8 +104,8 @@ public class Controller
      */
     private void addLogInListener()
     {
+        // get GUI view and add listeners
         LogInView logInView = (LogInView) views.get(LOGIN);
-        // add listener
         logInView.addSubmitButtonListener(new SubmitButtonListener());
         views.put(LOGIN, logInView);
     }
@@ -115,6 +116,7 @@ public class Controller
      */
     private void addHomeListener()
     {
+        // get GUI view and add listeners
         HomeView homeView = (HomeView) views.get(HOME);
         // add listeners
         homeView.addUserMenuListener(new UserMenuButtonListener());
@@ -168,7 +170,7 @@ public class Controller
 
     /**
      * USER EDIT LISTENERS: designed to add listeners to the USER EDIT VIEW.
-     * Listeners include: Home, Back and Profile Button.
+     * Listeners include: Home, Back and Profile Button, including User Permission Update and Password Update Buttons.
      */
     private void addUserEditListener()
     {
@@ -186,10 +188,12 @@ public class Controller
     private void addUserPreviewListener()
     {
         addGenericListeners(USER_VIEW);
-        UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
-        views.put(USER_VIEW, userPreviewView);
     }
 
+    /**
+     * USER CREATE LISTENERS: designed to add listeners to the USER CREATE VIEW.
+     * Listeners include: Home, Back and Profile Button, including user create button and add password button
+     */
     private void addUserCreateListener()
     {
         addGenericListeners(USER_CREATE);
@@ -216,7 +220,7 @@ public class Controller
 
     /**
      * BB CREATE LISTENERS: designed to add listeners to the BB CREATE VIEW.
-     * Listeners include: Home, Back and Profile
+     * Listeners include: Home, Back and Profile, including a range of listeners designed to handle the BB Design
      */
     private void addBBCreateListener()
     {
@@ -246,6 +250,10 @@ public class Controller
 
     //---------------------------------- SCHEDULE LISTENER ------------------------------
 
+    /**
+     * SCHEDULE MENU LISTENERS: designed to add listeners to the SCHEDULE MENU VIEW.
+     * Listeners include: Home, Back and Profile. Including Schedule View and Schedule Create buttons.
+     */
     private void addScheduleMenuListener()
     {
         addGenericListeners(SCHEDULE_MENU);
@@ -255,13 +263,19 @@ public class Controller
         views.put(SCHEDULE_MENU, scheduleMenuView);
     }
 
+    /**
+     * SCHEDULE WEEK LISTENERS: designed to add listeners to the SCHEDULE WEEK VIEW.
+     * Listeners include: Home, Back and Profile
+     */
     private void addScheduleWeekListener()
     {
         addGenericListeners(SCHEDULE_WEEK);
-        ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
-        views.put(SCHEDULE_WEEK, scheduleWeekView);
     }
 
+    /**
+     * SCHEDULE UPDATE LISTENERS: designed to add listeners to the SCHEDULE UPDATE VIEW.
+     * Listeners include: Home, Back and Profile, including a range of buttons for the schedule design.
+     */
     private void addScheduleListener()
     {
         addGenericListeners(SCHEDULE_UPDATE);
@@ -286,6 +300,7 @@ public class Controller
      */
     private void updateView(VIEW_TYPE newView)
     {
+        // hide old view
         hideView(model.getCurrentView());
         // set up new frame
         showView(newView);
@@ -295,8 +310,8 @@ public class Controller
      * hideView is designed to hide old view by:
      * - detaching observer to stop listening to model updates
      * - clean up gui
-     * - setting new view as visible
-     * - storing updated view in hash map
+     * - setting old view as invisible
+     * - storing old view in hash map
      */
     private void hideView(VIEW_TYPE oldViewType)
     {
@@ -306,6 +321,8 @@ public class Controller
         model.detachObserver(oldView);
         // clean up gui (remove information)
         oldView.cleanUp();
+        System.out.println("CLEANUP CONTROLLER");
+        System.out.println("CLEANUP CONTROLLER" + oldViewType);
         // set view as hidden
         oldView.setVisible(false);
         // update hashmap with hidden view
@@ -317,6 +334,7 @@ public class Controller
      * - attaching observer to new to listen to model updates
      * - setting new view as current view in model
      * - setting new view as visible
+     * - update components if required
      * - storing updated view in hash map
      */
     private void showView(VIEW_TYPE newViewType)
@@ -335,26 +353,21 @@ public class Controller
         views.put(newViewType, view);
     }
 
-
-
     /**
-     * Designed to check Access Permissions in order to hide/show components of the Frame.
+     * Designed to update components before navigating to the view.
      * @param newViewType
      */
     private void updateComponents(VIEW_TYPE newViewType){
         switch(newViewType)
         {
+            // HOME: set welcome text
             case HOME:
                 HomeView homeView = (HomeView) views.get(VIEW_TYPE.HOME);
                 homeView.setWelcomeText(model.getUsername());
-                homeView.usersButton.setVisible(true);
                 views.put(HOME, homeView);
                 break;
 
-            case LOGIN:
-                System.out.println("Check LogIn permission");
-                break;
-
+            // SCHEDULE_WEEK: set welcome text, populate schedule from DB
             case SCHEDULE_WEEK:
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
                 scheduleWeekView.setWelcomeText(model.getUsername());
@@ -402,20 +415,21 @@ public class Controller
                     }
 
                     scheduleWeekView.populateSchedule(schedule);
-                } catch (IOException | ClassNotFoundException e) {
-                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                } catch (IOException | ClassNotFoundException e)
+                {
+                    scheduleWeekView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
 
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
                 break;
 
+            // SCHEDULE_UPDATE: set welcome text, populate schedule from DB
             case SCHEDULE_UPDATE:
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
                 scheduleUpdateView.setWelcomeText(model.getUsername());
 
-                BillboardList billboardList = null;
                 try {
-                    billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+                    BillboardList billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
                     if (!billboardList.getBillboardNames().isEmpty())
                     {
                         ArrayList<String> stringArray = billboardList.getBillboardNames();
@@ -425,74 +439,89 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException e)
                 {
-                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
-
                 break;
 
+            // SCHEDULE_MENU: set welcome text
             case SCHEDULE_MENU:
                 ScheduleMenuView scheduleMenuView = (ScheduleMenuView) views.get(SCHEDULE_MENU);
                 scheduleMenuView.setWelcomeText(model.getUsername());
                 views.put(SCHEDULE_MENU, scheduleMenuView);
                 break;
 
-
+            // USER_LIST: set welcome text, populate user info
             case USER_LIST:
                 listUserHandling();
                 break;
 
+            // USER_EDIT: set welcome text
             case USER_EDIT:
                 UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
                 userEditView.setWelcomeText(model.getUsername());
+                // FIXME: move logic here?
                 views.put(USER_EDIT, userEditView);
                 break;
 
+            // USER_CREATE: set welcome text
+            case USER_CREATE:
+                UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
+                userCreateView.setWelcomeText(model.getUsername());
+                views.put(USER_CREATE, userCreateView);
+                break;
+
+            // USER_EDIT: set welcome text, populate user info
             case USER_PROFILE:
                 UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
                 userProfileView.setWelcomeText(model.getUsername());
+                // FIXME: move logic here?
                 views.put(USER_PROFILE, userProfileView);
                 break;
 
+            // USER_VIEW: set welcome text, populate user info
             case USER_VIEW:
                 UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
                 userPreviewView.setWelcomeText(model.getUsername());
+                // FIXME: move logic here?
                 views.put(USER_VIEW, userPreviewView);
                 break;
 
+            // USERS_MENU: set welcome text
             case USERS_MENU:
                 UsersMenuView usersMenuView = (UsersMenuView) views.get(USERS_MENU);
                 usersMenuView.setWelcomeText(model.getUsername());
                 views.put(USERS_MENU, usersMenuView);
                 break;
 
+            // BB_LIST: set welcome text, populate BB list
             case BB_LIST:
                 // get list BB view
                 BBListView bbListView = (BBListView) views.get(BB_LIST);
                 bbListView.setWelcomeText(model.getUsername());
-                ArrayList<String> BBListArray = null;
                 try {
                     BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
-                    BBListArray = billboard_List.getBillboardNames();
+                    ArrayList<String> BBListArray = billboard_List.getBillboardNames();
                     // Check if not null to add billboard list else return error message
                     if (!billboard_List.getServerResponse().equals("Fail: No Billboard Exists")){
                         bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
                     } else {
-                        // TODO: ALAN RECOMMENDS: maybe change text or add popup saying billboard is empty
-                        AbstractGenericView.showMessageToUser("Billboard List is empty! Please Create a new Billboard.");
+                        bbListView.showMessageToUser("Billboard List is empty! Please Create a new Billboard.");
                     }
                 } catch (IOException | ClassNotFoundException ex) {
-                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
-
                 views.put(BB_LIST, bbListView);
                 break;
 
+            // BB_CREATE: set welcome text
             case BB_CREATE:
                 BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
                 bbCreateView.setWelcomeText(model.getUsername());
+                // FIXME: move logic in here?
                 views.put(BB_CREATE, bbCreateView);
                 break;
 
+            // BB_MENU: set welcome text
             case BB_MENU:
                 BBMenuView bbMenuView = (BBMenuView) views.get(BB_MENU);
                 bbMenuView.setWelcomeText(model.getUsername());
@@ -516,7 +545,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Home button clicked");
-            updateView(VIEW_TYPE.HOME); // navigate to home screen
+            updateView(VIEW_TYPE.HOME);
         }
     }
 
@@ -564,6 +593,40 @@ public class Controller
         }
     }
 
+    /**
+     * Get user permissions from server, store in view and display appropriate error message pop-up windows/actions
+     */
+    private void getUserPermissionsFromServer(AbstractUserView userView, VIEW_TYPE viewType, String username) {
+        try {
+            serverResponse = UserControl.getPermissionsRequest(model.getSessionToken(), username);
+            ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
+            userView.setPermissions(userPermissions);
+            views.put(viewType, userView);
+        } catch (IOException | ClassNotFoundException ex)
+        {
+            userView.showFatalError();
+            views.put(viewType, userView);
+            // TODO: JACINTA - FIX ME terminate Control Panel and restart
+            ex.printStackTrace();
+            // If the return is not an array list of booleans, an exception occurred
+        } catch ( ClassCastException ex )
+        {
+            if (serverResponse.equals(InvalidToken))
+            {
+                userView.showInvalidTokenException();
+                updateView(LOGIN);
+            } else if ( serverResponse.equals(InsufficientPermission) )
+            {
+                userView.showInsufficientPermissionsException();
+            } else if (serverResponse.equals(NoSuchUser))
+            {
+                userView.showNoSuchUserException();
+                updateView(LOGIN);
+            }
+            views.put(viewType, userView);
+        }
+    }
+
 
     /**
      * Listener to handle Log Out Button mouse clicks. User is navigated to Log In Screen.
@@ -581,10 +644,10 @@ public class Controller
                 System.out.println("Received from server: " + serverResponse);
             } catch (IOException | ClassNotFoundException ex) {
                 logInView.showFatalError();
-                // terminate Control Panel and restart
+                // FIXME: JACINTA - FIX ME - terminate Control Panel and restart
+                // FIXME: need to ensure, if exception raised - code below  (checking serverResponse value )cannot be reached
                 ex.printStackTrace();
             }
-
             // If successful, let the user know, navigate to login screen
             if (serverResponse.equals(Success)) {
                 System.out.println("CONTROLLER LEVEL - Session Token Successfully Expired");
@@ -596,11 +659,8 @@ public class Controller
             }
             // Navigate to log in screen for both cases
             updateView(LOGIN);
-
         }
-
     }
-
 
     //---------------------------------- LOG IN LISTENER ------------------------------
 
@@ -621,22 +681,19 @@ public class Controller
             // get username and password text from GUI
             String username = logInView.getUsername();
             String password = logInView.getPassword();
-            model.storeUsername(username);
+
             // Attempt to handle the login request
             try {
                 serverResponse = loginRequest(username, password); // CP Backend call
-                //TODO: FOR SOME REASON THIS DOESN'T ALWAYS PRINT ON THE FIRST BUTTON PRESS.
 
                 // NOTE: loginRequest will return 1 of 3 serverAcknowledgments
                 // if unsuccessful, show error and do not allow log in
                 if (serverResponse.equals(BadPassword)) {
                     System.out.println("CONTROLLER LEVEL - Incorrect Password");
-                    System.out.println("Please try another password");
                     logInView.showBadPasswordException();
                     views.put(VIEW_TYPE.LOGIN, logInView);
                 } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User");
-                    System.out.println("Please try another username");
                     logInView.showNoSuchUserException();
                     views.put(VIEW_TYPE.LOGIN, logInView);
                 } else { // login request success
@@ -645,13 +702,12 @@ public class Controller
                     model.storeUsername(username);
                     String sessionToken = (String) serverResponse; // Store as a session token
                     model.storeSessionToken(sessionToken);
-                    views.put(VIEW_TYPE.LOGIN, logInView);
                     // nav user to home screen
                     updateView(VIEW_TYPE.HOME);
                 }
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                 logInView.showFatalError();
-                // TODO: terminate Control Panel and restart
+                // TODO: JACINTA - FIX ME - terminate Control Panel and restart
                 ex.printStackTrace();
             }
         }
@@ -683,7 +739,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit User button clicked");
-
+            // get source button
             JButton button = (JButton) e.getSource();
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
@@ -693,7 +749,6 @@ public class Controller
             userEditView.setUsername(usernameSelected);
 
             // Get user permissions from server
-            // FIXME: JACINTA - what is this doing? Should it be returning something?
             getUserPermissionsFromServer(userEditView, USER_EDIT, usernameSelected);
 
             views.put(USER_EDIT, userEditView);
@@ -705,6 +760,7 @@ public class Controller
 
     /**
      * Listener to handle Create User Button mouse clicks.
+     * This will navigate the user to the User Create view.
      */
     private class CreateUserButtonListener extends MouseAdapter
     {
@@ -712,11 +768,10 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Create User button clicked");
-            // navigate to edit user screen
+            // navigate to create user screen
             updateView(USER_CREATE);
         }
     }
-
 
     /**
      * Listener to handle Submit New User Button mouse clicks.
@@ -730,21 +785,26 @@ public class Controller
             // update information in EDIT USER view
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            ArrayList<Object> userArray = userEditView.getUserInfo();
-            // Parsing elements from user array for the UserControl method to update user permission/password
-            String username = (String) userArray.get(0);
-            Boolean createBillboards = (Boolean) userArray.get(1);
-            Boolean editBillboards = (Boolean) userArray.get(2);
-            Boolean editSchedules = (Boolean) userArray.get(3);
-            Boolean editUsers = (Boolean) userArray.get(4);
-
+            // ask user to confirm updating user permissions
             int response = userEditView.showUserConfirmation();
+
             // add permissions to DB if user confirms permissions
             if (response == 0) {
-                // Store selected permissions in database
+                // Try to store selected permissions in database
                 try {
+                    // get current user info input by user
+                    ArrayList<Object> userArray = userEditView.getUserInfo();
+
+                    // Parsing elements from user array for the UserControl method to update user permission/password
+                    String username = (String) userArray.get(0);
+                    Boolean createBillboards = (Boolean) userArray.get(1);
+                    Boolean editBillboards = (Boolean) userArray.get(2);
+                    Boolean editSchedules = (Boolean) userArray.get(3);
+                    Boolean editUsers = (Boolean) userArray.get(4);
+
                     ServerAcknowledge serverResponse = UserControl.setPermissionsRequest(model.getSessionToken(), username,
                             createBillboards, editBillboards, editSchedules, editUsers);
+
                     if (serverResponse.equals(Success)) {
                         userEditView.showEditPermissionsSuccess();
                     } else if (serverResponse.equals(InsufficientPermission)) {
@@ -758,16 +818,16 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     userEditView.showFatalError();
-                    // TODO: terminate Control Panel and restart
+                    // TODO: JACINTA _ FIX ME - terminate Control Panel and restart
                     ex.printStackTrace();
                 }
-            } // TODO: Should we do anything else if the response is not 0?
+            }
+            // do nothing if user does not confirm user permission update
         }
-
     }
 
     /**
-     * Listener to handle Edit User Button mouse clicks.
+     * Listener to handle Create User Button mouse clicks.
      */
     private class UserCreateButtonListener extends MouseAdapter
     {
@@ -776,9 +836,12 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Submit new User button clicked");
 
-            // update information in EDIT USER view
+            // update information in CREATE USER view
             UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
+
+            // check if user info is valid
             boolean validUserInput = userCreateView.checkValidUser();
+
             // if valid user input, ask user to confirm user creation
             if (validUserInput)
             {
@@ -799,60 +862,81 @@ public class Controller
                     // Retrieve server response
                     try {
                         serverResponse = UserControl.createUserRequest(model.getSessionToken(), username, password, createBillboards, editBillboards, editSchedules, editUsers);
-                    } catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex) {
+                    }
+                    catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex)
+                    {
                         ex.printStackTrace();
                         userCreateView.showFatalError();
-                        // TODO: terminate Control Panel and restart
+                        // TODO: JACINTA  - terminate Control Panel and restart
+                        // TODO - ensure that code cannot reach the below code, if an exception is raised
                     }
 
                     // Filter response and display appropriate action
-                    if (serverResponse.equals(Success)) {
+                    if (serverResponse.equals(Success))
+                    {
                         userCreateView.showCreateSuccess();
+                        // navigate to user menu screen
+                        updateView(USERS_MENU);
                     }
-                    else if (serverResponse.equals(InvalidToken)) {
+                    else if (serverResponse.equals(InvalidToken))
+                    {
                         userCreateView.showInvalidTokenException();
-                        // TODO: navigate to logout/login screen
-                    } else if (serverResponse.equals(InsufficientPermission)) {
+                        // navigate to log in screen
+                        updateView(LOGIN);
+                    }
+                    else if (serverResponse.equals(InsufficientPermission))
+                    {
                         userCreateView.showInsufficientPermissionsException();
-                    } else if (serverResponse.equals(PrimaryKeyClash)) {
+                    }
+                    else if (serverResponse.equals(PrimaryKeyClash))
+                    {
                         userCreateView.showUsernamePrimaryKeyClashException();
-                        // TODO: Give user a chance to type in a new username (clear existing)
                     }
                     views.put(USER_CREATE, userCreateView);
-                    System.out.println(model.getCurrentView());
-
-                    // navigate to edit menu screen
-                    updateView(USERS_MENU);
                 }
             }
             else
             {
+                // show invalid error message
                 userCreateView.showErrorMessage();
             }
         }
     }
 
+    /**
+     * Listener to handle user password update button events.
+     */
     private class UserPasswordUpdateButtonListener extends MouseAdapter
     {
         @Override
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: User Password Set button clicked");
+
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
+
+            // get password from user
+            // FIXME - check if valid??? PATRICE
             String password = userEditView.showNewPasswordInput();
+
+            // ask user for confirmation of editing password
             int response = userEditView.showUserConfirmation();
 
             // Confirm response of updated password
             if  (response == 0) {
-                if (password == null) { // Ensure the user enters a valid password (not empty)
+                if (password == null)
+                { // Ensure the user enters a valid password (not empty)
                     userEditView.showEnterValidPasswordException();
-                } else {
+                }
+                else
+                    {
                     try {
                         ServerAcknowledge serverResponse = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
                         if ( serverResponse.equals(Success) ) {
                             userEditView.showEditPasswordSuccess();
                         }  else if ( serverResponse.equals(InvalidToken) ) {
                             userEditView.showInvalidTokenException();
+                            updateView(LOGIN);
                         } else if ( serverResponse.equals(InsufficientPermission) ) {
                             userEditView.showInsufficientPermissionsException();
                         } else if ( serverResponse.equals(NoSuchUser) ) {
@@ -860,7 +944,7 @@ public class Controller
                         }
                     } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                         userEditView.showFatalError();
-                        // TODO: terminate Control Panel and restart
+                        // TODO: JACINTA - FIX ME terminate Control Panel and restart
                         ex.printStackTrace();
                     }
                 }
@@ -869,7 +953,9 @@ public class Controller
         }
     }
 
-
+    /**
+     * Listener to handle User Password Create Button.
+     */
     private class UserPasswordCreateButtonListener extends MouseAdapter
     {
         @Override
@@ -893,21 +979,20 @@ public class Controller
             System.out.println("CONTROLLER LEVEL: Delete User button clicked");
             JButton button = (JButton) e.getSource();
             String username = button.getName();
-            UserListView userListView = (UserListView) views.get(USER_LIST); //TODO: Patrice can you check if this should be a deleteUserView.
+            UserListView userListView = (UserListView) views.get(USER_LIST);
             // ask user to confirm deletion of user
             int response = userListView.showDeleteConfirmation();
 
             // if confirmed response, delete from DB
-            if (response == 0) // TODO: NOT SURE WHAT RESPONSE == 0 CORRESPONDS TO BUT MAY NEED TO BE INTEGRATED BELOW
+            if (response == 0)
             {
-                System.out.println("Delete user from DB");
                 // Retrieve response from DB
                 try {
                     String sessionToken = model.getSessionToken(); // Retrieve session token
                     serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
                 } catch (IOException | ClassNotFoundException ex) {
                     userListView.showFatalError();
-                    // TODO: terminate Control Panel and restart
+                    // TODO: JACINTA - terminate Control Panel and restart - ensure that code below cannot be reached
                     ex.printStackTrace();
                 }
 
@@ -915,6 +1000,8 @@ public class Controller
                 if (serverResponse.equals(Success)) {
                     System.out.println("CONTROLLER LEVEL - User was Successfully Deleted");
                     userListView.showDeleteSuccess();
+                    // navigate back to the same page to refresh view
+                    updateView(USERS_MENU);
                 // Error handling on GUI via pop-up windows
                 } else if (serverResponse.equals(InsufficientPermission)) {
                     System.out.println("CONTROLLER LEVEL - Insufficient Permission");
@@ -922,6 +1009,7 @@ public class Controller
                 } else if (serverResponse.equals(InvalidToken)) {
                     System.out.println("CONTROLLER LEVEL - Invalid Token");
                     userListView.showInvalidTokenException();
+                    updateView(LOGIN);
                 } else if (serverResponse.equals(NoSuchUser)) {
                     System.out.println("CONTROLLER LEVEL - No Such User Found in DB to be Deleted");
                     userListView.showNoSuchUserException();
@@ -929,9 +1017,6 @@ public class Controller
                     System.out.println("CONTROLLER LEVEL - Cannot Delete Your Own User");
                     userListView.showCannotDeleteSelfException();
                 }
-
-                // navigate back to the same page to refresh view
-                updateView(USERS_MENU);
             }
         }
     }
@@ -982,12 +1067,12 @@ public class Controller
         ServerAcknowledge errorMessage = Success;
         try {
             serverResponse = UserControl.listUsersRequest(model.getSessionToken());
-            System.out.println(serverResponse);
             // Attempt to cast to a string ArrayList for successful response
             usernames = (ArrayList<String>) serverResponse;
-        } catch (IOException | ClassNotFoundException ex) {
+        } catch (IOException | ClassNotFoundException ex)
+        {
             userListView.showFatalError();
-            // TODO: terminate Control Panel and restart
+            // TODO: JACINTA - TO FIX - terminate Control Panel and restart - ensure below code cannot be reached
             ex.printStackTrace();
         } catch (ClassCastException ex) {
             // Otherwise, some other error message was returned from the server
@@ -998,13 +1083,15 @@ public class Controller
         if (errorMessage.equals(InsufficientPermission)) {
             System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
             userListView.showInsufficientPermissionsException();
+            updateView(USERS_MENU); // FIXME - TEST PATRICE
         } else if (serverResponse.equals(InvalidToken)) {
             System.out.println("CONTROLLER LEVEL - Invalid Token");
             userListView.showInvalidTokenException();
+            updateView(LOGIN); // FIXME - TEST PATRICE
         } else { // Successful, let the user know and populate with list of users
             userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
-            views.put(USER_LIST, userListView);
         }
+        views.put(USER_LIST, userListView);
     }
 
     /**
@@ -1031,43 +1118,11 @@ public class Controller
         }
     }
 
-    /**
-     * Get user permissions from server, store in view and display appropriate error message pop-up windows/actions
-     */
-    private void getUserPermissionsFromServer(AbstractUserView userView, VIEW_TYPE viewType, String username) {
-        try {
-            serverResponse = UserControl.getPermissionsRequest(model.getSessionToken(), username);
-            ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
-            // FIXME: setPermissions is wrong mapping
-            userView.setPermissions(userPermissions);
-            views.put(viewType, userView);
-        } catch (IOException | ClassNotFoundException ex) {
-            userView.showFatalError();
-            views.put(viewType, userView);
-            // TODO: terminate Control Panel and restart
-            ex.printStackTrace();
-            // If the return is not an array list of booleans, an exception occurred
-        } catch ( ClassCastException ex ) {
-            if (serverResponse.equals(InvalidToken)) {
-                userView.showInvalidTokenException();
-                // TODO: navigate to logout/login screen
-            } else if ( serverResponse.equals(InsufficientPermission) ) {
-                userView.showInsufficientPermissionsException();
-            } else if (serverResponse.equals(NoSuchUser)) {
-                userView.showNoSuchUserException();
-                // TODO: navigate to logout/login screen
-            }
-            views.put(viewType, userView);
-        }
-    }
-
-
-
     //---------------------------------- BB LISTENERS ------------------------------
 
     /**
      * Listener to handle BBMenu Button mouse clicks.
-     * If user clicks the BBMenu button, user is navigated to BB Menu view.
+     *      * If user clicks the BBMenu button, user is navigated to BB Menu view.
      */
     private class BBMenuButtonListener extends MouseAdapter
     {
@@ -1089,7 +1144,7 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: BB Create button clicked");
-            // set BB Name to enabled
+            // set BB Name to enabled so user can set a name
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             bbCreateView.setBBNameEnabled(true);
             views.put(BB_CREATE, bbCreateView);
@@ -1108,6 +1163,7 @@ public class Controller
         public void mousePressed(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Edit BB button clicked");
+
             // get the BB name associated to the edit button
             JButton button = (JButton) e.getSource();
             String BBName = button.getName();
@@ -1119,21 +1175,21 @@ public class Controller
             try {
                 DbBillboard billboardObject = null;
                 billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
-                System.out.println(billboardObject);
                 String xmlFile = billboardObject.getXMLCode();
-                System.out.println(xmlFile);
                 byte[] pictureData = billboardObject.getPictureData();
                 boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
 
-                if (valid) {
-                    // set BB Name based on selected button
+                if (valid)
+                {
+                    // set BB Name based on selected button, ensure user cannot update BB name
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
                     updateView(BB_CREATE);
+
                 } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist")){
-                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard();
+                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard(); // FIXME - should this be on listBBView
                 } else if (billboardObject.getServerResponse().equals("Fail: Session was not valid")) {
-                    bbCreateView.showBBInvalidErrorMessageTokenError();
+                    bbCreateView.showBBInvalidErrorMessageTokenError(); // FIXME - should this be on listBBView
                 }
             }
             catch (IOException | ClassNotFoundException ex)
@@ -1169,13 +1225,15 @@ public class Controller
                 try {
                     ServerAcknowledge result = BillboardControl.deleteBillboardRequest(model.getSessionToken(),BBName,model.getUsername());
                     bbListView.showBBDeletedMessage(result);
+                    // navigate to bb list screen to refresh screen
+                    updateView(BB_MENU);
                 } catch (IOException | ClassNotFoundException ex)
                 {
+                    // FIXME: ALAN - NEED TO HANDLE EXCEPTION
                     ex.printStackTrace();
                 }
-                // navigate to bb list screen to refresh screen
-                updateView(BB_MENU);
             }
+            // nothing happens if user did not confirm deletion
             views.put(BB_LIST, bbListView);
         }
     }
@@ -1197,9 +1255,8 @@ public class Controller
             try {
                 DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
-                // System.out.println("XML " + xmlFile);
-                // BBViewer.displayBillboard(xmlFile);
-
+                byte[] pictureData = billboardObject.getPictureData();
+                BBViewer.displayBillboard(xmlFile, pictureData);
             }
             catch (IOException | ClassNotFoundException | IllegalComponentStateException ex)
             {
@@ -1236,9 +1293,11 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            // get colour selected by user
             String newColor = bbCreateView.showColorChooser();
             if (newColor != null)
             {
+                // set background colour
                 bbCreateView.setBackgroundColour(newColor);
             }
             views.put(BB_CREATE, bbCreateView);
@@ -1257,10 +1316,21 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            // get BB name provided by user
             String BBName = bbCreateView.showBBNameChooser();
+            // FIXME : ALAN REGEX to ensure BB NAME IS VALID - change true below to a regex check
+            boolean validName = true;
+            // if valid BB name, then check that
             if (BBName != null)
             {
-                bbCreateView.setBBName(BBName);
+                if (validName)
+                {
+                    bbCreateView.setBBName(BBName);
+                }
+                else
+                {
+                    bbCreateView.showMessageToUser("Invalid Billboard Name");
+                }
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1278,6 +1348,7 @@ public class Controller
 
             // get list BB create
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            // get selected name
             String bbName = bbCreateView.getSelectedBBName();
             // check that a BB name has been set, if not set raise error
             if (!bbName.equals("") && bbCreateView.checkBBValid())
@@ -1288,56 +1359,54 @@ public class Controller
                 // if user confirms BB creation, show scheduling option
                 if (confirmCreation == 0)
                 {
-                    String createBBReq = null;
-
                     try {
+                        // get XML string and picture data
                         ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
+                        // if not null, then create BB
                         if (BBXMLString != null)
                         {
+                            // get creator username
                             String creator = model.getUsername();
 
+                            // create bb
                             ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
 
-                            if (createBillboardAction.equals(Success)){
-                                createBBReq = "Pass: Billboard Created";
+                            // if successfully created then update response from server
+                            if (createBillboardAction.equals(Success))
+                            {
+                                // show scheduling option - asking user if they want to schedule BB now
+                                int optionSelected = bbCreateView.showSchedulingOption();
+
+                                // User Selected YES to schedule BB
+                                if (optionSelected == 0)
+                                {
+                                    // navigate to schedule create view
+                                    updateView(SCHEDULE_UPDATE);
+                                }
+                                // User Selected NO to skip scheduling the BB
+                                else if (optionSelected == 1)
+                                {
+                                    // you have just created a bb message
+                                    bbCreateView.showBBCreatedSuccessMessage();
+                                    // navigate to schedule menu view
+                                    updateView(SCHEDULE_MENU);
+                                }
+                            }
+                            else if (createBillboardAction.equals(BillboardNameExists))
+                            {
+                                String message = "Billboard Name already exists";
+                                bbCreateView.showMessageToUser(message);
+                            }
+                            else
+                            {
+                                String message = "Billboard Creation Unsuccessful. Try again.";
+                                bbCreateView.showMessageToUser(message);
                             }
                         }
                     } catch ( IOException | ClassNotFoundException ex)
                     {
-                        ex.printStackTrace();
-                        createBBReq = "Error encountered whilst creating BB. Exception " + ex.toString();
-                        System.out.println("Error encountered whilst creating BB. Exception " + ex.toString());
-                    }
-
-                    if (!(createBBReq == null))
-                    {
-                        if (createBBReq.equals("Fail: Billboard Already Exists"))
-                        {
-                            // show pop up error - bb name already exists
-                            System.out.println("BB Name already exists!");
-                        }
-                        else
-                        {
-                            // show scheduling option - asking user if they want to schedule BB now
-                            int optionSelected = bbCreateView.showSchedulingOption();
-
-                            // User Selected YES to schedule BB
-                            if (optionSelected == 0)
-                            {
-                                // set BB name selected in schedule view to the newly added BB
-                                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-                                scheduleUpdateView.setBBSelected(bbName);
-                                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
-                                // navigate to schedule create view
-                                updateView(SCHEDULE_UPDATE);
-                            }
-                            // User Selected NO to skip scheduling the BB
-                            else if (optionSelected == 1)
-                            {
-                                // you have just created a bb message
-                                bbCreateView.showBBCreatedSuccessMessage();
-                            }
-                        }
+                        String message = "Error encountered whilst creating BB. Exception " + ex.toString();
+                        bbCreateView.showMessageToUser(message);
                     }
                 }
             }
@@ -1349,37 +1418,6 @@ public class Controller
         }
     }
 
-    /*
-    private String EscapeQuotations(String bbXMLString) {
-        String escapedString = bbXMLString.replace("\"", "\\\"");
-        return escapedString;
-    }*/
-//
-//    /**
-//     * Method to extract the picture data from the original billboard xml for file storage
-//     * @param bbXMLString Original billboard xml code generated from user inputs
-//     * @return String representation of the base-64 encoded image data
-//     */
-//    private String GetPictureData(String bbXMLString) {
-//        String[] splitString = bbXMLString.split("<picture data=\\\"");
-//        String[] imageStrings = splitString[1].split("\"/>");
-//        System.out.println("Image data returned is " + imageStrings[0]);
-//        return imageStrings[0];
-//    }
-
-
-//    /**
-//     * Method to remove the picture data tag from xml for sending to server.
-//     * @param bbXMLString Original billboard xml code generated from user inputs
-//     * @return bbXMLString with removed picture data tag.
-//     */
-//    private String RemovePictureData(String bbXMLString) {
-//        String[] splitString = bbXMLString.split("<picture data=");
-//        String[] imageStrings = splitString[1].split("/>");
-//        System.out.println("XML with image data removed is " + splitString[0] + imageStrings[1]);
-//        return splitString[0]+imageStrings[1];
-//    }
-
     /**
      * BB Preview Listener to handle mouse clicks made to the Preview button in the Create BB View
      */
@@ -1389,29 +1427,26 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Preview BB button clicked");
-            // get list BB create
+
+            // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
 
+            // get selected BB
             String bbName = bbCreateView.getSelectedBBName();
 
+            // if bb name and bb design are valid, get info and display on viewer
             if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
             {
                 try {
-//                    String xmlFile = bbCreateView.getBBXMLString();
-//                    System.out.println("full BB preview from BB Create" + xmlFile);
-//                    BBViewer.displayBillboard(xmlFile);
-
                     ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
                     if (xmlData != null)
                     {
-                        //BBViewer.displayBillboard((String)xmlData.get(0), byte[]xmlData.get(1));
-                        //BBViewer.displayBillboard((String)xmlData.get(0));
+                        BBViewer.displayBillboard((String)xmlData.get(0), (byte[]) xmlData.get(1));
                     }
                     else
                     {
                         bbCreateView.showInvalidXMLMessage();
                     }
-
                 }
                 catch (IllegalComponentStateException ex)
                 {
@@ -1436,13 +1471,17 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Title button clicked");
 
-            // get list BB create
+            // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+            // allow user to enter bb title
             String BBTitle = bbCreateView.showBBTitleChooser();
+            // if not null, set bb title in text field
             if (BBTitle != null)
             {
                 bbCreateView.setBBTitle(BBTitle);
+                // ask user to select text colour
                 String titleColour = bbCreateView.browseTitleColour();
+                // if not null, set text colour
                 if (titleColour != null)
                 {
                     bbCreateView.setBBTitleColour(titleColour);
@@ -1462,13 +1501,20 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Text button clicked");
 
-            // get list BB create
+            // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+
+            // allow user to enter text
             String BBText = bbCreateView.showBBTextChooser();
+
+            // if text is provided, set text field
             if (BBText != null)
             {
                 bbCreateView.setBBText(BBText);
+                // browse for colour of text
                 String textColour = bbCreateView.browseTextColour();
+
+                // if colour is selected set colour
                 if (textColour != null)
                 {
                     bbCreateView.setBBTextColour(textColour);
@@ -1487,26 +1533,36 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Photo button clicked");
-            // get list BB create
+            // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+
+            // get users selection of photo type either url or data
             int response = bbCreateView.photoTypeSelection();
+
             // URL selected
             if (response == 0)
             {
+                // allow user to enter url
                 ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
+
+                // if not null, set photo
                 if (photoData != null)
                 {
                     bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, photoData.get(1));
                 }
+                // else show error
                 else
                 {
                     bbCreateView.showURLErrorMessage();
                 }
             }
+            // if personal photo selected, allow user to select photo from file
             else if (response == 1)
             {
+                // get photo selected - this contains Image Icon and byte array
                 ArrayList<Object> photoData = bbCreateView.browsePhotos();
 
+                // photo data is not null, set photo
                 if (photoData != null)
                 {
                     String encodedString = Base64.getEncoder().encodeToString((byte[])photoData.get(1));
@@ -1527,11 +1583,13 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: XML import button clicked");
 
-            // get list BB create
+            // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
 
+            // browse import returns boolean value to indicate whether import was successful
             if (!bbCreateView.browseXMLImport())
             {
+                // show error if unsuccessful import
                 bbCreateView.showInvalidXMLMessage();
             }
             views.put(BB_CREATE, bbCreateView);
@@ -1548,19 +1606,31 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: XML export button clicked");
 
-            // get list BB create
+            // get BB Create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
+
+            // if BB is valid, show folder selector
             if (bbCreateView.checkBBValid())
             {
+                // select folder
                 int value = bbCreateView.showFolderChooserSelector();
 
+                // if selection is approved, proceed
                 if(value == JFileChooser.APPROVE_OPTION)
                 {
+                    // get filename from user
                     String filename = bbCreateView.enterXMLFileName();
+
+                    // if filename is valid, proceed to export xml
                     if (filename != null || !filename.equals(""))
                     {
-                        String path = bbCreateView.browseExportFolder(filename);
+                        // get selected folder path
+                        String path = bbCreateView.browseExportFolder();
+
+                        // success value indicates if xml was successfully converted to file
                         Boolean success = bbCreateView.xmlExport(path + "\\" + filename + ".xml");
+
+                        // show message to user depending on export status
                         if (success)
                         {
                             bbCreateView.showSuccessfulExport();
@@ -1572,11 +1642,11 @@ public class Controller
                     }
                 }
             }
+            // if BB is invalid, show error message
             else
             {
                 bbCreateView.showBBInvalidErrorMessage();
             }
-
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -1632,15 +1702,15 @@ public class Controller
     private class ScheduleDurationListener implements ItemListener
     {
         @Override
-        public void itemStateChanged(ItemEvent e) {
-
-            System.out.println("Time Item changed");
-            System.out.println(e.getStateChange());
+        public void itemStateChanged(ItemEvent e)
+        {
+            // get event id
             int eventId = e.getStateChange();
+            // only process if item was selected
             if (eventId == ItemEvent.SELECTED)
             {
                 System.out.println("CONTROLLER LEVEL: Time changed");
-
+                // calculate the duration in the schedule update view
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
                 scheduleUpdateView.calcDuration();
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
@@ -1657,23 +1727,30 @@ public class Controller
         public void actionPerformed(ActionEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Daily Recurrence button clicked");
+            // get button source
             JRadioButton button = (JRadioButton) e.getSource();
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            // get button name
             String buttonName = button.getName();
 
+            // switch case to handle radio button selected
             switch (buttonName) {
                 case "hourly":
+                    // show message
                     scheduleUpdateView.showHourlyMessage();
                     scheduleUpdateView.enableMinuteSelector(false);
                     break;
                 case "no repeats":
+                    // show message
                     scheduleUpdateView.showNoRepeatMessage();
                     scheduleUpdateView.enableMinuteSelector(false);
                     break;
                 case "minute":
+                    // show message
                     scheduleUpdateView.showMinuteMessage();
                     scheduleUpdateView.enableMinuteSelector(true);
                     int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
+                    // set minute label
                     if (minuteRepeat > 0)
                     {
                         scheduleUpdateView.setMinuteLabel(minuteRepeat);
@@ -1692,13 +1769,17 @@ public class Controller
         @Override
         public void itemStateChanged(ItemEvent e)
         {
+            // get event id
             int eventId = e.getStateChange();
+            // if event is a selected item event, proceed
             if (eventId == ItemEvent.SELECTED)
             {
                 System.out.println("CONTROLLER LEVEL: Minute Repeat button clicked");
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+                // get menu item selected which is associated to a minute value
                 JComboBox menuItem = (JComboBox) e.getSource();
                 int minuteSelected = (int) menuItem.getSelectedItem();
+                // set minute value
                 scheduleUpdateView.setMinuteLabel(minuteSelected);
                 views.put(SCHEDULE_UPDATE, scheduleUpdateView);
             }
@@ -1715,30 +1796,30 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Schedule Clear button clicked");
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+            // ask user for confirmation to clear the schedule
             int clear = scheduleUpdateView.showScheduleClearConfirmation();
             // if user confirms deletion of schedule
             if (clear == 0)
             {
                 String BBName = scheduleUpdateView.getSelectedBBName();
                 Server.ServerAcknowledge result = null;
-                //FIXME: SERVER CALL: removeBBSchedule(BBName)
-                // Noting - this BB may not exist in the Schedule Table!
                 try {
                     result = ScheduleControl.deleteScheduleRequest(model.getSessionToken(), BBName);
                 } catch (IOException | ClassNotFoundException ex) {
-                    AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
                 if(result.equals(Success)){
-                    AbstractGenericView.showMessageToUser("Schedule Removed and Cleared!");
+                    scheduleUpdateView.showMessageToUser("Schedule Removed and Cleared!");
+                    // navigate back to schedule menu
+                    updateView(SCHEDULE_MENU);
                 } else if (result.equals(BillboardNotExists)) {
-                    AbstractGenericView.showMessageToUser("Billboard does not exist! Please try again or check data!");
+                    scheduleUpdateView.showMessageToUser("Billboard does not exist! Please try again or check data!");
                 } else if (result.equals(ScheduleNotExists)) {
-                    AbstractGenericView.showMessageToUser("Schedule does not exist! Please try again or check data!");
+                    scheduleUpdateView.showMessageToUser("Schedule does not exist! Please try again or check data!");
                 } else if (result.equals(InvalidToken)) {
-                    AbstractGenericView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
+                    scheduleUpdateView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
+                    updateView(LOGIN);
                 }
-                // navigate back to schedule menu
-                updateView(SCHEDULE_MENU);
             }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
@@ -1752,6 +1833,7 @@ public class Controller
         @Override
         public void itemStateChanged(ItemEvent e)
         {
+            // get event id
             int eventId = e.getStateChange();
             // process event if BB Name has been SELECTED
             if (eventId == ItemEvent.SELECTED)
@@ -1762,12 +1844,12 @@ public class Controller
                 JComboBox menuItem = (JComboBox) e.getSource();
                 String bbName = (String)menuItem.getSelectedItem();
 
-                // set schedule values based on db info
                 ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-
                 ScheduleInfo schedule = null;
                 try {
+                    // get schedule info for bb
                     schedule = (ScheduleInfo) ScheduleControl.listABillboardSchedule(model.getSessionToken(), bbName);
+                    // if schedule exists, proceed
                     if (schedule.getScheduleBillboardName() != null)
                     {
                         // TODO: PATRICE / ALAN. This is just showing theres this method here to parse. Not sure why it is not populating the screen
@@ -1823,98 +1905,57 @@ public class Controller
         public void mouseClicked(MouseEvent e)
         {
             System.out.println("CONTROLLER LEVEL: Create Schedule button clicked");
+
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+
+            // id validation is not valid, raise error
             if (!scheduleUpdateView.checkValidDuration())
             {
                 scheduleUpdateView.raiseDurationError();
             }
+            // if day is not valid, raise error
             else if (!scheduleUpdateView.checkValidDaySelected())
             {
                 scheduleUpdateView.raiseDayError();
             }
+            // if BB is not valid, raise error
             else if (!scheduleUpdateView.checkValidBB())
             {
                 scheduleUpdateView.raiseBBError();
             }
+            // if everything is valid, proceed
             else
             {
+                // ask user to confirm submission of schedule
                 int response = scheduleUpdateView.showConfirmationCreateSchedule();
+
                 // confirmation response
                 if (response == 0)
                 {
                     Server.ServerAcknowledge returnResult = null;
                     ArrayList<Object> scheduleInfo = scheduleUpdateView.getScheduleInfo();
-                    // FIXME: SCHEDULE CONTROL: ALAN Done :D
                     try {
+                        // update schedule
                         returnResult = ScheduleControl.updateScheduleBillboardRequest(model.getSessionToken(),scheduleInfo);
-                    } catch (IOException ioException) {
-                        AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
-                    } catch (ClassNotFoundException classNotFoundException) {
-                        AbstractGenericView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                        if(returnResult.equals(Success)){
+                            scheduleUpdateView.showConfirmationDialog();
+                            updateView(SCHEDULE_MENU);
+                        } else if (returnResult.equals(BillboardNotExists)){
+                            scheduleUpdateView.showMessageToUser("Billboard does not exist! Please try again or check data!");
+                        } else if (returnResult.equals(InsufficientPermission)){
+                            scheduleUpdateView.showMessageToUser("Schedule not created. Insufficient User Permission!");
+                        } else if (returnResult.equals(InvalidToken)){
+                            scheduleUpdateView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
+                            updateView(LOGIN);
+                        }
+                        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+
+                    } catch (IOException | ClassNotFoundException ioException) {
+                        scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                        // FIXME: ALAN - HANDLE WHAT HAPPENS WHEN FATAL ERROR OCCURS
                     }
-                    if(returnResult.equals(Success)){
-                        scheduleUpdateView.showConfirmationDialog();
-                    } else if (returnResult.equals(BillboardNotExists)){
-                        AbstractGenericView.showMessageToUser("Billboard does not exist! Please try again or check data!");
-                    } else if (returnResult.equals(InsufficientPermission)){
-                        AbstractGenericView.showMessageToUser("Schedule not created. Insufficient User Permission!");
-                    } else if (returnResult.equals(InvalidToken)){
-                        AbstractGenericView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
-                    }
-                    views.put(SCHEDULE_UPDATE, scheduleUpdateView);
-                    // navigate to schedule menu
-                    updateView(SCHEDULE_MENU);
                 }
             }
         }
     }
 }
-
-//    /**
-//     * Listener to handle Schedule Day mouse clicks.
-//     */
-//    private class ScheduleDayButtonListener extends MouseAdapter
-//    {
-//        @Override
-//        public void mouseClicked(MouseEvent e)
-//        {
-//            System.out.println("CONTROLLER LEVEL: Schedule Day button clicked");
-//
-//            // get list BB view
-//            BBListView bbListView = (BBListView) views.get(BB_LIST);
-//            String[] stringArray = {"Myer's Biggest Sale","Kathmandu Summer Sale", "Quilton's Covid Special", "Macca's New Essentials Range"};
-//            bbListView.addContent(stringArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
-//            views.put(BB_LIST, bbListView);
-//
-//            // navigate to bb list screen
-//            updateView(SCHEDULE_DAY);
-//        }
-//    }
-
-//    /**
-//     * Listener to handle List daily schedule mouse clicks.
-//     */
-//    private class ScheduleDailyListener extends MouseAdapter
-//    {
-//        @Override
-//        public void mouseClicked(MouseEvent e)
-//        {
-//            System.out.println("CONTROLLER LEVEL: List Day Schedule button clicked");
-//
-//            JButton button = (JButton) e.getSource();
-//            System.out.println("BB Name: " + button.getName());
-//
-//            // getName() is equivalent to the day's date
-//            // FIXME: send req to server to get all bb for that date, returning an array of strings (BB names) or objects
-//
-//            // get daily schedule view
-//            ScheduleDailyView scheduleDailyView = (ScheduleDailyView) views.get(SCHEDULE_DAY);
-//            String[] stringArray = {"8 - 9am: Myer's Biggest Sale","9.30 - 10am Kathmandu Summer Sale", "11 - 12pm Quilton's Covid Special", "1 - 3pm Macca's New Essentials Range"};
-//            // FIXME: required to create edit, delete and view listeners!
-//            scheduleDailyView.addContent(stringArray, new EditScheduleButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
-//            views.put(SCHEDULE_DAY, scheduleDailyView);
-//
-//            // navigate to bb list screen
-//            updateView(SCHEDULE_DAY);
-//        }
-//    }

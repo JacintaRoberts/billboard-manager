@@ -5,6 +5,8 @@ import controlPanel.Main.VIEW_TYPE;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
+import java.util.ArrayList;
+import java.util.Arrays;
 
 /**
  * View designed for editing users.
@@ -46,5 +48,10 @@ public class UserProfileView extends AbstractUserView
         return view_type;
     }
 
-
+    @Override
+    void cleanUp()
+    {
+        setUsername("");
+        setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
+    }
 }
