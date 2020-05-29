@@ -6,7 +6,6 @@ import java.util.ArrayList;
 
 public class DbUser {
 
-
     // Set Fields for DbUser
     private String Username;
     private String Password;
@@ -22,7 +21,7 @@ public class DbUser {
     public static final String DELETE_USER_SQL = "DELETE FROM users WHERE Username = ?";
     public static final String LIST_USERS_SQL = "SELECT Username FROM users;";
     public static final String UPDATE_PERMISSIONS_SQL = "UPDATE users SET CreateBillboard=?, EditBillboard=?, ScheduleBillboard=?, EditUser=? WHERE Username = ?";
-    public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, RandomSalt=? WHERE Username = ?";
+    public static final String UPDATE_PASSWORD_SQL = "UPDATE users SET Password=?, Salt=? WHERE Username = ?";
     public static final String CREATE_USER_TABLE = "CREATE TABLE IF NOT EXISTS `BillboardDatabase`.`Users` (\n" +
             "      `Username` varchar(255) NOT NULL default '',\n" +
             "      `Password` varchar(255) NOT NULL,\n" +

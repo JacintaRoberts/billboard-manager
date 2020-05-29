@@ -15,6 +15,14 @@ import static server.Server.*;
 import static server.Server.ServerAcknowledge.*;
 import static server.UserAdmin.*;
 
+/**================================================================================================
+ * INTEGRATED TESTS - REQUIRE SERVER AND DATABASE TO BE RUNNING IN THE BACKGROUND
+ ================================================================================================*/
+
+// TODO: FIX COMMENTS
+
+
+
 class UserAdminTest {
     /* Test 0: Declaring UserAdmin object
      * Description: UserAdmin object should be running in background on application start.
@@ -38,6 +46,7 @@ class UserAdminTest {
     // Defining additional testing users
     private String basicUser = "basicUser";
     private String testUser = "test";
+    private String duplicateUsername = "duplicateUser";
     private String createBillboardUser = "createBillboardUser";
     private String editBillboardUser = "editBillboardUser";
     private String editScheduleUser = "editScheduleUser";
@@ -49,10 +58,6 @@ class UserAdminTest {
     private ArrayList<Boolean> editBillboardPermission = new ArrayList<>(Arrays.asList(false, true, false, false));
     private ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
     private ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
-
-// TODO: ADD UNIT TESTS
-// TODO: FIX COMMENTS
-// TODO: END CLEAN UP TO REMOVE TEST DATA
 
     /* Test 1: Constructing a UserAdmin and Mock User Table object
      * Description: UserAdmin and MockUserTable Objects should be able to be created
@@ -73,52 +78,6 @@ class UserAdminTest {
         DbUser.addUser(callingUser, dummyHashedSaltedPassword, dummySalt, createBillboard, editBillboard, scheduleBillboard, editUser);
         sessionToken = (String) login(callingUser, dummyHashedPassword); // generate a test token to be used by other functions
     }
-
-    /**================================================================================================
-     * UNIT TESTS - MOCK USER TABLE TO REMOVE SQL/SERVER DEPENDENCY
-     ================================================================================================*/
-
-    /* Test 2: Check User Exists (Helper for other methods in this class) (Pass)
-     * Description: Check that a user exists in the database - helper method
-     * Expected Output: A boolean where true is returned if the user is found in the Mock Table and false otherwise
-     */
-    @Test
-    public void mockUserExists() {
-        assertAll("Check for Existing User",
-                // Ensure that these users don't exist in the Fake DB.
-                ()->assertFalse(MockUserTable.userExistsTest("non-existent")),
-                // Check for case sensitivity
-                ()-> assertFalse(MockUserTable.userExistsTest("callinguser")),
-                // Check for trailing whitespace stripping
-                ()-> assertFalse(MockUserTable.userExistsTest("callingUser ")),
-                // Check for empty
-                ()-> assertFalse(MockUserTable.userExistsTest("")),
-                // Check for valid
-                ()-> assertTrue(MockUserTable.userExistsTest(callingUser))
-        );
-    }
-
-
-    /* Test 3: Create Users (Pass)
-     * Description: Create the corresponding username in the Mock User Table with the hashed password and permissions
-     * and return acknowledgement to Control Panel.
-     * Expected Output: User is created in the DB and returns string "Pass: User Created"
-     */
-    @Test
-    public void mockCreateUser() throws NoSuchAlgorithmException {
-        // Test setup - Ensure the user to be created does not already exist
-        System.out.println("My mock token is :" + mockToken);
-        ServerAcknowledge mockResponse = MockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
-        assertEquals(Success, mockResponse);
-        // Check that the user is actually added to the DB
-        assertTrue(MockUserTable.userExistsTest(callingUser));
-    }
-
-
-
-    /**================================================================================================
-     * INTEGRATED TESTS - REQUIRE SERVER AND DATABASE TO BE RUNNING IN THE BACKGROUND
-     ================================================================================================*/
 
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
@@ -250,7 +209,11 @@ class UserAdminTest {
      */
     @Test
     public void getOtherPermissionsInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
-        // Temporarily change to basic user as the calling user (via the session token)
+        // Ensure basic user exists with desired password
+        if (!UserAdmin.userExists(basicUser)) {
+            System.out.println("The basic user does not exists, so it will be created.");
+            DbUser.addUser(basicUser, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
+        }
         String basicToken = (String) login(basicUser, dummyHashedPassword);
         Object dbResponse =  getPermissions(basicToken, testUser);
         // Check return value
@@ -782,7 +745,6 @@ class UserAdminTest {
     @Test
     public void createUserDuplicateUsername() throws IOException, SQLException, NoSuchAlgorithmException {
       // Test Setup - Add the user to the DB if not already in existence
-      String duplicateUsername = "duplicateUser";
       if (DbUser.retrieveUser(duplicateUsername).isEmpty()) {
           DbUser.addUser(duplicateUsername, dummyHashedSaltedPassword, dummySalt, false, false, false, false);
       }
@@ -790,6 +752,39 @@ class UserAdminTest {
       ServerAcknowledge dbResponse = UserAdmin.createUser(sessionToken, duplicateUsername, dummyHashedPassword, true, true, true, true);
       // Check return value
       assertEquals(PrimaryKeyClash, dbResponse);
+    }
+
+
+    /* Test 36: Clean-Up
+     * Description: Check that all test user data is removed from database.
+     * Expected Output: Database is now fresh and does not contain any fake username from this integrated testing.
+     */
+    @Test
+    public void cleanDatabaseTest() throws IOException, SQLException {
+        if (!DbUser.retrieveUser(callingUser).isEmpty()) {
+            DbUser.deleteUser(callingUser);
+        }
+        if (!DbUser.retrieveUser(basicUser).isEmpty()) {
+            DbUser.deleteUser(basicUser);
+        }
+        if (!DbUser.retrieveUser(testUser).isEmpty()) {
+            DbUser.deleteUser(testUser);
+        }
+        if (!DbUser.retrieveUser(duplicateUsername).isEmpty()) {
+            DbUser.deleteUser(duplicateUsername);
+        }
+        if (!DbUser.retrieveUser(createBillboardUser).isEmpty()) {
+            DbUser.deleteUser(createBillboardUser);
+        }
+        if (!DbUser.retrieveUser(editBillboardUser).isEmpty()) {
+            DbUser.deleteUser(editBillboardUser);
+        }
+        if (!DbUser.retrieveUser(editScheduleUser).isEmpty()) {
+            DbUser.deleteUser(editScheduleUser);
+        }
+        if (!DbUser.retrieveUser(editUserUser).isEmpty()) {
+            DbUser.deleteUser(editUserUser);
+        }
     }
 
 }
