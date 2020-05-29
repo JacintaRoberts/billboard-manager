@@ -6,6 +6,10 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
+/**
+ * Abstract List View designed to create the main structure for containing the User and BB data.
+ * Child classes inherit this structure and are able to update to customise for the specific data employed.
+ */
 public abstract class AbstractListView extends AbstractGenericView
 {
     // *** VARIABLES**
@@ -21,9 +25,15 @@ public abstract class AbstractListView extends AbstractGenericView
     private GridBagConstraints gbc;
     private GridBagConstraints gbc_main;
 
-
-    public AbstractListView(String frame_name)
-    {
+    /**
+     * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
+     * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
+     * createComponents() method. The Profile and Nav Panel are added to allow users
+     * to navigate Home, Back or to their Profile.
+     *
+     * @param frame_name name of JFrame
+     */
+    public AbstractListView(String frame_name) {
         super(frame_name);
     }
 
@@ -46,12 +56,23 @@ public abstract class AbstractListView extends AbstractGenericView
         getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Set List Title which will be displayed on panel.
+     * Used for BB List and User List
+     * @param titleName
+     */
     protected void setListTitle(String titleName)
     {
         titleScreen.setText(titleName);
     }
 
-    // add content dynamically to the list panel. It's design is to associate the added buttons with the correct listeners.
+    /**
+     * Add content dynamically to the list panel. It's design is to associate the added buttons with the correct listeners.
+     * @param contentArray array of content (either BB names or usernames)
+     * @param editMouseListener edit listener
+     * @param deleteMouseListener delete listener
+     * @param viewMouseListener view content listener
+     */
     protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
     {
         int index = 1;
@@ -108,7 +129,7 @@ public abstract class AbstractListView extends AbstractGenericView
     }
 
     /**
-     * Remove everything in list panel upon re-entering screen. Each time the list of content may be different so this
+     * Remove everything upon leaving screen. Each time the list of content may be different so this
      * information should not be persistent whilst hidden.
      */
     @Override
@@ -121,6 +142,9 @@ public abstract class AbstractListView extends AbstractGenericView
         jPanels.clear();
     }
 
+    /**
+     * Show message to user if the BB XMl is invalid
+     */
     protected void showBBInvalid()
     {
         String message = "Invalid Billboard XML File - cannot read.";

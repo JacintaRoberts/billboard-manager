@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for editing users.
+ * View designed for viewing the personal profile of the current user.
  */
 public class UserProfileView extends AbstractUserView
 {
@@ -18,7 +18,6 @@ public class UserProfileView extends AbstractUserView
     private VIEW_TYPE view_type;
     // --- Buttons ---
     private JButton editButton;
-
 
     public UserProfileView()
     {
@@ -30,6 +29,9 @@ public class UserProfileView extends AbstractUserView
         title.setText("PROFILE");
     }
 
+    /**
+     * Add edit button allowing user to edit their own profile
+     */
     protected void addEditButton()
     {
         editButton = new JButton("Edit Profile");
@@ -38,6 +40,9 @@ public class UserProfileView extends AbstractUserView
         navPanel.add(editButton, setGBC(gbc,3,1,1,1));
     }
 
+    /**
+     * Add edit button listener
+     */
     public void addEditButtonListener(MouseListener listener)
     {
         editButton.addMouseListener(listener);

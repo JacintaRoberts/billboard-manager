@@ -6,7 +6,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
-
+/**
+ * View to view the bb options - create/update bb or list bb
+ */
 public class BBMenuView extends AbstractGenericView
 {
     // *** VARIABLES**
@@ -68,11 +70,19 @@ public class BBMenuView extends AbstractGenericView
 
     }
 
+    /**
+     * Add BB create button listener
+     * @param listener listener
+     */
     public void addBBCreateButtonListener(MouseListener listener)
     {
         createBillboardButton.addMouseListener(listener);
     }
 
+    /**
+     * Add BB list listener
+     * @param listener listener
+     */
     public void addBBListListener(MouseListener listener)
     {
         billboardsButton.addMouseListener(listener);

@@ -11,6 +11,9 @@ import java.util.ArrayList;
 
 import static java.lang.Integer.parseInt;
 
+/**
+ * Schedule Update and Create View which allows users to select an existing billboard and create schedule for it.
+ */
 public class ScheduleUpdateView extends AbstractGenericView
 {
     //*** VARIABLES**
@@ -284,6 +287,9 @@ public class ScheduleUpdateView extends AbstractGenericView
         removeScheduleSelection();
     }
 
+    /**
+     * Reset all schedule selections
+     */
     protected void removeScheduleSelection()
     {
         // deselect all weekday checkboxes
@@ -719,6 +725,10 @@ public class ScheduleUpdateView extends AbstractGenericView
         return scheduleInfo;
     }
 
+    /**
+     * Get selected BB name
+     * @return
+     */
     protected String getSelectedBBName()
     {
         return (String) bbNameComboBox.getSelectedItem();

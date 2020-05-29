@@ -7,6 +7,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
+/**
+ * User Menu View so user can Create new user and View list of Users
+ */
 public class UsersMenuView extends AbstractGenericView
 {
     // *** VARIABLES**
@@ -68,7 +71,15 @@ public class UsersMenuView extends AbstractGenericView
         return view_type;
     }
 
+    /**
+     * Add list user button listener
+     * @param listener listener
+     */
     protected void addListUserButtonListener(MouseListener listener) {viewUsersButton.addMouseListener(listener);}
 
+    /**
+     * Add create user button listener
+     * @param listener listener
+     */
     protected void addCreateUserButtonListener(MouseListener listener) {createUsersButton.addMouseListener(listener);}
 }

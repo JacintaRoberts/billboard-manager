@@ -18,13 +18,12 @@ public class LogInView extends AbstractView
     // --- Labels ---
     private JLabel usernameText;
     private JLabel passwordText;
-    private JLabel errorText;
     // --- Fields ---
     private static JTextField usernameField;
     private static JPasswordField passwordField;
     // --- ENUM ---
     private VIEW_TYPE logInType;
-
+    // --- GBC ---
     private GridBagConstraints gbc = new GridBagConstraints();
 
     /**
@@ -48,7 +47,6 @@ public class LogInView extends AbstractView
         passwordField = new JPasswordField();
         passwordField.setPreferredSize(new Dimension(300,60));
         submitButton = new JButton("SUBMIT");
-        errorText = new JLabel("");
 
         gbc.insets = new Insets(5,5,5,5);
 
@@ -56,10 +54,8 @@ public class LogInView extends AbstractView
         loginPanel.add(usernameField, setGBC(gbc,5,1,1,1));
         loginPanel.add(passwordText, setGBC(gbc,1,2,1,1));
         loginPanel.add(passwordField, setGBC(gbc,5,2,1,1));
-        loginPanel.add(errorText);
         loginPanel.add(submitButton, setGBC(gbc,3,3,5,2));
 
-        errorText.setVisible(false);
         getContentPane().add(loginPanel, BorderLayout.CENTER);
     }
 
@@ -81,20 +77,10 @@ public class LogInView extends AbstractView
         return new String(passwordField.getPassword());
     }
 
-    /**
-     * Set error message visibility
-     * @param visible true = visible, false = hidden
-     */
-    public void setErrorVisibility(boolean visible)
-    {
-        errorText.setVisible(visible);
-    }
 
     @Override
     public void update(Subject s)
     {
-        Model model = (Model) s;
-        System.out.println("Update - submit pushed");
     }
 
     /**

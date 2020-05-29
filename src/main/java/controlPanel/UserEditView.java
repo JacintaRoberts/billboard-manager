@@ -35,6 +35,9 @@ public class UserEditView extends AbstractUserView
         title.setText("EDIT USER");
     }
 
+    /**
+     * Add submit button to nav panel
+     */
     protected void addSubmitButton()
     {
         submitButton = new JButton("Submit New Permissions");
@@ -43,6 +46,9 @@ public class UserEditView extends AbstractUserView
         navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
     }
 
+    /**
+     * Add set password button to user panel
+     */
     private void addSetPasswordButton()
     {
         JPanel userPanel = getUserPanel();
@@ -51,6 +57,10 @@ public class UserEditView extends AbstractUserView
         userPanel.add(setPasswordButton, setGBC(gbc,2,5,1,1));
     }
 
+    /**
+     * Get user info provided by user
+     * @return array list of user info
+     */
     protected ArrayList<Object> getUserInfo()
     {
         ArrayList<Object> userInfoArray = new ArrayList<>();
@@ -62,11 +72,19 @@ public class UserEditView extends AbstractUserView
         return userInfoArray;
     }
 
+    /**
+     * Add submit button listener
+     * @param listener listener
+     */
     public void addSubmitButtonListener(MouseListener listener)
     {
         submitButton.addMouseListener(listener);
     }
 
+    /**
+     * Add password button listener
+     * @param listener listener
+     */
     public void addPasswordButtonListener(MouseListener listener)
     {
         setPasswordButton.addMouseListener(listener);

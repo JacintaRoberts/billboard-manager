@@ -5,6 +5,9 @@ import controlPanel.Main.VIEW_TYPE;
 
 import java.awt.*;
 
+/**
+ * Model class contains all data that is persistent during a session.
+ */
 public class Model extends Subject
 {
     // *** VARIABLES**
@@ -72,12 +75,20 @@ public class Model extends Subject
         this.username = username;
     }
 
+    /**
+     * Store session token string
+     * @param sessionToken tocken string to store
+     */
     public void storeSessionToken(String sessionToken)
     {
         System.out.println("MODEL LEVEL: Store session token in model. Session Token: " + sessionToken);
         this.sessionToken = sessionToken;
     }
 
+    /**
+     * Get session token string
+     * @return session token string
+     */
     public String getSessionToken()
     {
         return sessionToken;

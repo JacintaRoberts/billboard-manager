@@ -321,8 +321,6 @@ public class Controller
         model.detachObserver(oldView);
         // clean up gui (remove information)
         oldView.cleanUp();
-        System.out.println("CLEANUP CONTROLLER");
-        System.out.println("CLEANUP CONTROLLER" + oldViewType);
         // set view as hidden
         oldView.setVisible(false);
         // update hashmap with hidden view
