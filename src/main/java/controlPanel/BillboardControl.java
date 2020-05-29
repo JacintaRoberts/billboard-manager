@@ -15,7 +15,7 @@ public class BillboardControl
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param imageData A byte array containing the base64 encoded string for the picture data
+     * @param pictureData A byte array containing the base64 encoded string for the picture data
      * @param  sessionToken A sessionToken generated when logged in
      * @param  billboardName A String which provides Billboard Name to store into database
      * @param  XMLCode A String which provides xmlCode to store into database

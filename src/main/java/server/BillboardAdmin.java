@@ -6,6 +6,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.Scanner;
 
+import static server.Server.*;
 import static server.Server.Permission.*;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.ServerAcknowledge.InvalidToken;
@@ -99,7 +100,7 @@ public class BillboardAdmin {
      * @param  xmlCode A String which provides xmlCode to store into database
      * @return
      */
-    public static Server.ServerAcknowledge createBillboard(String sessionToken, String billboard, String creator, String xmlCode, byte[] pictureData)
+    public static ServerAcknowledge createBillboard(String sessionToken, String billboard, String creator, String xmlCode, byte[] pictureData)
                                                             throws IOException, SQLException {
         String validCharacters = "([A-Za-z0-9-_ ]+)";
 
@@ -207,7 +208,7 @@ public class BillboardAdmin {
      * @param  billboard A String which provides Billboard Name to store into database
      * @return
      */
-    public static Server.ServerAcknowledge deleteBillboard(String sessionToken, String billboard, String requestor) throws IOException, SQLException {
+    public static ServerAcknowledge deleteBillboard(String sessionToken, String billboard, String requestor) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
             // Check if Billboard exists
@@ -437,7 +438,7 @@ public class BillboardAdmin {
      * This method always returns immediately.
      * @return
      */
-    public static Server.ServerAcknowledge deleteAllBillboard() throws IOException, SQLException {
+    public static ServerAcknowledge deleteAllBillboard() throws IOException, SQLException {
         connection = DbConnection.getInstance();
         Statement deleteAllBillboard = connection.createStatement();
         deleteAllBillboard.executeQuery(DELETE_ALL_BILLBOARD_SQL);
