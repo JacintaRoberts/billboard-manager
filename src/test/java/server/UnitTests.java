@@ -10,16 +10,18 @@ import static server.Server.ServerAcknowledge.*;
 
 /**
  * ================================================================================================
- * UNIT TESTS - MOCK USER TABLE TO REMOVE SQL/SERVER DEPENDENCY
+ * UNIT TESTS - MOCK TABLES TO REMOVE SQL/SERVER DEPENDENCY
  * ================================================================================================
  */
 
 class UnitTests {
-    /* Test 0: Declaring MockUserTable Object
+    /* Test 0: Declaring MockTables and MockSessionTokens Object
      * Description: MockUserTable object should be running in background on application start.
      * Expected Output: MockUserTable object and dummy testing data is declared
      */
     MockUserTable mockUserTable;
+    MockBillboardTable mockBillboardTable;
+    MockScheduleTable mockScheduleTable;
     MockSessionTokens mockSessionTokens;
     // Declaration and initialisation of testing variables
     private String mockToken;
@@ -35,7 +37,11 @@ class UnitTests {
     // Defining permissions to be tested
     private ArrayList<Boolean> fullPermissions = new ArrayList<>(Arrays.asList(true, true, true, true));
     private ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
-
+    // Billboard Dummy Data
+    private String billboardName="testBillboard";
+    private String billboardXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><billboard></billboard>";
+    private byte[] pictureData = "f9lMAwAghdLKCgWHgMqOtwXHA2+YIDNzrhIG1JLk/stdh4I4IgYFTgoFv7yn+P7zBWVK5SO9cAAAAAElFTkSuQmCC".getBytes();
+    // Schedule Dummy Data //TODO: ALAN CAN YOU HAVE A LOOK INTO SCHEDULES FOR SOMETHING SIMILAR
 
     /* Test 1: Constructing a MockUserTable and MockSessionTokens object
      * Description: MockUserTable and MockSessionTokens created and some initial testing data populated.
@@ -43,15 +49,22 @@ class UnitTests {
      */
     @BeforeEach
     @Test
-    public void setUpMockUserTable() throws NoSuchAlgorithmException {
+    public void setUpMockTables() throws NoSuchAlgorithmException {
         mockUserTable = new MockUserTable();
+        mockBillboardTable = new MockBillboardTable();
+        mockScheduleTable = new MockScheduleTable();
         mockSessionTokens = new MockSessionTokens();
-        // Populate Mock User Table and Generate Values as required - For Unit Testing
+        // Generate Dummy Data as required
         mockToken = mockSessionTokens.generateTokenTest(callingUser);
         basicToken = mockSessionTokens.generateTokenTest(basicUser);
         mockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser);
     }
 
+    /**
+     * ================================================================================================
+     * USER UNIT TESTS
+     * ================================================================================================
+     */
 
     /* Test 2: Check User Exists (Pass)
      * Description: Check that a user exists in the MockUserTable, checks for case sensitivity, trailing whitespace,
@@ -180,5 +193,37 @@ class UnitTests {
         ServerAcknowledge mockResponse = mockUserTable.deleteUserTest(mockToken, "non-existent");
         assertEquals(NoSuchUser, mockResponse);
     }
+
+    /**
+     * ================================================================================================
+     * BILLBOARD UNIT TESTS
+     * ================================================================================================
+     */
+
+    /* Test 3: Create Billboard (Pass)
+     * Description: Create the corresponding billboard in the MockBillboardTable with the billboard name, creator, xml
+     * and picture data - return server acknowledgement.
+     * Expected Output: Billboard is created in the MockBillboardTable and returns Success server acknowledge.
+     */
+    @Test
+    public void mockCreateBillboard() {
+        ServerAcknowledge mockResponse = mockBillboardTable.createBillboardTest(mockToken, billboardName, callingUser, billboardXML, pictureData);
+        assertEquals(Success, mockResponse);
+        // Check that the user is actually added to the MockUserTable
+        assertTrue(mockBillboardTable.billboardExistsTest(billboardName));
+    }
+
+    //TODO: JACINTA DELETEBILLBOARD
+
+    //TODO: JACINTA GETBILLBOARDINFORMATION
+
+    /**
+     * ================================================================================================
+     * SCHEDULE UNIT TESTS
+     * ================================================================================================
+     */
+
+    //TODO: ALAN CAN YOU HAVE A LOOK AT ADDING SOME SCHEDULE UNIT TESTS?
+
 
 }

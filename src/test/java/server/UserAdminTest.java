@@ -29,7 +29,6 @@ class UserAdminTest {
      * Expected Output: UserAdmin object is declared
      */
     UserAdmin userAdmin;
-    MockUserTable mockUserTable;
     // Declaration and initialisation of testing variables
     private String sessionToken;
     private String mockToken;
@@ -66,7 +65,6 @@ class UserAdminTest {
     @BeforeEach @Test
     public void setUpUserAdmin() throws IOException, SQLException, NoSuchAlgorithmException {
         userAdmin = new UserAdmin();
-        mockUserTable = new MockUserTable();
         // Populate Mock User Table and Generate Values as required - For Unit Testing
         mockToken = MockSessionTokens.generateTokenTest(callingUser);
         MockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);

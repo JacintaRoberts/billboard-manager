@@ -65,12 +65,12 @@ class MockUserTable extends MockDatabase {
      */
     private static ServerAcknowledge addUserTest(String username, ArrayList<Object> values) {
         ServerAcknowledge dbResponse = PrimaryKeyClash;
-        if (!internal.containsKey(username)) { // If username did not contain the username already, there would not be a clash
+        if (!internal.containsKey(username)) { // If did not contain the username already, there would not be a clash
             System.out.println("Mock User Table did not contain " + username + " ...adding the user!");
             internal.put(username, new ArrayList<>());
             dbResponse = Success;
         }
-        internal.get(username).add(values); // Add values to the mock user table
+        internal.get(username).add(values); // Add values to the MockUserTable
         return dbResponse;
     }
 
@@ -78,7 +78,7 @@ class MockUserTable extends MockDatabase {
     /**
      * Mocks retrieval of user from database
      * @param username to be fetched
-     * @return ArrayList
+     * @return ArrayList of User Information
      */
     private static ArrayList<Object> retrieveUserTest(String username) {
         return (ArrayList<Object>) internal.get(username).get(0);
@@ -131,7 +131,7 @@ class MockUserTable extends MockDatabase {
      * Method to delete user from database
      * @param sessionToken Session token from the calling user
      * @param username Username to be deleted
-     * @return String server acknowledgement - 5 are possible
+     * @return Server acknowledgement for Success or Exception Handling
      */
     protected static ServerAcknowledge deleteUserTest(String sessionToken, String username) {
         // Delete user
