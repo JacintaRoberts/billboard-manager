@@ -24,7 +24,8 @@ class UserAdminTest {
     MockUserTable mockUserTable;
     // Declaration and initialisation of testing variables
     private String sessionToken;
-    private String callingUser = "testUser";
+    private String mockToken;
+    private String callingUser = "callingUser";
     private String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
     private String dummyHashedPassword = "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8";// hash("password");
     private String newHashedPassword = "05da7dd57905dca05ed787d6f1be93bc0e4d279bee43553c2e08874f38fda93b"; // hash("newpass");
@@ -62,18 +63,10 @@ class UserAdminTest {
         userAdmin = new UserAdmin();
         mockUserTable = new MockUserTable();
         // Populate Mock User Table and Generate Values as required - For Unit Testing
-        sessionToken = MockSessionTokens.generateMockToken(callingUser);
-        dummyValues = new ArrayList<>();
-        dummyValues.add(dummyHashedSaltedPassword);
-        dummyValues.add(dummySalt);
-        dummyValues.add(createBillboard);
-        dummyValues.add(editBillboard);
-        dummyValues.add(scheduleBillboard);
-        dummyValues.add(editUser);
-        MockUserTable.populateDummyData(callingUser, dummyValues);
+        mockToken = MockSessionTokens.generateTokenTest(callingUser);
+        MockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
 
-        // Populate Database Table - For Integrated Testing
-        // Start with a fresh test user each test
+        // Populate Database Table - For Integrated Testing (Start with a fresh test user each test)
         if (!DbUser.retrieveUser(callingUser).isEmpty()) {
             DbUser.deleteUser(callingUser);
         }
@@ -81,7 +74,10 @@ class UserAdminTest {
         sessionToken = (String) login(callingUser, dummyHashedPassword); // generate a test token to be used by other functions
     }
 
-    // -- UNIT TESTS WITH MOCK USER TABLE -- //
+    /**================================================================================================
+     * UNIT TESTS - MOCK USER TABLE TO REMOVE SQL/SERVER DEPENDENCY
+     ================================================================================================*/
+
     /* Test 2: Check User Exists (Helper for other methods in this class) (Pass)
      * Description: Check that a user exists in the database - helper method
      * Expected Output: A boolean where true is returned if the user is found in the Mock Table and false otherwise
@@ -90,15 +86,15 @@ class UserAdminTest {
     public void mockUserExists() {
         assertAll("Check for Existing User",
                 // Ensure that these users don't exist in the Fake DB.
-                ()-> assertFalse(MockUserTable.userExists("non-existent-user")),
+                ()->assertFalse(MockUserTable.userExistsTest("non-existent")),
                 // Check for case sensitivity
-                ()-> assertFalse(MockUserTable.userExists("testuser")),
+                ()-> assertFalse(MockUserTable.userExistsTest("callinguser")),
                 // Check for trailing whitespace stripping
-                ()-> assertFalse(MockUserTable.userExists("testuser ")),
+                ()-> assertFalse(MockUserTable.userExistsTest("callingUser ")),
                 // Check for empty
-                ()-> assertFalse(MockUserTable.userExists("")),
+                ()-> assertFalse(MockUserTable.userExistsTest("")),
                 // Check for valid
-                ()-> assertTrue(MockUserTable.userExists("testUser"))
+                ()-> assertTrue(MockUserTable.userExistsTest(callingUser))
         );
     }
 
@@ -109,23 +105,20 @@ class UserAdminTest {
      * Expected Output: User is created in the DB and returns string "Pass: User Created"
      */
     @Test
-    public void mockCreateUser() {
+    public void mockCreateUser() throws NoSuchAlgorithmException {
         // Test setup - Ensure the user to be created does not already exist
-        String dummyHashedPassword = "794b258f6780a0606f35aeac1d1b747bc81658f276a12b1fa58009a8a2bcf23c";
-        String sessionToken = MockSessionTokens.generateMockToken(callingUser);
-        ServerAcknowledge dbResponse = mockUserTable.createUser(sessionToken, callingUser, dummyHashedPassword,
-                true, true, true, true);
-        assertEquals(Success, dbResponse);
+        System.out.println("My mock token is :" + mockToken);
+        ServerAcknowledge mockResponse = MockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
+        assertEquals(Success, mockResponse);
         // Check that the user is actually added to the DB
-        assertTrue(MockUserTable.userExists(callingUser));
+        assertTrue(MockUserTable.userExistsTest(callingUser));
     }
-    // -- END UNIT TESTS -- //
-//TODO: THERE IS A LOT OF THESE TO DO...WAITING TO SEE WHAT TIM WANTS US TO DO WITH IT.
 
 
 
-    // -- START INTEGRATED TESTS -- //
-    // -- DEPENDENCY: REQUIRE SERVER TO BE RUNNING IN THE BACKGROUND -- //
+    /**================================================================================================
+     * INTEGRATED TESTS - REQUIRE SERVER AND DATABASE TO BE RUNNING IN THE BACKGROUND
+     ================================================================================================*/
 
     /* Test 2: Check User Exists (Helper for other methods in this class)
      * Description: Check that a user exists in the database - helper method
@@ -798,4 +791,5 @@ class UserAdminTest {
       // Check return value
       assertEquals(PrimaryKeyClash, dbResponse);
     }
+
 }

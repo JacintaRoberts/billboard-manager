@@ -10,7 +10,12 @@ import static helpers.Helpers.bytesToString;
 public class MockSessionTokens {
     private static HashMap<String, ArrayList<Object>> internalTokens = new HashMap<String, ArrayList<Object>>();
 
-    public static String generateMockToken(String username) {
+    /**
+     * Mock method for unit testing generation of session tokens
+     * @param username Username of the successful login
+     * @return String session token
+     */
+    public static String generateTokenTest(String username) {
         LocalDateTime creationTime = LocalDateTime.now(); // Generate current date time
         ArrayList<Object> values = new ArrayList<>();
         values.add(username);
@@ -21,17 +26,21 @@ public class MockSessionTokens {
         rng.nextBytes(sessionTokenBytes);
         String sessionToken = bytesToString(sessionTokenBytes);
         internalTokens.put(sessionToken, values);
+        internalTokens.get(sessionToken).add(values); // Add values to the mock session tokens
+        System.out.println("All session tokens: " + internalTokens.keySet());
+        System.out.println("Newly created token: " + internalTokens.get(sessionToken));
         return sessionToken;
     }
 
 
-    public static boolean validateMockToken(String sessionToken) {
+    /**
+     * Mock method for unit testing validation of session tokens
+     * @param sessionToken String session token to track successful user login
+     * @return Boolean value to test if the session token is valid (true if valid, false otherwise)
+     */
+    public static boolean validateTokenTest(String sessionToken) {
         String username = (String) internalTokens.get(sessionToken).get(0);
-        if (MockUserTable.userExists(username)) {
-            System.out.println("Username exists");
-            return internalTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
-        }
-        System.out.println("Username does not exist");
-        return false; // Return false as the user does not exist anymore
+        System.out.println("Username fetched is : " + username);
+        return internalTokens.containsKey(sessionToken); // Check if there is a valid session token for the existing user
     }
 }

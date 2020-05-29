@@ -61,14 +61,14 @@ public class UserAdmin {
 
     /**
      * Creates User in the database
-     * @param sessionToken
-     * @param username
-     * @param hashedPassword
-     * @param createBillboard
-     * @param editBillboard
-     * @param scheduleBillboard
-     * @param editUser
-     * @return
+     * @param sessionToken  Session token from the calling user
+     * @param username String username to be created
+     * @param hashedPassword User provided hashed password from CP
+     * @param createBillboard Boolean to indicate whether the user to be created has the createBillboard permission
+     * @param editBillboard Boolean to indicate whether the user to be created has the editBillboard permission
+     * @param scheduleBillboard Boolean to indicate whether the user to be created has the scheduleBillboard permission
+     * @param editUser Boolean to indicate whether the user to be created has the editUser permission
+     * @return ServerAcknowledge enum to indicate whether creation was successful or whether an exception occurred.
      * @throws NoSuchAlgorithmException
      * @throws IOException
      * @throws SQLException
