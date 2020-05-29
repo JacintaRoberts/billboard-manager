@@ -109,7 +109,6 @@ public class UserAdmin {
      * @throws SQLException
      * @throws IOException
      */
-    // TODO: THIS IS QUITE A MESSY METHOD AND THE IF STATEMENTS SHOULD BE CLEANED...
     public static ServerAcknowledge deleteUser(String sessionToken, String username) throws SQLException, IOException {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
@@ -155,6 +154,7 @@ public class UserAdmin {
         }
         return false; // Return false as the user does not have the required permission
     }
+
 
     // Helper method to determine whether the retrieved user has the required permission
     private static boolean hasPermission(String username, Permission requiredPermission) throws IOException, SQLException {

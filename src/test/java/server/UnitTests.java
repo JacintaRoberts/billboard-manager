@@ -81,11 +81,50 @@ class UnitTests {
      */
     @Test
     public void mockCreateUser() throws NoSuchAlgorithmException {
-        // Test setup - Ensure the user to be created does not already exist
-        System.out.println("My mock token is :" + mockToken);
         ServerAcknowledge mockResponse = mockUserTable.createUserTest(mockToken, testUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
         assertEquals(Success, mockResponse);
-        // Check that the user is actually added to the DB
+        // Check that the user is actually added to the Mock DB
         assertTrue(mockUserTable.userExistsTest(testUser));
     }
+
+
+    /* Test 4: Get Username From Token (Pass)
+     * Description: Create the corresponding username in the Mock User Table with the hashed password and permissions
+     * and return acknowledgement to Control Panel.
+     * Expected Output: Returns string username of the session token
+     */
+    @Test
+    public void mockGetUsernameFromTokenTest() {
+        String username = mockSessionTokens.getUsernameFromTokenTest(mockToken);
+        assertEquals(callingUser, username);
+    }
+
+
+    /* Test 4: Get Permissions From Token (Pass)
+     * Description: Create the corresponding username in the Mock User Table with the hashed password and permissions
+     * and return acknowledgement to Control Panel.
+     * Expected Output: Returns permissions associated with the username of the session token
+     */
+    @Test
+    public void mockGetPermissionsFromTokenTest() {
+        // Get own permissions
+        ArrayList<Boolean> userPermisisons = (ArrayList<Boolean>) mockSessionTokens.mockGetPermissionsFromTokenTest(mockToken, callingUser);
+        System.out.println(userPermisisons);
+        assertEquals(fullPermissions, userPermisisons);
+    }
+
+
+    /* Test 6: Delete User (Pass)
+     * Description: Create the corresponding username in the Mock User Table with the hashed password and permissions
+     * and return acknowledgement to Control Panel.
+     * Expected Output: User is deleted from MockUserTable and returns success server acknowledgement
+     */
+    @Test
+    public void mockDeleteUser() {
+        ServerAcknowledge mockResponse = mockUserTable.deleteUserTest(mockToken, testUser);
+        assertEquals(Success, mockResponse);
+        // Check that the user is removed from the Mock DB
+        assertFalse(mockUserTable.userExistsTest(testUser));
+    }
+
 }

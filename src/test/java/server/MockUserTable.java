@@ -1,19 +1,23 @@
 package server;
 
+import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import static controlPanel.UserControl.hash;
+import static server.MockSessionTokens.getUsernameFromTokenTest;
 import static server.MockSessionTokens.validateTokenTest;
 import static server.Server.*;
+import static server.Server.Permission.EditUser;
 import static server.Server.ServerAcknowledge.*;
 
 
 /**================================================================================================
  * UNIT TESTS USE THIS MOCK USER TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
-public class MockUserTable extends MockDatabase {
+class MockUserTable extends MockDatabase {
     private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
 
     /**
@@ -28,7 +32,7 @@ public class MockUserTable extends MockDatabase {
      * @return ServerAcknowledge enum to indicate whether creation was successful or whether an exception occurred.
      * @throws NoSuchAlgorithmException if the hashing algorithm requested does not exist
      */
-    public static ServerAcknowledge createUserTest(String sessionToken, String username, String hashedPassword, boolean createBillboard,
+    protected static ServerAcknowledge createUserTest(String sessionToken, String username, String hashedPassword, boolean createBillboard,
                                                    boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException {
         // Check session
         if ( validateTokenTest(sessionToken) ) {
@@ -56,7 +60,7 @@ public class MockUserTable extends MockDatabase {
      * Mock Method to See if a user exists in db
      * @return Boolean value to indicate that the user exists (true) or false otherwise.
      */
-    public static boolean userExistsTest(String username) {
+    protected static boolean userExistsTest(String username) {
         System.out.println("Mock table usernames: " + internal.keySet());
         if (internal.containsKey(username)) { // If username exists in db (case sensitivity and whitespace)
             System.out.println("Mock table contains the username.");
@@ -82,4 +86,83 @@ public class MockUserTable extends MockDatabase {
     }
 
 
+    /**
+     * Mocks retrieval of user from database
+     * @param username to be fetched
+     * @return ArrayList
+     */
+    private static ArrayList<Object> retrieveUserTest(String username) {
+        return (ArrayList<Object>) internal.get(username).get(0);
+    }
+
+
+    /**
+     * Retrieve view users permissions from database and to return it an array list of booleans
+     * @param username Username's permissions to be retrieved from the database
+     * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
+     * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
+     */
+    protected static ArrayList<Boolean> retrieveUserPermissionsFromMockDbTest(String username) {
+        ArrayList<Boolean> userPermissions = new ArrayList<>();
+        ArrayList<Object> retrievedUser = retrieveUserTest(username);
+        System.out.println("Retrieved user details: " + retrievedUser);
+        userPermissions.add(0, (Boolean) retrievedUser.get(2)); // Create billboard
+        userPermissions.add(1, (Boolean) retrievedUser.get(3)); // Edit billboard
+        userPermissions.add(2, (Boolean) retrievedUser.get(4)); // Edit schedule
+        userPermissions.add(3, (Boolean) retrievedUser.get(5)); // Edit User
+        return userPermissions;
+    }
+
+
+    /**
+     * Helper method to determine whether the retrieved user has the required permission
+     */
+    protected static boolean hasPermissionTest(String username, Permission requiredPermission) {
+        ArrayList<Boolean> userPermissions = retrieveUserPermissionsFromMockDbTest(username);
+        switch (requiredPermission) {
+            case CreateBillboard:
+                if (userPermissions.get(0)) return true;
+                return false;
+            case EditBillboard:
+                if (userPermissions.get(1)) return true;
+                return false;
+            case ScheduleBillboard:
+                if (userPermissions.get(2)) return true;
+                return false;
+            case EditUser:
+                if (userPermissions.get(3)) return true;
+                return false;
+            default:
+                return false; // Default to false if permission cannot be identified
+        }
+    }
+
+
+    /**
+     * Method to delete user from database
+     * @param sessionToken Session token from the calling user
+     * @param username Username to be deleted
+     * @return String server acknowledgement - 5 are possible
+     */
+    protected static ServerAcknowledge deleteUserTest(String sessionToken, String username) {
+        // Check session
+        if (validateTokenTest(sessionToken)) {
+            System.out.println("Session is valid");
+            // Delete user
+            if (username.equals(getUsernameFromTokenTest(sessionToken))) {
+                System.out.println("Username provided matches the calling user - cannot delete yourself.");
+                return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
+            } else if (!userExistsTest(username)) {
+                internal.remove(username);
+                System.out.println("Username was deleted: " + username);
+                return Success; // 2. User Deleted - Valid user, token and sufficient permission
+            } else {
+                System.out.println("Requested user to be deleted does not exist, no user was deleted");
+                return NoSuchUser; // 3. Requested user to be deleted does not exist in DB - Valid token and sufficient permission
+            }
+        } else {
+            System.out.println("Session was not valid");
+            return InvalidToken; // 4. Bad session token
+        }
+    }
 }
