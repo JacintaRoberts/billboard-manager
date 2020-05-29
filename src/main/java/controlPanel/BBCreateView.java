@@ -718,7 +718,7 @@ public class BBCreateView extends AbstractGenericView
      * @throws TransformerException
      * @throws ParserConfigurationException
      */
-    protected String browseExportFolder(String filename)
+    protected String browseExportFolder()
     {
         xmlExportPath = xmlFolderChooser.getSelectedFile().getAbsolutePath();
         return xmlExportPath;
