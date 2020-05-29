@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Schedule Week View
+ * Schedule Week View to view the weekly schedule of billboards
  */
 public class ScheduleWeekView extends AbstractGenericView
 {
@@ -26,7 +26,6 @@ public class ScheduleWeekView extends AbstractGenericView
     // --- MISC ---
     int days_in_week;
     ArrayList<String> dayLabels;
-
 
     /**
      * Constructor to create schedule view, use parent constructor.

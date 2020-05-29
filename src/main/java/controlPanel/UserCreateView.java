@@ -9,7 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for editing users.
+ * View designed for creating users.
  */
 public class UserCreateView extends AbstractUserView
 {
@@ -34,6 +34,9 @@ public class UserCreateView extends AbstractUserView
         title.setText("CREATE USER");
     }
 
+    /**
+     * Add submit button to nav panel
+     */
     protected void addSubmitButton()
     {
         submitButton = new JButton("Create User");
@@ -43,6 +46,9 @@ public class UserCreateView extends AbstractUserView
 
     }
 
+    /**
+     * Add set password button to user panel
+     */
     private void addSetPasswordButton()
     {
         JPanel userPanel = getUserPanel();
@@ -51,6 +57,10 @@ public class UserCreateView extends AbstractUserView
         userPanel.add(setPasswordButton, setGBC(gbc,2,5,1,1));
     }
 
+    /**
+     * Get new user info provided by user
+     * @return array list of user info
+     */
     protected ArrayList<Object> getUserInfo()
     {
         ArrayList<Object> userInfoArray = new ArrayList<>();
@@ -63,11 +73,19 @@ public class UserCreateView extends AbstractUserView
         return userInfoArray;
     }
 
+    /**
+     * Add submit button listener
+     * @param listener listener
+     */
     public void addSubmitButtonListener(MouseListener listener)
     {
         submitButton.addMouseListener(listener);
     }
 
+    /**
+     * Add password button listener
+     * @param listener listener
+     */
     public void addPasswordButtonListener(MouseListener listener)
     {
         setPasswordButton.addMouseListener(listener);
@@ -106,6 +124,9 @@ public class UserCreateView extends AbstractUserView
         }
     }
 
+    /**
+     * Show error message to user alerting that not all fields have been provided
+     */
     protected void showErrorMessage()
     {
         String message = "Please fill out all fields.";
@@ -116,7 +137,6 @@ public class UserCreateView extends AbstractUserView
      * Check that user data is valid
      * @return boolean true = valid, false = invalid
      */
-    // TODO: check that user's do not need to have any permissions selected
     protected boolean checkValidUser()
     {
         return !usernameText.getText().equals("") && passwordText!= null;
@@ -130,10 +150,8 @@ public class UserCreateView extends AbstractUserView
     @Override
     void cleanUp()
     {
-        System.out.println("REMOVE USER NAME ");
         setUsername("");
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
         passwordText = null;
     }
-
 }

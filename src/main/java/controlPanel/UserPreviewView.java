@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for editing users.
+ * View designed for viewing users in the database.
  */
 public class UserPreviewView extends AbstractUserView
 {
