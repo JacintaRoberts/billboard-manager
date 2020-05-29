@@ -392,24 +392,38 @@ public class Controller
                     ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
                     if(scheduleMonday.get(0).get(1) != null){
                         schedule.add(scheduleMonday);
+                    } else{
+                        schedule.add(null);
                     }
                     if(scheduleTuesday.get(0).get(1) != null){
                         schedule.add(scheduleTuesday);
+                    } else{
+                        schedule.add(null);
                     }
                     if(scheduleWednesday.get(0).get(1) != null){
                         schedule.add(scheduleWednesday);
+                    } else{
+                        schedule.add(null);
                     }
                     if(scheduleThursday.get(0).get(1) != null){
                         schedule.add(scheduleThursday);
+                    } else{
+                        schedule.add(null);
                     }
                     if(scheduleFriday.get(0).get(1) != null){
                         schedule.add(scheduleFriday);
+                    } else{
+                        schedule.add(null);
                     }
                     if(scheduleSaturday.get(0).get(1) != null){
                         schedule.add(scheduleSaturday);
+                    } else{
+                        schedule.add(null);
                     }
                     if(scheduleSunday.get(0).get(1) != null){
                         schedule.add(scheduleSunday);
+                    } else{
+                        schedule.add(null);
                     }
 
                     scheduleWeekView.populateSchedule(schedule);
@@ -1851,13 +1865,13 @@ public class Controller
                     if (schedule.getScheduleBillboardName() != null)
                     {
                         // TODO: PATRICE / ALAN. This is just showing theres this method here to parse. Not sure why it is not populating the screen
-                        Boolean sunday = Boolean.parseBoolean(schedule.getSunday());
-                        Boolean monday = Boolean.parseBoolean(schedule.getMonday());
-                        Boolean tuesday = Boolean.parseBoolean(schedule.getTuesday());
-                        Boolean wednesday = Boolean.parseBoolean(schedule.getWednesday());
-                        Boolean thursday = Boolean.parseBoolean(schedule.getThursday());
-                        Boolean friday = Boolean.parseBoolean(schedule.getFriday());
-                        Boolean saturday = Boolean.parseBoolean(schedule.getSaturday());
+                        Boolean sunday = schedule.getSunday().equals("1");
+                        Boolean monday = schedule.getMonday().equals("1");
+                        Boolean tuesday = schedule.getTuesday().equals("1");
+                        Boolean wednesday = schedule.getWednesday().equals("1");
+                        Boolean thursday = schedule.getThursday().equals("1");
+                        Boolean friday = schedule.getFriday().equals("1");
+                        Boolean saturday = schedule.getSaturday().equals("1");
                         String startTime = schedule.getStartTime();
                         Integer duration = Integer.parseInt(schedule.getDuration().trim());
                         Integer minRepeat = Integer.parseInt(schedule.getRepeat().trim());
@@ -1874,6 +1888,18 @@ public class Controller
                         } else {
                             recurrenceButton = "minute";
                         }
+
+                        System.out.println("========================");
+                        System.out.println(sunday);
+                        System.out.println("========================");
+                        System.out.println(monday);
+                        System.out.println(tuesday);
+                        System.out.println(wednesday);
+                        System.out.println(thursday);
+                        System.out.println(friday);
+                        System.out.println(saturday);
+                        System.out.println(daysOfWeek);
+                        System.out.println("========================");
 
                         Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
                         Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
