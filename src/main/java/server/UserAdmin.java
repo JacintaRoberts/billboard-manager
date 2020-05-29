@@ -61,14 +61,14 @@ public class UserAdmin {
 
     /**
      * Creates User in the database
-     * @param sessionToken
-     * @param username
-     * @param hashedPassword
-     * @param createBillboard
-     * @param editBillboard
-     * @param scheduleBillboard
-     * @param editUser
-     * @return
+     * @param sessionToken  Session token from the calling user
+     * @param username String username to be created
+     * @param hashedPassword User provided hashed password from CP
+     * @param createBillboard Boolean to indicate whether the user to be created has the createBillboard permission
+     * @param editBillboard Boolean to indicate whether the user to be created has the editBillboard permission
+     * @param scheduleBillboard Boolean to indicate whether the user to be created has the scheduleBillboard permission
+     * @param editUser Boolean to indicate whether the user to be created has the editUser permission
+     * @return ServerAcknowledge enum to indicate whether creation was successful or whether an exception occurred.
      * @throws NoSuchAlgorithmException
      * @throws IOException
      * @throws SQLException
@@ -109,7 +109,6 @@ public class UserAdmin {
      * @throws SQLException
      * @throws IOException
      */
-    // TODO: THIS IS QUITE A MESSY METHOD AND THE IF STATEMENTS SHOULD BE CLEANED...
     public static ServerAcknowledge deleteUser(String sessionToken, String username) throws SQLException, IOException {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
@@ -155,6 +154,7 @@ public class UserAdmin {
         }
         return false; // Return false as the user does not have the required permission
     }
+
 
     // Helper method to determine whether the retrieved user has the required permission
     private static boolean hasPermission(String username, Permission requiredPermission) throws IOException, SQLException {
