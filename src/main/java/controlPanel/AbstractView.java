@@ -6,10 +6,17 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.Font;
 
+/**
+ * Abstract View designed with all key features for all views in the application.
+ * This includes the general design themes, pop up windows and common methods.
+ */
 public abstract class AbstractView extends JFrame implements Observer
 {
-    // *** DECLARE VARIABLES**
 
+    /**
+     * Abstract view constructor with the general look of the application views and the frame set up
+     * @param frame_name
+     */
     public AbstractView(String frame_name)
     {
         // assign frame name
@@ -62,11 +69,6 @@ public abstract class AbstractView extends JFrame implements Observer
         UIManager.put("CheckBox.background", navyColour);
         UIManager.put("CheckBox.foreground",Color.WHITE);
 
-        // scroll pane
-//        UIManager.put("ScrollPane.font", font);
-//        UIManager.put("ScrollPane.background", navyColour);
-//        UIManager.put("ScrollPane.foreground",Color.WHITE);
-
         // table
         Font tableFont = new Font("Garamond",  Font.BOLD, 20);
         UIManager.put("Table.font", tableFont);
@@ -88,6 +90,15 @@ public abstract class AbstractView extends JFrame implements Observer
         setupFrame();
     }
 
+    /**
+     * Set the grid bag constraints based on the gbc and values provided
+     * @param gbc current gbc
+     * @param x x value
+     * @param y y value
+     * @param w width value
+     * @param h height value
+     * @return new gbc
+     */
     protected static GridBagConstraints setGBC(GridBagConstraints gbc, int x, int y, int w, int h)
     {
         gbc.gridx = x;
@@ -110,9 +121,17 @@ public abstract class AbstractView extends JFrame implements Observer
         setLocationRelativeTo(null);
     }
 
+    /**
+     * Abstract Get Enum method designed to return the enum assigned to the view
+     */
     abstract Main.VIEW_TYPE getEnum();
 
+    /**
+     * Remove everything upon leaving screen. This is to ensure data does not persist.
+     */
     abstract void cleanUp();
+
+    //---------------------------------- POP-UP WINDOWS ------------------------------
 
     /**
      * Pop-up window to handle fatal error occurred (if something goes drastically wrong on the server)
@@ -121,7 +140,6 @@ public abstract class AbstractView extends JFrame implements Observer
         String message = "A fatal error has occurred - restart control panel.";
         JOptionPane.showMessageDialog(null, message);
     }
-
 
     /**
      * Pop-up window to handle NoSuchUser ServerAcknowledgement
@@ -138,8 +156,6 @@ public abstract class AbstractView extends JFrame implements Observer
         String message = "Expired token. Please login to your account again.";
         JOptionPane.showMessageDialog(null, message);
     }
-
-    //---------------------------------- POP-UP WINDOWS ------------------------------
 
     /**
      * Pop-up window to handle InsufficientPermission ServerAcknowledgement
@@ -189,7 +205,6 @@ public abstract class AbstractView extends JFrame implements Observer
         JOptionPane.showMessageDialog(null, message);
     }
 
-
     /**
      * Pop-up window to let the user know the logout was successful
      */
@@ -197,7 +212,6 @@ public abstract class AbstractView extends JFrame implements Observer
         String message = "Password was incorrect.";
         JOptionPane.showMessageDialog(null, message);
     }
-
 
     /**
      * Pop-up window to let the user know the user's permissions were successfully updated
@@ -207,7 +221,6 @@ public abstract class AbstractView extends JFrame implements Observer
         JOptionPane.showMessageDialog(null, message);
     }
 
-
     /**
      * Pop-up window to let the user know the user's password was successfully updated
      */
@@ -216,7 +229,6 @@ public abstract class AbstractView extends JFrame implements Observer
         JOptionPane.showMessageDialog(null, message);
     }
 
-
     /**
      * Pop-up window to let the user know that they cannot remove their own edit user permissions
      */
@@ -224,7 +236,6 @@ public abstract class AbstractView extends JFrame implements Observer
         String message = "You cannot remove your own edit user permissions (admin)!";
         JOptionPane.showMessageDialog(null, message);
     }
-
 
     /**
      * Pop-up window to let the user know that they cannot remove their own edit user permissions

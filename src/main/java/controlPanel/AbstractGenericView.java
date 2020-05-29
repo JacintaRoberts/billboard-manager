@@ -6,11 +6,12 @@ import java.awt.event.MouseListener;
 
 /**
  * Abstract Generic View is designed to provide all generic functionality employed by a large portion of views.
- * Functionality includes: adding a Profile, Home and Back Button.
+ * Functionality includes: adding a Profile, Home and Back Button, a navigation and profile panel.
  */
 public abstract class AbstractGenericView extends AbstractView
 {
     // *** DECLARE VARIABLES**
+    // --- Panel ---
     private JPanel profilePanel;
     private JPanel navPanel;
     // --- Buttons ---
@@ -20,14 +21,14 @@ public abstract class AbstractGenericView extends AbstractView
     private JButton logOutButton;
     // --- Labels ---
     private JLabel welcomeText;
-
+    // --- GBC ---
     private GridBagConstraints gbc_profile;
     private GridBagConstraints gbc_nav;
 
     /**
      * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
      * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
-     * createComponents() method which is defined in child classes. The Profile and Nav Panel are added to allow users
+     * createComponents() method. The Profile and Nav Panel are added to allow users
      * to navigate Home, Back or to their Profile.
      * @param frame_name name of JFrame
      */
@@ -35,6 +36,7 @@ public abstract class AbstractGenericView extends AbstractView
     {
         // assign frame name
         super(frame_name);
+        // create gbc for each panel
         gbc_profile = new GridBagConstraints();
         gbc_nav = new GridBagConstraints();
         // add profile and nav panel
@@ -46,13 +48,14 @@ public abstract class AbstractGenericView extends AbstractView
 
     /**
      * Create components for the View, to be implemented by child classes.
+     * This is method is designed to add components to the panels.
      */
     abstract void createComponents();
 
     /**
      *  Add Profile panel
      *  1. Create Profile Panel
-     *  2. Add 'View Profile' Button
+     *  2. Add 'Profile' Button
      *  3. Add Placeholder for Welcome <Name> Text
      *  3. Add Panel to Frame
      */
@@ -135,8 +138,8 @@ public abstract class AbstractGenericView extends AbstractView
     protected void addViewUserButtonListener(MouseListener listener) {profileButton.addMouseListener(listener);}
 
     /**
-     * Get nav panel such that abstract classes can edit
-     * @return
+     * Get nav panel such that child classes can edit/update
+     * @return nav panel
      */
     protected JPanel getNavPanel()
     {
@@ -144,15 +147,17 @@ public abstract class AbstractGenericView extends AbstractView
     }
 
     /**
-     * Get nav panel GBC such that abstract classes can edit
-     * @return
+     * Get nav panel GBC such that child classes can edit/update
+     * @return nav panel gbc
      */
     protected GridBagConstraints getNavGBCPanel()
     {
         return gbc_nav;
     }
 
-    // TODO: ALAN USE THIS CODE TO SHOW CUSTOM MESSAGES TO USER
+    /**
+     * Show message to user where input string is the message displayed
+     */
     protected void showMessageToUser(String message)
     {
         JOptionPane.showMessageDialog(null, message);

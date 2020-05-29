@@ -8,6 +8,10 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.Arrays;
 
+/**
+ * Abstract User View is designed with the key features for dealing with User Data - this includes the Profile,
+ * Edit User, Create User and View User views.
+ */
 public abstract class AbstractUserView extends AbstractGenericView
 {
     // *** DECLARE VARIABLES**
@@ -26,17 +30,19 @@ public abstract class AbstractUserView extends AbstractGenericView
     protected JCheckBox createBBPermission;
     // --- GBC ---
     private GridBagConstraints gbc;
+
     /**
-     * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
+     * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
      * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
-     * createComponents() method which is defined in child classes.
+     * createComponents() method. The Profile and Nav Panel are added to allow users
+     * to navigate Home, Back or to their Profile.
      *
      * @param frame_name name of JFrame
      */
-    public AbstractUserView(String frame_name)
-    {
+    public AbstractUserView(String frame_name) {
         super(frame_name);
     }
+
 
     @Override
     void createComponents()
@@ -75,11 +81,19 @@ public abstract class AbstractUserView extends AbstractGenericView
         getContentPane().add(userDetailsPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Set username text for User
+     * @param username username string
+     */
     protected void setUsername(String username)
     {
         usernameText.setText(username);
     }
 
+    /**
+     * Set permissions of user which requires a boolean array list as input
+     * @param permissions boolean array list for permissions
+     */
     protected void setPermissions(ArrayList<Boolean> permissions)
     {
         editUsersPermission.setSelected(permissions.get(3));
@@ -88,6 +102,10 @@ public abstract class AbstractUserView extends AbstractGenericView
         createBBPermission.setSelected(permissions.get(0));
     }
 
+    /**
+     * Set editable user data fields dependent on child class
+     * @param editable boolean value
+     */
     protected void setEditable(boolean editable)
     {
         usernameText.setEditable(editable);
@@ -97,11 +115,19 @@ public abstract class AbstractUserView extends AbstractGenericView
         createBBPermission.setEnabled(editable);
     }
 
+    /**
+     * Get User Panel for child classes to use
+     * @return user panel
+     */
     protected JPanel getUserPanel()
     {
         return userDetailsPane;
     }
 
+    /**
+     * Get User Panel GBC for child classes to use
+     * @return user panel GBC
+     */
     protected GridBagConstraints getUserPanelGBC()
     {
         return gbc;
