@@ -122,10 +122,12 @@ public class ScheduleWeekView extends AbstractGenericView
         for (ArrayList<ArrayList<String>> daySchedule : schedule)
         {
             DefaultTableModel model = dayScheduleMap.get(dayLabels.get(index));
-            for(ArrayList<String> row : daySchedule)
-            {
-                // add info
-                model.addRow(row.toArray());
+            if (daySchedule != null){
+                for(ArrayList<String> row : daySchedule)
+                {
+                    // add info
+                    model.addRow(row.toArray());
+                }
             }
             index++;
         }
