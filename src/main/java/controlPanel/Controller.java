@@ -1241,8 +1241,7 @@ public class Controller
                     updateView(BB_MENU);
                 } catch (IOException | ClassNotFoundException ex)
                 {
-                    // FIXME: ALAN - NEED TO HANDLE EXCEPTION
-                    ex.printStackTrace();
+                    bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
                 }
             }
             // nothing happens if user did not confirm deletion
@@ -1330,8 +1329,8 @@ public class Controller
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
             // get BB name provided by user
             String BBName = bbCreateView.showBBNameChooser();
-            // FIXME : ALAN REGEX to ensure BB NAME IS VALID - change true below to a regex check
-            boolean validName = true;
+            String validCharacters = "([A-Za-z0-9-_ ]+)";
+            boolean validName = BBName.matches(validCharacters);
             // if valid BB name, then check that
             if (BBName != null)
             {
@@ -1864,7 +1863,6 @@ public class Controller
                     // if schedule exists, proceed
                     if (schedule.getScheduleBillboardName() != null)
                     {
-                        // TODO: PATRICE / ALAN. This is just showing theres this method here to parse. Not sure why it is not populating the screen
                         Boolean sunday = schedule.getSunday().equals("1");
                         Boolean monday = schedule.getMonday().equals("1");
                         Boolean tuesday = schedule.getTuesday().equals("1");
@@ -1976,7 +1974,6 @@ public class Controller
 
                     } catch (IOException | ClassNotFoundException ioException) {
                         scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
-                        // FIXME: ALAN - HANDLE WHAT HAPPENS WHEN FATAL ERROR OCCURS
                     }
                 }
             }
