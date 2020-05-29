@@ -80,7 +80,7 @@ class MockSessionTokens {
                     return InsufficientPermission; // 1. Valid token but insufficient permission
                 }
         } // Do not require permission to view own permissions
-        System.out.println("Session and permission requirements were valid, permissions were retrieved");
+        System.out.println("Session and permission requirements were valid, permissions were retrieved for: " + username);
         return retrieveUserPermissionsFromMockDbTest(username); // 2. Success, permissions returned
     }
 

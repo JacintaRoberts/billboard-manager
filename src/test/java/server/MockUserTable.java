@@ -1,11 +1,7 @@
 package server;
-
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
-
 import static controlPanel.UserControl.hash;
 import static server.MockSessionTokens.getUsernameFromTokenTest;
 import static server.MockSessionTokens.validateTokenTest;
@@ -34,25 +30,18 @@ class MockUserTable extends MockDatabase {
      */
     protected static ServerAcknowledge createUserTest(String sessionToken, String username, String hashedPassword, boolean createBillboard,
                                                    boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException {
-        // Check session
-        if ( validateTokenTest(sessionToken) ) {
-            System.out.println("Session is valid");
-            // Add values to array list
-            ArrayList<Object> values = new ArrayList();
-            String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
-            String dummyHashedSaltedPassword = hash(dummySalt + hashedPassword);// 10330629f1ddb57a41a9c41d19f0d30c53af983bcd7f1d582bdd203c7875b585";
-            values.add(dummyHashedSaltedPassword);
-            values.add(dummySalt);
-            values.add(createBillboard);
-            values.add(editBillboard);
-            values.add(scheduleBillboard);
-            values.add(editUser);
-            ServerAcknowledge dbResponse = addUserTest(username, values); // Update the table
-            return dbResponse; // Return server acknowledgement - either PrimaryKeyClash or Success
-        } else {
-            System.out.println("Session was not valid");
-            return InvalidToken; // Return for bad token server acknowledgement
-        }
+        // Add values to array list
+        ArrayList<Object> values = new ArrayList();
+        String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
+        String dummyHashedSaltedPassword = hash(dummySalt + hashedPassword);// 10330629f1ddb57a41a9c41d19f0d30c53af983bcd7f1d582bdd203c7875b585";
+        values.add(dummyHashedSaltedPassword);
+        values.add(dummySalt);
+        values.add(createBillboard);
+        values.add(editBillboard);
+        values.add(scheduleBillboard);
+        values.add(editUser);
+        ServerAcknowledge mockResponse = addUserTest(username, values); // Update the table
+        return mockResponse; // 1. PrimaryKeyClash or 2. Success
     }
 
 
@@ -145,24 +134,17 @@ class MockUserTable extends MockDatabase {
      * @return String server acknowledgement - 5 are possible
      */
     protected static ServerAcknowledge deleteUserTest(String sessionToken, String username) {
-        // Check session
-        if (validateTokenTest(sessionToken)) {
-            System.out.println("Session is valid");
-            // Delete user
-            if (username.equals(getUsernameFromTokenTest(sessionToken))) {
-                System.out.println("Username provided matches the calling user - cannot delete yourself.");
-                return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
-            } else if (!userExistsTest(username)) {
-                internal.remove(username);
-                System.out.println("Username was deleted: " + username);
-                return Success; // 2. User Deleted - Valid user, token and sufficient permission
-            } else {
-                System.out.println("Requested user to be deleted does not exist, no user was deleted");
-                return NoSuchUser; // 3. Requested user to be deleted does not exist in DB - Valid token and sufficient permission
-            }
+        // Delete user
+        if (username.equals(getUsernameFromTokenTest(sessionToken))) {
+            System.out.println("Username provided matches the calling user - cannot delete yourself.");
+            return CannotDeleteSelf; // 1. Cannot Delete Self Exception - Valid token and sufficient permission
+        } else if (userExistsTest(username)) {
+            internal.remove(username);
+            System.out.println("Username was deleted: " + username);
+            return Success; // 2. User Deleted - Valid user, token and sufficient permission
         } else {
-            System.out.println("Session was not valid");
-            return InvalidToken; // 4. Bad session token
+            System.out.println("Requested user to be deleted does not exist, no user was deleted");
+            return NoSuchUser; // 3. Requested user to be deleted does not exist in DB - Valid token and sufficient permission
         }
     }
 }
