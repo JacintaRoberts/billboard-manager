@@ -111,11 +111,4 @@ public abstract class AbstractUserView extends AbstractGenericView
     public void update(Subject s) {
 
     }
-
-    @Override
-    void cleanUp()
-    {
-        setUsername("");
-        setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
-    }
 }

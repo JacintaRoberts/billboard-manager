@@ -25,7 +25,7 @@ public class UserCreateView extends AbstractUserView
     public UserCreateView()
     {
         super("Create User");
-        view_type = VIEW_TYPE.USER_EDIT;
+        view_type = VIEW_TYPE.USER_CREATE;
         setEditable(true);
         passwordText = null;
         usernameText.setEditable(true);
@@ -130,6 +130,7 @@ public class UserCreateView extends AbstractUserView
     @Override
     void cleanUp()
     {
+        System.out.println("REMOVE USER NAME ");
         setUsername("");
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
         passwordText = null;

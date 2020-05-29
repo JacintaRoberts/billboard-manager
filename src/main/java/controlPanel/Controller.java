@@ -321,6 +321,8 @@ public class Controller
         model.detachObserver(oldView);
         // clean up gui (remove information)
         oldView.cleanUp();
+        System.out.println("CLEANUP CONTROLLER");
+        System.out.println("CLEANUP CONTROLLER" + oldViewType);
         // set view as hidden
         oldView.setVisible(false);
         // update hashmap with hidden view
@@ -1378,10 +1380,6 @@ public class Controller
                                 // User Selected YES to schedule BB
                                 if (optionSelected == 0)
                                 {
-                                    // set BB name selected in schedule view to the newly added BB
-                                    ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-                                    scheduleUpdateView.setBBSelected(bbName);
-                                    views.put(SCHEDULE_UPDATE, scheduleUpdateView);
                                     // navigate to schedule create view
                                     updateView(SCHEDULE_UPDATE);
                                 }
@@ -1443,7 +1441,7 @@ public class Controller
                     ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
                     if (xmlData != null)
                     {
-                        BBViewer.displayBillboard((String)xmlData.get(0), xmlData.get(1));
+                        BBViewer.displayBillboard((String)xmlData.get(0), (byte[]) xmlData.get(1));
                     }
                     else
                     {

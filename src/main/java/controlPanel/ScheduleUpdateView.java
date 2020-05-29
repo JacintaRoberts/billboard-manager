@@ -293,9 +293,11 @@ public class ScheduleUpdateView extends AbstractGenericView
         }
 
         // deselect all recurrence radio buttons
-        hourlyButton.setSelected(true);
+        hourlyButton.setSelected(false);
         minuteButton.setSelected(false);
-        noRepeatButton.setSelected(false);
+        noRepeatButton.setSelected(true);
+        System.out.println("REPEATS " + noRepeatButton.isSelected());
+        System.out.println("REPEATS " + hourlyButton.isSelected());
 
         // remove all minute values from combobox
         repeatMinutesComboBox.removeAllItems();
