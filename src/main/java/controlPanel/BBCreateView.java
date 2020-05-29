@@ -1142,6 +1142,9 @@ public class BBCreateView extends AbstractGenericView
         previewButton.addMouseListener(listener);
     }
 
+    /**
+     * Type of photo provided by user either url or data
+     */
     protected enum PhotoType
     {
         URL,

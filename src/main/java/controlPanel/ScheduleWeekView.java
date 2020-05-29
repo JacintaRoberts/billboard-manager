@@ -11,6 +11,9 @@ import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+/**
+ * Schedule Week View
+ */
 public class ScheduleWeekView extends AbstractGenericView
 {
     //*** VARIABLES**

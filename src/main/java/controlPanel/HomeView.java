@@ -7,6 +7,9 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 import controlPanel.Main.VIEW_TYPE;
 
+/**
+ * Home View to allow users to navigate to other areas of the application.
+ */
 public class HomeView extends AbstractGenericView
 {
     // *** VARIABLES**
@@ -20,7 +23,7 @@ public class HomeView extends AbstractGenericView
     private VIEW_TYPE view_type;
     // --- Label ---
     private JLabel title;
-
+    // --- GBC ---
     private GridBagConstraints gbc;
 
     /**
@@ -66,7 +69,7 @@ public class HomeView extends AbstractGenericView
     }
 
     /**
-     * Update is used when model is updated and view needs to change accordingly!
+     * Update is used when model is updated and view needs to change accordingly
      * @param s The subject that has been updated.
      */
     @Override
@@ -92,6 +95,10 @@ public class HomeView extends AbstractGenericView
         usersButton.addMouseListener(listener);
     }
 
+    /**
+     * Add listener to handle navigation to schedule screen.
+     * @param listener mouse click listener
+     */
     protected void addScheduleButtonListener(MouseListener listener) {scheduleButton.addMouseListener(listener);}
 
 }

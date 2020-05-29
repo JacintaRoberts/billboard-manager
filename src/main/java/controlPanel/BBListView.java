@@ -11,6 +11,9 @@ import java.awt.event.MouseListener;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.ServerAcknowledge.NoSuchUser;
 
+/**
+ * List of Billboards View
+ */
 public class BBListView extends AbstractListView
 {
     // *** VARIABLES**
@@ -41,6 +44,10 @@ public class BBListView extends AbstractListView
         return view_type;
     }
 
+    /**
+     * Show BB Deleted message based on server response
+     * @param serverResponse response from server after trying to delete
+     */
     protected void showBBDeletedMessage(Server.ServerAcknowledge serverResponse)
     {
         String message = "";

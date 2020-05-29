@@ -9,6 +9,10 @@ import java.awt.event.MouseListener;
 import java.time.Month;
 import java.util.ArrayList;
 
+/**
+ * Schedule Menu View designed to allow users to navigate to scheduling functionality including creeating/updating
+ * schedule and viewing the calendar view of the schedule.
+ */
 public class ScheduleMenuView extends AbstractGenericView
 {
     // *** VARIABLES**
@@ -69,11 +73,19 @@ public class ScheduleMenuView extends AbstractGenericView
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Add calendar schedule view listener
+     * @param listener listener
+     */
     protected void addScheduleViewListener(MouseListener listener)
     {
         viewScheduleButton.addMouseListener(listener);
     }
 
+    /**
+     * Add schedule create listener
+     * @param listener listener
+     */
     protected void addScheduleCreateListener(MouseListener listener)
     {
         createScheduleButton.addMouseListener(listener);

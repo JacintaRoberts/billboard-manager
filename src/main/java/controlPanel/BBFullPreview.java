@@ -4,11 +4,14 @@ import viewer.Viewer;
 
 import java.awt.event.*;
 
+/**
+ * Preview the full BB from control panel by extending the viewer class
+ */
 public class BBFullPreview extends Viewer
 {
 
     /**
-     * HIdes the window if the user presses the escape key.
+     * Hides the window if the user presses the escape key.
      */
     @Override
     public void listenEscapeKey() {
