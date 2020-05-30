@@ -2,6 +2,8 @@ package server;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import static controlPanel.UserControl.deleteUserRequest;
 import static controlPanel.UserControl.hash;
 import static server.MockSessionTokens.getUsernameFromTokenTest;
 import static server.MockSessionTokens.validateTokenTest;
@@ -30,18 +32,16 @@ class MockUserTable extends MockDatabase {
      */
     protected static ServerAcknowledge createUserTest(String sessionToken, String username, String hashedPassword, boolean createBillboard,
                                                    boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException {
-        // Add values to array list
-        ArrayList<Object> values = new ArrayList();
-        String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
-        String dummyHashedSaltedPassword = hash(dummySalt + hashedPassword);// 10330629f1ddb57a41a9c41d19f0d30c53af983bcd7f1d582bdd203c7875b585";
-        values.add(dummyHashedSaltedPassword);
-        values.add(dummySalt);
-        values.add(createBillboard);
-        values.add(editBillboard);
-        values.add(scheduleBillboard);
-        values.add(editUser);
-        ServerAcknowledge mockResponse = addUserTest(username, values); // Update the table
-        return mockResponse; // 1. PrimaryKeyClash or 2. Success
+        String callingUsername = getUsernameFromTokenTest(sessionToken);
+        System.out.println("Calling username is: " + callingUsername);
+        if (hasPermissionTest(callingUsername, EditUser)) {
+            System.out.println("Has permissions");
+            // Add values to array list
+            ServerAcknowledge mockResponse = addUserTest(username, hashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser); // Update the table
+            return mockResponse; // 1. PrimaryKeyClash or 2. Success
+        } else {
+            return InsufficientPermission; // 3. Require EditUser Permission to perform this method
+        }
     }
 
 
@@ -63,14 +63,24 @@ class MockUserTable extends MockDatabase {
      * Mock method to add a user to the mock user hashtable
      * @return ServerAcknowledge for Success or PrimaryKeyClash
      */
-    private static ServerAcknowledge addUserTest(String username, ArrayList<Object> values) {
+    protected static ServerAcknowledge addUserTest(String username, String hashedPassword, Boolean createBillboard, Boolean editBillboard, Boolean scheduleBillboard, Boolean editUser) throws NoSuchAlgorithmException {
         ServerAcknowledge dbResponse = PrimaryKeyClash;
         if (!internal.containsKey(username)) { // If did not contain the username already, there would not be a clash
             System.out.println("Mock User Table did not contain " + username + " ...adding the user!");
             internal.put(username, new ArrayList<>());
             dbResponse = Success;
         }
-        internal.get(username).add(values); // Add values to the MockUserTable
+        // Add values to the MockUserTable
+        ArrayList<Object> values = new ArrayList();
+        String dummySalt = "68b91e68f846f39f742b4e8e5155bd6ac5a4238b7fc4360becc02b064c006433";
+        String dummyHashedSaltedPassword = hash(dummySalt + hashedPassword);// 10330629f1ddb57a41a9c41d19f0d30c53af983bcd7f1d582bdd203c7875b585";
+        values.add(dummyHashedSaltedPassword);
+        values.add(dummySalt);
+        values.add(createBillboard);
+        values.add(editBillboard);
+        values.add(scheduleBillboard);
+        values.add(editUser);
+        internal.get(username).add(values);
         return dbResponse;
     }
 
@@ -93,7 +103,12 @@ class MockUserTable extends MockDatabase {
      */
     protected static ArrayList<Boolean> retrieveUserPermissionsFromMockDbTest(String username) {
         ArrayList<Boolean> userPermissions = new ArrayList<>();
-        ArrayList<Object> retrievedUser = retrieveUserTest(username);
+        ArrayList<Object> retrievedUser = null;
+        try {
+            retrievedUser = retrieveUserTest(username);
+        } catch (NullPointerException e) {
+            return userPermissions; // No user to be retrieved
+        }
         System.out.println("Retrieved user details: " + retrievedUser);
         userPermissions.add(0, (Boolean) retrievedUser.get(2)); // Create billboard
         userPermissions.add(1, (Boolean) retrievedUser.get(3)); // Edit billboard

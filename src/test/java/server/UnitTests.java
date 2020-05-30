@@ -5,7 +5,11 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import static org.junit.jupiter.api.Assertions.*;
+import static server.MockSessionTokens.*;
+import static server.MockSessionTokens.validateTokenTest;
+import static server.MockUserTable.hasPermissionTest;
 import static server.Server.*;
+import static server.Server.Permission.*;
 import static server.Server.ServerAcknowledge.*;
 
 /**
@@ -15,7 +19,7 @@ import static server.Server.ServerAcknowledge.*;
  */
 
 class UnitTests {
-    /* Test 0: Declaring MockTables and MockSessionTokens Object
+     /* Test 0: Declaring MockTables and MockSessionTokens Object
      * Description: MockUserTable object should be running in background on application start.
      * Expected Output: MockUserTable object and dummy testing data is declared
      */
@@ -70,7 +74,8 @@ class UnitTests {
         // Generate Dummy Data as required
         mockToken = mockSessionTokens.generateTokenTest(callingUser);
         basicToken = mockSessionTokens.generateTokenTest(basicUser);
-        mockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser);
+        mockUserTable.addUserTest(callingUser, dummyHashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser);
+        mockUserTable.addUserTest(basicUser, dummyHashedPassword, false, false, false, false);
         mockBillboardTable.createBillboardTest(mockToken, billboardName, callingUser, billboardXML, pictureData);
         mockScheduleTable.updateScheduleTest(mockToken, billboardName, startTime, duration, creationDateTime, repeat,
                                                 sunday, monday, tuesday, wednesday, thursday, friday, saturday);
@@ -78,11 +83,62 @@ class UnitTests {
 
     /**
      * ================================================================================================
-     * USER UNIT TESTS
+     * 1. SESSION TOKEN UNIT TESTS
      * ================================================================================================
      */
 
-    /* Test 2: Check User Exists (Pass)
+    /* Test 2: Generate Session Token (Pass)
+     * Description: Check that a session token is able to be generated.
+     * Expected Output: A session token is created in the MockSessionTokens.
+     */
+    @Test
+    public void generateTokenTest() {
+        String testToken = mockSessionTokens.generateTokenTest(testUser);
+        // Check that the session token is added to the MockSessionTokens Hash map
+        assertTrue(validateTokenTest(testToken));
+    }
+
+
+    /* Test 3: Get Username From Token (Pass)
+     * Description: Retrieve the username associated with the SessionToken in the MockSessionTokens.
+     * Expected Output: Returns string username of the session token
+     */
+    @Test
+    public void mockGetUsernameFromTokenTest() {
+        String username = mockSessionTokens.getUsernameFromTokenTest(mockToken);
+        assertEquals(callingUser, username);
+    }
+
+
+    /* Test 4: Check Permission Through Session Token (Pass)
+     * Description: Check that a user's permissions are able to be checked via the session token.
+     * Expected Output: User permissions are able to be retrieved via the session tokens.
+     */
+    @Test
+    public void checkPermissionViaSessionToken() throws NoSuchAlgorithmException {
+        String usernameFromBasicToken = getUsernameFromTokenTest(basicToken);
+        String usernameFromFullToken = getUsernameFromTokenTest(mockToken);
+        assertAll("Check for Basic and Full User Permissions",
+                // Check basic user does not have any of the permissions
+                () -> assertFalse(hasPermissionTest(usernameFromBasicToken, EditUser)),
+                () -> assertFalse(hasPermissionTest(usernameFromBasicToken, CreateBillboard)),
+                () -> assertFalse(hasPermissionTest(usernameFromBasicToken, ScheduleBillboard)),
+                () -> assertFalse(hasPermissionTest(usernameFromBasicToken, EditBillboard)),
+                // Check full user does have all of the permissions
+                () -> assertTrue(hasPermissionTest(usernameFromFullToken, EditUser)),
+                () -> assertTrue(hasPermissionTest(usernameFromFullToken, CreateBillboard)),
+                () -> assertTrue(hasPermissionTest(usernameFromFullToken, ScheduleBillboard)),
+                () -> assertTrue(hasPermissionTest(usernameFromFullToken, EditBillboard))
+        );
+    }
+
+    /**
+     * ================================================================================================
+     * 2. USER-BASED UNIT TESTS
+     * ================================================================================================
+     */
+
+    /* Test 5: Check User Exists (Pass)
      * Description: Check that a user exists in the MockUserTable, checks for case sensitivity, trailing whitespace,
      * empty etc.
      * Expected Output: Boolean true is returned if the user is found in the MockUserTable, and false otherwise.
@@ -90,7 +146,7 @@ class UnitTests {
     @Test
     public void mockUserExists() {
         assertAll("Check for Existing User",
-                // Ensure that these users don't exist in the Fake DB.
+                // Check for non-existent user
                 () -> assertFalse(mockUserTable.userExistsTest("non-existent")),
                 // Check for case sensitivity
                 () -> assertFalse(mockUserTable.userExistsTest("callinguser")),
@@ -104,7 +160,7 @@ class UnitTests {
     }
 
 
-    /* Test 3: Create User (Pass)
+    /* Test 6: Create User (Pass)
      * Description: Create the corresponding username in the MockUserTable with the hashed password and permissions
      * and return server acknowledgement.
      * Expected Output: User is created in the MockUserTable and returns Success server acknowledge.
@@ -118,19 +174,31 @@ class UnitTests {
     }
 
 
-
-    /* Test 4: Get Username From Token (Pass)
-     * Description: Retrieve the username associated with the SessionToken in the MockSessionTokens.
-     * Expected Output: Returns string username of the session token
+    /* Test 7: Create User (Exception Handling)
+     * Description: Attempt to create the corresponding username in the MockUserTable with the hashed password
+     * and permissions, returns server acknowledgement. This tests for the PrimaryKeyClash Exception.
+     * Expected Output: User is not created in the MockUserTable and returns PrimaryKeyClash server acknowledge.
      */
     @Test
-    public void mockGetUsernameFromTokenTest() {
-        String username = mockSessionTokens.getUsernameFromTokenTest(mockToken);
-        assertEquals(callingUser, username);
+    public void mockCreateUserPrimaryKeyClash() throws NoSuchAlgorithmException {
+        ServerAcknowledge mockResponse = mockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
+        assertEquals(PrimaryKeyClash, mockResponse);
     }
 
 
-    /* Test 5: Get Permissions From Token (Pass)
+    /* Test 8: Create User (Exception Handling)
+     * Description: Attempt to create the corresponding username in the MockUserTable with the hashed password
+     * and permissions, returns server acknowledgement. This testS for the InsufficientPermission exception
+     * Expected Output: User is not created in the MockUserTable and returns InsufficientPermission server acknowledge.
+     */
+    @Test
+    public void mockCreateUserInsufficientPermission() throws NoSuchAlgorithmException {
+        ServerAcknowledge mockResponse = mockUserTable.createUserTest(basicToken, testUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
+        assertEquals(InsufficientPermission, mockResponse);
+    }
+
+
+    /* Test 9: Get Permissions (Pass)
      * Description: Retrieve the full user's own permissions associated with the SessionToken in the MockSessionTokens.
      * Expected Output: Returns an ArrayList of Booleans to indicate whether the username associated with the session
      * token has the corresponding permissions.
@@ -143,35 +211,31 @@ class UnitTests {
     }
 
 
-    /* Test 6: Get Other Permissions From Token (Pass)
+    /* Test 10: Get Other Permissions (Pass)
      * Description: Retrieve the basic user's permissions associated with the SessionToken in the MockSessionTokens.
      * Expected Output: Returns an ArrayList of Booleans to indicate whether the username associated with the session
      * token has the corresponding permissions.
      */
     @Test
     public void mockGetOtherPermissionsFromTokenTest() throws NoSuchAlgorithmException {
-        // Test Setup - Ensure the basicUser to be deleted exists in the MockUser Table
-        mockUserTable.createUserTest(mockToken, basicUser, dummyHashedPassword, false, false, false, false);
         ArrayList<Boolean> userPermisisons = (ArrayList<Boolean>) mockSessionTokens.mockGetPermissionsFromTokenTest(mockToken, basicUser);
         assertEquals(basicPermissions, userPermisisons);
     }
 
 
-    /* Test 7: Get Other Permissions From Token (Exception Handling)
+    /* Test 11: Get Other Permissions (Exception Handling)
      * Description: Retrieve the other user's permissions associated with the SessionToken in the MockSessionTokens,
      * calling user is basic and does not have the EditUsers permission required.
      * Expected Output: Returns a Server Acknowledgement for InsufficientPermission.
      */
     @Test
     public void mockGetOtherPermissionsFromTokenTestInsufficientPermission() throws NoSuchAlgorithmException {
-        // Test Setup - Ensure the basicUser to be deleted exists in the MockUser Table
-        mockUserTable.createUserTest(mockToken, basicUser, dummyHashedPassword, false, false, false, false);
         ServerAcknowledge userPermisisons = (ServerAcknowledge) mockSessionTokens.mockGetPermissionsFromTokenTest(basicToken, callingUser);
         assertEquals(InsufficientPermission, userPermisisons);
     }
 
 
-    /* Test 8: Delete User (Pass)
+    /* Test 12: Delete User (Pass)
      * Description: Delete the corresponding username in the Mock User Table and return server acknowledgement
      * Expected Output: User is deleted from MockUserTable and returns Success server acknowledgement.
      */
@@ -186,7 +250,7 @@ class UnitTests {
     }
 
 
-    /* Test 9: Delete User (Exception Handling)
+    /* Test 13: Delete User (Exception Handling)
      * Description: Delete own username in the Mock User Table and return server acknowledgement
      * Expected Output: User is not deleted from MockUserTable and returns CannotDeleteSelf server acknowledgement.
      */
@@ -199,8 +263,7 @@ class UnitTests {
     }
 
 
-
-    /* Test 10: Delete User (Exception Handling)
+    /* Test 14: Delete User (Exception Handling)
      * Description: Delete non-existent username in the Mock User Table and return server acknowledgement
      * Expected Output: User is not deleted from MockUserTable and returns NoSuchUser server acknowledgement.
      */
@@ -210,9 +273,15 @@ class UnitTests {
         assertEquals(NoSuchUser, mockResponse);
     }
 
+    //TODO: LIST USERS
+
+    //TODO: SET PERMISSIONS
+
+    //TODO: SET PASSWORD
+
     /**
      * ================================================================================================
-     * BILLBOARD UNIT TESTS
+     * 3. BILLBOARD-BASED UNIT TESTS
      * ================================================================================================
      */
 //TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
@@ -258,7 +327,7 @@ class UnitTests {
 
     /**
      * ================================================================================================
-     * SCHEDULE UNIT TESTS
+     * 4. SCHEDULE-BASED UNIT TESTS
      * ================================================================================================
      */
 //TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES

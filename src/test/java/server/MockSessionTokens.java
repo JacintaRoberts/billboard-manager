@@ -14,7 +14,7 @@ import static server.Server.Permission.EditUser;
 import static server.Server.ServerAcknowledge.*;
 
 class MockSessionTokens {
-    private static HashMap<String, ArrayList<Object>> internalTokens = new HashMap<String, ArrayList<Object>>();
+    private static HashMap<String, ArrayList<Object>> internalTokens = new HashMap<>();
 
     /**
      * Mock method for unit testing generation of session tokens
