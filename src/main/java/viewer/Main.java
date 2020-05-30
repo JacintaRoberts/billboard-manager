@@ -20,12 +20,12 @@ public class Main implements Runnable {
     public void run() {
         // Get current billboard from schedule and display
         try {
-            // FIXME: Not working
             billboardXML = ScheduleAdmin.getCurrentBillboardXML();
             pictureData = ScheduleAdmin.getCurrentBillboardPictureData();
             System.out.println("XML received from server: " + billboardXML);
             //System.out.println("Picture data received from server: " + pictureData);
-            if (!billboardXML.isEmpty()) {
+            if (!billboardXML.equals("") || billboardXML.isEmpty()) {
+                System.out.println("No billboard...");
                 viewer.displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             } else {
                 System.out.println("Attempting to display billboard...");

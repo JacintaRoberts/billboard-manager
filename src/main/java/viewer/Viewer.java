@@ -980,7 +980,6 @@ public class Viewer extends JFrame {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document xmlDocServer = dBuilder.parse(new InputSource(new StringReader(billboardXML)));
             HashMap<String, String> billboardDataServer = extractDataFromXML(xmlDocServer, pictureData);
-
             // Display the billboard
             formatBillboard(billboardDataServer, pictureData);
 
@@ -992,6 +991,7 @@ public class Viewer extends JFrame {
 
         } catch (ParserConfigurationException | IOException | SAXException e) {
             // Display an error is the xml File couldn't be parsed in
+            System.out.println("Error: Couldn't read in xml file. Reconnecting to server...");
             displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");
         }
 
