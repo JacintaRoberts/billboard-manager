@@ -21,15 +21,17 @@ import static server.Server.ServerAcknowledge.*;
  */
 
 class UnitTests {
-     /* Test 0: Declaring MockTables and MockSessionTokens Object
-     * Description: MockUserTable object should be running in background on application start.
-     * Expected Output: MockUserTable object and dummy testing data is declared
-     */
+    /* Test 0: Declaring MockTables, MockSessionTokens and dummy testing data
+    * Description: MockTables, MockSessionTokens and dummy testing data should be able to be declared.
+    * Expected Output: MockTables (User, Billboard and Schedule), MockSessionTokens and dummy testing data are declared.
+    */
+    // Declaration of MockTables and MockSessionTokens
     MockUserTable mockUserTable;
     MockBillboardTable mockBillboardTable;
     MockScheduleTable mockScheduleTable;
     MockSessionTokens mockSessionTokens;
-    // Declaration and initialisation of testing variables
+    // Declaration and initialisation of Dummy Data
+    // User Dummy Data
     private String mockToken;
     private String basicToken;
     private String callingUser = "callingUser";
@@ -43,7 +45,6 @@ class UnitTests {
     private Boolean editBillboard = true;
     private Boolean scheduleBillboard = true;
     private Boolean editUser = true;
-    // Defining permissions to be tested
     private ArrayList<Boolean> fullPermissions = new ArrayList<>(Arrays.asList(true, true, true, true));
     private ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
     // Billboard Dummy Data
@@ -65,18 +66,21 @@ class UnitTests {
     String saturday = "0";
 
 
-    /* Test 1: Constructing a MockUserTable and MockSessionTokens object
-     * Description: MockUserTable and MockSessionTokens created and some initial testing data populated.
-     * Expected Output: MockUserTable object able to be instantiated and populated with fake data.
+    /* Test 1: Constructing MockTables, MockSessionTokens and populating the MockTables with necessary dummy data
+     * Description: MockUserTable, MockBillboardTable, MockScheduleTable and MockSessionTokens created. Some
+     * data is able to be populated in the MockTables.
+     * Expected Output: MockTables (User, Billboard and Schedules) and the MockSessionTokens are instantiated and
+     * populated with dummy data that is commonly used throughout the tests.
      */
     @BeforeEach
     @Test
     public void setUpMockTables() throws NoSuchAlgorithmException {
+        // Instantiate new MockTables and MockSessionTokens every test
         mockUserTable = new MockUserTable();
         mockBillboardTable = new MockBillboardTable();
         mockScheduleTable = new MockScheduleTable();
         mockSessionTokens = new MockSessionTokens();
-        // Generate Dummy Data as required
+        // Generate Dummy Data
         mockToken = mockSessionTokens.generateTokenTest(callingUser);
         basicToken = mockSessionTokens.generateTokenTest(basicUser);
         mockUserTable.addUserTest(callingUser, dummyHashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser);

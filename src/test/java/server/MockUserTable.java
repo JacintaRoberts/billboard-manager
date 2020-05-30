@@ -18,7 +18,7 @@ import static server.UserAdmin.generateSaltString;
 /**================================================================================================
  * UNIT TESTS USE THIS MOCK USER TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
-class MockUserTable extends MockDatabase {
+class MockUserTable {
     private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
 
     /**

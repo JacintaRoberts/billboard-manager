@@ -13,7 +13,7 @@ import static server.Server.ServerAcknowledge.*;
 /**================================================================================================
  * UNIT TESTS USE THIS MOCK SCHEDULE TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
-class MockScheduleTable extends MockDatabase {
+class MockScheduleTable {
     private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
 
     /**
@@ -76,7 +76,7 @@ class MockScheduleTable extends MockDatabase {
      * @param friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
      * @param saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
      */
-    private static void addScheduleTest(String billboard, String startTime, String duration, String creationDateTime,
+    protected static void addScheduleTest(String billboard, String startTime, String duration, String creationDateTime,
                                         String repeat, String sunday, String monday, String tuesday, String wednesday,
                                         String thursday, String friday, String saturday) {
         // Add values to array list

@@ -15,7 +15,7 @@ import static server.Server.ServerAcknowledge.*;
 /**================================================================================================
  * UNIT TESTS USE THIS MOCK BILLBOARD TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
-class MockBillboardTable extends MockDatabase {
+class MockBillboardTable {
     private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
 
     /**
@@ -48,7 +48,7 @@ class MockBillboardTable extends MockDatabase {
      * Mock method to add a billboard to the mock user hashtable
      * @return ServerAcknowledge for Success or PrimaryKeyClash
      */
-    private static ServerAcknowledge addBillboardTest(String billboard, ArrayList<Object> values) {
+    protected static ServerAcknowledge addBillboardTest(String billboard, ArrayList<Object> values) {
         ServerAcknowledge dbResponse = PrimaryKeyClash;
         if (!internal.containsKey(billboard)) { // If did not contain the billboard already, there would not be a clash
             System.out.println("MockBillboardTable did not contain " + billboard + " ...adding the billboard!");
