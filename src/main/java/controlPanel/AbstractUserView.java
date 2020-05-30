@@ -2,6 +2,7 @@ package controlPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 /**
@@ -27,6 +28,8 @@ public abstract class AbstractUserView extends AbstractGenericView
     protected JCheckBox createBBPermission;
     // --- GBC ---
     private GridBagConstraints gbc;
+    // --- button ---
+    private JButton userMenuButton;
 
     /**
      * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
@@ -36,8 +39,10 @@ public abstract class AbstractUserView extends AbstractGenericView
      *
      * @param frame_name name of JFrame
      */
-    public AbstractUserView(String frame_name) {
+    public AbstractUserView(String frame_name)
+    {
         super(frame_name);
+        addUserMenuButton();
     }
 
 
@@ -78,6 +83,14 @@ public abstract class AbstractUserView extends AbstractGenericView
         scrollPane = new JScrollPane(userDetailsPane);
 
         getContentPane().add(scrollPane, BorderLayout.CENTER);
+    }
+
+    private void addUserMenuButton()
+    {
+        userMenuButton = new JButton("User Menu");
+        JPanel navPanel = getNavPanel();
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(userMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
     /**
@@ -130,6 +143,15 @@ public abstract class AbstractUserView extends AbstractGenericView
     protected GridBagConstraints getUserPanelGBC()
     {
         return gbc;
+    }
+
+    /**
+     * Add listener to navigate to user Menu View
+     * @param listener mouse listener
+     */
+    protected void addUserMenuButton(MouseListener listener)
+    {
+        userMenuButton.addMouseListener(listener);
     }
 
 }

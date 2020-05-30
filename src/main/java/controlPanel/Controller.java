@@ -83,14 +83,13 @@ public class Controller
     //--------------------------------- GENERIC LISTENER --------------------------
     //----------------------- INCL: HOME, BACK, PROFILE BUTTONS -------------------
     /**
-     * addGenericListener is designed to add the Home, Back, Log Out and Profile button to the defined view.
+     * addGenericListener is designed to add the Home, Log Out and Profile button to the defined view.
      * @param view_type GUI view type
      */
     private void addGenericListeners(VIEW_TYPE view_type)
     {
         AbstractGenericView genericView = (AbstractGenericView) views.get(view_type);
         genericView.addHomeButtonListener(new HomeButtonListener());
-        genericView.addBackButtonListener(new BackButtonListener());
         genericView.addViewUserButtonListener(new ProfileButtonListener());
         genericView.addLogOutListener(new LogOutButtonListener());
         views.put(view_type, genericView);
@@ -123,7 +122,6 @@ public class Controller
         homeView.addBillboardsButtonListener(new BBMenuButtonListener());
         homeView.addScheduleButtonListener(new ScheduleButtonListener());
         homeView.addViewUserButtonListener(new ProfileButtonListener());
-        homeView.addBackButtonListener(new BackButtonListener());
         homeView.addLogOutListener(new LogOutButtonListener());
         views.put(HOME, homeView);
     }
@@ -153,8 +151,8 @@ public class Controller
         UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
         // add listeners
         userProfileView.addHomeButtonListener(new HomeButtonListener());
-        userProfileView.addBackButtonListener(new BackButtonListener());
         userProfileView.addEditButtonListener(new EditProfileButtonListener());
+        userProfileView.addUserMenuButton(new UserMenuButtonListener());
         views.put(USER_PROFILE, userProfileView);
     }
 
@@ -166,6 +164,9 @@ public class Controller
     private void addUserListListener()
     {
         addGenericListeners(USER_LIST);
+        UserListView userListView = (UserListView) views.get(USER_LIST);
+        userListView.addUserMenuButton(new UserMenuButtonListener());
+        views.put(USER_LIST, userListView);
     }
 
     /**
@@ -178,6 +179,7 @@ public class Controller
         UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
         userEditView.addSubmitButtonListener(new UserPermissionUpdateListener());
         userEditView.addPasswordButtonListener(new UserPasswordUpdateButtonListener());
+        userEditView.addUserMenuButton(new UserMenuButtonListener());
         views.put(USER_EDIT, userEditView);
     }
 
@@ -188,6 +190,9 @@ public class Controller
     private void addUserPreviewListener()
     {
         addGenericListeners(USER_VIEW);
+        UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
+        userPreviewView.addUserMenuButton(new UserMenuButtonListener());
+        views.put(USER_VIEW, userPreviewView);
     }
 
     /**
@@ -200,6 +205,7 @@ public class Controller
         UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
         userCreateView.addSubmitButtonListener(new UserCreateButtonListener());
         userCreateView.addPasswordButtonListener(new UserPasswordCreateButtonListener());
+        userCreateView.addUserMenuButton(new UserMenuButtonListener());
         views.put(USER_CREATE, userCreateView);
     }
 
@@ -235,6 +241,7 @@ public class Controller
         bbCreateView.addBBNameListener(new NameListener());
         bbCreateView.addBBCreationListener(new BBCreateListener());
         bbCreateView.addBBPreviewListener(new BBPreviewListener());
+        bbCreateView.addBBMenuListener(new BBMenuButtonListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -245,7 +252,10 @@ public class Controller
      */
     private void addBBListListener()
     {
+        BBListView bbListView = (BBListView) views.get(BB_LIST);
         addGenericListeners(BB_LIST);
+        bbListView.addBBMenuListener(new BBMenuButtonListener());
+        views.put(BB_LIST, bbListView);
     }
 
     //---------------------------------- SCHEDULE LISTENER ------------------------------
@@ -270,6 +280,10 @@ public class Controller
     private void addScheduleWeekListener()
     {
         addGenericListeners(SCHEDULE_WEEK);
+        ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+        scheduleWeekView.addScheduleMenuListener(new ScheduleButtonListener());
+        views.put(SCHEDULE_WEEK, scheduleWeekView);
+
     }
 
     /**
@@ -286,6 +300,7 @@ public class Controller
         scheduleUpdateView.addScheduleSubmitButtonListener(new ScheduleSubmitButtonListener());
         scheduleUpdateView.addMinuteRepeatListener(new ScheduleMinuteRepeatListener());
         scheduleUpdateView.addScheduleClearButtonListener(new ScheduleClearButtonListener());
+        scheduleUpdateView.addScheduleMenuListener(new ScheduleButtonListener());
         views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
 
@@ -426,6 +441,7 @@ public class Controller
                 } catch (IOException | ClassNotFoundException e)
                 {
                     scheduleWeekView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
 
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
@@ -448,6 +464,7 @@ public class Controller
                 } catch (IOException | ClassNotFoundException e)
                 {
                     scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
                 break;
 
@@ -517,6 +534,7 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
                 views.put(BB_LIST, bbListView);
                 break;
@@ -554,21 +572,6 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Home button clicked");
             updateView(VIEW_TYPE.HOME);
-        }
-    }
-
-    /**
-     * Listener to handle Back Button mouse clicks.
-     * If user clicks the Back button, user is navigated to previous screen.
-     */
-    private class BackButtonListener extends MouseAdapter
-    {
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            System.out.println("CONTROLLER LEVEL: Back button clicked to go to " + model.getPreviousView());
-            // navigate to previous screen
-            updateView(model.getPreviousView());
         }
     }
 
@@ -1811,6 +1814,7 @@ public class Controller
                     result = ScheduleControl.deleteScheduleRequest(model.getSessionToken(), BBName);
                 } catch (IOException | ClassNotFoundException ex) {
                     scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
                 if(result.equals(Success)){
                     scheduleUpdateView.showMessageToUser("Schedule Removed and Cleared!");

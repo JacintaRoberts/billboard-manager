@@ -17,7 +17,6 @@ public abstract class AbstractGenericView extends AbstractView
     // --- Buttons ---
     private JButton homeButton;
     protected JButton profileButton;
-    private JButton backButton;
     private JButton logOutButton;
     // --- Labels ---
     private JLabel welcomeText;
@@ -88,10 +87,8 @@ public abstract class AbstractGenericView extends AbstractView
         navPanel = new JPanel(new GridBagLayout());
         navPanel.setBackground( new Color(255,87,87));
         homeButton = new JButton("Home");
-        backButton = new JButton("Back");
         gbc_nav.insets = new Insets(5,20,5,20);
         navPanel.add(homeButton, setGBC(gbc_nav,1,1,1,1));
-        navPanel.add(backButton, setGBC(gbc_nav,2,1,1,1));
         getContentPane().add(navPanel, BorderLayout.SOUTH);
     }
 
@@ -102,15 +99,6 @@ public abstract class AbstractGenericView extends AbstractView
     protected void addHomeButtonListener(MouseListener listener)
     {
         homeButton.addMouseListener(listener);
-    }
-
-    /**
-     * Add listener to back button. This listener will navigate user back to previous frame.
-     * @param listener Mouse Click listener
-     */
-    protected void addBackButtonListener(MouseListener listener)
-    {
-        backButton.addMouseListener(listener);
     }
 
     /**

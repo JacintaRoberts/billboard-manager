@@ -5,6 +5,7 @@ import javax.swing.table.DefaultTableModel;
 
 import controlPanel.Main.VIEW_TYPE;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -23,6 +24,8 @@ public class ScheduleWeekView extends AbstractGenericView
     // --- MISC ---
     int days_in_week;
     ArrayList<String> dayLabels;
+    // -- Button --
+    private JButton scheduleMenuButton;
 
     /**
      * Constructor to create schedule view, use parent constructor.
@@ -31,7 +34,7 @@ public class ScheduleWeekView extends AbstractGenericView
     {
         super("Billboard Schedule");
         view_type = VIEW_TYPE.SCHEDULE_WEEK;
-
+        addScheduleMenuButton();
     }
 
     @Override
@@ -86,6 +89,14 @@ public class ScheduleWeekView extends AbstractGenericView
         getContentPane().add(calendarPanel, BorderLayout.CENTER);
     }
 
+    private void addScheduleMenuButton()
+    {
+        scheduleMenuButton = new JButton("Schedule Menu");
+        JPanel navPanel = getNavPanel();
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(scheduleMenuButton, setGBC(gbc, 2,1,1,1));
+    }
+
     /**
      * Clean up the schedule by removing all rows in the models for each day.
      */
@@ -123,5 +134,14 @@ public class ScheduleWeekView extends AbstractGenericView
             }
             index++;
         }
+    }
+
+    /**
+     * Add listener to navigate to schedule Menu View
+     * @param listener mouse listener
+     */
+    protected void addScheduleMenuListener(MouseListener listener)
+    {
+        scheduleMenuButton.addMouseListener(listener);
     }
 }
