@@ -137,94 +137,10 @@ public class ScheduleAdmin {
     }
 
 
-//    /**
-//     * CreateSchedule will create Schedules from existing billboards. Each parameter for the function are fed in through the
-//     * Control Panel and can be assumed to be valid.
-//     * <p>
-//     * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
-//     * gets created successfully.
-//     * @param  billboard A String which provides Billboard Name to store into database
-//     * @param  StartTime A String in format of Java Time to store into database
-//     * @param  Duration A String representing an integer which provides Duration which to store into database
-//     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
-//     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
-//     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
-//     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
-//     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
-//     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
-//     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
-//     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
-//     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
-//     * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
-//     */
-//    public static String createSchedule(String billboard,
-//                                        String StartTime,
-//                                        String Duration,
-//                                        String CreationDateTime,
-//                                        String Repeat,
-//                                        String Sunday,
-//                                        String Monday,
-//                                        String Tuesday,
-//                                        String Wednesday,
-//                                        String Thursday,
-//                                        String Friday,
-//                                        String Saturday) throws IOException, SQLException {
-//        // Set Parameters and Varaibles
-//        String resultMessage;
-//        String validCharacters = "([A-Za-z0-9-_ ]+)";
-//        // First Check Valid Characters for Billboard String
-//        if (billboard.matches(validCharacters)) {
-//            // Get Connection to see if there is a billboard that exists
-//            connection = DbConnection.getInstance();
-//            countFilterSchedule = connection.prepareStatement(COUNT_FILTER_SCHEDULE_SQL);
-//            countFilterSchedule.setString(1,billboard);
-//            ResultSet rs = countFilterSchedule.executeQuery();
-//            rs.next();
-//            String count = rs.getString(1);
-//            if (count.equals("1")){
-//                resultMessage = "Fail: Schedule Already Exists";
-//            }else {
-//                // Get connection to see if Billboard Exists to create a Schedule
-//                connection = DbConnection.getInstance();
-//                BillboardAdmin.countFilterBillboard = connection.prepareStatement(BillboardAdmin.COUNT_FILTER_BILLBOARD_SQL);
-//                BillboardAdmin.countFilterBillboard.setString(1,billboard);
-//                rs = BillboardAdmin.countFilterBillboard.executeQuery();
-//                rs.next();
-//                String count2 = rs.getString(1);
-//                if (count2.equals("0")){
-//                    resultMessage = "Fail: Billboard does not Exist";
-//                } else{
-//                    // Create Schedule to store parameters
-//                    connection = DbConnection.getInstance();
-//                    createSchedule = connection.prepareStatement(STORE_SCHEDULE_SQL);
-//                    createSchedule.setString(1,billboard);
-//                    createSchedule.setString(2,StartTime);
-//                    createSchedule.setString(3,Duration);
-//                    createSchedule.setString(4,CreationDateTime);
-//                    createSchedule.setString(5,Repeat);
-//                    createSchedule.setString(6,Sunday);
-//                    createSchedule.setString(7,Monday);
-//                    createSchedule.setString(8,Tuesday);
-//                    createSchedule.setString(9,Wednesday);
-//                    createSchedule.setString(10,Thursday);
-//                    createSchedule.setString(11,Friday);
-//                    createSchedule.setString(12,Saturday);
-//                    rs = createSchedule.executeQuery();
-//                    resultMessage = "Pass: Billboard Scheduled";
-//                }
-//            }
-//
-//        } else {
-//            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
-//        }
-//        return resultMessage;
-//    }
-//
-
-
     /**
      * This function will delete the Schedule Table Data if required. No checks are done.
      * <p>
+     *
      * This method always returns immediately. It will either return a success message "Schedule Table Dropped", or
      * a fail message if it dosent run
      * @return Delete Schedule Table Data if exists success string.
