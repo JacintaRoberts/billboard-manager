@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for viewing the personal profile of the current user.
+ * User Profile View allows the current user to view personal information. This is a read-only view of the profile
+ * information and extends the AbstractUserView.
  */
 public class UserProfileView extends AbstractUserView
 {
@@ -19,6 +20,10 @@ public class UserProfileView extends AbstractUserView
     // --- Buttons ---
     private JButton editButton;
 
+    /**
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
+     */
     public UserProfileView()
     {
         super("Profile View");
@@ -48,11 +53,18 @@ public class UserProfileView extends AbstractUserView
         editButton.addMouseListener(listener);
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {

@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for editing users.
+ * User Edit View is designed to allow users to edit user accounts (assuming valid permissions). The username cannot be
+ * edited, only the permissions and password can be updated. This extends the AbstractUserView to acquire key elements.
  */
 public class UserEditView extends AbstractUserView
 {
@@ -22,12 +23,15 @@ public class UserEditView extends AbstractUserView
     // --- String ---
     private String passwordText;
 
+    /**
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
+     */
     public UserEditView()
     {
         super("Edit User");
         view_type = VIEW_TYPE.USER_EDIT;
         setEditable(true);
-
         usernameText.setEditable(false);
         passwordText = null;
         addSubmitButton();
@@ -73,6 +77,35 @@ public class UserEditView extends AbstractUserView
     }
 
     /**
+     * Ask user for new password
+     * @return response of user (int)
+     */
+    protected String showNewPasswordInput() throws Exception
+    {
+        String message = "Please enter new password.";
+        String password = JOptionPane.showInputDialog(null, message);
+
+        // null catches when user has canceled set, "" when user has not provided a string but has clicked OK
+        if (password != null)
+        {
+            if (!password.equals(""))
+            {
+                passwordText = password;
+                return passwordText;
+            }
+            else
+            {
+                throw new Exception("Invalid Password Provided");
+            }
+        }
+        else
+        {
+            throw new Exception("No Password Provided. Password not set.");
+        }
+
+    }
+
+    /**
      * Add submit button listener
      * @param listener listener
      */
@@ -101,39 +134,17 @@ public class UserEditView extends AbstractUserView
     }
 
     /**
-     * Ask user for new password
-     * @return response of user (int)
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
      */
-    protected String showNewPasswordInput()
-    {
-        String message = "Please enter new password.";
-        String password = JOptionPane.showInputDialog(null, message);
-
-        // null catches when user has canceled set, "" when user has not provided a string but has clicked OK
-        if (password != null)
-        {
-            if (!password.equals(""))
-            {
-                passwordText = password;
-            }
-            else
-            {
-                passwordText = null;
-            }
-        }
-        else
-        {
-            passwordText = null;
-        }
-        return passwordText;
-    }
-
-
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {

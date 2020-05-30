@@ -5,11 +5,13 @@ import javax.swing.table.DefaultTableModel;
 
 import controlPanel.Main.VIEW_TYPE;
 import java.awt.*;
+import java.awt.event.MouseListener;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Schedule Week View to view the weekly schedule of billboards
+ * Schedule Week View to view the weekly schedule of billboards. This displays the billboard name and creator,
+ * including the start and end time.
  */
 public class ScheduleWeekView extends AbstractGenericView
 {
@@ -23,17 +25,24 @@ public class ScheduleWeekView extends AbstractGenericView
     // --- MISC ---
     int days_in_week;
     ArrayList<String> dayLabels;
+    // -- Button --
+    private JButton scheduleMenuButton;
 
     /**
-     * Constructor to create schedule view, use parent constructor.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public ScheduleWeekView()
     {
         super("Billboard Schedule");
         view_type = VIEW_TYPE.SCHEDULE_WEEK;
-
+        addScheduleMenuButton();
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -87,6 +96,17 @@ public class ScheduleWeekView extends AbstractGenericView
     }
 
     /**
+     * Add Schedule Menu Button to allow user to navigate back to schedule menu view
+     */
+    private void addScheduleMenuButton()
+    {
+        scheduleMenuButton = new JButton("Schedule Menu");
+        JPanel navPanel = getNavPanel();
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(scheduleMenuButton, setGBC(gbc, 2,1,1,1));
+    }
+
+    /**
      * Clean up the schedule by removing all rows in the models for each day.
      */
     @Override
@@ -99,6 +119,10 @@ public class ScheduleWeekView extends AbstractGenericView
         }
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     Main.VIEW_TYPE getEnum() {
         return view_type;
@@ -123,5 +147,14 @@ public class ScheduleWeekView extends AbstractGenericView
             }
             index++;
         }
+    }
+
+    /**
+     * Add listener to navigate to schedule Menu View
+     * @param listener mouse listener
+     */
+    protected void addScheduleMenuListener(MouseListener listener)
+    {
+        scheduleMenuButton.addMouseListener(listener);
     }
 }

@@ -1,6 +1,8 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import server.BillboardList;
 import server.DbBillboard;
 import server.ScheduleInfo;
@@ -8,6 +10,8 @@ import server.Server;
 import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -23,8 +27,9 @@ import static controlPanel.UserControl.logoutRequest;
 import static server.Server.ServerAcknowledge.*;
 
 /**
- * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
- * The constructor stores a reference to the model and views, and adds listeners to the views.
+ * Controller Class is designed to manage user inputs appropriately, sending requests to the Control Classes and
+ * updating the model and GUI views when required. The constructor stores a reference to the model and views, and
+ * adds listeners to each GUI view.
  */
 public class Controller
 {
@@ -83,14 +88,13 @@ public class Controller
     //--------------------------------- GENERIC LISTENER --------------------------
     //----------------------- INCL: HOME, BACK, PROFILE BUTTONS -------------------
     /**
-     * addGenericListener is designed to add the Home, Back, Log Out and Profile button to the defined view.
+     * addGenericListener is designed to add the Home, Log Out and Profile button to the defined view.
      * @param view_type GUI view type
      */
     private void addGenericListeners(VIEW_TYPE view_type)
     {
         AbstractGenericView genericView = (AbstractGenericView) views.get(view_type);
         genericView.addHomeButtonListener(new HomeButtonListener());
-        genericView.addBackButtonListener(new BackButtonListener());
         genericView.addViewUserButtonListener(new ProfileButtonListener());
         genericView.addLogOutListener(new LogOutButtonListener());
         views.put(view_type, genericView);
@@ -123,7 +127,6 @@ public class Controller
         homeView.addBillboardsButtonListener(new BBMenuButtonListener());
         homeView.addScheduleButtonListener(new ScheduleButtonListener());
         homeView.addViewUserButtonListener(new ProfileButtonListener());
-        homeView.addBackButtonListener(new BackButtonListener());
         homeView.addLogOutListener(new LogOutButtonListener());
         views.put(HOME, homeView);
     }
@@ -153,8 +156,8 @@ public class Controller
         UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
         // add listeners
         userProfileView.addHomeButtonListener(new HomeButtonListener());
-        userProfileView.addBackButtonListener(new BackButtonListener());
         userProfileView.addEditButtonListener(new EditProfileButtonListener());
+        userProfileView.addUserMenuButton(new UserMenuButtonListener());
         views.put(USER_PROFILE, userProfileView);
     }
 
@@ -166,6 +169,9 @@ public class Controller
     private void addUserListListener()
     {
         addGenericListeners(USER_LIST);
+        UserListView userListView = (UserListView) views.get(USER_LIST);
+        userListView.addUserMenuButton(new UserMenuButtonListener());
+        views.put(USER_LIST, userListView);
     }
 
     /**
@@ -178,6 +184,7 @@ public class Controller
         UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
         userEditView.addSubmitButtonListener(new UserPermissionUpdateListener());
         userEditView.addPasswordButtonListener(new UserPasswordUpdateButtonListener());
+        userEditView.addUserMenuButton(new UserMenuButtonListener());
         views.put(USER_EDIT, userEditView);
     }
 
@@ -188,6 +195,9 @@ public class Controller
     private void addUserPreviewListener()
     {
         addGenericListeners(USER_VIEW);
+        UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
+        userPreviewView.addUserMenuButton(new UserMenuButtonListener());
+        views.put(USER_VIEW, userPreviewView);
     }
 
     /**
@@ -200,6 +210,7 @@ public class Controller
         UserCreateView userCreateView = (UserCreateView) views.get(USER_CREATE);
         userCreateView.addSubmitButtonListener(new UserCreateButtonListener());
         userCreateView.addPasswordButtonListener(new UserPasswordCreateButtonListener());
+        userCreateView.addUserMenuButton(new UserMenuButtonListener());
         views.put(USER_CREATE, userCreateView);
     }
 
@@ -235,6 +246,7 @@ public class Controller
         bbCreateView.addBBNameListener(new NameListener());
         bbCreateView.addBBCreationListener(new BBCreateListener());
         bbCreateView.addBBPreviewListener(new BBPreviewListener());
+        bbCreateView.addBBMenuListener(new BBMenuButtonListener());
         views.put(BB_CREATE, bbCreateView);
     }
 
@@ -245,7 +257,10 @@ public class Controller
      */
     private void addBBListListener()
     {
+        BBListView bbListView = (BBListView) views.get(BB_LIST);
         addGenericListeners(BB_LIST);
+        bbListView.addBBMenuListener(new BBMenuButtonListener());
+        views.put(BB_LIST, bbListView);
     }
 
     //---------------------------------- SCHEDULE LISTENER ------------------------------
@@ -270,6 +285,10 @@ public class Controller
     private void addScheduleWeekListener()
     {
         addGenericListeners(SCHEDULE_WEEK);
+        ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+        scheduleWeekView.addScheduleMenuListener(new ScheduleButtonListener());
+        views.put(SCHEDULE_WEEK, scheduleWeekView);
+
     }
 
     /**
@@ -286,6 +305,7 @@ public class Controller
         scheduleUpdateView.addScheduleSubmitButtonListener(new ScheduleSubmitButtonListener());
         scheduleUpdateView.addMinuteRepeatListener(new ScheduleMinuteRepeatListener());
         scheduleUpdateView.addScheduleClearButtonListener(new ScheduleClearButtonListener());
+        scheduleUpdateView.addScheduleMenuListener(new ScheduleButtonListener());
         views.put(SCHEDULE_UPDATE, scheduleUpdateView);
     }
 
@@ -426,6 +446,7 @@ public class Controller
                 } catch (IOException | ClassNotFoundException e)
                 {
                     scheduleWeekView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
 
                 views.put(SCHEDULE_WEEK, scheduleWeekView);
@@ -448,6 +469,7 @@ public class Controller
                 } catch (IOException | ClassNotFoundException e)
                 {
                     scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
                 break;
 
@@ -467,7 +489,6 @@ public class Controller
             case USER_EDIT:
                 UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
                 userEditView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_EDIT, userEditView);
                 break;
 
@@ -482,7 +503,6 @@ public class Controller
             case USER_PROFILE:
                 UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
                 userProfileView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_PROFILE, userProfileView);
                 break;
 
@@ -490,7 +510,6 @@ public class Controller
             case USER_VIEW:
                 UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
                 userPreviewView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_VIEW, userPreviewView);
                 break;
 
@@ -517,6 +536,7 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
                 views.put(BB_LIST, bbListView);
                 break;
@@ -525,7 +545,6 @@ public class Controller
             case BB_CREATE:
                 BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
                 bbCreateView.setWelcomeText(model.getUsername());
-                // FIXME: move logic in here?
                 views.put(BB_CREATE, bbCreateView);
                 break;
 
@@ -554,21 +573,6 @@ public class Controller
         {
             System.out.println("CONTROLLER LEVEL: Home button clicked");
             updateView(VIEW_TYPE.HOME);
-        }
-    }
-
-    /**
-     * Listener to handle Back Button mouse clicks.
-     * If user clicks the Back button, user is navigated to previous screen.
-     */
-    private class BackButtonListener extends MouseAdapter
-    {
-        @Override
-        public void mouseClicked(MouseEvent e)
-        {
-            System.out.println("CONTROLLER LEVEL: Back button clicked to go to " + model.getPreviousView());
-            // navigate to previous screen
-            updateView(model.getPreviousView());
         }
     }
 
@@ -614,9 +618,7 @@ public class Controller
         } catch (IOException | ClassNotFoundException ex)
         {
             userView.showFatalError();
-            views.put(viewType, userView);
-            // TODO: JACINTA - FIX ME terminate Control Panel and restart
-            ex.printStackTrace();
+            System.exit(0);
             // If the return is not an array list of booleans, an exception occurred
         } catch ( ClassCastException ex )
         {
@@ -630,7 +632,7 @@ public class Controller
             } else if (serverResponse.equals(NoSuchUser))
             {
                 userView.showNoSuchUserException();
-                updateView(LOGIN);
+                updateView(USERS_MENU);
             }
             views.put(viewType, userView);
         }
@@ -653,9 +655,7 @@ public class Controller
                 System.out.println("Received from server: " + serverResponse);
             } catch (IOException | ClassNotFoundException ex) {
                 logInView.showFatalError();
-                // FIXME: JACINTA - FIX ME - terminate Control Panel and restart
-                // FIXME: need to ensure, if exception raised - code below  (checking serverResponse value )cannot be reached
-                ex.printStackTrace();
+                System.exit(0);
             }
             // If successful, let the user know, navigate to login screen
             if (serverResponse.equals(Success)) {
@@ -716,8 +716,7 @@ public class Controller
                 }
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                 logInView.showFatalError();
-                // TODO: JACINTA - FIX ME - terminate Control Panel and restart
-                ex.printStackTrace();
+                System.exit(0);
             }
         }
     }
@@ -827,8 +826,7 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     userEditView.showFatalError();
-                    // TODO: JACINTA _ FIX ME - terminate Control Panel and restart
-                    ex.printStackTrace();
+                    System.exit(0);
                 }
             }
             // do nothing if user does not confirm user permission update
@@ -874,10 +872,8 @@ public class Controller
                     }
                     catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex)
                     {
-                        ex.printStackTrace();
                         userCreateView.showFatalError();
-                        // TODO: JACINTA  - terminate Control Panel and restart
-                        // TODO - ensure that code cannot reach the below code, if an exception is raised
+                        System.exit(0);
                     }
 
                     // Filter response and display appropriate action
@@ -924,21 +920,17 @@ public class Controller
 
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            // get password from user
-            // FIXME - check if valid??? PATRICE
-            String password = userEditView.showNewPasswordInput();
+            try
+            {
+                // get password from user
+                String password = userEditView.showNewPasswordInput();
 
-            // ask user for confirmation of editing password
-            int response = userEditView.showUserConfirmation();
+                // ask user for confirmation of editing password
+                int response = userEditView.showUserConfirmation();
 
-            // Confirm response of updated password
-            if  (response == 0) {
-                if (password == null)
-                { // Ensure the user enters a valid password (not empty)
-                    userEditView.showEnterValidPasswordException();
-                }
-                else
-                    {
+                // Confirm response of updated password
+                if  (response == 0)
+                {
                     try {
                         ServerAcknowledge serverResponse = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
                         if ( serverResponse.equals(Success) ) {
@@ -953,12 +945,15 @@ public class Controller
                         }
                     } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                         userEditView.showFatalError();
-                        // TODO: JACINTA - FIX ME terminate Control Panel and restart
-                        ex.printStackTrace();
+                        System.exit(0);
                     }
                 }
-                views.put(USER_EDIT, userEditView);
             }
+            catch (Exception ex)
+            {
+                userEditView.showMessageToUser("Unable to Set Password. Reason: " + ex.getMessage());
+            }
+            views.put(USER_EDIT, userEditView);
         }
     }
 
@@ -1001,8 +996,7 @@ public class Controller
                     serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
                 } catch (IOException | ClassNotFoundException ex) {
                     userListView.showFatalError();
-                    // TODO: JACINTA - terminate Control Panel and restart - ensure that code below cannot be reached
-                    ex.printStackTrace();
+                    System.exit(0);
                 }
 
                 // If successful, let the user know
@@ -1046,10 +1040,8 @@ public class Controller
             String usernameSelected = button.getName();
             // set username, password and permissions in User Edit View
             userPreviewView.setUsername(usernameSelected);
-
             // Get user permissions from server
             getUserPermissionsFromServer(userPreviewView, USER_VIEW, usernameSelected);
-
             updateView(USER_VIEW);
         }
     }
@@ -1081,8 +1073,7 @@ public class Controller
         } catch (IOException | ClassNotFoundException ex)
         {
             userListView.showFatalError();
-            // TODO: JACINTA - TO FIX - terminate Control Panel and restart - ensure below code cannot be reached
-            ex.printStackTrace();
+            System.exit(0);
         } catch (ClassCastException ex) {
             // Otherwise, some other error message was returned from the server
             errorMessage = (ServerAcknowledge) serverResponse;
@@ -1092,11 +1083,11 @@ public class Controller
         if (errorMessage.equals(InsufficientPermission)) {
             System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
             userListView.showInsufficientPermissionsException();
-            updateView(USERS_MENU); // FIXME - TEST PATRICE
+            updateView(USERS_MENU);
         } else if (serverResponse.equals(InvalidToken)) {
             System.out.println("CONTROLLER LEVEL - Invalid Token");
             userListView.showInvalidTokenException();
-            updateView(LOGIN); // FIXME - TEST PATRICE
+            updateView(LOGIN);
         } else { // Successful, let the user know and populate with list of users
             userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
         }
@@ -1182,26 +1173,33 @@ public class Controller
             bbCreateView.showBBEditingMessage(BBName);
 
             try {
-                DbBillboard billboardObject = null;
-                billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
                 byte[] pictureData = billboardObject.getPictureData();
-                boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
+                Document document = bbCreateView.getXMLDocument(xmlFile);
+                bbCreateView.setXMLBB(document, pictureData);
 
-                if (valid)
+                if (billboardObject.getServerResponse()== Success)
                 {
                     // set BB Name based on selected button, ensure user cannot update BB name
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
                     updateView(BB_CREATE);
-
-                } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist")){
-                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard(); // FIXME - should this be on listBBView
-                } else if (billboardObject.getServerResponse().equals("Fail: Session was not valid")) {
-                    bbCreateView.showBBInvalidErrorMessageTokenError(); // FIXME - should this be on listBBView
+                } else if (billboardObject.getServerResponse() == BillboardNotExists)
+                {
+                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard();
+                }
+                else if (billboardObject.getServerResponse()== InvalidToken)
+                {
+                    bbCreateView.showBBInvalidErrorMessageTokenError();
+                    updateView(LOGIN);
+                }
+                else
+                {
+                    bbCreateView.showMessageToUser("Error occurred. Reason: " + billboardObject.getServerResponse());
                 }
             }
-            catch (IOException | ClassNotFoundException ex)
+            catch (Exception ex)
             {
                 bbCreateView.showBBInvalidErrorMessage();
             }
@@ -1239,6 +1237,7 @@ public class Controller
                 } catch (IOException | ClassNotFoundException ex)
                 {
                     bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
             }
             // nothing happens if user did not confirm deletion
@@ -1327,10 +1326,11 @@ public class Controller
             // get BB name provided by user
             String BBName = bbCreateView.showBBNameChooser();
             String validCharacters = "([A-Za-z0-9-_ ]+)";
-            boolean validName = BBName.matches(validCharacters);
+
             // if valid BB name, then check that
             if (BBName != null)
             {
+                boolean validName = BBName.matches(validCharacters);
                 if (validName)
                 {
                     bbCreateView.setBBName(BBName);
@@ -1368,52 +1368,47 @@ public class Controller
                 if (confirmCreation == 0)
                 {
                     try {
-                        // get XML string and picture data
-                        ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
-                        // if not null, then create BB
-                        if (BBXMLString != null)
+                        // get xml doc and image data
+                        ArrayList<Object> xmlData = bbCreateView.getBBXMLDocument(true);
+
+                        // convert doc to string
+                        String BBXMLString = bbCreateView.getBBXMLString((Document) xmlData.get(0));
+
+                        // get creator username
+                        String creator = model.getUsername();
+
+                        // create bb
+                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLString, (byte[]) xmlData.get(1));
+
+                        // if successfully created then update response from server
+                        if (createBillboardAction.equals(Success))
                         {
-                            // get creator username
-                            String creator = model.getUsername();
+                            // show scheduling option - asking user if they want to schedule BB now
+                            int optionSelected = bbCreateView.showSchedulingOption();
 
-                            // create bb
-                            ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
-
-                            // if successfully created then update response from server
-                            if (createBillboardAction.equals(Success))
-                            {
-                                // show scheduling option - asking user if they want to schedule BB now
-                                int optionSelected = bbCreateView.showSchedulingOption();
-
-                                // User Selected YES to schedule BB
-                                if (optionSelected == 0)
-                                {
-                                    // navigate to schedule create view
-                                    updateView(SCHEDULE_UPDATE);
-                                }
-                                // User Selected NO to skip scheduling the BB
-                                else
-                                {
-                                    // you have just created a bb message
-                                    bbCreateView.showBBCreatedSuccessMessage();
-                                    // navigate to schedule menu view
-                                    updateView(BB_MENU);
-                                }
+                            // User Selected YES to schedule BB
+                            if (optionSelected == 0) {
+                                // navigate to schedule create view
+                                updateView(SCHEDULE_UPDATE);
                             }
-                            else if (createBillboardAction.equals(BillboardNameExists))
-                            {
-                                String message = "Billboard Name already exists";
-                                bbCreateView.showMessageToUser(message);
+                            // User Selected NO to skip scheduling the BB
+                            else {
+                                // you have just created a bb message
+                                bbCreateView.showBBCreatedSuccessMessage();
+                                // navigate to schedule menu view
+                                updateView(BB_MENU);
                             }
-                            else
-                            {
-                                String message = "Billboard Creation Unsuccessful. Try again.";
-                                bbCreateView.showMessageToUser(message);
-                            }
+                        } else if (createBillboardAction.equals(BillboardNameExists)) {
+                            String message = "Billboard Name already exists";
+                            bbCreateView.showMessageToUser(message);
+                        } else
+                        {
+                            String message = "Billboard Creation Unsuccessful. Try again.";
+                            bbCreateView.showMessageToUser(message);
                         }
-                    } catch ( IOException | ClassNotFoundException ex)
+                    }catch (ParserConfigurationException | TransformerException | ClassNotFoundException | IOException ex)
                     {
-                        String message = "Error encountered whilst creating BB. Exception " + ex.toString();
+                        String message = "Exception Occurred. Please try again. " + ex.getMessage();
                         bbCreateView.showMessageToUser(message);
                     }
                 }
@@ -1439,31 +1434,23 @@ public class Controller
             // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
 
-            // get selected BB
-            String bbName = bbCreateView.getSelectedBBName();
-
             // if bb name and bb design are valid, get info and display on viewer
-            if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
+            if (bbCreateView.checkBBValid())
             {
                 try {
-                    ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
-                    if (xmlData != null)
-                    {
-                        BBViewer.displayBillboard((String)xmlData.get(0), (byte[]) xmlData.get(1));
-                    }
-                    else
-                    {
-                        bbCreateView.showInvalidXMLMessage();
-                    }
+                    ArrayList<Object> xmlData = bbCreateView.getBBXMLDocument(true);
+                    String xmlString = bbCreateView.getBBXMLString((Document)xmlData.get(0));
+                    BBViewer.displayBillboard(xmlString, (byte[]) xmlData.get(1));
                 }
-                catch (IllegalComponentStateException ex)
+                catch (IllegalComponentStateException | TransformerException | ParserConfigurationException ex)
                 {
                     bbCreateView.showInvalidXMLMessage();
                 }
             }
             else
             {
-                bbCreateView.showInvalidXMLMessage();
+                String message = "Ensure to design a valid Billboard with at least 1 feature.";
+                bbCreateView.showMessageToUser(message);
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1547,41 +1534,45 @@ public class Controller
             // get users selection of photo type either url or data
             int response = bbCreateView.photoTypeSelection();
 
-            // URL selected
-            if (response == 0)
+            try
             {
-                // allow user to enter url
-                ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
+                // URL selected
+                if (response == 0)
+                {
+                    // allow user to enter url
+                    String photoURL = bbCreateView.showURLInputMessage();
 
-                // if not null, set photo
-                if (photoData != null)
-                {
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, photoData.get(1));
+                    // if not null, set photo
+                    if (photoURL != null)
+                    {
+                        ArrayList<Object> imageData = null;
+                        imageData = bbCreateView.getImageData(photoURL);
+                        bbCreateView.setPhoto((ImageIcon)imageData.get(0), BBCreateView.PhotoType.URL, imageData.get(1));
+                    }
+                    // else show error
+                    else
+                    {
+                        bbCreateView.showURLErrorMessage();
+                    }
                 }
-                // else show error
-                else
+                // if personal photo selected, allow user to select photo from file
+                else if (response == 1)
                 {
-                    bbCreateView.showURLErrorMessage();
+                    // get photo selected - this contains Image Icon and byte array
+                    ArrayList<Object> photoData = bbCreateView.browsePhotos();
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, (String)photoData.get(1));
+                }
+                // if clear button is selected, remove current image
+                else if (response == 2)
+                {
+                    bbCreateView.setPhoto(null, null, null);
                 }
             }
-            // if personal photo selected, allow user to select photo from file
-            else if (response == 1)
+            catch (Exception ex)
             {
-                // get photo selected - this contains Image Icon and byte array
-                ArrayList<Object> photoData = bbCreateView.browsePhotos();
+                bbCreateView.showMessageToUser("Unable to Import Photo.");
+            }
 
-                // photo data is not null, set photo
-                if (photoData != null)
-                {
-                    String encodedString = Base64.getEncoder().encodeToString((byte[])photoData.get(1));
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, encodedString);
-                }
-            }
-            // if clear button is selected, remove current image
-            else if (response == 2)
-            {
-                bbCreateView.setPhoto(null, null, null);
-            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -1598,12 +1589,16 @@ public class Controller
 
             // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-
-            // browse import returns boolean value to indicate whether import was successful
-            if (!bbCreateView.browseXMLImport())
+            try
             {
-                // show error if unsuccessful import
-                bbCreateView.showInvalidXMLMessage();
+                String path = bbCreateView.browseXMLImport();
+                Document doc = bbCreateView.createXMLDoc(path);
+                byte[] noPictureData = new byte[]{};
+                bbCreateView.setXMLBB(doc, noPictureData);
+            }
+            catch (Exception ex)
+            {
+                bbCreateView.showMessageToUser("Unable to import Billboard XML. Reason: " + ex.getMessage());
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1622,43 +1617,54 @@ public class Controller
             // get BB Create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
 
-            // if BB is valid, show folder selector
-            if (bbCreateView.checkBBValid())
+            try
             {
-                // select folder
-                int value = bbCreateView.showFolderChooserSelector();
-
-                // if selection is approved, proceed
-                if(value == JFileChooser.APPROVE_OPTION)
+                // if BB is valid, show folder selector
+                if (bbCreateView.checkBBValid())
                 {
-                    // get filename from user
-                    String filename = bbCreateView.enterXMLFileName();
+                    // select folder
+                    int value = bbCreateView.showFolderChooserSelector();
 
-                    // if filename is valid, proceed to export xml
-                    if (filename != null || !filename.equals(""))
+                    // if selection is approved, proceed
+                    if(value == JFileChooser.APPROVE_OPTION)
                     {
-                        // get selected folder path
-                        String path = bbCreateView.browseExportFolder();
+                        // get filename from user
+                        String filename = bbCreateView.enterXMLFileName();
 
-                        // success value indicates if xml was successfully converted to file
-                        Boolean success = bbCreateView.xmlExport(path + "\\" + filename + ".xml");
-
-                        // show message to user depending on export status
-                        if (success)
+                        // if filename is valid, proceed to export xml
+                        if (!filename.equals(""))
                         {
+                            // get selected folder path
+                            String path = bbCreateView.browseExportFolder();
+
+                            ArrayList<Object> xmlData = bbCreateView.getBBXMLDocument(false);
+
+                            String absolutePhotoPath = path + "\\" + filename + ".xml";
+
+                            // success value indicates if xml was successfully converted to file
+                            bbCreateView.xmlExport(absolutePhotoPath, (Document) xmlData.get(0));
+
+                            // show success message
                             bbCreateView.showSuccessfulExport();
                         }
                         else
                         {
-                            bbCreateView.showBBInvalidErrorMessage();
+                            String message = "No filename selected - XML not exported.";
+                            JOptionPane.showMessageDialog(null, message);
                         }
                     }
                 }
+                // if BB is invalid, show error message
+                else
+                {
+                    String message = "Invalid Billboard. Please ensure to select at least a title, text or picture.";
+                    JOptionPane.showMessageDialog(null, message);
+                }
             }
-            // if BB is invalid, show error message
-            else
+            catch(ParserConfigurationException | TransformerException ex)
             {
-                bbCreateView.showBBInvalidErrorMessage();
+                String message = "Invalid Action - Exception occurred.";
+                JOptionPane.showMessageDialog(null, message);
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1746,30 +1752,35 @@ public class Controller
             // get button name
             String buttonName = button.getName();
 
-            // switch case to handle radio button selected
-            switch (buttonName) {
-                case "hourly":
-                    // show message
-                    scheduleUpdateView.showHourlyMessage();
-                    scheduleUpdateView.enableMinuteSelector(false);
-                    break;
-                case "no repeats":
-                    // show message
-                    scheduleUpdateView.showNoRepeatMessage();
-                    scheduleUpdateView.enableMinuteSelector(false);
-                    break;
-                case "minute":
-                    // show message
-                    scheduleUpdateView.showMinuteMessage();
-                    scheduleUpdateView.enableMinuteSelector(true);
-                    int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                    // set minute label
-                    if (minuteRepeat > 0)
-                    {
-                        scheduleUpdateView.setMinuteLabel(minuteRepeat);
-                    }
-                    break;
+            try {
+                // switch case to handle radio button selected
+                switch (buttonName) {
+                    case "hourly":
+                        // show message
+                        scheduleUpdateView.showHourlyMessage();
+                        scheduleUpdateView.enableMinuteSelector(false);
+                        break;
+                    case "no repeats":
+                        // show message
+                        scheduleUpdateView.showNoRepeatMessage();
+                        scheduleUpdateView.enableMinuteSelector(false);
+                        break;
+                    case "minute":
+                        // show message
+                        scheduleUpdateView.showMinuteMessage();
+                        scheduleUpdateView.enableMinuteSelector(true);
+                        int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
+                        // set minute label
+                        if (minuteRepeat > 0) {
+                            scheduleUpdateView.setMinuteLabel(minuteRepeat);
+                        }
+                        break;
+                }
             }
+            catch (Exception ex)
+                {
+                    scheduleUpdateView.showMessageToUser("Error Encountered. Reason: " + ex.getMessage());
+                }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }
@@ -1820,6 +1831,7 @@ public class Controller
                     result = ScheduleControl.deleteScheduleRequest(model.getSessionToken(), BBName);
                 } catch (IOException | ClassNotFoundException ex) {
                     scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
                 if(result.equals(Success)){
                     scheduleUpdateView.showMessageToUser("Schedule Removed and Cleared!");
@@ -1888,23 +1900,24 @@ public class Controller
                         } else {
                             recurrenceButton = "minute";
                         }
+                        String AMPMTag = "";
+                        Integer startHour = Integer.parseInt(startTime.substring(0, 2));
 
-                        System.out.println("========================");
-                        System.out.println(sunday);
-                        System.out.println("========================");
-                        System.out.println(monday);
-                        System.out.println(tuesday);
-                        System.out.println(wednesday);
-                        System.out.println(thursday);
-                        System.out.println(friday);
-                        System.out.println(saturday);
-                        System.out.println(daysOfWeek);
-                        System.out.println("========================");
+                        // Check AM PM
+                        if (startHour >= 12){
+                            AMPMTag = "PM";
+                        } else {
+                            AMPMTag = "AM";
+                        }
 
-                        Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
-                        Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+                        // Change hour to 12hour format
+                        if (startHour > 12){
+                            startHour -= 12;
+                        }
 
-                        scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                        Integer startMin = Integer.parseInt(startTime.substring(3, 5));
+
+                        scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat, AMPMTag);
                     }
                     else
                     {
@@ -1976,6 +1989,7 @@ public class Controller
 
                     } catch (IOException | ClassNotFoundException ioException) {
                         scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                        System.exit(0);
                     }
                 }
             }

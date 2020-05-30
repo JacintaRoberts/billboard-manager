@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import static java.lang.Integer.parseInt;
 
 /**
- * Schedule Update and Create View which allows users to select an existing billboard and create schedule for it.
+ * Schedule Create View allows users to select an existing billboard and create or update the schedule. Users can set
+ * the start and end time, days scheduled and the recurrence setting (I.e. minutes, hourly, no repetition).
+ * Users can also clear the existing schedule.
  */
 public class ScheduleUpdateView extends AbstractGenericView
 {
@@ -39,9 +41,9 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JComboBox<Integer> repeatMinutesComboBox;
     private JComboBox<String> bbNameComboBox;
     private JComboBox<Integer> startHourSelector;
-    private JComboBox<Integer> startMinSelector;
+    private JComboBox<String> startMinSelector;
     private JComboBox<Integer> endHourSelector;
-    private JComboBox<Integer> endMinSelector;
+    private JComboBox<String> endMinSelector;
     private JComboBox<String> startAMPMSelector;
     private JComboBox<String> endAMPMSelector;
 
@@ -60,6 +62,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JRadioButton noRepeatButton;
     private JButton submitButton;
     private JButton clearScheduleButton;
+    private JButton scheduleMenuButton;
 
     // --- Group ---
     private ButtonGroup group;
@@ -77,7 +80,8 @@ public class ScheduleUpdateView extends AbstractGenericView
     private VIEW_TYPE view_type;
 
     /**
-     * Constructor to create/update schedule view, use parent constructor.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public ScheduleUpdateView()
     {
@@ -85,6 +89,10 @@ public class ScheduleUpdateView extends AbstractGenericView
         view_type = VIEW_TYPE.SCHEDULE_UPDATE;
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -263,20 +271,25 @@ public class ScheduleUpdateView extends AbstractGenericView
     }
 
     /**
-     * Add a submit and delete schedule button to the Navigation Panel
+     * Add a submit, clear and menu schedule button to the Navigation Panel
      */
     private void createAdditionalButtons()
     {
         submitButton = new JButton("Submit");
         clearScheduleButton = new JButton("Clear Schedule");
+        scheduleMenuButton = new JButton("Schedule Menu");
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc_nav = getNavGBCPanel();
         navPanel.add(submitButton, setGBC(gbc_nav, 3,1,1,1));
         navPanel.add(clearScheduleButton, setGBC(gbc_nav, 4,1,1,1));
+        navPanel.add(scheduleMenuButton, setGBC(gbc_nav, 2,1,1,1));
     }
 
     // ####################### CLEANUP, ENUM & UPDATE #######################
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {
@@ -286,7 +299,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     }
 
     /**
-     * Reset all schedule selections
+     * Reset all schedule selections including time start and end, days and radio buttons for recurrence
      */
     protected void removeScheduleSelection()
     {
@@ -300,8 +313,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         hourlyButton.setSelected(false);
         minuteButton.setSelected(false);
         noRepeatButton.setSelected(true);
-        System.out.println("REPEATS " + noRepeatButton.isSelected());
-        System.out.println("REPEATS " + hourlyButton.isSelected());
 
         // remove all minute values from combobox
         repeatMinutesComboBox.removeAllItems();
@@ -314,6 +325,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // reset time selectors
         endHourSelector.setSelectedItem(1);
+        System.out.println("end hour " + endHourSelector.getSelectedItem());
         endMinSelector.setSelectedItem("00");
         startHourSelector.setSelectedItem(1);
         startMinSelector.setSelectedItem("00");
@@ -321,6 +333,10 @@ public class ScheduleUpdateView extends AbstractGenericView
         endAMPMSelector.setSelectedItem("AM");
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
@@ -470,13 +486,12 @@ public class ScheduleUpdateView extends AbstractGenericView
      * Set values from the server on the GUI. These values include: the selected days, start hour, start min,
      * duration, button selected, minute repetition
      */
-    protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat)
+    protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat, String AMPMtag)
     {
         // ------------- SELECTED DAYS -------------
         // set selected days on the GUI
         for (int dayIndex = 0; dayIndex < selectedDays.size() ;dayIndex++)
         {
-            System.out.println(selectedDays.get(dayIndex));
             weekdayArray.get(dayIndex).setSelected(selectedDays.get(dayIndex));
         }
 
@@ -493,9 +508,25 @@ public class ScheduleUpdateView extends AbstractGenericView
         int endHour = startHour + BBduration/60;
         int endMin = startMin +  BBduration%60;
 
+        // EDGE CASE ARRANGEMENTS
+        if (endHour > 12){
+            endHour -= 12;
+            endAMPMSelector.setSelectedItem("PM");
+        }
+        if (endMin >= 60){
+            endMin -= 60;
+            endHour += 1;
+        }
+
         // set end time
         endHourSelector.getModel().setSelectedItem(endHour);
         endMinSelector.getModel().setSelectedItem(String.valueOf(endMin));
+
+        // set AM PM tags
+        if (AMPMtag.equals("PM")){
+            startAMPMSelector.setSelectedItem("PM");
+            endAMPMSelector.setSelectedItem("PM");
+        }
 
         // ------------- RECURRENCE -------------
         // set radio button selection for recurrence
@@ -524,14 +555,6 @@ public class ScheduleUpdateView extends AbstractGenericView
                 enableMinuteSelector(false);
                 break;
         }
-    }
-
-    /**
-     * Set the duration of the BB
-     */
-    protected void setBBSelected(String bbName)
-    {
-        bbNameComboBox.setSelectedItem(bbName);
     }
 
     /**
@@ -634,7 +657,8 @@ public class ScheduleUpdateView extends AbstractGenericView
         // calculate duration in minutes by transforming hourDifference to minutes (multiply by 60)
         else
         {
-            if (startHour == 12 && endHour != 12) {
+            if (startHour == 12 && endHour != 12)
+            {
                 hourDifference = hourDifference + 12;
                 duration = hourDifference*60 + minDifference;
             }
@@ -648,7 +672,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         // create error if duration is equal to or less than 0, disable minute selector
         if (duration <= 0)
         {
-            System.out.println("Set duration to invalid");
             durationTimeLabel.setText("Invalid");
             enableMinuteSelector(false);
             minutesLabel.setText("Invalid Time selected.");
@@ -656,7 +679,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         // set duration label if valid time, enable minute selector
         else
         {
-            System.out.println("Set duration to correct time");
             durationTimeLabel.setText(duration/60 + " hrs " + duration%60 + " mins. Total Minutes: " + duration);
             enableMinuteSelector(true);
         }
@@ -704,6 +726,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // get times selected
         Integer startHour = (Integer)startHourSelector.getSelectedItem();
         String startMin = (String)startMinSelector.getSelectedItem();
+        String startAM_PM = (String) startAMPMSelector.getSelectedItem();
 
         // selected days
         ArrayList<Boolean> daysOfWeek = new ArrayList<>();
@@ -742,6 +765,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         scheduleInfo.add(duration);
         scheduleInfo.add(recurrenceButton);
         scheduleInfo.add(min_repeat);
+        scheduleInfo.add(startAM_PM);
 
         // return schedule information
         return scheduleInfo;
@@ -758,14 +782,13 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Get the number of minutes the bb will be repeatedly scheduled.
-     * Returning -1 if invalid, or the valid minute value in int format
+     * @throws Exception minutes not set exception
      */
-    protected int getMinuteRepeat()
-    {
+    protected int getMinuteRepeat() throws Exception {
         // if nothing has been selected, return an invalid minute number -1
         if (repeatMinutesComboBox.getSelectedItem() == null)
         {
-            return -1;
+            throw new Exception("Minutes not selected.");
         }
         // return selected minutes if valid
         else
@@ -835,5 +858,14 @@ public class ScheduleUpdateView extends AbstractGenericView
     protected void addScheduleClearButtonListener(MouseAdapter listener)
     {
         clearScheduleButton.addMouseListener(listener);
+    }
+
+    /**
+     * Add listener to navigate to schedule Menu View
+     * @param listener mouse listener
+     */
+    protected void addScheduleMenuListener(MouseListener listener)
+    {
+        scheduleMenuButton.addMouseListener(listener);
     }
 }

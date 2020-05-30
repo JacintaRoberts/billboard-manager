@@ -6,7 +6,6 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import server.ScheduleAdmin;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -22,14 +21,10 @@ import java.io.IOException;
 import java.io.StringReader;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 
 public class Viewer extends JFrame {
@@ -991,7 +986,7 @@ public class Viewer extends JFrame {
 
         } catch (ParserConfigurationException | IOException | SAXException e) {
             // Display an error is the xml File couldn't be parsed in
-            System.out.println("Error: Couldn't read in xml file. Reconnecting to server...");
+            System.out.println("Couldn't read in xml file...");
             displaySpecialMessage("Error: Couldn't read in xml file. Reconnecting to server...");
         }
 
