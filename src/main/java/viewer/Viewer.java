@@ -323,7 +323,8 @@ public class Viewer extends JFrame {
      */
     public int getMessageFontSize(String message, double maxStringHeight) {
         // Get the current font size and initialise the variable to return
-        int currentFontSize = messageLabel.getFont().getSize();
+        int currentFontSize = 12;
+//        int currentFontSize = messageLabel.getFont().getSize();
         int fontSize = currentFontSize;
 
         // Horizontal spacing on borders of message
@@ -345,6 +346,11 @@ public class Viewer extends JFrame {
             stringWidth = fontMetrics.stringWidth(message);
             stringHeight = fontMetrics.getLeading() + fontMetrics.getMaxAscent() + fontMetrics.getMaxDescent();
 
+            // Break if the string width is too large
+            if (stringWidth >= (SCREEN_WIDTH - screenWidthBorder*2)) {
+                break;
+            }
+
         }
 
         return fontSize;
@@ -359,7 +365,8 @@ public class Viewer extends JFrame {
      */
     public void setInformationFontSize(double maxStringHeight, boolean message) {
         // Get the current font size and initialise the variable to return
-        int fontSize = informationLabel.getFont().getSize();
+        int fontSize = 12;
+//        int fontSize = informationLabel.getFont().getSize();
 
         // Define the maximum font size to be a very large number
         int maxFontSize = 500;
