@@ -15,12 +15,15 @@ public class BillboardControl
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param pictureData A byte array containing the base64 encoded string for the picture data
-     * @param  sessionToken A sessionToken generated when logged in
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboardName A String which provides Billboard Name to store into database
+     * @param  creator A string which notes the user who created the billbaord
      * @param  XMLCode A String which provides xmlCode to store into database
-     * @param pictureData
-     * @return ServerAcknowledge TODO: Refactor BillboardAdmin/ScheduleAdmin to use ServerAcknowledge Return type
+     * @param  pictureData A Byte array which is base64 encoded represenation of the actual picture
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
+     * @return ServerAcknowledge
      */
     public static ServerAcknowledge createBillboardRequest(String sessionToken, String billboardName, String creator,
                                                            String XMLCode, byte[] pictureData) throws IOException, ClassNotFoundException {
@@ -28,35 +31,18 @@ public class BillboardControl
         return (ServerAcknowledge) Helpers.initClient(cpBillboard); // Send constructed method request and parameters to the server
     }
 
-//    /**
-//     * Send Queries: Billboard. This is a generic method which sends a request to edit a billboard
-//     * from control panel to server.
-//     * <p>
-//     * This method always returns immediately.
-//     * @param  sessionToken A sessionToken generated when logged in
-//     * @param  billboardName A String which provides Billboard Name to store into database
-//     * @param  xmlCode A String which provides xmlCode to store into database
-//     * @return
-//     */
-//    public static String editBillboardRequest(String sessionToken,
-//                                         String billboardName,
-//                                         String xmlCode) throws IOException, ClassNotFoundException {
-//        String message = String.format("Billboard,EditBillboard,%s,%s,%s",
-//                sessionToken,
-//                billboardName,
-//                xmlCode);
-//        return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
-//
-//    }
-
 
     /**
      * Send Queries: Billboard. This is a generic method which sends a request to Delete a billboard
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  billboardName A String which provides Billboard Name to store into database
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
+     * @param  billboardName A String which provides Billboard Name to delete from database
+     * @param  requestor A string which provides the username whom wants to delete data from the database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      * @return
      */
     public static ServerAcknowledge deleteBillboardRequest(String sessionToken,
@@ -73,7 +59,10 @@ public class BillboardControl
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      * @return
      */
     public static ServerAcknowledge deleteAllBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
@@ -89,7 +78,10 @@ public class BillboardControl
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      * @return
      */
     public static Object listBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
@@ -104,8 +96,11 @@ public class BillboardControl
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboardName A String which provides Billboard Name to store into database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      * @return
      */
     public static Object getBillboardRequest(String sessionToken,

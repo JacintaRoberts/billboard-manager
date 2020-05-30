@@ -62,10 +62,12 @@ public class Server {
         InvalidCharacters;
     }
 
+
     /**
-     * Generates a sessionToken and adds it to the HashMap of valid session tokens
-     * @param username that was successfully validated and logged in
-     * @return a session token key that is a random 32-bit integer and stored in the HashMap of valid session tokens
+     * Generates a sessionToken and adds it to the HashMap of valid session tokens.
+     * @param username A String which is a username that was successfully validated and logged in.
+     * @return Returns a String which is a session token key that is a random 32-bit integer and stored in the
+     * HashMap of valid session tokens.
      */
     private static String generateToken(String username) {
         LocalDateTime creationTime = LocalDateTime.now(); // Generate current date time
@@ -79,9 +81,10 @@ public class Server {
 
 
     /**
-     * Method to determine whether the creation time of a token is acceptable
-     * @param creationTime The creation time of the token
-     * @return Boolean true if the creation time is within 24 hours, false if it is more than 24 hours since creation.
+     * Method to determine whether the creation time of a token is acceptable.
+     * @param creationTime A LocalDateTime object which is the creation time of the token.
+     * @return Returns a Boolean which is true if the creation time is within 24 hours, false if it is more than
+     * 24 hours since creation.
      */
     private static boolean tokenIsCurrent(LocalDateTime creationTime){
         LocalDateTime currentTime = LocalDateTime.now(); // Generate current date time
@@ -91,10 +94,13 @@ public class Server {
         return creationTime.isAfter(acceptableTime);
     }
 
+
     /**
-     * Validates the provided session token
-     * @param sessionToken to be validated
-     * @return boolean true if the session token exists, false otherwise
+     * Validates the provided session token.
+     * @param sessionToken A String which is the session token to be validated.
+     * @return Returns a Boolean which is true if the session token exists, false otherwise.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static boolean validateToken(String sessionToken) throws IOException, SQLException {
         try {
@@ -115,9 +121,9 @@ public class Server {
 
 
     /**
-     * Retrieves the username of the provided session token
-     * @param sessionToken to have the name retrieved from
-     * @return String username stored with the session token
+     * Retrieves the username of the provided session token.
+     * @param sessionToken A String which is the session token to have the username retrieved from.
+     * @return Returns a String which is the username stored with the session token.
      */
     public static String getUsernameFromToken(String sessionToken) {
         return (String) validSessionTokens.get(sessionToken).get(0);
@@ -125,24 +131,34 @@ public class Server {
 
 
     /**
-     * listenforConnections creates a ServerSocket that is bound on the specified port
-     * @param port The port number to begin listening on
-     * @return ServerSocket bound on the given port number
+     * THis function creates a ServerSocket that is bound on the specified port.
+     * @param port An int which is the port number to begin listening on.
+     * @return Returns a ServerSocket bound on the given port number.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      */
     public static ServerSocket listenForConnections(int port) throws IOException {
         ServerSocket serverSocket = new ServerSocket(port);
         return serverSocket;
     }
 
+
     /**
      * initServer initialises the Server to begin listening for connections from clients (TCP/IP) through a
      * ServerSocket, this continually loops so that multiple connections can be handled.
+     * <p>
      * Port number is read from network.props and is bound to the ServerSocket.
+     * <p>
      * Client will later connect to the server socket with a port number and
      * the communication is handled through input/output streams.
+     * <p>
      * General usage notes: always flush streams at the correct time + interleave the operations so that they
      * are in the same order. Write, read on client = Read, write on server (flush in between).
+     * <p>
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @throws NoSuchAlgorithmException Throws an exception when the hashing algorithm requested does not exist.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
     private static void initServer() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
         // Read port number from network.props
@@ -179,11 +195,15 @@ public class Server {
         }
     }
 
+
     /**
-     * callServerMethod calls the corresponding method from the server which fetches/updates data from
+     * This function calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
-     * @param clientRequest String to indicate the method that the client requests
-     * @return Server's response (Object which contains data from database/acknowledgement)
+     * @param clientRequest A String to indicate the method that the client requests.
+     * @return Returns an Object which is the server's response which contains data from database/acknowledgement.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @throws NoSuchAlgorithmException Throws an exception when the hashing algorithm requested does not exist.
      */
     private static Object callServerMethod(Object clientRequest) throws IOException, SQLException, NoSuchAlgorithmException {
         System.out.println("Received from client: " + clientRequest);
@@ -228,9 +248,12 @@ public class Server {
 
 
     /**
-     * callUserAdminMethod calls the corresponding method from the UserAdmin class which fetches/updates data from
+     * This function calls the corresponding method from the UserAdmin class which fetches/updates data from
      * the database as necessary.
-     * @return Server's response (Object which contains data from database/acknowledgement)
+     * @return Returns an Object which is the server's response which contains data from database/acknowledgement.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @throws NoSuchAlgorithmException Throws an exception when the hashing algorithm requested does not exist.
      */
     private static Object callUserAdminMethod() throws IOException, SQLException, NoSuchAlgorithmException {
         // Determine which method from UserAdmin to execute
@@ -271,11 +294,13 @@ public class Server {
 
 
     /**
-     * callBillboardAdminMethod calls the corresponding method from the server which fetches/updates data from
+     * This function calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
-     * @return Server's response (Object which contains data from database/acknowledgement)
-     * @param pictureData
-     */ // TODO: JACINTA WILL REFACTOR THESE METHODS TO RETURN SERVER ACKNOWLEDGE RATHER THAN HARD-CODED STRING
+     * @param pictureData A byte[] array which is the picture data attribute of a base-64 encoded image.
+     * @return Returns an Object which is the server's response which contains data from database/acknowledgement.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     */
     private static Object callBillboardAdminMethod(byte[] pictureData) throws IOException, SQLException {
         // Determine which method from BillboardAdmin to execute
         switch (method) {
@@ -309,8 +334,9 @@ public class Server {
         }
     }
 
-    /*
-    Method to determine whether the xml provided has commas in the message
+    /**
+     * This function determines whether the xml provided has commas in the message.
+     * @return Returns a Boolean which is true if there are commas and false if there aren't
      */
     private static Boolean XMLHasCommas() {
         if ( additionalArgs.length > 3 ) {
@@ -321,9 +347,11 @@ public class Server {
 
 
     /**
-     * callScheduleAdminMethod calls the corresponding method from the server which fetches/updates data from
+     * This function calls the corresponding method from the server which fetches/updates data from
      * the database as necessary.
-     * @return Server's response (Object which contains data from database/acknowledgement)
+     * @return Returns an Object which is the server's response which contains data from database/acknowledgement.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     private static Object callScheduleAdminMethod() throws IOException, SQLException {
         // Determine which method from ScheduleAdmin to execute
@@ -365,9 +393,9 @@ public class Server {
 
 
     /**
-     * logout server-side expires the provided session token to log out the user
-     * @param sessionToken The session token of the login to be terminated
-     * @return String acknowledgement from server which determines whether the expiration was successful
+     * This logs the user out and the server-side expires the provided session token to log out the user.
+     * @param sessionToken A String which is the session token of the login to be terminated.
+     * @return Returns a ServerAcknowledge which is a message which determines whether the expiration was successful.
      */
     public static ServerAcknowledge logout(String sessionToken) {
         if (validSessionTokens.containsKey(sessionToken)) {
@@ -379,10 +407,10 @@ public class Server {
 
 
     /**
-     Expires all session tokens with an associated user
-     @param username The string username which will have all of its related tokens expired.
+     * Expires all session tokens with an associated user.
+     * @param username A String which is the username which will have all of its related tokens expired.
      */
-    public static ServerAcknowledge expireTokens(String username){
+    public static ServerAcknowledge expireTokens(String username) {
         // Collect Session Tokens to be expired
         ServerAcknowledge serverAcknowledge = NoSuchUser;
         System.out.println("All keys: " + validSessionTokens.keySet());
@@ -406,11 +434,14 @@ public class Server {
 
 
     /**
-     * login server-side checks the username and password provided in the database, if they exist
-     * and are correctly matched, then a session token is created and returned.
-     * @param username The username entered by the user on the GUI
-     * @param hashedPassword The hashed version of the password entered by the user on the GUI
-     * @return A valid session token for the user or server acknowledgment for user/password mismatch
+     * This logs in the user and the server-side login checks the username and password provided in the database, if
+     * they exist and are correctly matched, then a session token is created and returned.
+     * @param username A String which is the username entered by the user on the GUI.
+     * @param hashedPassword A String which is the hashed version of the password entered by the user on the GUI.
+     * @return Returns an Object which is a valid session token for the user or server acknowledgment for user/password mismatch.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @throws NoSuchAlgorithmException Throws an exception when the hashing algorithm requested does not exist.
      */
     public static Object login(String username, String hashedPassword) throws IOException, SQLException, NoSuchAlgorithmException {
         if (UserAdmin.userExists(username)) {
@@ -429,7 +460,6 @@ public class Server {
             db = DbConnection.getInstance();
             initServer();
         } catch (IOException e) {
-            //TODO: May want to handle this IOException better (if fatal error close and restart maybe?)
             System.err.println("Server IO Exception caught: " + e);
             e.printStackTrace();
         } catch (SQLException e) {
@@ -439,5 +469,6 @@ public class Server {
             e.printStackTrace();
         }
     }
+
 
 }
