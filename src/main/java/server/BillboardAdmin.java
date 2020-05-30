@@ -405,13 +405,11 @@ public class BillboardAdmin {
         listaBillboard.setString(1,billboardName);
         ResultSet billboardinfo = listaBillboard.executeQuery();
         DbBillboard dbBillboard = null;
-        while(billboardinfo.next()){
+        billboardinfo.next();
             dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
                     billboardinfo.getString("Creator"),
                     billboardinfo.getBytes("Image"),
-                    billboardinfo.getString("XMLCode"), "SQL PASS"
-            );
-        }
+                    billboardinfo.getString("XMLCode"), "SQL PASS");
         billboardinfo.close();
         return dbBillboard;
     }
