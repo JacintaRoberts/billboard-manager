@@ -17,7 +17,7 @@ public class MockBillboardDatabase {
     /**
      * This function imports the example xml billboard files in the resources folder and returns it as an ArrayList of
      * Files. This will act as the mock database.
-     * @return Returns an ArrayList<File> of the example xml files in resources folder.
+     * @return Returns an ArrayList of Files of the example xml files in resources folder.
      */
     public static ArrayList<File> setupDatabase() {
 
