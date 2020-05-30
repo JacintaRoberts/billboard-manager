@@ -12,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 public class Main implements Runnable {
 
     // Contains the server's response (Billboard XML) as a string
-    private String serverResponse;
+    private String billboardXML;
     private byte[] pictureData;
     private static Viewer viewer; // Single instance of the viewer class to prevent multiple windows
 
@@ -21,15 +21,15 @@ public class Main implements Runnable {
         // Get current billboard from schedule and display
         try {
             // FIXME: Update when method has been written
-            serverResponse = ScheduleAdmin.getCurrentBillboardName();
+            billboardXML = ScheduleAdmin.getCurrentBillboardXML();
             pictureData = ScheduleAdmin.getCurrentBillboardPictureData();
-            System.out.println("XML received from server: " + serverResponse);
-            System.out.println("Picture data received from server: " + pictureData);
-            if ( serverResponse == null ) {
+            System.out.println("XML received from server: " + billboardXML);
+            //System.out.println("Picture data received from server: " + pictureData);
+            if (!billboardXML.isEmpty()) {
                 viewer.displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             } else {
                 System.out.println("Attempting to display billboard...");
-                viewer.displayBillboard(serverResponse, pictureData);
+                viewer.displayBillboard(billboardXML, pictureData);
             }
         } catch (IOException | SQLException e) {
             viewer.displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
