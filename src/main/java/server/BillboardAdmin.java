@@ -44,10 +44,10 @@ public class BillboardAdmin {
     }
 
     /**
-     * Delete Table: Billboard. This is a generic method which deletes the table.
+     * Delete Table: Billboard. This is a generic method which drops the table. This is a method used for testing only.
      * <p>
      * This method always returns immediately.
-     * @return
+     * @return Returns a String with the message of Billboard Table Dropped
      */
     public static String dropBillboardTable() throws IOException, SQLException{
         String resultMessage;
@@ -61,10 +61,14 @@ public class BillboardAdmin {
 
 
     /**
-     * Stores Database Queries: Billboard. This is a generic method which Make sures billboard is made with default data.
+     * Create Table: Billboard. This is a method which will create Billboard Table in the database if it dosent exist.
+     * The method will also return a message string if data already exists.
      * <p>
      * This method always returns immediately.
-     * @return
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return A return string which denotes if a table has been created (Table Created), or the data status within the
+     * table (Data Filled, Data Exists).
      */
     public static String createBillboardTable() throws IOException, SQLException{
         String resultMessage;
@@ -92,13 +96,19 @@ public class BillboardAdmin {
 
 
     /**
-     * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database.
+     * Stores Database Queries: Billboard. This is a generic method which stores any query sent to the database. This method
+     * will update and also create billboards if it dosent exist in the billboard already.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A String which provides username to store into database
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboard A String which provides Billboard Name to store into database
+     * @param  creator A string which notes the user who created the billbaord
      * @param  xmlCode A String which provides xmlCode to store into database
-     * @return
+     * @param  pictureData A Byte array which is base64 encoded represenation of the actual picture
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return ServerAcknowledge A enum which is used to assist in the GUI actions.
      */
     public static ServerAcknowledge createBillboard(String sessionToken, String billboard, String creator, String xmlCode, byte[] pictureData)
                                                             throws IOException, SQLException {
@@ -168,11 +178,16 @@ public class BillboardAdmin {
 
 
     /**
-     * Stores Database Queries: Billboard. This is a generic method which deletes billboards stored into database.
+     * Stores Database Queries: Billboard. This is a generic method which deletes a billboard stored in database.
      * <p>
      * This method always returns immediately.
-     * @param  billboard A String which provides Billboard Name to store into database
-     * @return
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
+     * @param  billboard A String which provides Billboard Name to delete from database
+     * @param  requestor A string which provides the username whom wants to delete data from the database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return ServerAcknowledge A enum which is used to assist in the GUI actions.
      */
     public static ServerAcknowledge deleteBillboard(String sessionToken, String billboard, String requestor) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
@@ -218,8 +233,13 @@ public class BillboardAdmin {
      * Stores Database Queries: Billboard. This is a generic method which edits billboard xmlCode in the database.
      * <p>
      * This method always returns immediately.
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboard A String which provides Billboard Name to store into database
-     * @return
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return dbBillboard A DbBillboard Object which contains information on the Name, Creator, XML, Picture data and
+     * server status through ServerAcknowledgement
      */
     public static DbBillboard getBillboardInformation(String sessionToken, String billboard) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
@@ -242,10 +262,15 @@ public class BillboardAdmin {
 
 
     /**
-     * Stores Database Queries: Billboard. This is a generic method which returns a list of billboards stored into database.
+     * List all billboard names that are stored in the database as an Array String
      * <p>
      * This method always returns immediately.
-     * @return
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return Returns an BillboardList object which contains an ArrayString Field that contains all the Billboard that
+     * is stored in the database.
      */
 
     public static BillboardList listBillboard(String sessionToken) throws IOException, SQLException {
@@ -285,10 +310,11 @@ public class BillboardAdmin {
 
 
     /**
-     * Method to put a billboard from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to check if a billboard from the database
+     * @param billboardName String of billboard to check if exist in database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return Returns a String if the billboard exists (1) or not (0)
      */
     public static String countFilterBillboardSql(String billboardName) throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -303,6 +329,12 @@ public class BillboardAdmin {
         return count;
     }
 
+    /**
+     * Method to check if a billboard from the database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @return Returns a String if the billboard exists (1) or not (0)
+     */
     public static String countBillboardSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
         Statement countBillboard = connection.createStatement();
@@ -317,9 +349,13 @@ public class BillboardAdmin {
 
     /**
      * Method to put a billboard from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * @return The billboard will be created into the Database
+     * @param  billboardName A String which provides Billboard Name to store into database
+     * @param  creator A string which notes the user who created the billbaord
+     * @param  XMLCode A String which provides xmlCode to store into database
+     * @param  pictureData A Byte array which is base64 encoded represenation of the actual picture
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static void addBillboardSQL(String billboardName, String creator,
                                        byte[] pictureData, String XMLCode) throws IOException, SQLException {
@@ -339,11 +375,14 @@ public class BillboardAdmin {
 
     /**
      * Method to put a billboard from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * @param  billboardName A String which provides Billboard Name to store into database
+     * @param  creator A string which notes the user who created the billbaord
+     * @param  XMLCode A String which provides xmlCode to store into database
+     * @param  pictureData A Byte array which is base64 encoded represenation of the actual picture
+     * @return The billboard will be edited from the database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
-    //TODO: BREAKS HERE
     public static void editBillboardSQL(String billboardName, String creator,
                                        byte[] pictureData, String XMLCode) throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -362,9 +401,10 @@ public class BillboardAdmin {
 
     /**
      * Method to get a billboard from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * @param billboardName The billboardName via a string will be supplied to query from SQL
+     * @return DbBillboard Object will be returned which consist of billboard information
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static DbBillboard getBillboardSQL(String billboardName) throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -389,9 +429,10 @@ public class BillboardAdmin {
 
     /**
      * Method to delete a billboard from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * @param billboardName The name of the billboard to be deleted from the database
+     * @return The billboard will be deleted from the database
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static void deleteBillboardSQL(String billboardName) throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -405,8 +446,10 @@ public class BillboardAdmin {
     /**
      * Stores Database Queries: Billboard. This is a generic method which deletes all billboards stored into database.
      * <p>
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      * This method always returns immediately.
-     * @return
+     * @return ServerAcknowledgement which allows the GUI to acknowledge
      */
     public static ServerAcknowledge deleteAllBillboard() throws IOException, SQLException {
         connection = DbConnection.getInstance();
