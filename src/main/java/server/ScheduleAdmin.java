@@ -83,13 +83,16 @@ public class ScheduleAdmin {
     public static PreparedStatement editSchedule;
     public static PreparedStatement createSchedule;
 
+
     /**
      * Ensures that the ScheduleTable is created inside the database. The method should be called when the server is being
      * set up to ensure the Schedule Table exists if it is not in the database.
      * <p>
      * This method always returns immediately. It will either return a success message "Schedule Table Created", or further
      * information such as Schedule Table exists with/without data pre-populated inside
-     * @return Ensures Schedule Table exists within the Database
+     * @return A String which specifies if the Schedule Table exists within the Database.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String createScheduleTable() throws IOException, SQLException {
         // Initialise Variable
@@ -123,7 +126,9 @@ public class ScheduleAdmin {
      * <p>
      * This method always returns immediately. It will either return a success message "Schedule Table Dropped", or throw an
      * SQLException error as the method was unable to be completed
-     * @return Drops Schedule Table if exists.
+     * @return A String that specifies if the Schedule Table has been dropped, if it existed.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String dropScheduleTable() throws IOException, SQLException{
         // Initialise String
@@ -142,10 +147,11 @@ public class ScheduleAdmin {
     /**
      * This function will delete the Schedule Table Data if required. No checks are done.
      * <p>
-     *
      * This method always returns immediately. It will either return a success message "Schedule Table Dropped", or
      * a fail message if it dosent run
-     * @return Delete Schedule Table Data if exists success string.
+     * @return A String which specifies if the Schedule Table Data has been deleted, if it existed.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String deleteAllSchedules() throws IOException, SQLException {
         String resultMessage;
@@ -171,8 +177,10 @@ public class ScheduleAdmin {
      * in the billboard parameter
      * <p>
      * This method always returns immediately. It will either return a success message or fail message if no deletion can
-     * be done
-     * @return Returns a resultMessage string noting if the billboard passes (Pass: Billboard Schedule Deleted) or fails due to reasons.
+     * be done.
+     * @return Returns a String noting if the billboard passes (Pass: Billboard Schedule Deleted) or fails due to reasons.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static Server.ServerAcknowledge deleteSchedule(String sessionToken, String billboard) throws IOException, SQLException {
         // Set Variables
@@ -208,7 +216,6 @@ public class ScheduleAdmin {
     }
 
 
-
     /**
      * This function will list Schedules for billboards. This will only show the raw schedules with no additional computation
      * for repeats.
@@ -216,6 +223,8 @@ public class ScheduleAdmin {
      * This method always returns immediately. It will either return a success message or fail message if there is nothing
      * to return for billboard schedules
      * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ScheduleList listScheduleInformation() throws IOException, SQLException {
         // Initialise Variable array
@@ -303,12 +312,12 @@ public class ScheduleAdmin {
 
 
     /**
-     * editSchedule will edit existing Schedules inside the Data Table. Each parameter for the function are fed in through the
+     * This function will update existing Schedules inside the Data Table. Each parameter for the function are fed in through the
      * Control Panel and can be assumed to be valid.
      * <p>
      * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
      * gets edited successfully.
-     * @param  billboard A String which provides Billboard Name to search in the data table for editing
+     * @param  billboard A String which provides Billboard Name to search in the data table for updating
      * @param  StartTime A String in format of Java Time to store into database
      * @param  Duration A String representing an integer which provides Duration which to store into database
      * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
@@ -320,7 +329,9 @@ public class ScheduleAdmin {
      * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
      * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
      * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
-     * @return Returns a message string whether or not the Schedule was created successfully or failed due to reasons.
+     * @return Returns a String which specifies whether or not the Schedule was created successfully or failed due to reasons.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static Server.ServerAcknowledge updateSchedule(String sessionToken,
                                                           String billboard,
@@ -370,17 +381,17 @@ public class ScheduleAdmin {
     }
 
 
-
-
-
     /**
      * This function will list Schedules for billboards for a specific day. The day parameter is parsed into as a string
      * and filters results to display raw schedules for the day.
      * <p>
      * This method always returns immediately. It will either return a success message or fail message if there is nothing
-     * to return for billboard schedules
+     * to return for billboard schedules.
+     * @param sessionToken A String which specifies the session token to ensure the user has the correct permissions.
      * @param BillboardName A String to feed in to filter SQL quiries to return only schedules for a specifc Billboard.
-     * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can be read via getters.
+     * @return Returns a ScheduleInfo object which contains information on all fields. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ScheduleInfo getScheduleInformation(String sessionToken, String BillboardName) throws IOException, SQLException {
         // Initialise Variable array
@@ -397,13 +408,13 @@ public class ScheduleAdmin {
         String retrievedFriday;
         String retrievedSaturday;
         // Set storage parameters for single
-        String serverResponse = null;
+        Server.ServerAcknowledge serverResponse = null;
         //Check if Schedule Exists and updates as required
         ResultSet rs = null;
         String count = countFilterScheduleSql(BillboardName);
         if (count.equals("0") && validateToken(sessionToken)) {
             System.out.println("System Token Validated");
-            serverResponse = "Fail: No Schedule Exists";
+            serverResponse = ScheduleNotExists;
             retrievedBillboard = null;
             retrievedStartTime = null;
             retrievedDuration = null;
@@ -418,7 +429,7 @@ public class ScheduleAdmin {
             retrievedSaturday = null;
         } else if (!validateToken(sessionToken)){
             System.out.println("System Token is not valid!");
-            serverResponse = "Fail: Invalid Session Token";
+            serverResponse = InvalidToken;
             retrievedBillboard = null;
             retrievedStartTime = null;
             retrievedDuration = null;
@@ -451,7 +462,7 @@ public class ScheduleAdmin {
             retrievedFriday = rs.getString(11);
             retrievedSaturday = rs.getString(12);
             // Success Return Message
-            serverResponse = "Pass: Schedule Detail Returned";
+            serverResponse = Success;
         }
 
         // Create scheduleInfo return object
@@ -478,12 +489,15 @@ public class ScheduleAdmin {
     /**
      * This function will list all Schedules for billboards for a specific day. The day parameter is parsed into as a string
      * and filters results to display raw schedules for the day and then the resultant object is then imputed for time. This
-     * function builds on listFilteredScheduleInformation and viewAllDaySchedule methods, and is called by control panel to server
+     * function builds on listFilteredScheduleInformation and viewAllDaySchedule methods, and is called by control panel to server.
      * <p>
      * This method always returns immediately. It will either return a success message or fail message if there is nothing
-     * to return for billboard schedules
+     * to return for billboard schedules.
+     * @param sessionToken A String which specifies the session token to ensure the user has the correct permissions.
      * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
      * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ArrayList<ArrayList<String>> scheduleAllDayCP(String sessionToken, String day) throws IOException, SQLException {
         ArrayList<ArrayList<String>> billboardDayScheduleDisplay = new ArrayList<ArrayList<String>>();
@@ -505,30 +519,12 @@ public class ScheduleAdmin {
                 tempStore.add(Creator);
                 billboardDayScheduleDisplay.add(tempStore);
             }
-//            // Reorder
-//            if(allDaysched.getScheduleBillboardName().size() > 2){
-//
-//            }
             return billboardDayScheduleDisplay;
         } else{
             System.out.println("Session was not valid");
             return billboardDayScheduleDisplay;
         }
     }
-
-//    /**
-//     * Function to order array array list of strings to chronolgoical for display
-//     * @param dayReturn
-//     */
-////    private ArrayList<ArrayList<String>> reorderListing(ArrayList<ArrayList<String>> dayReturn, int numberSched){
-//    private void reorderListing(ArrayList<ArrayList<String>> dayReturn, int numberSched){
-//        ArrayList<ArrayList<String>> orderedDay = new ArrayList<>();
-//        ArrayList<LocalTime> timeArray = null;
-//        for(int i = 0; i < numberSched; i++){
-//            timeArray.add(LocalTime.parse(dayReturn.get(0).get(0).substring(0, 5)));
-//        }
-//        System.out.println(timeArray);
-//    }
 
 
     /**
@@ -538,8 +534,11 @@ public class ScheduleAdmin {
      * <p>
      * This method always returns immediately. It will either return a success message or fail message if there is nothing
      * to return for billboard schedules
+     * @param sessionToken A String which specifies the session token to ensure the user has the correct permissions.
      * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
      * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ScheduleList listAllFilteredScheduleInformation(String sessionToken, String day) throws IOException, SQLException {
         ScheduleList allDayschedule = null;
@@ -567,6 +566,8 @@ public class ScheduleAdmin {
      * to return for billboard schedules
      * @param day A String to feed in to filter SQL quiries to return only schedules for a specifc day.
      * @return Returns a ScheduleList object which contains information on all fields. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ScheduleList listFilteredScheduleInformation(String day) throws IOException, SQLException {
         // Initialise Variable array
@@ -579,7 +580,7 @@ public class ScheduleAdmin {
         ArrayList<String> retrievedRepeat = new ArrayList<>();
         ArrayList<String> retrievedSunday = new ArrayList<>();
         ArrayList<String> retrievedMonday = new ArrayList<>();
-        ArrayList<String> retrievedTueseday = new ArrayList<>();
+        ArrayList<String> retrievedTuesday = new ArrayList<>();
         ArrayList<String> retrievedWednesday = new ArrayList<>();
         ArrayList<String> retrievedThursday = new ArrayList<>();
         ArrayList<String> retrievedFriday = new ArrayList<>();
@@ -616,7 +617,7 @@ public class ScheduleAdmin {
             retrievedRepeat.add("0");
             retrievedSunday.add("0");
             retrievedMonday.add("0");
-            retrievedTueseday.add("0");
+            retrievedTuesday.add("0");
             retrievedWednesday.add("0");
             retrievedThursday.add("0");
             retrievedFriday.add("0");
@@ -638,7 +639,7 @@ public class ScheduleAdmin {
             retrievedRepeat.add("0");
             retrievedSunday.add("0");
             retrievedMonday.add("0");
-            retrievedTueseday.add("0");
+            retrievedTuesday.add("0");
             retrievedWednesday.add("0");
             retrievedThursday.add("0");
             retrievedFriday.add("0");
@@ -670,7 +671,7 @@ public class ScheduleAdmin {
                 retrievedRepeat.add(rs.getString(5));
                 retrievedSunday.add(rs.getString(6));
                 retrievedMonday.add(rs.getString(7));
-                retrievedTueseday.add(rs.getString(8));
+                retrievedTuesday.add(rs.getString(8));
                 retrievedWednesday.add(rs.getString(9));
                 retrievedThursday.add(rs.getString(10));
                 retrievedFriday.add(rs.getString(11));
@@ -691,7 +692,7 @@ public class ScheduleAdmin {
                 retrievedRepeat,
                 retrievedSunday,
                 retrievedMonday,
-                retrievedTueseday,
+                retrievedTuesday,
                 retrievedWednesday,
                 retrievedThursday,
                 retrievedFriday,
@@ -706,11 +707,13 @@ public class ScheduleAdmin {
      * This function will calculate all possible Schedules for billboards for a specific day with repeat.
      * The scheduleList Parameter will feed in raw schedules into the function to compute additional schedules for the day.
      * <p>
-     * This method always returns immediately. It will either return a ScheduleList object listing all possilbe schedules
+     * This method always returns immediately. It will either return a ScheduleList object listing all possible schedules
      * from the given list.
-     * @param scheduleList A scheduleList object to be imputed for all additional schedules
+     * @param scheduleList A ScheduleList object to be imputed for all additional schedules
      * @return Returns a ScheduleList object with imputed results for schedules.
      * Contains information on all fields. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ScheduleList viewAllDaySchedule(ScheduleList scheduleList) throws IOException, SQLException {
         // Initialise allDaySchedule object
@@ -828,18 +831,17 @@ public class ScheduleAdmin {
     }
 
 
-
-
-
     /**
      * This function will calculate if there is any current schedule active. The function takes in an ScheduleList object generated
      * from the allDaySchedule Function and also a LocalTime object that notes the currentTime.
      * <p>
      * This method always returns immediately. It will either return a ScheduleList object listing with all possible active schedules,
      * or it will return a empty object with a Fail String.
-     * @param allDaySchedule A scheduleList object from allDaySchedule for calculating active schedules
+     * @param allDaySchedule A ScheduleList object from allDaySchedule for calculating active schedules
      * @param currentTime A LocalTime object which notes the current time of request
      * @return Returns a CurrentSchedule object noting any active schedules. Each field is an array and can be read via getters.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static CurrentSchedule viewCurrentSchedule(ScheduleList allDaySchedule, LocalTime currentTime) throws IOException, SQLException {
         // Initialise currentSchedule
@@ -903,6 +905,8 @@ public class ScheduleAdmin {
      * This function returns the index of the latest date from an array of LocalDateTime values.
      * @param dateTimes An ArrayList of LocalDateTime values.
      * @return index Returns an int which is the index of the latest date in the dateTimes ArrayList.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static int latestDateTimeInArray(ArrayList<LocalDateTime> dateTimes) {
 
@@ -923,13 +927,14 @@ public class ScheduleAdmin {
 
 
     /**
-     * Return Displayed Billboards
-     * @return DbBillboard OBject
-     * @throws IOException
-     * @throws SQLException
+     * This function calculates the current billboard that needs to be displayed, and returns a DbBillboard objects for
+     * the current billboard.
+     * @return Returns a DbBillboard object for the current billboard to be displayed.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static DbBillboard activeBillboardDisplay() throws IOException, SQLException {
-        // Initilise the DbBillboard Object
+        // Initialise the DbBillboard Object
         DbBillboard resultDbBillboard = null;
         CurrentSchedule currentSchedule = null;
         ArrayList<String> currentScheduleBillboardNames = null;
@@ -986,10 +991,21 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to update Schedule from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * This function creates the schedule in the database.
+     * @param  billboard A String which provides Billboard Name to search in the data table for updating
+     * @param  StartTime A String in format of Java Time to store into database
+     * @param  Duration A String representing an integer which provides Duration which to store into database
+     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
+     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
+     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
+     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
+     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
+     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
+     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
+     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
+     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static void createScheduleSQL(String billboard,
                                          String StartTime,
@@ -1020,11 +1036,23 @@ public class ScheduleAdmin {
         createSchedule.executeQuery();
     }
 
+
     /**
-     * Method to update Schedule from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * This function updates the schedule in the database.
+     * @param  billboard A String which provides Billboard Name to search in the data table for updating
+     * @param  StartTime A String in format of Java Time to store into database
+     * @param  Duration A String representing an integer which provides Duration which to store into database
+     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
+     * @param  Repeat A String representing an integer how often the schedule is repeated (in minutes)
+     * @param  Sunday A String that's either 1 or 0 to see if the schedule is to be run during Sunday
+     * @param  Monday A String that's either 1 or 0  to see if the schedule is to be run during Monday
+     * @param  Tuesday A String that's either 1 or 0  to see if the schedule is to be run during Tuesday
+     * @param  Wednesday A String that's either 1 or 0  to see if the schedule is to be run during Wednesday
+     * @param  Thursday A String that's either 1 or 0  to see if the schedule is to be run during Thursday
+     * @param  Friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
+     * @param  Saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static void updateScheduleSQL(String billboard,
                                          String StartTime,
@@ -1057,10 +1085,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to count a specific Schedule from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * This function counts a Schedule for a specific billboard from the database.
+     * @return A String which specifies the number of times a billboard is displayed.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countFilterScheduleSql(String billboard) throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1072,11 +1100,12 @@ public class ScheduleAdmin {
         return count;
     }
 
+
     /**
-     * Method to count number of Schedules from the database
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * This function counts the total number of Schedules from the database.
+     * @return A String which specifies the total number of Schedules.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1088,12 +1117,11 @@ public class ScheduleAdmin {
     }
 
 
-
     /**
-     * Method to Count any Schedule from the database on a Sunday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Sunday.
+     * @return A String which specifies the total number of Schedules on Sunday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countSundayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1104,11 +1132,12 @@ public class ScheduleAdmin {
         return count;
     }
 
+
     /**
-     * Method to Count any Schedule from the database on a Monday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Monday.
+     * @return A String which specifies the total number of Schedules on Monday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countMondayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1119,11 +1148,12 @@ public class ScheduleAdmin {
         return count;
     }
 
+
     /**
-     * Method to Count any Schedule from the database on a Tuesday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Tuesday.
+     * @return A String which specifies the total number of Schedules on Tuesday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countTuesdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1134,11 +1164,12 @@ public class ScheduleAdmin {
         return count;
     }
 
+
     /**
-     * Method to Count any Schedule from the database on a Wednesday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Wednesday.
+     * @return A String which specifies the total number of Schedules on Wednesday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countWednesdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1151,10 +1182,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Count any Schedule from the database on a Thursday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Thursday.
+     * @return A String which specifies the total number of Schedules on Thursday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countThursdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1167,10 +1198,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Count Schedule from the database on a Saturday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Friday.
+     * @return A String which specifies the total number of Schedules on Friday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countFridayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1183,10 +1214,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Count Schedule from the database on a Saturday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Count any Schedule from the database on a Saturday.
+     * @return A String which specifies the total number of Schedules on Saturday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String countSaturdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1199,10 +1230,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Get any Schedule from the database on a Sunday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Sunday.
+     * @return A ResultSet which is the Schedule for Sunday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getSundayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1211,11 +1242,12 @@ public class ScheduleAdmin {
         return rs;
     }
 
+
     /**
-     * Method to Get any Schedule from the database on a Monday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Monday.
+     * @return A ResultSet which is the Schedule for Monday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getMondayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1225,10 +1257,10 @@ public class ScheduleAdmin {
     }
 
     /**
-     * Method to Get any Schedule from the database on a Tuesday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Tuesday.
+     * @return A ResultSet which is the Schedule for Tuesday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getTuesdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1238,10 +1270,10 @@ public class ScheduleAdmin {
     }
 
     /**
-     * Method to Get any Schedule from the database on a Wednesday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Wednesday.
+     * @return A ResultSet which is the Schedule for Wednesday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getWednesdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1252,10 +1284,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Get any Schedule from the database on a Thursday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Thursday.
+     * @return A ResultSet which is the Schedule for Thursday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getThursdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1266,10 +1298,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Get any Schedule from the database on a Friday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Friday.
+     * @return A ResultSet which is the Schedule for Friday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getFridayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1280,10 +1312,10 @@ public class ScheduleAdmin {
 
 
     /**
-     * Method to Get any Schedule from the database on a Saturday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to Get any Schedule from the database on a Saturday.
+     * @return A ResultSet which is the Schedule for Saturday.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ResultSet getSaturdayScheduleSql() throws IOException, SQLException {
         connection = DbConnection.getInstance();
@@ -1292,11 +1324,12 @@ public class ScheduleAdmin {
         return rs;
     }
 
+
     /**
-     * Method to Delete a Schedule from the database on a Saturday
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * This functions deletes a Schedule from the database for a specified billboard.
+     * @param billboard A String which represents the name of the billboard for which the Schedule must be deleted.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static void deleteScheduleSql(String billboard) throws IOException, SQLException {
         connection = DbConnection.getInstance();

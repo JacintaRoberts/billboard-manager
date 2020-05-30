@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import static java.lang.Integer.parseInt;
 
 /**
- * Schedule Update and Create View which allows users to select an existing billboard and create schedule for it.
+ * Schedule Create View allows users to select an existing billboard and create or update the schedule. Users can set
+ * the start and end time, days scheduled and the recurrence setting (I.e. minutes, hourly, no repetition).
+ * Users can also clear the existing schedule.
  */
 public class ScheduleUpdateView extends AbstractGenericView
 {
@@ -78,7 +80,8 @@ public class ScheduleUpdateView extends AbstractGenericView
     private VIEW_TYPE view_type;
 
     /**
-     * Constructor to create/update schedule view, use parent constructor.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public ScheduleUpdateView()
     {
@@ -86,6 +89,10 @@ public class ScheduleUpdateView extends AbstractGenericView
         view_type = VIEW_TYPE.SCHEDULE_UPDATE;
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -264,7 +271,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     }
 
     /**
-     * Add a submit and delete schedule button to the Navigation Panel
+     * Add a submit, clear and menu schedule button to the Navigation Panel
      */
     private void createAdditionalButtons()
     {
@@ -280,6 +287,9 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     // ####################### CLEANUP, ENUM & UPDATE #######################
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {
@@ -289,7 +299,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     }
 
     /**
-     * Reset all schedule selections
+     * Reset all schedule selections including time start and end, days and radio buttons for recurrence
      */
     protected void removeScheduleSelection()
     {
@@ -323,6 +333,10 @@ public class ScheduleUpdateView extends AbstractGenericView
         endAMPMSelector.setSelectedItem("AM");
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
@@ -768,7 +782,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Get the number of minutes the bb will be repeatedly scheduled.
-     * Returning -1 if invalid, or the valid minute value in int format
+     * @throws Exception minutes not set exception
      */
     protected int getMinuteRepeat() throws Exception {
         // if nothing has been selected, return an invalid minute number -1

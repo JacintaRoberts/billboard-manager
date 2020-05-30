@@ -18,8 +18,11 @@ public class DbConnection {
      * Main Database Connection function. This method will set up relevant property files and call relevant functions.
      * <p>
      * This method always returns immediately.
+     * @throws FileNotFoundException Throws an exception when a file with the specified pathname does not exist.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
-    DbConnection() throws FileNotFoundException,IOException, SQLException {
+    DbConnection() throws FileNotFoundException, IOException, SQLException {
 
         // Set new properties class and initiate File input stream and connection
         Properties props = readProperties("src\\test\\resources\\db.props");
@@ -48,7 +51,9 @@ public class DbConnection {
     /**
      * Provides global access to the singleton instance of the database connection.
      * <p>
-     * @return a handle to the singleton instance of the database connection.
+     * @return Returns a Connection handle to the singleton instance of the database connection.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static Connection getInstance() throws IOException, SQLException {
         if (instance == null) {
@@ -62,10 +67,12 @@ public class DbConnection {
      * Read Database Properties as input stream
      * <p>
      * This method always returns immediately.
-     * @param  fileLocation The location of the dbprops File
-     * @return prop: A properties object containing information about the database
+     * @param fileLocation A String which is the location of the dbprops File.
+     * @return Returns a Properties object containing information about the database.
+     * @throws FileNotFoundException Throws an exception when a file with the specified pathname does not exist.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      */
-    public static Properties readProperties(String fileLocation) throws FileNotFoundException,IOException {
+    public static Properties readProperties(String fileLocation) throws FileNotFoundException, IOException {
         // Set new properties class and initiate File input stream and connection
         Properties props = new Properties();
         FileInputStream in = null;
@@ -79,15 +86,15 @@ public class DbConnection {
 
 
 
-
-/**
- * Prints Database Query result to the system console for debugging purposes. This is mainly created for debugging
- * and printing to server console when the application is running
- * <p>
- * This method always returns immediately.
- * @param  st A Statement object which is the connection.createStatement()
- * @param  query A String which has the query fed into executeQuery
- */
+    /**
+     * Prints Database Query result to the system console for debugging purposes. This is mainly created for debugging
+     * and printing to server console when the application is running
+     * <p>
+     * This method always returns immediately.
+     * @param st A Statement object which is the connection.createStatement().
+     * @param query A String which has the query fed into executeQuery.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     */
     public static void displayContents(Statement st, String query) throws SQLException {
         // get all current entries
         ResultSet rs = st.executeQuery(query);

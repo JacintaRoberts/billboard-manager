@@ -1,12 +1,11 @@
 package controlPanel;
-import java.io.IOException;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
 
 /**
- * Main Class creates instance of all application views and associates to an enum in a HashMap.
- * The model is instantiated and passed through along with hashmap to controller.
+ * Main starts up the application by instantiating the Model, Views and Controller.  The main and AWT event thread are
+ * joined to run the application safely.
  */
 public class Main {
 
