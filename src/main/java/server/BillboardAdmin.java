@@ -166,40 +166,6 @@ public class BillboardAdmin {
     }
 
 
-//    /**
-//     * Stores Database Queries: Billboard. This is a generic method which edits billboard xmlCode in the database.
-//     * <p>
-//     * This method always returns immediately.
-//     * @param  billboard A String which provides Billboard Name to store into database
-//     * @param  xmlCode A String which provides xmlCode to store into database
-//     * @return
-//     */
-//    public static String editBillboard(String billboard,
-//                                       InputStream xmlCode) throws IOException, SQLException {
-//        String resultMessage;
-//        String validCharacters = "([A-Za-z0-9-_ ]+)";
-//        if (billboard.matches(validCharacters)) {
-//            connection = DbConnection.getInstance();
-//            countFilterBillboard = connection.prepareStatement(COUNT_FILTER_BILLBOARD_SQL);
-//            countFilterBillboard.setString(1,billboard);
-//            ResultSet rs = countFilterBillboard.executeQuery();
-//            rs.next();
-//            String count = rs.getString(1);
-//            if (count.equals("1")){
-//                editBillboard = connection.prepareStatement(EDIT_BILLBOARD_SQL);
-//                editBillboard.setBlob(1,xmlCode);
-//                editBillboard.setString(2,billboard);
-//                rs = editBillboard.executeQuery();
-//                resultMessage = "Pass: Billboard Edited";
-//            }else {
-//                resultMessage = "Fail: Billboard Does not Exist";
-//            }
-//        } else {
-//            resultMessage = "Fail: Billboard Name Contains Illegal Characters";
-//        }
-//        return resultMessage;
-//    }
-
 
     /**
      * Stores Database Queries: Billboard. This is a generic method which deletes billboards stored into database.
@@ -417,15 +383,6 @@ public class BillboardAdmin {
             XMLcode = rs.getString("XMLCode");
         }
         dbBillboard = new DbBillboard(billboard,Creator , Image, XMLcode,Success);
-
-
-
-//        dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
-//                billboardinfo.getString("Creator"),
-//                billboardinfo.getBytes("Image"),
-//                billboardinfo.getString("XMLCode"),
-//                Success
-//        );
         return dbBillboard;
     }
 
