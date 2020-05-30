@@ -637,7 +637,7 @@ class UnitTests {
                 duration, creationDateTime, repeat, sunday, monday, tuesday,
                 wednesday, thursday, friday, "1");
         assertEquals(Success, mockResponse);
-        // Check that the schedule still exists in the MockScheduleTable // todo: change to get info
+        // Check that the schedule still exists in the MockScheduleTable
         assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
     }
 
