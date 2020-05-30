@@ -2,11 +2,12 @@ package server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
 
 import static server.MockSessionTokens.getUsernameFromTokenTest;
 import static server.MockUserTable.hasPermissionTest;
-import static server.Server.Permission.CreateBillboard;
-import static server.Server.Permission.EditBillboard;
+import static server.MockUserTable.retrieveUserPermissionsFromMockDbTest;
+import static server.Server.Permission.*;
 import static server.Server.ServerAcknowledge;
 import static server.Server.ServerAcknowledge.*;
 
@@ -61,7 +62,7 @@ class MockBillboardTable extends MockDatabase {
 
 
     /**
-     * Method to delete user from database
+     * Method to delete billboard from database
      * @param sessionToken Session token from the calling user
      * @param billboard Billboard to be deleted
      * @return Server acknowledgement for Success or Exception Handling
@@ -71,9 +72,10 @@ class MockBillboardTable extends MockDatabase {
         System.out.println("OGCreator is: " + OGCreator);
         String requestor = getUsernameFromTokenTest(sessionToken);
         System.out.println("Requestor is: " + requestor);
-        //String checkSchedule = ScheduleAdmin.countFilterScheduleSql(billboard); // FIXME: IMPLEMENT THIS IN SCHEDULES
+        boolean currentlyScheduled = MockScheduleTable.BillboardScheduleExistsTest(billboard);
+        System.out.println("Is the billboard scheduled? " + currentlyScheduled);
         // If own billboard that is not currently scheduled require CreateBillboard Permission
-        if (requestor.equals(OGCreator) /*&& !checkSchedule.equals("1") */) {
+        if (requestor.equals(OGCreator) && !currentlyScheduled) {
             if (hasPermissionTest(requestor, CreateBillboard)) {
                 // Delete billboard
                 if (billboardExistsTest(billboard)) {
@@ -90,7 +92,7 @@ class MockBillboardTable extends MockDatabase {
             }
         // Else require EditBillboard Permission to delete any other billboard
         } else {
-            if (hasPermissionTest(sessionToken, EditBillboard)) {
+            if (hasPermissionTest(requestor, EditBillboard)) {
                 // Delete billboard
                 if (billboardExistsTest(billboard)) {
                     internal.remove(billboard);
@@ -137,5 +139,17 @@ class MockBillboardTable extends MockDatabase {
         }
     }
 
+
+    /**
+     * List all the billboard names from the MockBillboardTable
+     * @return an Arraylist of the billboard names of all billboards in the MockBillboardTable
+     */
+    public static Object listBillboardTest() {
+        // Getting Set of keys from MockBillboardTable
+        Set<String> keySet = internal.keySet();
+        // Creating an ArrayList of keys by passing the keySet
+        ArrayList<String> listOfbBillboards = new ArrayList<>(keySet);
+        return listOfbBillboards; // 2. Success, list of users returned
+    }
 
 }

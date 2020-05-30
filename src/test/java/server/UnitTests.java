@@ -275,7 +275,7 @@ class UnitTests {
     }
 
 
-    /* Test 13: Delete User (Exception Handling)
+    /* Test 14: Delete User (Exception Handling)
      * Description: Delete own username in the MockUserTable and return server acknowledgement
      * Expected Output: User is not deleted from MockUserTable and returns CannotDeleteSelf server acknowledgement.
      */
@@ -288,7 +288,7 @@ class UnitTests {
     }
 
 
-    /* Test 14: Delete User (Exception Handling)
+    /* Test 15: Delete User (Exception Handling)
      * Description: Delete username in the MockUserTable by basic user and return server acknowledgement
      * Expected Output: User is not deleted from MockUserTable and returns InsufficientPermission server acknowledgement.
      */
@@ -301,7 +301,7 @@ class UnitTests {
     }
 
 
-    /* Test 15: Delete User (Exception Handling)
+    /* Test 16: Delete User (Exception Handling)
      * Description: Delete non-existent username in the MockUserTable and return server acknowledgement
      * Expected Output: User is not deleted from MockUserTable and returns NoSuchUser server acknowledgement.
      */
@@ -312,7 +312,7 @@ class UnitTests {
     }
 
 
-    /* Test 15: List Users (Success)
+    /* Test 17: List Users (Success)
      * Description: List all usernames in the MockUserTable and return server acknowledgement
      * Expected Output: Users are listed from MockUserTable and returns Success server acknowledgement.
      */
@@ -326,7 +326,7 @@ class UnitTests {
     }
 
 
-    /* Test 16: List Users (Exception Handling)
+    /* Test 18: List Users (Exception Handling)
      * Description: List all usernames in the MockUserTable and return server acknowledgement
      * Expected Output: Users are not listed and returns InsufficientPermission Exception server acknowledgement.
      */
@@ -337,7 +337,7 @@ class UnitTests {
     }
 
 
-    /* Test 17: Set Permissions (Pass)
+    /* Test 19: Set Permissions (Pass)
      * Description: Set permissions of the basic user in the MockUserTable to full privileges and return server
      * acknowledgement.
      * Expected Output: User permissions are updated in the MockUserTable and returns Success server acknowledgement.
@@ -353,7 +353,7 @@ class UnitTests {
     }
 
 
-    /* Test 18: Set Permissions (Exception Handling)
+    /* Test 20: Set Permissions (Exception Handling)
      * Description: Attempt to set permissions of basic user to full permissions and return server acknowledgement.
      * Expected Output: User permissions are not updated in the MockUserTable and returns InsufficientPermission
      * Exception server acknowledgement.
@@ -367,7 +367,7 @@ class UnitTests {
     }
 
 
-    /* Test 19: Set Permissions (Exception Handling)
+    /* Test 21: Set Permissions (Exception Handling)
      * Description: Attempt to set permissions of full user to remove EditUsers and return server acknowledgement.
      * Expected Output: User permissions are not updated in the MockUserTable and returns CannotRemoveOwnAdminPermission
      * Exception server acknowledgement.
@@ -382,7 +382,7 @@ class UnitTests {
     }
 
 
-    /* Test 20: Set Permissions (Exception Handling)
+    /* Test 22: Set Permissions (Exception Handling)
      * Description: Attempt to set permissions of username that does not exist and return server acknowledgement.
      * Expected Output: User permissions are not updated in the MockUserTable and returns NoSuchUser Exception
      * server acknowledgement.
@@ -395,7 +395,7 @@ class UnitTests {
     }
 
 
-    /* Test 21: Set Password (Pass)
+    /* Test 23: Set Password (Pass)
      * Description: Set password of the basic user in the MockUserTable to alternate password and return server
      * acknowledgement.
      * Expected Output: User password is updated in the MockUserTable and returns Success server acknowledgement.
@@ -407,7 +407,7 @@ class UnitTests {
     }
 
 
-    /* Test 22: Set Password (Exception Handling)
+    /* Test 24: Set Password (Exception Handling)
      * Description: Attempt to set password of the basic user in the MockUserTable to alternate password and return
      * server acknowledgement.
      * Expected Output: User password is not updated in the MockUserTable and returns InsufficientPermission
@@ -420,7 +420,7 @@ class UnitTests {
     }
 
 
-    /* Test 23: Set Password (Exception Handling)
+    /* Test 25: Set Password (Exception Handling)
      * Description: Attempt to set password of a non-existent user and return server acknowledgement.
      * Expected Output: User password is not updated in the MockUserTable as the user does not exists and returns
      * NoSuchUser Exception server acknowledgement.
@@ -437,8 +437,8 @@ class UnitTests {
      * 3. BILLBOARD-BASED UNIT TESTS
      * ================================================================================================
      */
-//TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
-    /* Test 24: Create Billboard (Pass)
+
+    /* Test 26: Create Billboard (Pass)
      * Description: Create the corresponding billboard in the MockBillboardTable with the billboard name, creator, xml
      * and picture data - return server acknowledgement.
      * Expected Output: Billboard is created in the MockBillboardTable and returns Success server acknowledge.
@@ -452,7 +452,35 @@ class UnitTests {
     }
 
 
-    /* Test 25: Delete Billboard (Pass)
+    /* Test 27: Create Billboard (Exception Handling)
+     * Description: Create the corresponding (duplicate) billboard in the MockBillboardTable with the billboard name,
+     * creator, xml and picture data - return server acknowledgement.
+     * Expected Output: Billboard is not created again in the MockBillboardTable and returns PrimaryKeyClash Exception
+     * server acknowledge.
+     */
+    @Test
+    public void mockCreateBillboardPrimaryKeyClashTest() {
+        ServerAcknowledge mockResponse = mockBillboardTable.createBillboardTest(mockToken, billboardName, callingUser, billboardXML, pictureData);
+        assertEquals(PrimaryKeyClash, mockResponse);
+    }
+
+
+    /* Test 28: Create Billboard (Exception Handling)
+     * Description: Basic user attempts to create the corresponding billboard in the MockBillboardTable with the
+     * billboard name, creator, xml and picture data - return server acknowledgement.
+     * Expected Output: Billboard is not created again in the MockBillboardTable and returns InsufficientPermission
+     * Exception server acknowledge.
+     */
+    @Test
+    public void mockCreateBillboardInsufficientPermissionsTest() {
+        ServerAcknowledge mockResponse = mockBillboardTable.createBillboardTest(basicToken, newBillboardName, callingUser, billboardXML, pictureData);
+        assertEquals(InsufficientPermission, mockResponse);
+        // Check that the billboard is not actually added to the MockBillboardTable
+        assertFalse(mockBillboardTable.billboardExistsTest(newBillboardName));
+    }
+
+
+    /* Test 29: Delete Billboard (Pass)
      * Description: Delete the corresponding billboard in the MockBillboardTable with the billboard name, returns
      * server acknowledgement.
      * Expected Output: Billboard is delete from the MockBillboardTable and returns Success server acknowledge.
@@ -465,10 +493,37 @@ class UnitTests {
         assertFalse(mockBillboardTable.billboardExistsTest(billboardName));
     }
 
-    /* Test 26: Get Billboard (Pass)
+
+    /* Test 29: Delete Billboard (Exception Handling)
+     * Description: Attempt to delete the corresponding (non-existent) billboard in the MockBillboardTable with the
+     * billboard name, returns server acknowledgement.
+     * Expected Output: Billboard is not deleted from the MockBillboardTable as it never existed and returns
+     * BillboardNotExists server acknowledge.
+     */
+    @Test
+    public void mockDeleteBillboardNotExistsTest() {
+        ServerAcknowledge mockResponse = mockBillboardTable.deleteBillboardTest(mockToken, "non-existent");
+        assertEquals(BillboardNotExists, mockResponse);
+    }
+
+
+    /* Test 30: Delete Billboard (Exception Handling)
+     * Description: Basic User attempts to delete the corresponding billboard in the MockBillboardTable with the
+     * billboard name, returns server acknowledgement.
+     * Expected Output: Billboard is not deleted from the MockBillboardTable and returns InsufficientPermission
+     * server acknowledge.
+     */
+    @Test
+    public void mockDeleteBillboardInsufficientPermissionTest() {
+        ServerAcknowledge mockResponse = mockBillboardTable.deleteBillboardTest(basicToken, billboardName);
+        assertEquals(InsufficientPermission, mockResponse);
+    }
+
+
+    /* Test 31: Get Billboard (Pass)
      * Description: Retrieve the corresponding billboard in the MockBillboardTable with the billboard name, returns
      * DbBillboard object.
-     * Expected Output: DbBillboard corresponding to the billboard name provided is returned.
+     * Expected Output: DbBillboard corresponding to the billboard name provided is returned. Server response is Success.
      */
     @Test
     public void mockGetBillboardInformationTest() {
@@ -478,13 +533,40 @@ class UnitTests {
         assertEquals(billboardName, mockResponse.getBillboardName());
     }
 
+
+    /* Test 32: Get Billboard (Exception Handling)
+     * Description: Retrieve the corresponding (non-existent) billboard in the MockBillboardTable with the billboard
+     * name, returns DbBillboard object.
+     * Expected Output: DbBillboard corresponding to the billboard name provided is returned. Server response is
+     * BillboardNotExists
+     */
+    @Test
+    public void mockGetBillboardInformationNotExistsTest() {
+        DbBillboard mockResponse = mockBillboardTable.getBillboardInformationTest("non-existent");
+        assertEquals(BillboardNotExists, mockResponse.getServerResponse());
+    }
+
+
+    /* Test 33: List Billboard (Pass)
+     * Description: Retrieve the list of billboard names in the MockBillboardTable, returns a ArrayList of Strings.
+     * Expected Output: An ArrayList of Strings containing the billboard names.
+     */
+    @Test
+    public void mockListBillboardTest() {
+        ArrayList<String> actualBillboards = (ArrayList<String>) mockBillboardTable.listBillboardTest();
+        ArrayList<String> expectedBillboards = new ArrayList<>();
+        expectedBillboards.add(billboardName);
+        assertEquals(expectedBillboards, actualBillboards);
+    }
+
+
     /**
      * ================================================================================================
      * 4. SCHEDULE-BASED UNIT TESTS
      * ================================================================================================
      */
 //TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
-    /* Test 27: Create Schedule (Pass)
+    /* Test 34: Create Schedule (Pass)
      * Description: Create the corresponding schedule in the MockScheduleTable with the billboard name, start time,
      * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
      * - returns server acknowledgement.
@@ -501,7 +583,7 @@ class UnitTests {
     }
 
 
-    /* Test 28: Edit Schedule (Pass)
+    /* Test 35: Edit Schedule (Pass)
      * Description: Edit the corresponding schedule in the MockScheduleTable with the billboard name, start time,
      * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
      * - returns server acknowledgement.
@@ -519,7 +601,7 @@ class UnitTests {
     }
 
 
-    /* Test 29: Delete Schedule (Pass)
+    /* Test 36: Delete Schedule (Pass)
      * Description: Delete the corresponding schedule in the MockScheduleTable with the billboard name,
      * returns server acknowledgement.
      * Expected Output: Schedule is deleted from the MockScheduleTable and returns Success server acknowledge.

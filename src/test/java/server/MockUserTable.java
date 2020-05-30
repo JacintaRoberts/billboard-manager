@@ -198,8 +198,8 @@ class MockUserTable extends MockDatabase {
             // Getting Set of keys from MockUserTable
             Set<String> keySet = internal.keySet();
             // Creating an ArrayList of keys by passing the keySet
-            ArrayList<String> listOfKeys = new ArrayList<>(keySet);
-            return listOfKeys; // 2. Success, list of users returned
+            ArrayList<String> listOfUsers = new ArrayList<>(keySet);
+            return listOfUsers; // 2. Success, list of users returned
         }
     }
 
