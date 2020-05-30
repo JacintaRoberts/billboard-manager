@@ -17,6 +17,7 @@ public abstract class AbstractUserView extends AbstractGenericView
     // *** DECLARE VARIABLES**
     // --- Panels ---
     private JPanel userDetailsPane;
+    private JScrollPane scrollPane;
     // --- Labels ---
     protected JTextField usernameText;
     private JPanel userPermissionsPanel;
@@ -78,7 +79,9 @@ public abstract class AbstractUserView extends AbstractGenericView
         userDetailsPane.add(userPermissionsLabel, setGBC(gbc, 1,4,1,1));
         userDetailsPane.add(userPermissionsPanel, setGBC(gbc, 2,4,1,1));
 
-        getContentPane().add(userDetailsPane, BorderLayout.CENTER);
+        scrollPane = new JScrollPane(userDetailsPane);
+
+        getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
 
     /**
