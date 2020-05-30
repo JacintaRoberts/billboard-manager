@@ -1,12 +1,8 @@
 package controlPanel;
 
-import observer.Subject;
-
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseListener;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 /**
  * Abstract User View is designed with the key features for dealing with User Data - this includes the Profile,
@@ -136,8 +132,4 @@ public abstract class AbstractUserView extends AbstractGenericView
         return gbc;
     }
 
-    @Override
-    public void update(Subject s) {
-
-    }
 }

@@ -1,7 +1,5 @@
 package controlPanel;
 
-import observer.Subject;
-
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.filechooser.FileNameExtensionFilter;
@@ -211,11 +209,6 @@ public class BBCreateView extends AbstractGenericView
         setBBTitle("");
         setBBText("");
         setPhoto(null, null, null);
-    }
-
-    @Override
-    public void update(Subject s)
-    {
     }
 
     @Override

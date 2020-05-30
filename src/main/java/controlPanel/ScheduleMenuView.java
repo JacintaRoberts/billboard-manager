@@ -1,13 +1,10 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
-import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
-import java.time.Month;
-import java.util.ArrayList;
 
 /**
  * Schedule Menu View designed to allow users to navigate to scheduling functionality including creeating/updating
@@ -44,11 +41,6 @@ public class ScheduleMenuView extends AbstractGenericView
 
     @Override
     void cleanUp() {
-
-    }
-
-    @Override
-    public void update(Subject s) {
 
     }
 

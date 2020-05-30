@@ -1,7 +1,5 @@
 package controlPanel;
 
-import observer.Observer;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.Font;
@@ -10,7 +8,7 @@ import java.awt.Font;
  * Abstract View designed with all key features for all views in the application.
  * This includes the general design themes, pop up windows and common methods.
  */
-public abstract class AbstractView extends JFrame implements Observer
+public abstract class AbstractView extends JFrame
 {
 
     /**

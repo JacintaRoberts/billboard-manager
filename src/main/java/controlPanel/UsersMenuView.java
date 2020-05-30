@@ -1,7 +1,5 @@
 package controlPanel;
 
-import observer.Subject;
-
 import controlPanel.Main.VIEW_TYPE;
 import javax.swing.*;
 import java.awt.*;
@@ -56,12 +54,6 @@ public class UsersMenuView extends AbstractGenericView
 
     @Override
     void cleanUp() {
-
-    }
-
-    @Override
-    public void update(Subject s)
-    {
 
     }
 
