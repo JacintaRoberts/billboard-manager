@@ -76,9 +76,11 @@ class MockScheduleTable extends MockDatabase {
      * @param friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
      * @param saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
      */
-    private static void addScheduleTest(String billboard, String startTime, String duration, String creationDateTime, String repeat, String sunday, String monday, String tuesday, String wednesday, String thursday, String friday, String saturday) {
+    private static void addScheduleTest(String billboard, String startTime, String duration, String creationDateTime,
+                                        String repeat, String sunday, String monday, String tuesday, String wednesday,
+                                        String thursday, String friday, String saturday) {
         // Add values to array list
-        ArrayList<Object> values = new ArrayList();
+        ArrayList<String> values = new ArrayList();
         values.add(startTime);
         values.add(duration);
         values.add(creationDateTime);
@@ -98,7 +100,6 @@ class MockScheduleTable extends MockDatabase {
             System.out.println("MockScheduleTable contains a schedule for " + billboard + " ...editing the schedule!");
         }
         internal.get(billboard).add(values); // Add values to the MockScheduleTable
-
     }
 
 
@@ -147,5 +148,72 @@ class MockScheduleTable extends MockDatabase {
         return internal.containsKey(billboard);
     }
 
+
+    /**
+     * This function will create a schedule information for a particular billboard which contains the relevant details
+     * from the MockScheduleTable for that particular billboard.
+     * @param billboard A String of the billboard name to fetch the schedule information of from the MockScheduleTable
+     * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can
+     * be read via getters.
+     */
+    protected static ScheduleInfo getScheduleInformationTest(String sessionToken, String billboard) {
+        // Initialise variable array
+        String retrievedBillboard = null;
+        String retrievedStartTime = null;
+        String retrievedDuration = null;
+        String retrievedCreationDateTime = null;
+        String retrievedRepeat = null;
+        String retrievedSunday = null;
+        String retrievedMonday = null;
+        String retrievedTuesday = null;
+        String retrievedWednesday = null;
+        String retrievedThursday = null;
+        String retrievedFriday = null;
+        String retrievedSaturday = null;
+        ServerAcknowledge serverResponse;
+        // User requires the ScheduleBillboard permission to perform this method
+        String callingUsername = getUsernameFromTokenTest(sessionToken);
+        if (!hasPermissionTest(callingUsername, ScheduleBillboard)) {
+            System.out.println("Insufficient user permissions");
+            serverResponse = InsufficientPermission; // 1. User has insufficient permissions to get the schedule.
+            // If the Schedule does not exist for the requested billboard
+        } else if (!BillboardScheduleExistsTest(billboard)) {
+            System.out.println("A schedule does not exist for the requested billboard");
+            serverResponse = ScheduleNotExists; // 2. The requested billboard does not have a schedule to fetch
+        } else {
+            ArrayList<String> retrievedSchedule = (ArrayList) internal.get(billboard).get(0);
+            // Store return from sql into respective data fields.
+            retrievedBillboard = billboard;
+            retrievedStartTime = retrievedSchedule.get(0);
+            retrievedDuration = retrievedSchedule.get(1);
+            retrievedCreationDateTime = retrievedSchedule.get(2);
+            retrievedRepeat = retrievedSchedule.get(3);
+            retrievedSunday = retrievedSchedule.get(4);
+            retrievedMonday = retrievedSchedule.get(5);
+            retrievedTuesday = retrievedSchedule.get(6);
+            retrievedWednesday = retrievedSchedule.get(7);
+            retrievedThursday = retrievedSchedule.get(8);
+            retrievedFriday = retrievedSchedule.get(9);
+            retrievedSaturday = retrievedSchedule.get(10);
+            serverResponse = Success; // 3. Successfully retrieved schedule information for the requested billboard
+        }
+        // Create scheduleInfo return object
+        ScheduleInfo scheduleInfo = new ScheduleInfo(serverResponse,
+                retrievedBillboard,
+                retrievedStartTime,
+                retrievedDuration,
+                retrievedCreationDateTime,
+                retrievedRepeat,
+                retrievedSunday,
+                retrievedMonday,
+                retrievedTuesday,
+                retrievedWednesday,
+                retrievedThursday,
+                retrievedFriday,
+                retrievedSaturday
+        );
+        // Return scheduleInfo Object
+        return scheduleInfo;
+    }
 
 }

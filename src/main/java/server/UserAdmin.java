@@ -139,7 +139,6 @@ public class UserAdmin {
     }
 
 
-
     /**
      * Checks whether the provided username has the required permissions to invoke a particular function
      * @param sessionToken with the username to be checked
@@ -264,7 +263,18 @@ public class UserAdmin {
     }
 
 
-
+    /**
+     * Sets the permissions of the corresponding user
+     * @param sessionToken
+     * @param username
+     * @param createBillboards
+     * @param editBillboards
+     * @param editSchedules
+     * @param editUsers
+     * @return
+     * @throws IOException
+     * @throws SQLException
+     */
     public static ServerAcknowledge setPermissions(String sessionToken, String username, boolean createBillboards,
                                                    boolean editBillboards, boolean editSchedules, boolean editUsers)
                                                                             throws IOException, SQLException {
@@ -328,7 +338,7 @@ public class UserAdmin {
     }
 
     /* Method to generate a salt string for storing/updating password */
-    private static String generateSaltString() {
+    protected static String generateSaltString() {
         Random rng = new Random();
         byte[] saltBytes = new byte[32];
         rng.nextBytes(saltBytes);

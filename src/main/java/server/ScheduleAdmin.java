@@ -397,13 +397,13 @@ public class ScheduleAdmin {
         String retrievedFriday;
         String retrievedSaturday;
         // Set storage parameters for single
-        String serverResponse = null;
+        Server.ServerAcknowledge serverResponse = null;
         //Check if Schedule Exists and updates as required
         ResultSet rs = null;
         String count = countFilterScheduleSql(BillboardName);
         if (count.equals("0") && validateToken(sessionToken)) {
             System.out.println("System Token Validated");
-            serverResponse = "Fail: No Schedule Exists";
+            serverResponse = ScheduleNotExists;
             retrievedBillboard = null;
             retrievedStartTime = null;
             retrievedDuration = null;
@@ -418,7 +418,7 @@ public class ScheduleAdmin {
             retrievedSaturday = null;
         } else if (!validateToken(sessionToken)){
             System.out.println("System Token is not valid!");
-            serverResponse = "Fail: Invalid Session Token";
+            serverResponse = InvalidToken;
             retrievedBillboard = null;
             retrievedStartTime = null;
             retrievedDuration = null;
@@ -451,7 +451,7 @@ public class ScheduleAdmin {
             retrievedFriday = rs.getString(11);
             retrievedSaturday = rs.getString(12);
             // Success Return Message
-            serverResponse = "Pass: Schedule Detail Returned";
+            serverResponse = Success;
         }
 
         // Create scheduleInfo return object
