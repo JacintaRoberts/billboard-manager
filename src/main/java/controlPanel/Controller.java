@@ -488,7 +488,6 @@ public class Controller
             case USER_EDIT:
                 UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
                 userEditView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_EDIT, userEditView);
                 break;
 
@@ -503,7 +502,6 @@ public class Controller
             case USER_PROFILE:
                 UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
                 userProfileView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_PROFILE, userProfileView);
                 break;
 
@@ -511,7 +509,6 @@ public class Controller
             case USER_VIEW:
                 UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
                 userPreviewView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_VIEW, userPreviewView);
                 break;
 
@@ -547,7 +544,6 @@ public class Controller
             case BB_CREATE:
                 BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
                 bbCreateView.setWelcomeText(model.getUsername());
-                // FIXME: move logic in here?
                 views.put(BB_CREATE, bbCreateView);
                 break;
 
@@ -1182,28 +1178,24 @@ public class Controller
                 Document document = bbCreateView.getXMLDocument(xmlFile);
                 bbCreateView.setXMLBB(document, pictureData);
 
-                System.out.println(billboardObject.getServerResponse());
-                System.out.println(billboardObject.getServerResponse().equals("Success"));
-
-                if (billboardObject.getServerResponse().equals("Success"))
+                if (billboardObject.getServerResponse()== Success)
                 {
-                    System.out.println("SUCCESS!!");
                     // set BB Name based on selected button, ensure user cannot update BB name
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
                     updateView(BB_CREATE);
-                } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist"))
+                } else if (billboardObject.getServerResponse() == BillboardNotExists)
                 {
                     bbCreateView.showBBInvalidErrorMessageNonExistBillboard();
                 }
-                else if (billboardObject.getServerResponse().equals("Fail: Session was not valid"))
+                else if (billboardObject.getServerResponse()== InvalidToken)
                 {
                     bbCreateView.showBBInvalidErrorMessageTokenError();
                     updateView(LOGIN);
                 }
                 else
                 {
-                    System.out.println("HERE NOTHING");
+                    bbCreateView.showMessageToUser("Error occurred. Reason: " + billboardObject.getServerResponse());
                 }
             }
             catch (Exception ex)
@@ -1759,30 +1751,35 @@ public class Controller
             // get button name
             String buttonName = button.getName();
 
-            // switch case to handle radio button selected
-            switch (buttonName) {
-                case "hourly":
-                    // show message
-                    scheduleUpdateView.showHourlyMessage();
-                    scheduleUpdateView.enableMinuteSelector(false);
-                    break;
-                case "no repeats":
-                    // show message
-                    scheduleUpdateView.showNoRepeatMessage();
-                    scheduleUpdateView.enableMinuteSelector(false);
-                    break;
-                case "minute":
-                    // show message
-                    scheduleUpdateView.showMinuteMessage();
-                    scheduleUpdateView.enableMinuteSelector(true);
-                    int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                    // set minute label
-                    if (minuteRepeat > 0)
-                    {
-                        scheduleUpdateView.setMinuteLabel(minuteRepeat);
-                    }
-                    break;
+            try {
+                // switch case to handle radio button selected
+                switch (buttonName) {
+                    case "hourly":
+                        // show message
+                        scheduleUpdateView.showHourlyMessage();
+                        scheduleUpdateView.enableMinuteSelector(false);
+                        break;
+                    case "no repeats":
+                        // show message
+                        scheduleUpdateView.showNoRepeatMessage();
+                        scheduleUpdateView.enableMinuteSelector(false);
+                        break;
+                    case "minute":
+                        // show message
+                        scheduleUpdateView.showMinuteMessage();
+                        scheduleUpdateView.enableMinuteSelector(true);
+                        int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
+                        // set minute label
+                        if (minuteRepeat > 0) {
+                            scheduleUpdateView.setMinuteLabel(minuteRepeat);
+                        }
+                        break;
+                }
             }
+            catch (Exception ex)
+                {
+                    scheduleUpdateView.showMessageToUser("Error Encountered. Reason: " + ex.getMessage());
+                }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }

@@ -643,7 +643,8 @@ public class ScheduleUpdateView extends AbstractGenericView
         // calculate duration in minutes by transforming hourDifference to minutes (multiply by 60)
         else
         {
-            if (startHour == 12 && endHour != 12) {
+            if (startHour == 12 && endHour != 12)
+            {
                 hourDifference = hourDifference + 12;
                 duration = hourDifference*60 + minDifference;
             }
@@ -769,12 +770,11 @@ public class ScheduleUpdateView extends AbstractGenericView
      * Get the number of minutes the bb will be repeatedly scheduled.
      * Returning -1 if invalid, or the valid minute value in int format
      */
-    protected int getMinuteRepeat()
-    {
+    protected int getMinuteRepeat() throws Exception {
         // if nothing has been selected, return an invalid minute number -1
         if (repeatMinutesComboBox.getSelectedItem() == null)
         {
-            return -1;
+            throw new Exception("Minutes not selected.");
         }
         // return selected minutes if valid
         else
