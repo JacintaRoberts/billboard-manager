@@ -1880,8 +1880,8 @@ public class Controller
                             recurrenceButton = "minute";
                         }
 
-                        Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
-                        Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
+                        Integer startHour = Integer.parseInt(startTime.substring(0, 2));
+                        Integer startMin = Integer.parseInt(startTime.substring(3, 5));
 
                         scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
                     }
