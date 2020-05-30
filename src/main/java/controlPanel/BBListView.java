@@ -4,6 +4,9 @@ import controlPanel.Main.VIEW_TYPE;
 import server.Server;
 
 import javax.swing.*;
+import java.awt.*;
+import java.awt.event.MouseListener;
+
 import static server.Server.ServerAcknowledge.*;
 
 /**
@@ -14,6 +17,8 @@ public class BBListView extends AbstractListView
     // *** VARIABLES**
     // -- enum --
     private VIEW_TYPE view_type;
+    // -- button --
+    private JButton BBMenuButton;
 
     /**
      * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
@@ -24,6 +29,15 @@ public class BBListView extends AbstractListView
         super("Billboards List");
         view_type = VIEW_TYPE.BB_LIST;
         setListTitle("BILLBOARD LIST");
+        addBBMenuButton();
+    }
+
+    private void addBBMenuButton()
+    {
+        BBMenuButton = new JButton("Billboard Menu");
+        JPanel navPanel = getNavPanel();
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(BBMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
     @Override
@@ -49,5 +63,14 @@ public class BBListView extends AbstractListView
             message = "Billboard Does not Exists";
         }
         JOptionPane.showMessageDialog(null, message);
+    }
+
+    /**
+     * Add listener to navigate to BB Menu View
+     * @param listener mouse listener
+     */
+    protected void addBBMenuListener(MouseListener listener)
+    {
+        BBMenuButton.addMouseListener(listener);
     }
 }

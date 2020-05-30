@@ -60,6 +60,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JRadioButton noRepeatButton;
     private JButton submitButton;
     private JButton clearScheduleButton;
+    private JButton scheduleMenuButton;
 
     // --- Group ---
     private ButtonGroup group;
@@ -269,10 +270,12 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         submitButton = new JButton("Submit");
         clearScheduleButton = new JButton("Clear Schedule");
+        scheduleMenuButton = new JButton("Schedule Menu");
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc_nav = getNavGBCPanel();
         navPanel.add(submitButton, setGBC(gbc_nav, 3,1,1,1));
         navPanel.add(clearScheduleButton, setGBC(gbc_nav, 4,1,1,1));
+        navPanel.add(scheduleMenuButton, setGBC(gbc_nav, 2,1,1,1));
     }
 
     // ####################### CLEANUP, ENUM & UPDATE #######################
@@ -834,5 +837,14 @@ public class ScheduleUpdateView extends AbstractGenericView
     protected void addScheduleClearButtonListener(MouseAdapter listener)
     {
         clearScheduleButton.addMouseListener(listener);
+    }
+
+    /**
+     * Add listener to navigate to schedule Menu View
+     * @param listener mouse listener
+     */
+    protected void addScheduleMenuListener(MouseListener listener)
+    {
+        scheduleMenuButton.addMouseListener(listener);
     }
 }

@@ -12,23 +12,18 @@ import javax.xml.transform.stream.StreamResult;
 import java.awt.*;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.io.*;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Base64;
-import java.util.HashMap;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.w3c.dom.*;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
-import org.xml.sax.SAXParseException;
 
 import static javax.swing.JOptionPane.*;
-import static viewer.Viewer.*;
 
 /**
  * BB Create View designed to contain software elements allowing users to create a BB.
@@ -50,6 +45,7 @@ public class BBCreateView extends AbstractGenericView
     private JButton textButton;
     private JButton photoButton;
     private JButton billboardNameButton;
+    private JButton BBMenuButton;
     // --- Labels ---
     private JLabel photoLabel;
     private JLabel BBNameLabel;
@@ -84,6 +80,7 @@ public class BBCreateView extends AbstractGenericView
         createDrawingPanel();
         createDrawingToolbar();
         createBBOptionsMenu();
+        addBBMenuButton();
     }
 
     /**
@@ -196,6 +193,14 @@ public class BBCreateView extends AbstractGenericView
         xmlFolderChooser.setCurrentDirectory(new java.io.File("."));
         xmlFolderChooser.setDialogTitle("Select Folder to Save XML");
         xmlFolderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+    }
+
+    private void addBBMenuButton()
+    {
+        BBMenuButton = new JButton("Billboard Menu");
+        JPanel navPanel = getNavPanel();
+        GridBagConstraints gbc = getNavGBCPanel();
+        navPanel.add(BBMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
     // ###################### CLEAN UP, ENUM & UPDATE ######################
@@ -1134,6 +1139,15 @@ public class BBCreateView extends AbstractGenericView
     protected void addBBPreviewListener(MouseListener listener)
     {
         previewButton.addMouseListener(listener);
+    }
+
+    /**
+     * Add listener to navigate to BB Menu View
+     * @param listener mouse listener
+     */
+    protected void addBBMenuListener(MouseListener listener)
+    {
+        BBMenuButton.addMouseListener(listener);
     }
 
     /**
