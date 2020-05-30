@@ -13,7 +13,7 @@ public abstract class AbstractView extends JFrame
 
     /**
      * Abstract view constructor with the general look of the application views and the frame set up
-     * @param frame_name
+     * @param frame_name frame name string
      */
     public AbstractView(String frame_name)
     {

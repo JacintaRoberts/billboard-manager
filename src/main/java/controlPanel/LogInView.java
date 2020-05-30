@@ -5,6 +5,9 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
 
+/**
+ * Log in View
+ */
 public class LogInView extends AbstractView
 {
     // *** DECLARE VARIABLES**
@@ -24,7 +27,7 @@ public class LogInView extends AbstractView
     private GridBagConstraints gbc = new GridBagConstraints();
 
     /**
-     * Constructor for LogIn View - set frame name
+     * Constructor for LogIn View - set frame name and create components
      */
     public LogInView()
     {
