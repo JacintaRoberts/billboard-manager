@@ -220,7 +220,7 @@ public class UserAdmin {
      * If viewing your own details, no permission required. If viewing other's details, editUser permission required.
      * @param sessionToken A String which is the sessionToken of the calling user.
      * @param username A String which is the the username of the user details to be retrieved from the database.
-     * @return Returns an ArrayList<Boolean> of size 4 that indicates whether the requested user has the corresponding
+     * @return Returns an ArrayList of Booleans of size 4 that indicates whether the requested user has the corresponding
      * permission (order is createBillboard, editBillboard, editSchedule, editUser) or an enum to indicate
      * insufficient permission to view requested user.
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
