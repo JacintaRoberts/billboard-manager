@@ -91,10 +91,17 @@ public class ScheduleControl {
         Integer Friday = daysOfWeek.get(4) ? 1 : 0;
         Integer Saturday = daysOfWeek.get(5) ? 1 : 0;
         Integer Sunday = daysOfWeek.get(6) ? 1 : 0;
-        String startHour = String.valueOf(scheduleInfo.get(2));
+        Integer startHourCalcs = (Integer) scheduleInfo.get(2);
         String startMin = String.valueOf(scheduleInfo.get(3));
         Integer Duration = (Integer) scheduleInfo.get(4);
         Integer Repeat = (Integer) scheduleInfo.get(6);
+        Boolean PM = scheduleInfo.get(7).equals("PM");
+        if(PM){
+            startHourCalcs  += 12;
+        } else {
+            // dont do anything in AM
+        }
+        String startHour = String.valueOf(startHourCalcs);
 
         // Condition if hourly
         if (scheduleInfo.get(5).equals("hourly")){

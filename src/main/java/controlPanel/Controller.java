@@ -1879,11 +1879,24 @@ public class Controller
                         } else {
                             recurrenceButton = "minute";
                         }
-
+                        String AMPMTag = "";
                         Integer startHour = Integer.parseInt(startTime.substring(0, 2));
+
+                        // Check AM PM
+                        if (startHour >= 12){
+                            AMPMTag = "PM";
+                        } else {
+                            AMPMTag = "AM";
+                        }
+
+                        // Change hour to 12hour format
+                        if (startHour > 12){
+                            startHour -= 12;
+                        }
+
                         Integer startMin = Integer.parseInt(startTime.substring(3, 5));
 
-                        scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat);
+                        scheduleUpdateView.setScheduleValues(daysOfWeek, startHour, startMin, duration, recurrenceButton, minRepeat, AMPMTag);
                     }
                     else
                     {
