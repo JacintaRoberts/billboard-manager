@@ -104,7 +104,7 @@ public class UserEditView extends AbstractUserView
      * Ask user for new password
      * @return response of user (int)
      */
-    protected String showNewPasswordInput()
+    protected String showNewPasswordInput() throws Exception
     {
         String message = "Please enter new password.";
         String password = JOptionPane.showInputDialog(null, message);
@@ -115,17 +115,18 @@ public class UserEditView extends AbstractUserView
             if (!password.equals(""))
             {
                 passwordText = password;
+                return passwordText;
             }
             else
             {
-                passwordText = null;
+                throw new Exception("Invalid Password Provided");
             }
         }
         else
         {
-            passwordText = null;
+            throw new Exception("No Password Provided. Password not set.");
         }
-        return passwordText;
+
     }
 
 

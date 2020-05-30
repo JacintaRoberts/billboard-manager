@@ -923,21 +923,17 @@ public class Controller
 
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            // get password from user
-            // FIXME - check if valid??? PATRICE
-            String password = userEditView.showNewPasswordInput();
+            try
+            {
+                // get password from user
+                String password = userEditView.showNewPasswordInput();
 
-            // ask user for confirmation of editing password
-            int response = userEditView.showUserConfirmation();
+                // ask user for confirmation of editing password
+                int response = userEditView.showUserConfirmation();
 
-            // Confirm response of updated password
-            if  (response == 0) {
-                if (password == null)
-                { // Ensure the user enters a valid password (not empty)
-                    userEditView.showEnterValidPasswordException();
-                }
-                else
-                    {
+                // Confirm response of updated password
+                if  (response == 0)
+                {
                     try {
                         ServerAcknowledge serverResponse = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
                         if ( serverResponse.equals(Success) ) {
@@ -955,8 +951,12 @@ public class Controller
                         System.exit(0);
                     }
                 }
-                views.put(USER_EDIT, userEditView);
             }
+            catch (Exception ex)
+            {
+                userEditView.showMessageToUser("Unable to Set Password. Reason: " + ex.getMessage());
+            }
+            views.put(USER_EDIT, userEditView);
         }
     }
 
@@ -1043,10 +1043,8 @@ public class Controller
             String usernameSelected = button.getName();
             // set username, password and permissions in User Edit View
             userPreviewView.setUsername(usernameSelected);
-
             // Get user permissions from server
             getUserPermissionsFromServer(userPreviewView, USER_VIEW, usernameSelected);
-
             updateView(USER_VIEW);
         }
     }
@@ -1088,11 +1086,11 @@ public class Controller
         if (errorMessage.equals(InsufficientPermission)) {
             System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
             userListView.showInsufficientPermissionsException();
-            updateView(USERS_MENU); // FIXME - TEST PATRICE
+            updateView(USERS_MENU);
         } else if (serverResponse.equals(InvalidToken)) {
             System.out.println("CONTROLLER LEVEL - Invalid Token");
             userListView.showInvalidTokenException();
-            updateView(LOGIN); // FIXME - TEST PATRICE
+            updateView(LOGIN);
         } else { // Successful, let the user know and populate with list of users
             userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
         }
@@ -1184,8 +1182,12 @@ public class Controller
                 Document document = bbCreateView.getXMLDocument(xmlFile);
                 bbCreateView.setXMLBB(document, pictureData);
 
+                System.out.println(billboardObject.getServerResponse());
+                System.out.println(billboardObject.getServerResponse().equals("Success"));
+
                 if (billboardObject.getServerResponse().equals("Success"))
                 {
+                    System.out.println("SUCCESS!!");
                     // set BB Name based on selected button, ensure user cannot update BB name
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
@@ -1198,6 +1200,10 @@ public class Controller
                 {
                     bbCreateView.showBBInvalidErrorMessageTokenError();
                     updateView(LOGIN);
+                }
+                else
+                {
+                    System.out.println("HERE NOTHING");
                 }
             }
             catch (Exception ex)

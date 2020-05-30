@@ -474,7 +474,6 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat, String AMPMtag)
     {
-        System.out.println("SET SCHEDULE ");
         // ------------- SELECTED DAYS -------------
         // set selected days on the GUI
         for (int dayIndex = 0; dayIndex < selectedDays.size() ;dayIndex++)
@@ -542,14 +541,6 @@ public class ScheduleUpdateView extends AbstractGenericView
                 enableMinuteSelector(false);
                 break;
         }
-    }
-
-    /**
-     * Set the duration of the BB
-     */
-    protected void setBBSelected(String bbName)
-    {
-        bbNameComboBox.setSelectedItem(bbName);
     }
 
     /**
@@ -666,7 +657,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         // create error if duration is equal to or less than 0, disable minute selector
         if (duration <= 0)
         {
-            System.out.println("Set duration to invalid");
             durationTimeLabel.setText("Invalid");
             enableMinuteSelector(false);
             minutesLabel.setText("Invalid Time selected.");
@@ -674,7 +664,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         // set duration label if valid time, enable minute selector
         else
         {
-            System.out.println("Set duration to correct time");
             durationTimeLabel.setText(duration/60 + " hrs " + duration%60 + " mins. Total Minutes: " + duration);
             enableMinuteSelector(true);
         }
