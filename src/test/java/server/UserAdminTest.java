@@ -21,8 +21,6 @@ import static server.UserAdmin.*;
 
 // TODO: FIX COMMENTS
 
-
-
 class UserAdminTest {
     /* Test 0: Declaring UserAdmin object
      * Description: UserAdmin object should be running in background on application start.
@@ -81,15 +79,15 @@ class UserAdminTest {
     public void userExists() {
       assertAll("Check for Existing User",
         // Ensure that these users don't exist in the Fake DB.
-        ()-> assertFalse(UserAdmin.userExists("non-existent-user")),
+        ()-> assertFalse(UserAdmin.userExists("non-existent")),
         // Check for case sensitivity
-        ()-> assertFalse(UserAdmin.userExists("testuser")),
+        ()-> assertFalse(UserAdmin.userExists("callinguser")),
         // Check for trailing whitespace stripping
-        ()-> assertFalse(UserAdmin.userExists("testuser ")),
+        ()-> assertFalse(UserAdmin.userExists("callinguser ")),
         // Check for empty
         ()-> assertFalse(UserAdmin.userExists("")),
         // Check for valid
-        ()-> assertTrue(UserAdmin.userExists("testUser"))
+        ()-> assertTrue(UserAdmin.userExists(callingUser))
       );
     }
 

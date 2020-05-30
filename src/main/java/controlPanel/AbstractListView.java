@@ -59,7 +59,7 @@ public abstract class AbstractListView extends AbstractGenericView
     /**
      * Set List Title which will be displayed on panel.
      * Used for BB List and User List
-     * @param titleName
+     * @param titleName The string title to be set for the panel
      */
     protected void setListTitle(String titleName)
     {
@@ -121,7 +121,7 @@ public abstract class AbstractListView extends AbstractGenericView
 
     /**
      * Show Dialog to ask user to confirm deleting object (either user or bb)
-     * @return
+     * @return integer to confirm whether they press the Confirm button
      */
     protected int showDeleteConfirmation()
     {

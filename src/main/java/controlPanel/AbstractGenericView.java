@@ -55,7 +55,7 @@ public abstract class AbstractGenericView extends AbstractView
      *  1. Create Profile Panel
      *  2. Add 'Profile' Button
      *  3. Add 'Log Out' Button
-     *  4. Add Placeholder for Welcome <Name> Text
+     *  4. Add Placeholder for Welcome "Name" Text
      *  5. Add Panel to Frame
      */
     protected void addProfilePanel()
@@ -113,7 +113,7 @@ public abstract class AbstractGenericView extends AbstractView
     }
 
     /**
-     * Set username in Welcome text i.e "Welcome <Name>"
+     * Set username in Welcome text i.e "Welcome 'Name'"
      * @param username username of current user
      */
     protected void setWelcomeText(String username)
@@ -147,6 +147,7 @@ public abstract class AbstractGenericView extends AbstractView
 
     /**
      * Show message to user where input string is the message displayed
+     * @param message The message to be displayed to the user
      */
     protected void showMessageToUser(String message)
     {
