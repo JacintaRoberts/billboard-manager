@@ -420,7 +420,7 @@ public class ScheduleAdmin {
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
             if (UserAdmin.checkSinglePermission(sessionToken, Server.Permission.ScheduleBillboard)){
-                // Start conenction to see if billboard exists
+                // Start connection to see if billboard exists
                 String billboardExist = countFilterBillboardSql(billboard);
                 if (billboardExist.equals("0")){
                     // Return Fail Message

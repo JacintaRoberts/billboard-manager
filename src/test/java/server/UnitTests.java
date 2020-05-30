@@ -201,7 +201,7 @@ class UnitTests {
      * BILLBOARD UNIT TESTS
      * ================================================================================================
      */
-
+//TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
     /* Test 11: Create Billboard (Pass)
      * Description: Create the corresponding billboard in the MockBillboardTable with the billboard name, creator, xml
      * and picture data - return server acknowledgement.
@@ -242,15 +242,11 @@ class UnitTests {
         assertEquals(billboardName, mockResponse.getBillboardName());
     }
 
-    //TODO: JACINTA GETBILLBOARDINFORMATION
-
     /**
      * ================================================================================================
      * SCHEDULE UNIT TESTS
      * ================================================================================================
      */
-
-    //TODO: ALAN CAN YOU HAVE A LOOK AT ADDING SOME SCHEDULE UNIT TESTS?
 
 
 }
