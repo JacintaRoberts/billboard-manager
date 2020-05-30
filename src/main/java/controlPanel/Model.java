@@ -12,16 +12,14 @@ public class Model
     private String username;
     private String sessionToken;
     private VIEW_TYPE currentView;
-    private VIEW_TYPE previousView;
 
     /**
      * Model Constructor
      */
     public Model()
     {
-        // set the current to LOGIN frame & previous to HOME
+        // set the current to LOGIN frame
         currentView = VIEW_TYPE.LOGIN;
-        previousView = VIEW_TYPE.HOME;
     }
 
     /**
@@ -48,19 +46,7 @@ public class Model
      */
     public void setCurrentView(VIEW_TYPE newView)
     {
-        // redefine previous and current view
-        this.previousView = this.currentView;
         this.currentView = newView;
-
-    }
-
-    /**
-     * Get User's previous view
-     * @return previous view
-     */
-    public VIEW_TYPE getPreviousView()
-    {
-        return this.previousView;
     }
 
     /**
