@@ -65,10 +65,6 @@ class UserAdminTest {
     @BeforeEach @Test
     public void setUpUserAdmin() throws IOException, SQLException, NoSuchAlgorithmException {
         userAdmin = new UserAdmin();
-        // Populate Mock User Table and Generate Values as required - For Unit Testing
-        mockToken = MockSessionTokens.generateTokenTest(callingUser);
-        MockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, editBillboard, editUser);
-
         // Populate Database Table - For Integrated Testing (Start with a fresh test user each test)
         if (!DbUser.retrieveUser(callingUser).isEmpty()) {
             DbUser.deleteUser(callingUser);

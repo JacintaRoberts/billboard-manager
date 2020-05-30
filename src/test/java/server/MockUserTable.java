@@ -99,6 +99,7 @@ class MockUserTable extends MockDatabase {
         userPermissions.add(1, (Boolean) retrievedUser.get(3)); // Edit billboard
         userPermissions.add(2, (Boolean) retrievedUser.get(4)); // Edit schedule
         userPermissions.add(3, (Boolean) retrievedUser.get(5)); // Edit User
+        System.out.println("Extracted user permissions: " + userPermissions);
         return userPermissions;
     }
 
