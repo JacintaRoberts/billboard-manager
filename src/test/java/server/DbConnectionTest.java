@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static server.BillboardAdmin.getBillboardSQL;
 
 class DbConnectionTest {
     /* Test 0: Declaring Connection object
@@ -374,6 +375,7 @@ class DbConnectionTest {
 //        BillboardAdmin.createBillboardTable();
 //        ScheduleAdmin.createScheduleTable();
 //        DbUser.createUserTable();
+        System.out.println(getBillboardSQL("er").getBillboardName());
         // Set SQL Query
         final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Schedules ";
 
