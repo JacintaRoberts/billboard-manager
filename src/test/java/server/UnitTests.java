@@ -42,7 +42,19 @@ class UnitTests {
     private String newBillboardName="newBillboard";
     private String billboardXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><billboard></billboard>";
     private byte[] pictureData = "f9lMAwAghdLKCgWHgMqOtwXHA2+YIDNzrhIG1JLk/stdh4I4IgYFTgoFv7yn+P7zBWVK5SO9cAAAAAElFTkSuQmCC".getBytes();
-    // Schedule Dummy Data //TODO: ALAN CAN YOU HAVE A LOOK INTO SCHEDULES FOR SOMETHING SIMILAR
+    // Schedule Dummy Data
+    String startTime = "05:00";
+    String duration = "30";
+    String creationDateTime = "2020-05-18 12:55";
+    String repeat = "120";
+    String sunday = "0";
+    String monday = "0";
+    String tuesday = "1";
+    String wednesday = "1";
+    String thursday = "0";
+    String friday = "0";
+    String saturday = "0";
+
 
     /* Test 1: Constructing a MockUserTable and MockSessionTokens object
      * Description: MockUserTable and MockSessionTokens created and some initial testing data populated.
@@ -60,6 +72,8 @@ class UnitTests {
         basicToken = mockSessionTokens.generateTokenTest(basicUser);
         mockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser);
         mockBillboardTable.createBillboardTest(mockToken, billboardName, callingUser, billboardXML, pictureData);
+        mockScheduleTable.updateScheduleTest(mockToken, billboardName, startTime, duration, creationDateTime, repeat,
+                                                sunday, monday, tuesday, wednesday, thursday, friday, saturday);
     }
 
     /**
@@ -247,7 +261,39 @@ class UnitTests {
      * SCHEDULE UNIT TESTS
      * ================================================================================================
      */
-    //TODO: deleteSchedule
+//TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
+    /* Test 14: Create Schedule (Pass)
+     * Description: Create the corresponding schedule in the MockScheduleTable with the billboard name, start time,
+     * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
+     * - returns server acknowledgement.
+     * Expected Output: Schedule is created in the MockScheduleTable and returns Success server acknowledge.
+     */
+    @Test
+    public void mockCreateScheduleTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.updateScheduleTest(mockToken, newBillboardName, startTime,
+                                                            duration, creationDateTime, repeat, sunday, monday, tuesday,
+                                                            wednesday, thursday, friday, saturday);
+        assertEquals(Success, mockResponse);
+        // Check that the schedule is actually added to the MockScheduleTable
+        assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+    }
+
+
+    /* Test 15: Delete Schedule (Pass)
+     * Description: Delete the corresponding schedule in the MockScheduleTable with the billboard name,
+     * returns server acknowledgement.
+     * Expected Output: Schedule is deleted from the MockScheduleTable and returns Success server acknowledge.
+     */
+    @Test
+    public void mockDeleteScheduleTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.deleteScheduleTest(mockToken, billboardName);
+        assertEquals(Success, mockResponse);
+        // Check that the schedule no longer exists in the MockScheduleTable
+        assertFalse(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+    }
+
+
+
     // updateSchedule (create, edit after)
     // getScheduleInformation (THIS IS ONE)
     // getCurrentBillboard (NAME ONLY) *FAKE

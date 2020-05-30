@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
 import java.sql.*;
+import java.time.DateTimeException;
 import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -862,7 +863,7 @@ public class ScheduleAdmin {
         // Loop through all billboards and see if it is within range
         for (int i = 0; i < numBillboards; i++) {
             billboardName = allDaySchedule.getScheduleBillboardName().get(i);
-            startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i)) ;
+            startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i));
             duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
             endTime =  startTime.plusMinutes(duration);
             creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
@@ -934,7 +935,11 @@ public class ScheduleAdmin {
         ScheduleList todayScheduleList = listFilteredScheduleInformation(currentDayOfWeek);
 
         // Get the current schedule (based on the time) and the billboard name
-        CurrentSchedule currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
+        CurrentSchedule currentSchedule = null;
+        if (todayScheduleList.getScheduleBillboardName().size() != 0){
+            currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
+        }
+
         ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
         String currentBillboardName = "";
 
