@@ -16,6 +16,7 @@ import java.util.*;
 
 import static helpers.Helpers.networkPropsFilePath;
 import static java.lang.Boolean.parseBoolean;
+import static server.ScheduleAdmin.activeBillboardDisplay;
 import static server.Server.ServerAcknowledge.*;
 
 public class Server {
@@ -206,7 +207,7 @@ public class Server {
         // Determine which method to execute
         switch (module) {
             case "Viewer":
-                return "BillboardXMLObject"; // TODO: Actually implement this method to return the object
+                return activeBillboardDisplay(); // TODO: Actually implement this method to return the object
             case "User":
                 return callUserAdminMethod();
             case "Billboard":
@@ -292,11 +293,6 @@ public class Server {
                 System.out.println("pictureData is: " + pictureData);
                 System.out.println("xmlCode is: " + XMLCode);
                 return BillboardAdmin.createBillboard(sessionToken, billboardName, creator, XMLCode, pictureData);
-//                return null;
-//            case "EditBillboard":
-//                String originalBillboardName = additionalArgs[0];
-//                String newXmlCode = additionalArgs[1];
-//                return BillboardAdmin.editBillboard(originalBillboardName,newXmlCode);
             case "DeleteBillboard":
                 String deleteBillboardName = additionalArgs[0];
                 String deleteBillboardRequestor = additionalArgs[1];
@@ -332,21 +328,6 @@ public class Server {
     private static Object callScheduleAdminMethod() throws IOException, SQLException {
         // Determine which method from ScheduleAdmin to execute
         switch (method) {
-//            case "CreateSchedule":
-//                String billboardName = additionalArgs[0];
-//                String startTime = additionalArgs[1];
-//                String duration = additionalArgs[2];
-//                String creationDateTime = additionalArgs[3];
-//                String repeat = additionalArgs[4];
-//                String sunday = additionalArgs[5];
-//                String monday = additionalArgs[6];
-//                String tuesday = additionalArgs[7];
-//                String wednesday = additionalArgs[8];
-//                String thursday = additionalArgs[9];
-//                String friday = additionalArgs[10];
-//                String saturday = additionalArgs[11];
-//                return ScheduleAdmin.createSchedule(billboardName,startTime,duration,creationDateTime,repeat,
-//                sunday,monday,tuesday,wednesday,thursday,friday,saturday);
             case "UpdateSchedule":
                 String editBillboardName = additionalArgs[0];
                 String editStartTime = additionalArgs[1];

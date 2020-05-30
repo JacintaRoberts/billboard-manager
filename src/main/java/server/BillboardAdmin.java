@@ -401,19 +401,31 @@ public class BillboardAdmin {
      * @throws SQLException
      */
     public static DbBillboard getBillboardSQL(String billboardName) throws IOException, SQLException {
+        connection = DbConnection.getInstance();
         listaBillboard = connection.prepareStatement(SHOW_BILLBOARD_SQL);
         listaBillboard.setString(1,billboardName);
-        ResultSet billboardinfo = listaBillboard.executeQuery();
+        ResultSet rs = listaBillboard.executeQuery();
         DbBillboard dbBillboard = null;
-        while(billboardinfo.next()){
-            dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
-                    billboardinfo.getString("Creator"),
-                    billboardinfo.getBytes("Image"),
-                    billboardinfo.getString("XMLCode"),
-                    Success
-            );
+        String billboard = null;
+        String Creator = null;
+        byte[] Image = null;
+        String XMLcode = null;
+        while(rs.next()){
+            billboard = rs.getString("BillboardName");
+            Creator = rs.getString("Creator");
+            Image = rs.getBytes("Image");
+            XMLcode = rs.getString("XMLCode");
         }
-        billboardinfo.close();
+        dbBillboard = new DbBillboard(billboard,Creator , Image, XMLcode,Success);
+
+
+
+//        dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
+//                billboardinfo.getString("Creator"),
+//                billboardinfo.getBytes("Image"),
+//                billboardinfo.getString("XMLCode"),
+//                Success
+//        );
         return dbBillboard;
     }
 
