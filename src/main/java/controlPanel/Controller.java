@@ -288,7 +288,6 @@ public class Controller
         ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
         scheduleWeekView.addScheduleMenuListener(new ScheduleButtonListener());
         views.put(SCHEDULE_WEEK, scheduleWeekView);
-
     }
 
     /**
@@ -380,94 +379,12 @@ public class Controller
 
             // SCHEDULE_WEEK: set welcome text, populate schedule from DB
             case SCHEDULE_WEEK:
-                ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
-                scheduleWeekView.setWelcomeText(model.getUsername());
-
-                // initialise
-                ArrayList<ArrayList<String>> scheduleMonday = new ArrayList<>();
-                ArrayList<ArrayList<String>> scheduleTuesday = new ArrayList<>();
-                ArrayList<ArrayList<String>> scheduleWednesday = new ArrayList<>();
-                ArrayList<ArrayList<String>> scheduleThursday = new ArrayList<>();
-                ArrayList<ArrayList<String>> scheduleFriday = new ArrayList<>();
-                ArrayList<ArrayList<String>> scheduleSaturday = new ArrayList<>();
-                ArrayList<ArrayList<String>> scheduleSunday = new ArrayList<>();
-
-                try {
-                    scheduleMonday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
-                    scheduleTuesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Tuesday");
-                    scheduleWednesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Wednesday");
-                    scheduleThursday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Thursday");
-                    scheduleFriday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Friday");
-                    scheduleSaturday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Saturday");
-                    scheduleSunday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Sunday");
-
-                    // Billboard Schedule: day, time, bb name
-                    ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
-                    if(scheduleMonday.get(0).get(1) != null){
-                        schedule.add(scheduleMonday);
-                    } else{
-                        schedule.add(null);
-                    }
-                    if(scheduleTuesday.get(0).get(1) != null){
-                        schedule.add(scheduleTuesday);
-                    } else{
-                        schedule.add(null);
-                    }
-                    if(scheduleWednesday.get(0).get(1) != null){
-                        schedule.add(scheduleWednesday);
-                    } else{
-                        schedule.add(null);
-                    }
-                    if(scheduleThursday.get(0).get(1) != null){
-                        schedule.add(scheduleThursday);
-                    } else{
-                        schedule.add(null);
-                    }
-                    if(scheduleFriday.get(0).get(1) != null){
-                        schedule.add(scheduleFriday);
-                    } else{
-                        schedule.add(null);
-                    }
-                    if(scheduleSaturday.get(0).get(1) != null){
-                        schedule.add(scheduleSaturday);
-                    } else{
-                        schedule.add(null);
-                    }
-                    if(scheduleSunday.get(0).get(1) != null){
-                        schedule.add(scheduleSunday);
-                    } else{
-                        schedule.add(null);
-                    }
-
-                    scheduleWeekView.populateSchedule(schedule);
-                } catch (IOException | ClassNotFoundException e)
-                {
-                    scheduleWeekView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
-                    System.exit(0);
-                }
-
-                views.put(SCHEDULE_WEEK, scheduleWeekView);
+                scheduleWeek();
                 break;
 
             // SCHEDULE_UPDATE: set welcome text, populate schedule from DB
             case SCHEDULE_UPDATE:
-                ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
-                scheduleUpdateView.setWelcomeText(model.getUsername());
-
-                try {
-                    BillboardList billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
-                    if (!billboardList.getBillboardNames().isEmpty())
-                    {
-                        ArrayList<String> stringArray = billboardList.getBillboardNames();
-                        scheduleUpdateView.setBBNamesFromDB(stringArray);
-                        scheduleUpdateView.showInstructionMessage();
-                        views.put(SCHEDULE_UPDATE, scheduleUpdateView);
-                    }
-                } catch (IOException | ClassNotFoundException e)
-                {
-                    scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
-                    System.exit(0);
-                }
+                scheduleUpdate();
                 break;
 
             // SCHEDULE_MENU: set welcome text
@@ -479,7 +396,9 @@ public class Controller
 
             // USER_LIST: set welcome text, populate user info
             case USER_LIST:
-                listUserHandling();
+                UserListView userListView = (UserListView) views.get(USER_LIST);
+                userListView.setWelcomeText(model.getUsername());
+                views.put(USER_LIST, userListView);
                 break;
 
             // USER_EDIT: set welcome text
@@ -519,23 +438,7 @@ public class Controller
 
             // BB_LIST: set welcome text, populate BB list
             case BB_LIST:
-                // get list BB view
-                BBListView bbListView = (BBListView) views.get(BB_LIST);
-                bbListView.setWelcomeText(model.getUsername());
-                try {
-                    BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
-                    ArrayList<String> BBListArray = billboard_List.getBillboardNames();
-                    // Check if not null to add billboard list else return error message
-                    if (!billboard_List.getServerResponse().equals("Fail: No Billboard Exists")){
-                        bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
-                    } else {
-                        bbListView.showMessageToUser("Billboard List is empty! Please Create a new Billboard.");
-                    }
-                } catch (IOException | ClassNotFoundException ex) {
-                    bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
-                    System.exit(0);
-                }
-                views.put(BB_LIST, bbListView);
+                BBList();
                 break;
 
             // BB_CREATE: set welcome text
@@ -602,7 +505,6 @@ public class Controller
             getUserPermissionsFromServer(userProfileView, USER_PROFILE, username);
 
             views.put(USER_PROFILE, userProfileView);
-
         }
     }
 
@@ -1107,6 +1009,7 @@ public class Controller
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
+            listUserHandling();
             // navigate to users list screen
             updateView(USER_LIST);
         }
@@ -2165,5 +2068,128 @@ public class Controller
                 }
             }
         }
+    }
+
+    /**
+     * Schedule Update is designed to update the schedule Update View with the all billboard names from the db.
+     * If an error occurs, exit application.
+     */
+    private void scheduleUpdate()
+    {
+        ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
+        scheduleUpdateView.setWelcomeText(model.getUsername());
+        try {
+            BillboardList billboardList = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+            if (!billboardList.getBillboardNames().isEmpty())
+            {
+                ArrayList<String> stringArray = billboardList.getBillboardNames();
+                scheduleUpdateView.setBBNamesFromDB(stringArray);
+                scheduleUpdateView.showInstructionMessage();
+                views.put(SCHEDULE_UPDATE, scheduleUpdateView);
+            }
+        } catch (IOException | ClassNotFoundException e)
+        {
+            scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+            System.exit(0);
+        }
+    }
+
+    /**
+     * Schedule Week View is designed to update the Schedule Week view with all the schedule information for the weekly
+     * calendar view. This schedule information contains the creator, start and end time, and billboard name.
+     */
+    private void scheduleWeek()
+    {
+        ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
+        scheduleWeekView.setWelcomeText(model.getUsername());
+
+        // initialise
+        ArrayList<ArrayList<String>> scheduleMonday = new ArrayList<>();
+        ArrayList<ArrayList<String>> scheduleTuesday = new ArrayList<>();
+        ArrayList<ArrayList<String>> scheduleWednesday = new ArrayList<>();
+        ArrayList<ArrayList<String>> scheduleThursday = new ArrayList<>();
+        ArrayList<ArrayList<String>> scheduleFriday = new ArrayList<>();
+        ArrayList<ArrayList<String>> scheduleSaturday = new ArrayList<>();
+        ArrayList<ArrayList<String>> scheduleSunday = new ArrayList<>();
+
+        try {
+            scheduleMonday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Monday");
+            scheduleTuesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Tuesday");
+            scheduleWednesday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Wednesday");
+            scheduleThursday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Thursday");
+            scheduleFriday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Friday");
+            scheduleSaturday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Saturday");
+            scheduleSunday = (ArrayList<ArrayList<String>>) ScheduleControl.listDayScheduleRequest(model.getSessionToken(), "Sunday");
+
+            // Billboard Schedule: day, time, bb name
+            ArrayList<ArrayList<ArrayList<String>>> schedule = new ArrayList<>();
+            if(scheduleMonday.get(0).get(1) != null){
+                schedule.add(scheduleMonday);
+            } else{
+                schedule.add(null);
+            }
+            if(scheduleTuesday.get(0).get(1) != null){
+                schedule.add(scheduleTuesday);
+            } else{
+                schedule.add(null);
+            }
+            if(scheduleWednesday.get(0).get(1) != null){
+                schedule.add(scheduleWednesday);
+            } else{
+                schedule.add(null);
+            }
+            if(scheduleThursday.get(0).get(1) != null){
+                schedule.add(scheduleThursday);
+            } else{
+                schedule.add(null);
+            }
+            if(scheduleFriday.get(0).get(1) != null){
+                schedule.add(scheduleFriday);
+            } else{
+                schedule.add(null);
+            }
+            if(scheduleSaturday.get(0).get(1) != null){
+                schedule.add(scheduleSaturday);
+            } else{
+                schedule.add(null);
+            }
+            if(scheduleSunday.get(0).get(1) != null){
+                schedule.add(scheduleSunday);
+            } else{
+                schedule.add(null);
+            }
+
+            scheduleWeekView.populateSchedule(schedule);
+        } catch (IOException | ClassNotFoundException e)
+        {
+            scheduleWeekView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+            System.exit(0);
+        }
+
+        views.put(SCHEDULE_WEEK, scheduleWeekView);
+    }
+
+    /**
+     * Show BB list view and populate the BB names from the database.
+     */
+    private void BBList()
+    {
+        // get list BB view
+        BBListView bbListView = (BBListView) views.get(BB_LIST);
+        bbListView.setWelcomeText(model.getUsername());
+        try {
+            BillboardList billboard_List = (BillboardList) BillboardControl.listBillboardRequest(model.getSessionToken());
+            ArrayList<String> BBListArray = billboard_List.getBillboardNames();
+            // Check if not null to add billboard list else return error message
+            if (!billboard_List.getServerResponse().equals("Fail: No Billboard Exists")){
+                bbListView.addContent(BBListArray, new EditBBButtonListener(), new DeleteBBButtonListener(), new ViewBBButtonListener());
+            } else {
+                bbListView.showMessageToUser("Billboard List is empty! Please Create a new Billboard.");
+            }
+        } catch (IOException | ClassNotFoundException ex) {
+            bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+            System.exit(0);
+        }
+        views.put(BB_LIST, bbListView);
     }
 }
