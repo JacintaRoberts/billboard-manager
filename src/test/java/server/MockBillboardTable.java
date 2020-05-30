@@ -127,9 +127,14 @@ class MockBillboardTable extends MockDatabase {
      */
     protected static DbBillboard getBillboardInformationTest(String billboard){
         // Retrieve values from MockBillboardTable
-        ArrayList<Object> values = (ArrayList<Object>) internal.get(billboard).get(0);
-        DbBillboard dbBillboard = new DbBillboard((String) values.get(0), (String) values.get(1),(byte[]) values.get(3), (String) values.get(2),Success);
-        return dbBillboard;
+        if (internal.containsKey(billboard)) {
+            ArrayList<Object> values = (ArrayList<Object>) internal.get(billboard).get(0);
+            DbBillboard dbBillboard = new DbBillboard((String) values.get(0), (String) values.get(1), (byte[]) values.get(3), (String) values.get(2), Success);
+            return dbBillboard;
+        } else {
+            // Billboard does not exist in the MockBillboardTable
+            return new DbBillboard("0","0", new byte[0], "0", BillboardNotExists);
+        }
     }
 
 

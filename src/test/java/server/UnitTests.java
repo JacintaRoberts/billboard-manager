@@ -247,6 +247,9 @@ class UnitTests {
      * SCHEDULE UNIT TESTS
      * ================================================================================================
      */
-
+    //TODO: deleteSchedule
+    // updateSchedule (create, edit after)
+    // getScheduleInformation (THIS IS ONE)
+    // getCurrentBillboard (NAME ONLY) *FAKE
 
 }
