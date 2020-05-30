@@ -923,107 +923,61 @@ public class ScheduleAdmin {
 
 
     /**
-     * This function returns the nam for the billboard that should be currently scheduled. If there are multiple
-     * billboards scheduled, it will choose the one which was created first based on it's creation date time. If there
-     * are no billboards scheduled, it will return an empty string.
-     * @return currentBillboardName Returns the name of the current billboard to be displayed to the viewer.
+     * Return Displayed Billboards
+     * @return DbBillboard OBject
      * @throws IOException
      * @throws SQLException
      */
-    public static String getCurrentBillboardName() throws IOException, SQLException {
+    public static DbBillboard activeBillboardDisplay() throws IOException, SQLException {
+        // Initilise the DbBillboard Object
+        DbBillboard resultDbBillboard = null;
+        CurrentSchedule currentSchedule = null;
+        ArrayList<String> currentScheduleBillboardNames = null;
+
         // Get the current date and time and get the current day of the week
         LocalDateTime localDateTime = LocalDateTime.now();
         LocalTime currentTime = localDateTime.toLocalTime();
         String currentDayOfWeek = localDateTime.getDayOfWeek().getDisplayName(TextStyle.FULL, Locale.getDefault());
 
-        // Get today's schedule
-        ScheduleList todayScheduleList = listFilteredScheduleInformation(currentDayOfWeek);
+        // Get rawDaySched
+        ScheduleList rawDaySched = ScheduleAdmin.listFilteredScheduleInformation(currentDayOfWeek);
 
-        // Get the current schedule (based on the time) and the billboard name
-        CurrentSchedule currentSchedule = null;
-        ArrayList<String> currentScheduleBillboardNames = null;
-
-        if (!todayScheduleList.getStartTime().get(0).equals("0")){
-            currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
+        // Impute allDayschedule
+        ScheduleList allDayschedule = ScheduleAdmin.viewAllDaySchedule(rawDaySched);
+        if(allDayschedule.getStartTime().get(0) != null){
+            // Get the current schedule (based on the time) and the billboard name
+            currentSchedule = viewCurrentSchedule(allDayschedule, currentTime);
             currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
-        }
 
-        String currentBillboardName = "";
-
-        if (currentScheduleBillboardNames != null) {
-            if (currentScheduleBillboardNames.size() == 1) {
-                // There is only one billboard
-                currentBillboardName = String.valueOf(currentScheduleBillboardNames);
-            }
-            else{
-                // There is more than one billboard scheduled for right now, so get their creation date time
-                ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
-                ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
-
-                // Parse strings into LocalDateTime with the correct formatting
-                for (int i = 0; i < creationDateTimeStrings.size(); i++) {
-                    LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
-                            DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
-                    creationLocalDateTimes.set(i, dateTime);
+            if (!currentScheduleBillboardNames.get(0).equals("0")) {
+                if (currentScheduleBillboardNames.size() == 1) {
+                    // There is only one billboard
+                    String retrieveBillboard = String.valueOf(currentScheduleBillboardNames.get(0));
+                    resultDbBillboard = BillboardAdmin.getBillboardSQL(retrieveBillboard);
                 }
+                else{
+                    // There is more than one billboard scheduled for right now, so get their creation date time
+                    ArrayList<String> creationDateTimeStrings = currentSchedule.getCreationDateTime();
+                    ArrayList<LocalDateTime> creationLocalDateTimes = new ArrayList<>();
 
-                // Find latest date from creation date time array and get the corresponding billboard name
-                int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
-                currentBillboardName = currentScheduleBillboardNames.get(latestDateIndex);
+
+                    // Parse strings into LocalDateTime with the correct formatting
+                    for (int i = 0; i < creationDateTimeStrings.size(); i++) {
+                        LocalDateTime dateTime = LocalDateTime.parse(creationDateTimeStrings.get(i),
+                                DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"));
+                        creationLocalDateTimes.add(i, dateTime);
+                    }
+
+                    // Find latest date from creation date time array and get the corresponding billboard name
+                    int latestDateIndex = latestDateTimeInArray(creationLocalDateTimes);
+                    resultDbBillboard = BillboardAdmin.getBillboardSQL(currentScheduleBillboardNames.get(latestDateIndex));
+                }
             }
         }
-
-        return currentBillboardName;
+        return resultDbBillboard;
     }
 
 
-    /**
-     * This function returns the xml for the current billboard to be displayed. If there is no billboard currently
-     * scheduled, the function returns an empty string. Note that if there is a picture data attribute present, then
-     * it will not be present in the xml string. This is handled in another function, getBillboardPictureData(), which
-     * returns in another .
-     * @return billboardXML Returns a string which stores the xml file for the string.
-     * @throws IOException
-     * @throws SQLException
-     */
-    public static String getCurrentBillboardXML() throws IOException, SQLException {
-        // Get the name of the current billboard to display
-        String billboardName = getCurrentBillboardName();
-        String billboardXML = "";
-
-        // Get the chosen billboard's schedule and extract the xml string
-        if (!billboardName.isEmpty()) {
-            //TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
-            DbBillboard dbBillboard = BillboardAdmin.getBillboardInformation("",billboardName);
-            billboardXML = dbBillboard.getXMLCode();
-        }
-
-        return billboardXML;
-    }
-
-
-    /**
-     * This function returns the picture data byte array for the current billboard that is to be displayed. If there is
-     * no billboard currently scheduled, or if the billboard being displayed doesn't have a picture data attribute, then
-     * the function returns an empty byte array.
-     * @return billboardPictureData Returns a byte[] array which stores the picture data for the current billboard.
-     * @throws IOException
-     * @throws SQLException
-     */
-    public static byte[] getCurrentBillboardPictureData() throws IOException, SQLException {
-        // Get the name of the current billboard to display
-        String billboardName = getCurrentBillboardName();
-        byte[] billboardPictureData = new byte[0];
-
-        // Get the chosen billboard's schedule and extract the xml string
-        if (!billboardName.isEmpty()) {
-            // TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
-            DbBillboard dbBillboard = BillboardAdmin.getBillboardInformation("", billboardName);
-            billboardPictureData = dbBillboard.getPictureData();
-        }
-
-        return billboardPictureData;
-    }
 
 
     /**================================================================================================
