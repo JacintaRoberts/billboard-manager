@@ -60,7 +60,9 @@ public class DbUser {
      * <p>
      * This method always returns immediately. It will either return a success message "Schedule Table Created", or further
      * information such as Schedule Table exists with/without data pre-populated inside
-     * @return Ensures Schedule Table exists within the Database
+     * @return Returns a String which is a message that ensures Schedule Table exists within the Database.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String createUserTable() throws IOException, SQLException {
         // Initialise Variable
@@ -98,7 +100,9 @@ public class DbUser {
      * Delete Table: User. This is a generic method which deletes the table.
      * <p>
      * This method always returns immediately.
-     * @return
+     * @return Returns a String which returns a message that the table has been dropped.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static String dropUserTable() throws IOException, SQLException{
         String resultMessage;
@@ -115,10 +119,11 @@ public class DbUser {
      * Stores Database Queries: Users. This is a generic method which stores any query sent to the database.
      * <p>
      * This method always returns immediately.
-     * @param  st A Statement object which is the connection.createStatement()
-     * @param  query A String which has the query fed into executeQuery
-     * @throws IOException
-     * @throws SQLException
+     * @param st A Statement object which is the connection.createStatement().
+     * @param query A String which has the query fed into executeQuery.
+     * @return Returns an ArrayList<DbUser> of the user information.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ArrayList<DbUser> storeUserContents(Statement st, String query) throws IOException, SQLException {
         // Set List to store contents in
@@ -144,10 +149,11 @@ public class DbUser {
 
 
     /**
-     * Method to fetch a specific user's details from the database - feel free to change this just wanted it to work!
-     * @return An array list of the user details (username, hashedSaltedPassword, randomSalt, permissions)
-     * @throws IOException
-     * @throws SQLException
+     * Method to fetch a specific user's details from the database.
+     * @param username A String which specifies the username.
+     * @return Returns an ArrayList<String> of the user details (username, hashedSaltedPassword, randomSalt, permissions).
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static ArrayList<String> retrieveUser(String username) throws IOException, SQLException {
         ArrayList<String> retrievedUser = new ArrayList<>();
@@ -173,10 +179,16 @@ public class DbUser {
 
 
     /**
-     * Method to put a user from the database - feel free to change this just wanted it to work!
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Method to add a user and the user permissions to the database.
+     * @param username A String which specifies the username of the current user.
+     * @param password A String which is the user's password.
+     * @param randomSalt A String which is the salt so that the password can be salted.
+     * @param createBillboard A Boolean which specifies if the user has the create billboards permission.
+     * @param editBillboard A Boolean which specifies if the user has the edit billboards permission.
+     * @param scheduleBillboard A Boolean which specifies if the user has the schedule billboards permission.
+     * @param editUser A Boolean which specifies if the user has the edit users permission.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static void addUser(String username, String password, String randomSalt, boolean createBillboard,
                                boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws IOException, SQLException {
@@ -194,8 +206,10 @@ public class DbUser {
 
 
     /**
-     * Method to delete user from database
-     * @param username String username that corresponds to the record to be deleted
+     * Method to delete a user from database.
+     * @param username A String which is the username that corresponds to the record to be deleted.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      */
     public static void deleteUser(String username) throws SQLException, IOException {
         connection = DbConnection.getInstance();
@@ -206,31 +220,42 @@ public class DbUser {
 
 
     /**
-    * Method to fetch a list of users from the database - feel free to change this just wanted it to work!
-    * @return An array list of all the usernames in the database
-    * @throws IOException
-    * @throws SQLException
-    */
-        public static ArrayList<String> listUsers() throws IOException, SQLException {
-            ArrayList<String> usernameList = new ArrayList<>();
-            try {
-                connection = DbConnection.getInstance();
-                listUsers = connection.prepareStatement(LIST_USERS_SQL);
-                ResultSet rs = listUsers.executeQuery();
-                int rowCount = 0;
-                // Fetch each row
-                while (rs.next()) {
-                    rowCount++;
-                    String value = rs.getString("username");
-                    usernameList.add(value);
-                }
-                System.out.println(rowCount + " users were found in the database");
-                return usernameList;
-            } catch (SQLIntegrityConstraintViolationException err) {
-                return usernameList;
+     * Method to fetch a list of users from the database.
+     * @return An ArrayList<String> of all the usernames in the database.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     */
+    public static ArrayList<String> listUsers() throws IOException, SQLException {
+        ArrayList<String> usernameList = new ArrayList<>();
+        try {
+            connection = DbConnection.getInstance();
+            listUsers = connection.prepareStatement(LIST_USERS_SQL);
+            ResultSet rs = listUsers.executeQuery();
+            int rowCount = 0;
+            // Fetch each row
+            while (rs.next()) {
+                rowCount++;
+                String value = rs.getString("username");
+                usernameList.add(value);
             }
+            System.out.println(rowCount + " users were found in the database");
+            return usernameList;
+        } catch (SQLIntegrityConstraintViolationException err) {
+            return usernameList;
         }
+    }
 
+
+    /**
+     * Method to update a user's permissions in the databases.
+     * @param username A String which specifies the username of the current user.
+     * @param createBillboard A Boolean which specifies if the user has the create billboards permission.
+     * @param editBillboard A Boolean which specifies if the user has the edit billboards permission.
+     * @param scheduleBillboard A Boolean which specifies if the user has the schedule billboards permission.
+     * @param editUser A Boolean which specifies if the user has the edit users permission.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     */
     public static void updatePermissions(String username, Boolean createBillboard, Boolean editBillboard,
                                          Boolean scheduleBillboard, Boolean editUser) throws SQLException, IOException {
         connection = DbConnection.getInstance();
@@ -244,6 +269,14 @@ public class DbUser {
     }
 
 
+    /**
+     * Method to update a user's password in the database.
+     * @param username A String which specifies the username of the current user.
+     * @param password A String which is the user's password.
+     * @param randomSalt A String which is the salt so that the password can be salted.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
+     */
     public static void updatePassword(String username, String password, String randomSalt) throws IOException, SQLException {
         connection = DbConnection.getInstance();
         updatePassword = connection.prepareStatement(UPDATE_PASSWORD_SQL);
@@ -254,17 +287,5 @@ public class DbUser {
     }
 
 
-    //TODO: REDUNDANT METHOD - NOT SURE WHERE/IF ITS NEEDED
-    /**
-     * Tidy up connections
-     */
-    private static void close() {
-        try {
-            selectUser.close();
-            connection.close();
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-        }
 
-    }
 }
