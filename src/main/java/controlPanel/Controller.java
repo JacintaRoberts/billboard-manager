@@ -586,6 +586,7 @@ public class Controller
             // get PROFILE VIEW
             UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
 
+            // get username
             String username = model.getUsername();
 
             // set username, password and permissions in Profile View
