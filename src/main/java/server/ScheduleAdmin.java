@@ -9,6 +9,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.time.format.TextStyle;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -863,15 +864,19 @@ public class ScheduleAdmin {
         // Loop through all billboards and see if it is within range
         for (int i = 0; i < numBillboards; i++) {
             billboardName = allDaySchedule.getScheduleBillboardName().get(i);
-            startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i));
-            duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
-            endTime =  startTime.plusMinutes(duration);
-            creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
-            if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)){
-                retrievedBillboard.add(billboardName);
-                retrievedStartTime.add(String.valueOf(startTime));
-                retrievedCreationDateTime.add(creationDateTime);
-                counter++;
+            try {
+                startTime = LocalTime.parse(allDaySchedule.getStartTime().get(i));
+                duration = Integer.parseInt(allDaySchedule.getDuration().get(i));
+                endTime =  startTime.plusMinutes(duration);
+                creationDateTime = String.valueOf(allDaySchedule.getCreationDateTime().get(i));
+                if(currentTime.isAfter(startTime) && currentTime.isBefore(endTime)) {
+                    retrievedBillboard.add(billboardName);
+                    retrievedStartTime.add(String.valueOf(startTime));
+                    retrievedCreationDateTime.add(creationDateTime);
+                    counter++;
+                }
+            } catch (DateTimeParseException e) {
+                System.out.println("Start time is null, do not display.");
             }
         }
         // Return message setting
@@ -936,14 +941,16 @@ public class ScheduleAdmin {
 
         // Get the current schedule (based on the time) and the billboard name
         CurrentSchedule currentSchedule = null;
-        if (todayScheduleList.getScheduleBillboardName().size() != 0){
+        ArrayList<String> currentScheduleBillboardNames = null;
+
+        if (!todayScheduleList.getStartTime().get(0).equals("0")){
             currentSchedule = viewCurrentSchedule(todayScheduleList, currentTime);
+            currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
         }
 
-        ArrayList<String> currentScheduleBillboardNames = currentSchedule.getScheduleBillboardName();
         String currentBillboardName = "";
 
-        if (!currentScheduleBillboardNames.isEmpty()) {
+        if (currentScheduleBillboardNames != null) {
             if (currentScheduleBillboardNames.size() == 1) {
                 // There is only one billboard
                 currentBillboardName = String.valueOf(currentScheduleBillboardNames);
