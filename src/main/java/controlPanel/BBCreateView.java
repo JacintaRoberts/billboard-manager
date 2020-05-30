@@ -134,7 +134,7 @@ public class BBCreateView extends AbstractGenericView
         titleColour = toHexString(Color.BLACK);
         titleLabel.setForeground(Color.decode(titleColour));
 
-        infoColour = toHexString(Color.WHITE);
+        infoColour = toHexString(Color.BLACK);
         BBTextField.setForeground(Color.decode(infoColour));
 
         titleButton = new JButton("Title");
@@ -372,12 +372,11 @@ public class BBCreateView extends AbstractGenericView
      * @throws ParserConfigurationException
      */
     protected ArrayList<Object> getBBXMLDocument(boolean separatePictureData) throws ParserConfigurationException {
+
         byte[] photoData = new byte[0];
 
         DocumentBuilderFactory documentFactory = DocumentBuilderFactory.newInstance();
-
         DocumentBuilder documentBuilder = documentFactory.newDocumentBuilder();
-
         Document document = documentBuilder.newDocument();
 
         boolean infoExists = !BBTextField.getText().equals("");
@@ -396,8 +395,6 @@ public class BBCreateView extends AbstractGenericView
 
         if (titleExists)
         {
-            System.out.println("TITLE " + BBTextField.getText());
-
             // ------- MESSAGE / TITLE -------
             Element message = document.createElement("message");
             message.setTextContent(titleLabel.getText());
@@ -412,9 +409,6 @@ public class BBCreateView extends AbstractGenericView
         // ------- INFORMATION -------
         if (infoExists)
         {
-            System.out.println("INFORMATION " + BBTextField.getText());
-            System.out.println("INFORMATION string" + BBTextField.getText().equals(""));
-            System.out.println("INFORMATION null" + BBTextField.getText() != null);
             Element information = document.createElement("information");
             information.setTextContent(BBTextField.getText());
             root.appendChild(information);
@@ -437,12 +431,13 @@ public class BBCreateView extends AbstractGenericView
                 attr_picture.setValue((String)photoPath);
                 picture.setAttributeNode(attr_picture);
             }
-            // set a colour attribute to information element
+            // update byte array to contain image data
             else if (photoType == PhotoType.DATA && separatePictureData)
             {
                 byte[] imageByteArray = Base64.getDecoder().decode((String) photoPath);
                 photoData = imageByteArray;
             }
+            // set a picture attribute with data
             else if (photoType == PhotoType.DATA && !separatePictureData)
             {
                 Element picture = document.createElement("picture");
@@ -454,6 +449,7 @@ public class BBCreateView extends AbstractGenericView
             }
         }
 
+        // return array list of xml document and photo data
         ArrayList<Object> xmlData = new ArrayList<>();
         xmlData.add(document);
         xmlData.add(photoData);
@@ -462,37 +458,18 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
-     * Get BB xml string and picture data
-     * @return array list containing xml string and picture data
+     * Get BB xml doc as string
+     * @return xml string
      */
-    protected ArrayList<Object> getBBXMLString()
+    protected String getBBXMLString(Document xmlDocument) throws TransformerException
     {
-        ArrayList<Object> xmlDataString;
-        ArrayList<Object> xmlData = null;
-        Transformer t = null;
-
-        try {
-            xmlData = getBBXMLDocument(true);
-            TransformerFactory tf = TransformerFactory.newInstance();
-            t = tf.newTransformer();
-        }
-        catch (TransformerConfigurationException | ParserConfigurationException e)
-        {
-            return null;
-        }
-
+        Transformer t;
+        TransformerFactory tf = TransformerFactory.newInstance();
+        t = tf.newTransformer();
         StringWriter sw = new StringWriter();
-
-        try {
-            t.transform(new DOMSource((Document)xmlData.get(0)), new StreamResult(sw));
-            xmlDataString = new ArrayList<>();
-            xmlDataString.add(sw.toString());
-            xmlDataString.add(xmlData.get(1));
-        } catch (TransformerException | NullPointerException e)
-        {
-            return null;
-        }
-        return xmlDataString;
+        t.transform(new DOMSource(xmlDocument), new StreamResult(sw));
+        String xmlString = sw.toString();
+        return xmlString;
     }
 
     // ###################### BROWSE FOR BB SETTINGS ######################
@@ -504,7 +481,11 @@ public class BBCreateView extends AbstractGenericView
     protected String browseTitleColour()
     {
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Colour for Title", drawingPadPanel.getForeground());
-        return toHexString(colorSelect);
+        if (colorSelect !=null)
+        {
+            return toHexString(colorSelect);
+        }
+        return null;
     }
 
     /**
@@ -514,7 +495,11 @@ public class BBCreateView extends AbstractGenericView
     protected String browseTextColour()
     {
         Color colorSelect = JColorChooser.showDialog(null, "Choose a Colour for Text", drawingPadPanel.getForeground());
-        return toHexString(colorSelect);
+        if (colorSelect !=null)
+        {
+            return toHexString(colorSelect);
+        }
+        return null;
     }
 
     /**
@@ -587,7 +572,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showInvalidXMLMessage()
     {
-        JOptionPane.showMessageDialog(null, "Invalid Billboard XML");
+        JOptionPane.showMessageDialog(null, "Invalid Billboard XML. Exception Occurred.");
     }
 
     /**
@@ -662,51 +647,42 @@ public class BBCreateView extends AbstractGenericView
      * Browse Photos to add to BB
      * @return BB Image (icon format)
      */
-    protected ArrayList<Object> browsePhotos()
-    {
+    protected ArrayList<Object> browsePhotos() throws Exception {
         int value = photoChooser.showSaveDialog(null);
         if(value == JFileChooser.APPROVE_OPTION)
         {
-            try
-            {
-                ArrayList<Object> imageDetails = new ArrayList<>();
-                String photoPath = photoChooser.getSelectedFile().getAbsolutePath();
-                Image img = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-                imageDetails.add(new ImageIcon(img));
-
-                byte[] fileContent = Files.readAllBytes(new File(photoPath).toPath());
-
-                imageDetails.add(fileContent);
-                return imageDetails;
-            }
-            catch (IOException e)
-            {
-                return null;
-            }
+            ArrayList<Object> imageDetails = new ArrayList<>();
+            String photoPath = photoChooser.getSelectedFile().getAbsolutePath();
+            Image img = ImageIO.read(new File(photoPath)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+            imageDetails.add(new ImageIcon(img));
+            byte[] fileContent = Files.readAllBytes(new File(photoPath).toPath());
+            String encodedString = Base64.getEncoder().encodeToString((fileContent));
+            imageDetails.add(encodedString);
+            return imageDetails;
         }
-        return null;
+        else
+        {
+            throw new Exception("Nothing selected.");
+        }
+
     }
 
     /**
      * Allow user to enter URL for image
      * @return array list containing image and url provided
      */
-    protected ArrayList<Object> showURLInputMessage() {
-        String pathProvided = JOptionPane.showInputDialog(null, "Provide URL to Image:");
-        try
-        {
-            ArrayList<Object> imageDetails = new ArrayList<>();
-            URL url = new URL(pathProvided);
-            Image image = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-            ImageIcon icon = new ImageIcon(image);
-            imageDetails.add(icon);
-            imageDetails.add(pathProvided);
-            return imageDetails;
-        }
-        catch(Exception e)
-        {
-            return null;
-        }
+    protected String showURLInputMessage() {
+        return JOptionPane.showInputDialog(null, "Provide URL to Image:");
+    }
+
+    protected ArrayList<Object> getImageData(String urlPath) throws IOException {
+        ArrayList<Object> imageDetails = new ArrayList<>();
+        URL url = new URL(urlPath);
+        Image image = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+        ImageIcon icon = new ImageIcon(image);
+        imageDetails.add(icon);
+        imageDetails.add(urlPath);
+        return imageDetails;
     }
 
     /**
@@ -733,14 +709,16 @@ public class BBCreateView extends AbstractGenericView
      * @throws SAXException
      * @throws ParserConfigurationException
      */
-    protected boolean browseXMLImport() {
+    protected String browseXMLImport() throws Exception {
         int value = xmlChooser.showSaveDialog(null);
         if (value == JFileChooser.APPROVE_OPTION)
         {
-            xmlImportPath = xmlChooser.getSelectedFile().getAbsolutePath();
-            return xmlImport(xmlImportPath);
+            return xmlImportPath = xmlChooser.getSelectedFile().getAbsolutePath();
         }
-        return false;
+        else
+        {
+            throw new Exception("No XML Selected.");
+        }
     }
 
     /**
@@ -810,47 +788,52 @@ public class BBCreateView extends AbstractGenericView
      * Set XML bb based on input doc and byte[]
      * @param doc xml document
      * @param pictureData  byte [] of picture
-     * @return if set XML correctly return true, else false
      */
-    protected boolean setXMLBB(Document doc, byte[] pictureData)
+    protected void setXMLBB(Document doc, byte[] pictureData) throws Exception
     {
+        // clean current panel
+        setBackgroundColour(toHexString(Color.WHITE));
+        setBBTitle("");
+        setBBText("");
+        setPhoto(null, null, null);
+
         // normalise the XML structure
         doc.getDocumentElement().normalize();
 
         // get root element (billboard)
         Element root = doc.getDocumentElement();
 
+        // ensure tag element is billboard
         if (root.getTagName().equals("billboard"))
         {
-            // get title and title colour
+            // get message, info and picture from document
             NodeList titleList = doc.getElementsByTagName("message");
             NodeList infoList = doc.getElementsByTagName("information");
             NodeList photoList = doc.getElementsByTagName("picture");
 
+            // if nothing provided in xml - throw exception
             if (titleList.getLength() == 0 && infoList.getLength() == 0 && photoList.getLength() == 0 && pictureData.length == 0)
             {
-                return false;
+                throw new Exception("Invalid XML provided - provide at least a Message, Info or Picture");
             }
 
+            // set Picture if provided
             if (photoList.getLength() != 0) {
-                boolean setPicture = manageXMLPicture(photoList);
-                if (!setPicture) {
-                    return false;
-                }
+                setXMLPicture(photoList);
             }
+            // set Picture Data if provided
             else if (pictureData.length != 0)
             {
-                boolean setPicture = manageDataPicture(pictureData);
-                if (!setPicture) {
-                    return false;
-                }
+                manageDataPicture(pictureData);
             }
 
             // get background colour
             String backgroundColour = root.getAttribute("background");
             setBackgroundColour(backgroundColour);
 
-            if (titleList.getLength() != 0) {
+            // set title and colour if provided
+            if (titleList.getLength() != 0)
+            {
                 Element titleNode = (Element) titleList.item(0);
                 String title = titleNode.getTextContent();
                 setBBTitle(title);
@@ -858,6 +841,7 @@ public class BBCreateView extends AbstractGenericView
                 setBBTitleColour(titleColour);
             }
 
+            // set info and colour if provided
             if (infoList.getLength() != 0) {
                 Element infoNode = (Element) infoList.item(0);
                 String information = infoNode.getTextContent();
@@ -865,12 +849,11 @@ public class BBCreateView extends AbstractGenericView
                 setBBText(information);
                 setBBTextColour(informationColour);
             }
-            return true;
         }
         // invalid tag name for root
         else
         {
-            return false;
+            throw new Exception("Invalid Root Name");
         }
     }
 
@@ -881,30 +864,17 @@ public class BBCreateView extends AbstractGenericView
      * @throws IOException
      * @throws SAXException
      */
-    private boolean xmlImport(String xmlImportPath)
-    {
+    protected Document createXMLDoc(String xmlImportPath) throws ParserConfigurationException, IOException, SAXException {
         //creating a constructor of file class and parsing an XML file
         File file = new File(xmlImportPath);
-
         //an instance of factory that gives a document builder
         DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
         //an instance of builder to parse the specified xml file
         Document doc;
-
         DocumentBuilder db;
-        try {
-            db = dbf.newDocumentBuilder();
-        } catch (ParserConfigurationException e) {
-            return false;
-        }
-
-        try {
-            doc = db.parse(file);
-        } catch (SAXException | IOException e) {
-            return false;
-        }
-
-        return setXMLBB(doc, null);
+        db = dbf.newDocumentBuilder();
+        doc = db.parse(file);
+        return doc;
     }
 
     /**
@@ -912,19 +882,11 @@ public class BBCreateView extends AbstractGenericView
      * @param pictureData pic data in byte []
      * @return true if set correctly, otherwise false
      */
-    private boolean manageDataPicture(byte[] pictureData)
+    private void manageDataPicture(byte[] pictureData) throws IOException
     {
-        try
-        {
-            Image image = ImageIO.read(new ByteArrayInputStream(pictureData)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-            String encodedString = Base64.getEncoder().encodeToString(pictureData);
-            setPhoto(new ImageIcon(image), PhotoType.DATA, encodedString);
-            return true;
-        }
-        catch(IOException e)
-        {
-            return false;
-        }
+        Image image = ImageIO.read(new ByteArrayInputStream(pictureData)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+        String encodedString = Base64.getEncoder().encodeToString(pictureData);
+        setPhoto(new ImageIcon(image), PhotoType.DATA, encodedString);
     }
 
     /**
@@ -932,8 +894,7 @@ public class BBCreateView extends AbstractGenericView
      * @param photoList pic data in node list
      * @return true if set correctly, otherwise false
      */
-    private boolean manageXMLPicture(NodeList photoList)
-    {
+    private void setXMLPicture(NodeList photoList) throws Exception {
         Element photoNode = (Element) photoList.item(0);
 
         String photoPathURL;
@@ -945,22 +906,13 @@ public class BBCreateView extends AbstractGenericView
             photoPathType = PhotoType.URL;
             photoPathURL = photoNode.getAttribute("url");
 
-            // check that
+            // check that url is not null and contains https
             if (photoPathURL != null && photoPathURL.contains("https"))
             {
-                try
-                {
-                    URL url = new URL(photoPathURL);
-                    photoImage = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-                    setPhoto(new ImageIcon(photoImage),photoPathType, photoPathURL);
-                    return true;
-                }
-                catch (IOException e)
-                {
-                    return false;
-                }
+                URL url = new URL(photoPathURL);
+                photoImage = ImageIO.read(url).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                setPhoto(new ImageIcon(photoImage),photoPathType, photoPathURL);
             }
-            return false;
         }
         else if(photoNode.hasAttribute("data"))
         {
@@ -970,92 +922,59 @@ public class BBCreateView extends AbstractGenericView
             if (photoPathURL != null)
             {
                 byte[] imgBytes = Base64.getDecoder().decode(photoPathURL);
-                try
-                {
-                    photoImage =ImageIO.read(new ByteArrayInputStream(imgBytes)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
-                    setPhoto(new ImageIcon(photoImage),photoPathType, Base64.getEncoder().encodeToString(imgBytes));
-                    return true;
-                }
-                catch (IOException e)
-                {
-                    return false;
-                }
+                photoImage =ImageIO.read(new ByteArrayInputStream(imgBytes)).getScaledInstance(380,380,Image.SCALE_DEFAULT);
+                setPhoto(new ImageIcon(photoImage),photoPathType, Base64.getEncoder().encodeToString(imgBytes));
             }
-            return false;
         }
         else
         {
-            return false;
+            throw new Exception("Invalid Picture Provided - cannot set photo");
         }
     }
 
     /**
      * Create XML and export to user's personal file explorer based on specified file path
-     * @param xmlExportPath
+     * @param path
+     * @param xmlDocument
      * @throws ParserConfigurationException
      * @throws TransformerException
      */
-    protected boolean xmlExport(String xmlExportPath) {
-        ArrayList<Object> xmlData = null;
-        try {
-            xmlData = getBBXMLDocument(false);
-        } catch (ParserConfigurationException e) {
-            return false;
-        }
+    protected void xmlExport(String path, Document xmlDocument) throws TransformerException {
 
         // create transformer which is designed to transform document to XML
         TransformerFactory transformerFactory = TransformerFactory.newInstance();
         Transformer transf = null;
-        try {
-            transf = transformerFactory.newTransformer();
-        } catch (TransformerConfigurationException e) {
-            return false;
-        }
+        transf = transformerFactory.newTransformer();
 
         // set encoding type, indentation,
         transf.setOutputProperty(OutputKeys.ENCODING, "UTF-8");
         transf.setOutputProperty(OutputKeys.INDENT, "yes");
 
         // source contains the dom tree
-        DOMSource source = new DOMSource((Document)xmlData.get(0));
+        DOMSource source = new DOMSource(xmlDocument);
 
-        File myFile = new File(xmlExportPath);
+        File myFile = new File(path);
 
         // write to console and file
         StreamResult console = new StreamResult(System.out);
         StreamResult file = new StreamResult(myFile);
 
-        try
-        {
-            transf.transform(source, console);
-            transf.transform(source, file);
-        }
-        catch (TransformerException e)
-        {
-            return false;
-        }
-        return true;
+        transf.transform(source, console);
+        transf.transform(source, file);
     }
 
     /**
-     * Display BB details, upon Editing the BB selected
-     * @param xmlStringToDisplay document of BB XML
+     * Get XML Document from String
+     * @param xmlString xml document as string
      */
-    protected boolean addBBXML(String xmlStringToDisplay, byte[] pictureData)
-    {
+    protected Document getXMLDocument(String xmlString) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
         DocumentBuilder builder;
         Document document;
-        try
-        {
-            builder = factory.newDocumentBuilder();
-            document = builder.parse( new InputSource( new StringReader( xmlStringToDisplay)));
-            setXMLBB(document, pictureData);
-            return true;
-        } catch (ParserConfigurationException | IOException | SAXException e) {
-            e.printStackTrace();
-            return false;
-        }
+        builder = factory.newDocumentBuilder();
+        document = builder.parse( new InputSource( new StringReader( xmlString)));
+
+        return document;
     }
 
     // ###################### LISTENERS ######################
