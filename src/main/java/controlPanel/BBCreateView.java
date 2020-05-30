@@ -46,7 +46,6 @@ public class BBCreateView extends AbstractGenericView
     private JButton createButton;
     private JButton exportButton;
     private JButton previewButton;
-    private JButton cancelButton;
     private JButton importXMLButton;
     private JButton backgroundColourButton;
     private JButton titleButton;
@@ -175,13 +174,13 @@ public class BBCreateView extends AbstractGenericView
         billboardMenuPanel.add(previewButton);
         getContentPane().add(billboardMenuPanel, BorderLayout.EAST);
 
-        cancelButton = new JButton("Cancel");
         createButton = new JButton("Create");
-        disclaimerText = new JLabel("Please note, the BB display is not to scale. Please select Preview Billboard to view");
+        disclaimerText = new JLabel("Display is not to scale. Select 'Preview Billboard' to view.");
+        disclaimerText.setForeground(Color.WHITE);
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc_nav = getNavGBCPanel();
-        navPanel.add(cancelButton, setGBC(gbc_nav,4,1,1,1));
         navPanel.add(createButton, setGBC(gbc_nav,3,1,1,1));
+        navPanel.add(disclaimerText, setGBC(gbc_nav,4,1,1,1));
 
         photoChooser = new JFileChooser();
         photoChooser.setCurrentDirectory(new java.io.File("."));
@@ -780,7 +779,7 @@ public class BBCreateView extends AbstractGenericView
     protected int photoTypeSelection()
     {
         String message = "Please select the Type of Image to add to the Billboard.";
-        String[] options = {"URL", "Browse Personal Photos", "Cancel"};
+        String[] options = {"URL", "Browse Personal Photos", "Clear", "Cancel"};
         return JOptionPane.showOptionDialog(null, message, "Photo Type", DEFAULT_OPTION, INFORMATION_MESSAGE, null, options, null);
     }
 
