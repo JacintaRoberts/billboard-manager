@@ -5,8 +5,8 @@ import java.awt.*;
 import java.awt.Font;
 
 /**
- * Abstract View designed with all key features for all views in the application.
- * This includes the general design themes, pop up windows and common methods.
+ * Abstract View defines the generic style of the application, abstract methods in which child classes are required to
+ * extend and frame set up common to all views. Every view is a child class of AbstractView.
  */
 public abstract class AbstractView extends JFrame
 {

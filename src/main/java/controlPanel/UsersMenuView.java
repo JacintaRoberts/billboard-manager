@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 /**
- * User Menu View so user can Create new user and View list of Users
+ * Menu View to allow the users to navigate to the user list view create user view.
  */
 public class UsersMenuView extends AbstractGenericView
 {

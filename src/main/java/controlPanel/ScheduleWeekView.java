@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 /**
- * Schedule Week View to view the weekly schedule of billboards
+ * Schedule Week View to view the weekly schedule of billboards. This displays the billboard name and creator,
+ * including the start and end time.
  */
 public class ScheduleWeekView extends AbstractGenericView
 {

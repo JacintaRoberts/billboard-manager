@@ -27,8 +27,9 @@ import static controlPanel.UserControl.logoutRequest;
 import static server.Server.ServerAcknowledge.*;
 
 /**
- * Controller Class is designed to manage user inputs appropriately, sending requests to the server and updating the model/gui when required.
- * The constructor stores a reference to the model and views, and adds listeners to the views.
+ * Controller Class is designed to manage user inputs appropriately, sending requests to the Control Classes and
+ * updating the model and GUI views when required. The constructor stores a reference to the model and views, and
+ * adds listeners to each GUI view.
  */
 public class Controller
 {

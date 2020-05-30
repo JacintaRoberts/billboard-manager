@@ -7,8 +7,8 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 /**
- * Abstract List View designed to create the main structure for containing the User and BB data.
- * Child classes inherit this structure and are able to update to customise for the specific data employed.
+ * Abstract List View is designed to create the main structure for displaying the User and Billboard data in a scrollable
+ * list. Child classes extend this structure and can customise  for the specific data employed.
  */
 public abstract class AbstractListView extends AbstractGenericView
 {

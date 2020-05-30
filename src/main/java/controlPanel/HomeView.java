@@ -6,7 +6,7 @@ import java.awt.event.MouseListener;
 import controlPanel.Main.VIEW_TYPE;
 
 /**
- * Home View to allow users to navigate to other areas of the application.
+ * Home view to allow users to navigate to all areas of the application including Users, Billboard and Schedule menus.
  */
 public class HomeView extends AbstractGenericView
 {

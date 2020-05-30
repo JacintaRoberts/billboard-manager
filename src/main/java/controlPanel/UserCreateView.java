@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for creating users.
+ * User Create View is designed to allow users to create new User accounts. A unique username, password and permissions
+ * are required to create a new account. This extends the AbstractUserView to acquire key elements.
  */
 public class UserCreateView extends AbstractUserView
 {

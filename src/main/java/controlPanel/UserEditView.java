@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for editing users.
+ * User Edit View is designed to allow users to edit user accounts (assuming valid permissions). The username cannot be
+ * edited, only the permissions and password can be updated. This extends the AbstractUserView to acquire key elements.
  */
 public class UserEditView extends AbstractUserView
 {

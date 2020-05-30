@@ -10,7 +10,9 @@ import java.util.ArrayList;
 import static java.lang.Integer.parseInt;
 
 /**
- * Schedule Update and Create View which allows users to select an existing billboard and create schedule for it.
+ * Schedule Create View allows users to select an existing billboard and create or update the schedule. Users can set
+ * the start and end time, days scheduled and the recurrence setting (I.e. minutes, hourly, no repetition).
+ * Users can also clear the existing schedule.
  */
 public class ScheduleUpdateView extends AbstractGenericView
 {

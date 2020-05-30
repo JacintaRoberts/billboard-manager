@@ -6,7 +6,8 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 /**
- * Log in View
+ * Log In View to allow users to log in with their username and password. An error message is displayed for
+ * incorrect credentials.
  */
 public class LogInView extends AbstractView
 {

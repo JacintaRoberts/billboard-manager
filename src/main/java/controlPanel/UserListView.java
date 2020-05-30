@@ -5,7 +5,8 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 /**
- * User list view which displays list of all users in the database
+ * User List View displays a list of all users in the database displaying buttons to Edit, Delete or View the user.
+ * This extends the AbstractListView and is customised to display User accounts.
  */
 public class UserListView extends AbstractListView
 {

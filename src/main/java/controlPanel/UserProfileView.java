@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for viewing the personal profile of the current user.
+ * User Profile View allows the current user to view personal information. This is a read-only view of the profile
+ * information and extends the AbstractUserView.
  */
 public class UserProfileView extends AbstractUserView
 {

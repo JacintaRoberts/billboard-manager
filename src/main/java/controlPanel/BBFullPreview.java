@@ -5,7 +5,8 @@ import viewer.Viewer;
 import java.awt.event.*;
 
 /**
- * Preview the full BB from control panel by extending the viewer class
+ * Preview the full Billboard from the BBCreateView or the BBListView, this shows the Billboard as it would be on the
+ * Viewer. This extends the Viewer class and overrides the exit functionality.
  */
 public class BBFullPreview extends Viewer
 {

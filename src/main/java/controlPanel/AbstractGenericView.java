@@ -5,8 +5,9 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 /**
- * Abstract Generic View is designed to provide all generic functionality employed by a large portion of views.
- * Functionality includes: adding a Profile, Home and Back Button, a navigation and profile panel.
+ * Abstract Generic View is designed to provide all generic functionality extended by all views excluding LogInView and
+ * BBFullPreview. Functionality includes a Profile, Log Out and Home Button embedded in a Navigation and Profile panel.
+ * Abstract View is extended to gain generic style and set up of the GUI frame.
  */
 public abstract class AbstractGenericView extends AbstractView
 {

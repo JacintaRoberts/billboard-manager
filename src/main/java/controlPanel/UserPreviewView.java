@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for viewing users in the database.
+ * User Preview View displays a read only view of user information including the username and permissions selected.
  */
 public class UserPreviewView extends AbstractUserView
 {

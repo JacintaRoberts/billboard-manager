@@ -6,8 +6,9 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 /**
- * Abstract User View is designed with the key features for dealing with User Data - this includes the Profile,
- * Edit User, Create User and View User views.
+ * Abstract User View is designed with the key features for displaying with User data including username, permissions and
+ * password. Child classes, including Profile, Edit User, Create User and View User inherit this common structure.
+ * Abstract Generic View is extended to gain generic functionality.
  */
 public abstract class AbstractUserView extends AbstractGenericView
 {

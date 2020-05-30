@@ -26,7 +26,9 @@ import org.xml.sax.SAXException;
 import static javax.swing.JOptionPane.*;
 
 /**
- * BB Create View designed to contain software elements allowing users to create a BB.
+ * BB Create View is designed to allow users to create a Billboard by selecting the billboard name, title, text and
+ * picture. The billboard can be exported as an XML or an existing billboard XML can be imported. The billboard is
+ * displayed in the middle of the view, however a full view preview can be seen by selecting ‘Preview Billboard' button.
  */
 public class BBCreateView extends AbstractGenericView
 {

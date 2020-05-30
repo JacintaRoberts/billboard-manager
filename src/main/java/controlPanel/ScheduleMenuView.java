@@ -7,8 +7,7 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 /**
- * Schedule Menu View designed to allow users to navigate to scheduling functionality including creeating/updating
- * schedule and viewing the calendar view of the schedule.
+ * Menu View to allow users to navigate to the schedule week calendar view or create/update schedule view.
  */
 public class ScheduleMenuView extends AbstractGenericView
 {

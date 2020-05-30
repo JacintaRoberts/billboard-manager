@@ -6,7 +6,7 @@ import java.awt.*;
 import java.awt.event.MouseListener;
 
 /**
- * View to view the bb options - create/update bb or list bb
+ * Menu for navigating to the Billboard list or Billboard create/update view.
  */
 public class BBMenuView extends AbstractGenericView
 {
