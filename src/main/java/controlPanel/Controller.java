@@ -1580,6 +1580,11 @@ public class Controller
                     bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, encodedString);
                 }
             }
+            // if clear button is selected, remove current image
+            else if (response == 2)
+            {
+                bbCreateView.setPhoto(null, null, null);
+            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
