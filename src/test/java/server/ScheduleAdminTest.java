@@ -36,7 +36,7 @@ class ScheduleAdminTest {
      * Description: Database Mock simulates Maria DB for testing purposes.
      * Expected Output: DatabaseMock object for Schedule Table is declared
      */
-    MockDatabase<String, ArrayList<String>> scheduleTableMock;
+    MockScheduleTable scheduleTableMock;
 
     /* Test 3: Constructing a DatabaseMock object for Schedule Table
      * Description: DatabaseMock should be used to verify unit tests and setup of the DB
@@ -45,9 +45,9 @@ class ScheduleAdminTest {
     @BeforeEach
     @Test
     public void setUpScheduleTableMock() {
-        scheduleTableMock = new MockDatabase<>();
+        scheduleTableMock = new MockScheduleTable();
         // TODO: For date-time/time storage in MariaDB
-        //  For start date (date-time) storage:
+       //  For start date (date-time) storage:
         //  Use this formatting: 'YYYY-MM-DD HH:MM:SS', e.g. 2007-11-30 10:30:19
         //  CREATE TABLE t2 (d DATETIME(6));
         //  INSERT INTO t2 VALUES ("2011-03-11"), ("2012-04-19 13:08:22");
@@ -57,12 +57,14 @@ class ScheduleAdminTest {
         //  INSERT INTO time VALUES ('90:00:00'), ('800:00:00'), (800), (22);
         //  SELECT CONVERT('800',time); // 8 mins
         //  This converts to: 90:00:00, 800:00:00, 00:08:00, 00:00:22 etc.
-        //  Note: Min increment in duration is 1 minute so min acceptable value is "100" (entered in DB as string and received as time)
+        //  Note: Min increment in duration is 1 minute so min acceptable value is "1" (entered in DB as string and received as time)
         //  This link is quite helpful https://mariadb.com/kb/en/datetime/
         // Note: duration minimum increment is 1 whole minute
         // Add a dummy value (insert more as necessary or create separate function to populate)
         // This example start will have a duration of 2 minutes that repeats every hour
-        scheduleTableMock.addValue("2020-04-14 09:30:00", new ArrayList<String>( Arrays.asList("Billboard1", "200", "01:00:00")));
+        scheduleTableMock.addScheduleTest("Billboard1","01:00:00", "00:02:00",
+                "2020-04-14 18:00:00", "60", "0", "0",
+                "0", "1", "0", "0", "0");
     }
 
     /* Test 4: Create Schedule in Schedule Table (Success)

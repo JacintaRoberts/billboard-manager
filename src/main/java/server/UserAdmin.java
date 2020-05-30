@@ -364,12 +364,11 @@ public class UserAdmin {
         }
     }
 
-
     /**
      * This function generates a salt string for storing/updating the user password.
      * @return Returns a String which is the salt.
      */
-    private static String generateSaltString() {
+    protected static String generateSaltString() {
         Random rng = new Random();
         byte[] saltBytes = new byte[32];
         rng.nextBytes(saltBytes);

@@ -1,8 +1,6 @@
 package server;
 
-import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
@@ -18,24 +16,28 @@ import static server.UserAdmin.generateSaltString;
 /**================================================================================================
  * UNIT TESTS USE THIS MOCK USER TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
-class MockUserTable extends MockDatabase {
-    private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
+class MockUserTable {
+    private static HashMap<String, ArrayList<Object>> Internal = new HashMap<>();
 
     /**
-     * Mock create user for unit testing
-     *
-     * @param sessionToken      Session token from the calling user
-     * @param username          String username to be created
-     * @param hashedPassword    User provided hashed password from CP
-     * @param createBillboard   Boolean to indicate whether the user to be created has the createBillboard permission
-     * @param editBillboard     Boolean to indicate whether the user to be created has the editBillboard permission
+     * Mocks the create user functionality to create a user given the user details. This method requires the EditUser
+     * permission. It returns a server acknowledgement to indicate whether the creation was successful or if an
+     * exception occurred.
+     * <p>
+     * @param sessionToken Session token from the calling user
+     * @param username String username to be created
+     * @param hashedPassword User provided hashed password from CP
+     * @param createBillboard Boolean to indicate whether the user to be created has the createBillboard permission
+     * @param editBillboard Boolean to indicate whether the user to be created has the editBillboard permission
      * @param scheduleBillboard Boolean to indicate whether the user to be created has the scheduleBillboard permission
-     * @param editUser          Boolean to indicate whether the user to be created has the editUser permission
+     * @param editUser Boolean to indicate whether the user to be created has the editUser permission
      * @return ServerAcknowledge enum to indicate whether creation was successful or whether an exception occurred.
-     * @throws NoSuchAlgorithmException if the hashing algorithm requested does not exist
+     * @throws NoSuchAlgorithmException exception is thrown if the hashing algorithm requested does not exist.
      */
-    protected static ServerAcknowledge createUserTest(String sessionToken, String username, String hashedPassword, boolean createBillboard,
-                                                      boolean editBillboard, boolean scheduleBillboard, boolean editUser) throws NoSuchAlgorithmException {
+    protected static ServerAcknowledge createUserTest(String sessionToken, String username, String hashedPassword,
+                                                      boolean createBillboard, boolean editBillboard,
+                                                      boolean scheduleBillboard, boolean editUser)
+                                                                throws NoSuchAlgorithmException {
         String callingUsername = getUsernameFromTokenTest(sessionToken);
         System.out.println("Calling username is: " + callingUsername);
         if (hasPermissionTest(callingUsername, EditUser)) {
@@ -44,19 +46,22 @@ class MockUserTable extends MockDatabase {
             ServerAcknowledge mockResponse = addUserTest(username, hashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser); // Update the table
             return mockResponse; // 1. PrimaryKeyClash or 2. Success
         } else {
+            System.out.println("User has insufficient permissions to create user");
             return InsufficientPermission; // 3. Require EditUser Permission to perform this method
         }
     }
 
 
     /**
-     * Mock Method to See if a user exists in db
-     *
+     * Mocks the user exists functionality to determine in a user exists in the MockUserTable it returns
+     * a boolean to indicate if the user exists.
+     * <p>
+     * @param username String username of the user to be searched for
      * @return Boolean value to indicate that the user exists (true) or false otherwise.
      */
     protected static boolean userExistsTest(String username) {
-        System.out.println("Mock table usernames: " + internal.keySet());
-        if (internal.containsKey(username)) { // If username exists in db (case sensitivity and whitespace)
+        System.out.println("Mock table usernames: " + Internal.keySet());
+        if (Internal.containsKey(username)) { // If username exists in db (case sensitivity and whitespace important)
             System.out.println("Mock table contains the username.");
             return true;
         }
@@ -65,16 +70,24 @@ class MockUserTable extends MockDatabase {
 
 
     /**
-     * Mock method to add a user to the mock user hashtable
-     *
-     * @return ServerAcknowledge for Success or PrimaryKeyClash
+     * Mocks the method to add a user (SQL) to the MockUserTable (hashtable). It returns a ServerAcknowledge
+     * to indicate whether the creation event was successful. This method is for direct table access and does not
+     * require a session token.
+     * <p>
+     * @param username String username to be created
+     * @param hashedPassword User provided hashed password from CP
+     * @param createBillboard Boolean to indicate whether the user to be created has the createBillboard permission
+     * @param editBillboard Boolean to indicate whether the user to be created has the editBillboard permission
+     * @param scheduleBillboard Boolean to indicate whether the user to be created has the scheduleBillboard permission
+     * @param editUser Boolean to indicate whether the user to be created has the editUser permission
+     * @return ServerAcknowledge enum to indicate whether creation was successful or if there was a PrimaryKeyClash.
      */
     protected static ServerAcknowledge addUserTest(String username, String hashedPassword, Boolean createBillboard, Boolean editBillboard, Boolean scheduleBillboard, Boolean editUser) throws NoSuchAlgorithmException {
-        ServerAcknowledge dbResponse = PrimaryKeyClash;
-        if (!internal.containsKey(username)) { // If did not contain the username already, there would not be a clash
+        ServerAcknowledge dbResponse = PrimaryKeyClash; // Assume that there is a clash
+        if (!Internal.containsKey(username)) { // If did not contain the username already, there would not be a clash
             System.out.println("Mock User Table did not contain " + username + " ...adding the user!");
-            internal.put(username, new ArrayList<>());
-            dbResponse = Success;
+            Internal.put(username, new ArrayList<>());
+            dbResponse = Success; // Overwrite response
         }
         // Add values to the MockUserTable
         ArrayList<Object> values = new ArrayList();
@@ -86,26 +99,28 @@ class MockUserTable extends MockDatabase {
         values.add(editBillboard);
         values.add(scheduleBillboard);
         values.add(editUser);
-        internal.get(username).add(values);
+        Internal.get(username).add(values);
         return dbResponse;
     }
 
 
     /**
-     * Mocks retrieval of user from database
-     *
-     * @param username to be fetched
-     * @return ArrayList of User Information
+     * Mocks the retrieval of a user from the MockUserTable.
+     * <p>
+     * @param username String username of the user to be searched for
+     * @return ArrayList of of user data including the salted hashed password, salt, createBillboard, editBillboard,
+     * scheduleBillboard and editUser permissions.
      */
     protected static ArrayList<Object> retrieveUserTest(String username) {
-        return (ArrayList<Object>) internal.get(username).get(0);
+        return (ArrayList<Object>) Internal.get(username).get(0);
     }
 
 
     /**
-     * Retrieve view users permissions from database and to return it an array list of booleans
-     *
-     * @param username Username's permissions to be retrieved from the database
+     * Mocks the retrieval of users permissions from database and returnss an array list of booleans to indicate whether
+     * the provided user has the permission.
+     * <p>
+     * @param username String username of the user's permissions to be retrieved from the database
      * @return userPermissions An ArrayList of size 4 that contains a boolean value for whether the requested user has
      * the corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser)
      */
@@ -128,9 +143,15 @@ class MockUserTable extends MockDatabase {
 
 
     /**
-     * Helper method to determine whether the retrieved user has the required permission
+     * Mocks the helper method to determine whether the retrieved user has the required permission
+     * <p>
+     * @param username String username of the user permissions to be checked
+     * @param requiredPermission (either createBillboard, editBillboard, editSchedule, editUser) for the req. permission
+     * @return Boolean value to indicate whether the requested user has the corresponding permission (true), or
+     * false otherwise.
      */
     protected static boolean hasPermissionTest(String username, Permission requiredPermission) {
+        // Retrieve the user's permissions from the MockUserTable
         ArrayList<Boolean> userPermissions = retrieveUserPermissionsFromMockDbTest(username);
         switch (requiredPermission) {
             case CreateBillboard:
@@ -152,11 +173,14 @@ class MockUserTable extends MockDatabase {
 
 
     /**
-     * Method to delete user from database
-     *
-     * @param sessionToken Session token from the calling user
-     * @param username     Username to be deleted
-     * @return Server acknowledgement for Success or Exception Handling
+     * Mocks the delete user from MockUserTable functionality. Will delete the user associated with the provided
+     * username. This method requires the EditUser permission. Returns a server acknowledgement for successful
+     * deletion or if some other exception occurred.
+     * <p>
+     * @param sessionToken Session token from the calling user (permission checks)
+     * @param username Username to be deleted from the MockUserTable
+     * @return Server acknowledgement for Success or Exception Handling(InsufficientPermission, CannotDeleteSelf,
+     * or NoSuchUser)
      */
     protected static ServerAcknowledge deleteUserTest(String sessionToken, String username) {
         String callingUsername = getUsernameFromTokenTest(sessionToken);
@@ -169,7 +193,7 @@ class MockUserTable extends MockDatabase {
                 System.out.println("Username provided matches the calling user - cannot delete yourself.");
                 return CannotDeleteSelf; // 2. Cannot Delete Self Exception - Sufficient permission
             } else if (userExistsTest(username)) {
-                internal.remove(username);
+                Internal.remove(username);
                 System.out.println("Username was deleted: " + username);
                 return Success; // 3. User Deleted - Valid user and sufficient permission
             } else {
@@ -181,11 +205,11 @@ class MockUserTable extends MockDatabase {
 
 
     /**
-     * List all the usernames from the MockUserTable
-     * Requires the edit users permission
-     *
-     * @param sessionToken the session token of the calling user
-     * @return an Arraylist of the usernames of all users in the MockUserTable
+     * Mocks the list all the usernames from the MockUserTable functionality. This method requires the EditUser
+     * permission. It returns a String array list of all of the usernames from the MockUserTable.
+     * <p>
+     * @param sessionToken The session token of the calling user.
+     * @return A string Arraylist of the usernames of all users in the MockUserTable.
      */
     public static Object listUsersTest(String sessionToken) {
         String callingUsername = getUsernameFromTokenTest(sessionToken);
@@ -195,7 +219,7 @@ class MockUserTable extends MockDatabase {
         } else {
             System.out.println("Permission requirements were valid, list of users was retrieved");
             // Getting Set of keys from MockUserTable
-            Set<String> keySet = internal.keySet();
+            Set<String> keySet = Internal.keySet();
             // Creating an ArrayList of keys by passing the keySet
             ArrayList<String> listOfUsers = new ArrayList<>(keySet);
             return listOfUsers; // 2. Success, list of users returned
@@ -203,19 +227,19 @@ class MockUserTable extends MockDatabase {
     }
 
     /**
-     * Sets the permissions of the corresponding user in the MockUserTable
-     * @param sessionToken
-     * @param username
-     * @param createBillboard
-     * @param editBillboard
-     * @param editSchedule
-     * @param editUser
-     * @return
-     * @throws IOException
-     * @throws SQLException
+     * Mocks the setting of permissions of the corresponding user in the MockUserTable
+     * <p>
+     * @param sessionToken Session token from the calling user
+     * @param username String username to be created
+     * @param createBillboard Boolean to indicate whether the user to be created has the createBillboard permission
+     * @param editBillboard Boolean to indicate whether the user to be created has the editBillboard permission
+     * @param scheduleBillboard Boolean to indicate whether the user to be created has the scheduleBillboard permission
+     * @param editUser Boolean to indicate whether the user to be created has the editUser permission
+     * @return Server acknowledgement for Success or Exception Handling(InsufficientPermission,
+     * CannotRemoveOwnAdminPermission, or NoSuchUser)
      */
     public static ServerAcknowledge setPermissionsTest(String sessionToken, String username, boolean createBillboard,
-                                                       boolean editBillboard, boolean editSchedule, boolean editUser) {
+                                                       boolean editBillboard, boolean scheduleBillboard, boolean editUser) {
         String callingUsername = getUsernameFromTokenTest(sessionToken);
         if (!hasPermissionTest(callingUsername, EditUser)) {
             System.out.println("Calling user does not have EditUser permissions, no permissions were set");
@@ -231,16 +255,16 @@ class MockUserTable extends MockDatabase {
                 ArrayList<Object> retrievedUser = retrieveUserTest(username);
                 String hashedSaltedPassword = (String) retrievedUser.get(0);
                 String salt = (String) retrievedUser.get(1);
-                internal.remove(username);
-                internal.put(username, new ArrayList<>());
+                Internal.remove(username);
+                Internal.put(username, new ArrayList<>());
                 ArrayList<Object> values = new ArrayList();
                 values.add(hashedSaltedPassword);
                 values.add(salt);
                 values.add(createBillboard);
                 values.add(editBillboard);
-                values.add(editSchedule);
+                values.add(scheduleBillboard);
                 values.add(editUser);
-                internal.get(username).add(values);
+                Internal.get(username).add(values);
                 System.out.println("Permission requirements were valid, permissions were set");
                 return Success; // 3. Success, permissions returned
             } else {
@@ -252,12 +276,15 @@ class MockUserTable extends MockDatabase {
 
 
     /**
-     * Method to set password of corresponding user in the MockUserTable
-     * @param sessionToken
-     * @param username
-     * @param hashedPassword
-     * @return
-     * @throws NoSuchAlgorithmException
+     * Mocks the setting of password of the corresponding user in the MockUserTable
+     * <p>
+     * @param sessionToken Session token from the calling user
+     * @param username String username of the user to be updated
+     * @param hashedPassword User provided hashed password from CP
+     * @return ServerAcknowledge enum to indicate whether creation was successful or whether an exceptions
+     * (InsufficientPermission or NoSuchUser) occurred.
+     * @throws NoSuchAlgorithmException This exception is thrown if the hashing algorithm for the password requested
+     * does not exist.
      */
     public static ServerAcknowledge setPasswordTest(String sessionToken, String username, String hashedPassword) throws NoSuchAlgorithmException {
         String callingUsername = getUsernameFromTokenTest(sessionToken);
@@ -272,8 +299,8 @@ class MockUserTable extends MockDatabase {
             Boolean editBillboard = (Boolean) retrievedUser.get(3);
             Boolean editSchedule= (Boolean) retrievedUser.get(4);
             Boolean editUser = (Boolean) retrievedUser.get(5);
-            internal.remove(username);
-            internal.put(username, new ArrayList<>());
+            Internal.remove(username);
+            Internal.put(username, new ArrayList<>());
             ArrayList<Object> values = new ArrayList();
             String salt = generateSaltString();
             String hashedSaltedPassword = hash(hashedPassword + salt); // Generate new hashed password
@@ -283,7 +310,7 @@ class MockUserTable extends MockDatabase {
             values.add(editBillboard);
             values.add(editSchedule);
             values.add(editUser);
-            internal.get(username).add(values);
+            Internal.get(username).add(values);
             System.out.println("Permission requirements were valid - password was updated");
             return Success; // 2. Success
         } else {
