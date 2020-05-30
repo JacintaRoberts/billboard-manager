@@ -1,6 +1,8 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
+import org.w3c.dom.Document;
+import org.xml.sax.SAXException;
 import server.BillboardList;
 import server.DbBillboard;
 import server.ScheduleInfo;
@@ -8,6 +10,8 @@ import server.Server;
 import server.Server.ServerAcknowledge;
 
 import javax.swing.*;
+import javax.xml.parsers.ParserConfigurationException;
+import javax.xml.transform.TransformerException;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
@@ -1174,26 +1178,29 @@ public class Controller
             bbCreateView.showBBEditingMessage(BBName);
 
             try {
-                DbBillboard billboardObject = null;
-                billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
+                DbBillboard billboardObject = (DbBillboard) BillboardControl.getBillboardRequest(model.getSessionToken(), BBName);
                 String xmlFile = billboardObject.getXMLCode();
                 byte[] pictureData = billboardObject.getPictureData();
-                boolean valid = bbCreateView.addBBXML(xmlFile, pictureData);
+                Document document = bbCreateView.getXMLDocument(xmlFile);
+                bbCreateView.setXMLBB(document, pictureData);
 
-                if (valid)
+                if (billboardObject.getServerResponse().equals("Success"))
                 {
                     // set BB Name based on selected button, ensure user cannot update BB name
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
                     updateView(BB_CREATE);
-
-                } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist")){
-                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard(); // FIXME - should this be on listBBView
-                } else if (billboardObject.getServerResponse().equals("Fail: Session was not valid")) {
-                    bbCreateView.showBBInvalidErrorMessageTokenError(); // FIXME - should this be on listBBView
+                } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist"))
+                {
+                    bbCreateView.showBBInvalidErrorMessageNonExistBillboard();
+                }
+                else if (billboardObject.getServerResponse().equals("Fail: Session was not valid"))
+                {
+                    bbCreateView.showBBInvalidErrorMessageTokenError();
+                    updateView(LOGIN);
                 }
             }
-            catch (IOException | ClassNotFoundException ex)
+            catch (Exception ex)
             {
                 bbCreateView.showBBInvalidErrorMessage();
             }
@@ -1362,52 +1369,47 @@ public class Controller
                 if (confirmCreation == 0)
                 {
                     try {
-                        // get XML string and picture data
-                        ArrayList<Object> BBXMLString = bbCreateView.getBBXMLString();
-                        // if not null, then create BB
-                        if (BBXMLString != null)
+                        // get xml doc and image data
+                        ArrayList<Object> xmlData = bbCreateView.getBBXMLDocument(true);
+
+                        // convert doc to string
+                        String BBXMLString = bbCreateView.getBBXMLString((Document) xmlData.get(0));
+
+                        // get creator username
+                        String creator = model.getUsername();
+
+                        // create bb
+                        ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, BBXMLString, (byte[]) xmlData.get(1));
+
+                        // if successfully created then update response from server
+                        if (createBillboardAction.equals(Success))
                         {
-                            // get creator username
-                            String creator = model.getUsername();
+                            // show scheduling option - asking user if they want to schedule BB now
+                            int optionSelected = bbCreateView.showSchedulingOption();
 
-                            // create bb
-                            ServerAcknowledge createBillboardAction = BillboardControl.createBillboardRequest(model.getSessionToken(), bbName, creator, (String)BBXMLString.get(0), (byte[])BBXMLString.get(1));
-
-                            // if successfully created then update response from server
-                            if (createBillboardAction.equals(Success))
-                            {
-                                // show scheduling option - asking user if they want to schedule BB now
-                                int optionSelected = bbCreateView.showSchedulingOption();
-
-                                // User Selected YES to schedule BB
-                                if (optionSelected == 0)
-                                {
-                                    // navigate to schedule create view
-                                    updateView(SCHEDULE_UPDATE);
-                                }
-                                // User Selected NO to skip scheduling the BB
-                                else
-                                {
-                                    // you have just created a bb message
-                                    bbCreateView.showBBCreatedSuccessMessage();
-                                    // navigate to schedule menu view
-                                    updateView(BB_MENU);
-                                }
+                            // User Selected YES to schedule BB
+                            if (optionSelected == 0) {
+                                // navigate to schedule create view
+                                updateView(SCHEDULE_UPDATE);
                             }
-                            else if (createBillboardAction.equals(BillboardNameExists))
-                            {
-                                String message = "Billboard Name already exists";
-                                bbCreateView.showMessageToUser(message);
+                            // User Selected NO to skip scheduling the BB
+                            else {
+                                // you have just created a bb message
+                                bbCreateView.showBBCreatedSuccessMessage();
+                                // navigate to schedule menu view
+                                updateView(BB_MENU);
                             }
-                            else
-                            {
-                                String message = "Billboard Creation Unsuccessful. Try again.";
-                                bbCreateView.showMessageToUser(message);
-                            }
+                        } else if (createBillboardAction.equals(BillboardNameExists)) {
+                            String message = "Billboard Name already exists";
+                            bbCreateView.showMessageToUser(message);
+                        } else
+                        {
+                            String message = "Billboard Creation Unsuccessful. Try again.";
+                            bbCreateView.showMessageToUser(message);
                         }
-                    } catch ( IOException | ClassNotFoundException ex)
+                    }catch (ParserConfigurationException | TransformerException | ClassNotFoundException | IOException ex)
                     {
-                        String message = "Error encountered whilst creating BB. Exception " + ex.toString();
+                        String message = "Exception Occurred. Please try again. " + ex.getMessage();
                         bbCreateView.showMessageToUser(message);
                     }
                 }
@@ -1433,31 +1435,23 @@ public class Controller
             // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
 
-            // get selected BB
-            String bbName = bbCreateView.getSelectedBBName();
-
             // if bb name and bb design are valid, get info and display on viewer
-            if ((bbName != null || !bbName.equals("")) && bbCreateView.checkBBValid())
+            if (bbCreateView.checkBBValid())
             {
                 try {
-                    ArrayList<Object> xmlData = bbCreateView.getBBXMLString();
-                    if (xmlData != null)
-                    {
-                        BBViewer.displayBillboard((String)xmlData.get(0), (byte[]) xmlData.get(1));
-                    }
-                    else
-                    {
-                        bbCreateView.showInvalidXMLMessage();
-                    }
+                    ArrayList<Object> xmlData = bbCreateView.getBBXMLDocument(true);
+                    String xmlString = bbCreateView.getBBXMLString((Document)xmlData.get(0));
+                    BBViewer.displayBillboard(xmlString, (byte[]) xmlData.get(1));
                 }
-                catch (IllegalComponentStateException ex)
+                catch (IllegalComponentStateException | TransformerException | ParserConfigurationException ex)
                 {
                     bbCreateView.showInvalidXMLMessage();
                 }
             }
             else
             {
-                bbCreateView.showInvalidXMLMessage();
+                String message = "Ensure to design a valid Billboard with at least 1 feature.";
+                bbCreateView.showMessageToUser(message);
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1541,41 +1535,45 @@ public class Controller
             // get users selection of photo type either url or data
             int response = bbCreateView.photoTypeSelection();
 
-            // URL selected
-            if (response == 0)
+            try
             {
-                // allow user to enter url
-                ArrayList<Object> photoData = bbCreateView.showURLInputMessage();
+                // URL selected
+                if (response == 0)
+                {
+                    // allow user to enter url
+                    String photoURL = bbCreateView.showURLInputMessage();
 
-                // if not null, set photo
-                if (photoData != null)
-                {
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.URL, photoData.get(1));
+                    // if not null, set photo
+                    if (photoURL != null)
+                    {
+                        ArrayList<Object> imageData = null;
+                        imageData = bbCreateView.getImageData(photoURL);
+                        bbCreateView.setPhoto((ImageIcon)imageData.get(0), BBCreateView.PhotoType.URL, imageData.get(1));
+                    }
+                    // else show error
+                    else
+                    {
+                        bbCreateView.showURLErrorMessage();
+                    }
                 }
-                // else show error
-                else
+                // if personal photo selected, allow user to select photo from file
+                else if (response == 1)
                 {
-                    bbCreateView.showURLErrorMessage();
+                    // get photo selected - this contains Image Icon and byte array
+                    ArrayList<Object> photoData = bbCreateView.browsePhotos();
+                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, (String)photoData.get(1));
+                }
+                // if clear button is selected, remove current image
+                else if (response == 2)
+                {
+                    bbCreateView.setPhoto(null, null, null);
                 }
             }
-            // if personal photo selected, allow user to select photo from file
-            else if (response == 1)
+            catch (Exception ex)
             {
-                // get photo selected - this contains Image Icon and byte array
-                ArrayList<Object> photoData = bbCreateView.browsePhotos();
+                bbCreateView.showMessageToUser("Unable to Import Photo.");
+            }
 
-                // photo data is not null, set photo
-                if (photoData != null)
-                {
-                    String encodedString = Base64.getEncoder().encodeToString((byte[])photoData.get(1));
-                    bbCreateView.setPhoto((ImageIcon)photoData.get(0), BBCreateView.PhotoType.DATA, encodedString);
-                }
-            }
-            // if clear button is selected, remove current image
-            else if (response == 2)
-            {
-                bbCreateView.setPhoto(null, null, null);
-            }
             views.put(BB_CREATE, bbCreateView);
         }
     }
@@ -1592,12 +1590,16 @@ public class Controller
 
             // get BB create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
-
-            // browse import returns boolean value to indicate whether import was successful
-            if (!bbCreateView.browseXMLImport())
+            try
             {
-                // show error if unsuccessful import
-                bbCreateView.showInvalidXMLMessage();
+                String path = bbCreateView.browseXMLImport();
+                Document doc = bbCreateView.createXMLDoc(path);
+                byte[] noPictureData = new byte[]{};
+                bbCreateView.setXMLBB(doc, noPictureData);
+            }
+            catch (Exception ex)
+            {
+                bbCreateView.showMessageToUser("Unable to import Billboard XML. Reason: " + ex.getMessage());
             }
             views.put(BB_CREATE, bbCreateView);
         }
@@ -1616,43 +1618,54 @@ public class Controller
             // get BB Create view
             BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
 
-            // if BB is valid, show folder selector
-            if (bbCreateView.checkBBValid())
+            try
             {
-                // select folder
-                int value = bbCreateView.showFolderChooserSelector();
-
-                // if selection is approved, proceed
-                if(value == JFileChooser.APPROVE_OPTION)
+                // if BB is valid, show folder selector
+                if (bbCreateView.checkBBValid())
                 {
-                    // get filename from user
-                    String filename = bbCreateView.enterXMLFileName();
+                    // select folder
+                    int value = bbCreateView.showFolderChooserSelector();
 
-                    // if filename is valid, proceed to export xml
-                    if (filename != null || !filename.equals(""))
+                    // if selection is approved, proceed
+                    if(value == JFileChooser.APPROVE_OPTION)
                     {
-                        // get selected folder path
-                        String path = bbCreateView.browseExportFolder();
+                        // get filename from user
+                        String filename = bbCreateView.enterXMLFileName();
 
-                        // success value indicates if xml was successfully converted to file
-                        Boolean success = bbCreateView.xmlExport(path + "\\" + filename + ".xml");
-
-                        // show message to user depending on export status
-                        if (success)
+                        // if filename is valid, proceed to export xml
+                        if (!filename.equals(""))
                         {
+                            // get selected folder path
+                            String path = bbCreateView.browseExportFolder();
+
+                            ArrayList<Object> xmlData = bbCreateView.getBBXMLDocument(false);
+
+                            String absolutePhotoPath = path + "\\" + filename + ".xml";
+
+                            // success value indicates if xml was successfully converted to file
+                            bbCreateView.xmlExport(absolutePhotoPath, (Document) xmlData.get(0));
+
+                            // show success message
                             bbCreateView.showSuccessfulExport();
                         }
                         else
                         {
-                            bbCreateView.showBBInvalidErrorMessage();
+                            String message = "No filename selected - XML not exported.";
+                            JOptionPane.showMessageDialog(null, message);
                         }
                     }
                 }
+                // if BB is invalid, show error message
+                else
+                {
+                    String message = "Invalid Billboard. Please ensure to select at least a title, text or picture.";
+                    JOptionPane.showMessageDialog(null, message);
+                }
             }
-            // if BB is invalid, show error message
-            else
+            catch(ParserConfigurationException | TransformerException ex)
             {
-                bbCreateView.showBBInvalidErrorMessage();
+                String message = "Invalid Action - Exception occurred.";
+                JOptionPane.showMessageDialog(null, message);
             }
             views.put(BB_CREATE, bbCreateView);
         }
