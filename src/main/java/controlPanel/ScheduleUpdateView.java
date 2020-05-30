@@ -315,9 +315,9 @@ public class ScheduleUpdateView extends AbstractGenericView
         minutesLabel.setText("");
 
         // reset time selectors
-        endHourSelector.setSelectedItem(2);
+        endHourSelector.setSelectedItem(1);
         endMinSelector.setSelectedItem("00");
-        startHourSelector.setSelectedItem(2);
+        startHourSelector.setSelectedItem(1);
         startMinSelector.setSelectedItem("00");
         startAMPMSelector.setSelectedItem("AM");
         endAMPMSelector.setSelectedItem("AM");
