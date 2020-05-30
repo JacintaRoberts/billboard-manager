@@ -587,7 +587,7 @@ class UnitTests {
                                                             wednesday, thursday, friday, saturday);
         assertEquals(Success, mockResponse);
         // Check that the schedule is actually added to the MockScheduleTable
-        assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+        assertTrue(mockScheduleTable.billboardScheduleExistsTest(billboardName));
     }
 
 
@@ -605,7 +605,7 @@ class UnitTests {
                                                                 monday, tuesday, wednesday, thursday, friday, saturday);
         assertEquals(BillboardNotExists, mockResponse);
         // Check that the schedule is not added to the MockScheduleTable
-        assertFalse(mockScheduleTable.BillboardScheduleExistsTest("non-existent"));
+        assertFalse(mockScheduleTable.billboardScheduleExistsTest("non-existent"));
     }
 
 
@@ -623,7 +623,7 @@ class UnitTests {
                 monday, tuesday, wednesday, thursday, friday, saturday);
         assertEquals(BillboardNotExists, mockResponse);
         // Check that the schedule is not added to the MockScheduleTable
-        assertFalse(mockScheduleTable.BillboardScheduleExistsTest(newBillboardName));
+        assertFalse(mockScheduleTable.billboardScheduleExistsTest(newBillboardName));
     }
 
 
@@ -642,7 +642,7 @@ class UnitTests {
                 wednesday, thursday, friday, "1");
         assertEquals(Success, mockResponse);
         // Check that the schedule still exists in the MockScheduleTable
-        assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+        assertTrue(mockScheduleTable.billboardScheduleExistsTest(billboardName));
     }
 
 
@@ -656,7 +656,7 @@ class UnitTests {
         ServerAcknowledge mockResponse = mockScheduleTable.deleteScheduleTest(mockToken, billboardName);
         assertEquals(Success, mockResponse);
         // Check that the schedule no longer exists in the MockScheduleTable
-        assertFalse(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+        assertFalse(mockScheduleTable.billboardScheduleExistsTest(billboardName));
     }
 
 

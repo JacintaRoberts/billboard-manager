@@ -14,7 +14,7 @@ import static server.Server.ServerAcknowledge.*;
  * UNIT TESTS USE THIS MOCK SCHEDULE TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
 class MockScheduleTable {
-    private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
+    private static HashMap<String, ArrayList<Object>> Internal = new HashMap<>(); // Table is modelled on a HashMap
 
     /**
      * updateSchedule edits/creates schedules in the MockScheduleTable.
@@ -93,13 +93,13 @@ class MockScheduleTable {
         values.add(friday);
         values.add(saturday);
         // Does not contain the billboard already, create new schedule
-        if (!BillboardScheduleExistsTest(billboard)) {
+        if (!billboardScheduleExistsTest(billboard)) {
             System.out.println("MockScheduleTable did not contain a schedule for " + billboard + " ...adding the schedule!");
-            internal.put(billboard, new ArrayList<>()); // Add a key for new schedule
+            Internal.put(billboard, new ArrayList<>()); // Add a key for new schedule
         } else { // Edit existing schedule
             System.out.println("MockScheduleTable contains a schedule for " + billboard + " ...editing the schedule!");
         }
-        internal.get(billboard).add(values); // Add values to the MockScheduleTable
+        Internal.get(billboard).add(values); // Add values to the MockScheduleTable
     }
 
 
@@ -122,12 +122,12 @@ class MockScheduleTable {
                 return BillboardNotExists; // 1. Billboard no longer exists
             } else {
                 // Ensure that the schedule to be deleted exists
-                if (!BillboardScheduleExistsTest(billboard)) {
+                if (!billboardScheduleExistsTest(billboard)) {
                     System.out.println("Schedule does not exist");
                     return ScheduleNotExists; // 2. Schedule to be deleted no longer exists
                 } else {
                     // Delete the billboard's corresponding schedule from the MockScheduleTable
-                    internal.remove(billboard);
+                    Internal.remove(billboard);
                     System.out.println("Schedule was successfully deleted");
                     return Success; // 3. Successfully deleted schedule
                 }
@@ -140,17 +140,18 @@ class MockScheduleTable {
 
 
     /**
-     * Method returns true if the billboard is already scheduled in the MockScheduleTable, false otherwise.
+     * BillboardScheduleExistsTest returns true if the billboard is already scheduled in the MockScheduleTable,
+     * and false otherwise.
      * @param billboard A String which provides the Billboard Name to search in the MockScheduleTable.
      * @return Boolean true or false to indicate whether the billboard has been scheduled (true), or not (false).
      */
-    protected static boolean BillboardScheduleExistsTest(String billboard) {
-        return internal.containsKey(billboard);
+    protected static boolean billboardScheduleExistsTest(String billboard) {
+        return Internal.containsKey(billboard);
     }
 
 
     /**
-     * This function will create a schedule information for a particular billboard which contains the relevant details
+     * getSched create a schedule information for a particular billboard which contains the relevant details
      * from the MockScheduleTable for that particular billboard.
      * @param billboard A String of the billboard name to fetch the schedule information of from the MockScheduleTable
      * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can
@@ -177,11 +178,11 @@ class MockScheduleTable {
             System.out.println("Insufficient user permissions");
             serverResponse = InsufficientPermission; // 1. User has insufficient permissions to get the schedule.
             // If the Schedule does not exist for the requested billboard
-        } else if (!BillboardScheduleExistsTest(billboard)) {
+        } else if (!billboardScheduleExistsTest(billboard)) {
             System.out.println("A schedule does not exist for the requested billboard");
             serverResponse = ScheduleNotExists; // 2. The requested billboard does not have a schedule to fetch
         } else {
-            ArrayList<String> retrievedSchedule = (ArrayList) internal.get(billboard).get(0);
+            ArrayList<String> retrievedSchedule = (ArrayList) Internal.get(billboard).get(0);
             // Store return from sql into respective data fields.
             retrievedBillboard = billboard;
             retrievedStartTime = retrievedSchedule.get(0);
@@ -212,8 +213,7 @@ class MockScheduleTable {
                 retrievedFriday,
                 retrievedSaturday
         );
-        // Return scheduleInfo Object
-        return scheduleInfo;
+        return scheduleInfo; // Return scheduleInfo Object
     }
 
 }

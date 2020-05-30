@@ -6,7 +6,6 @@ import java.util.Set;
 
 import static server.MockSessionTokens.getUsernameFromTokenTest;
 import static server.MockUserTable.hasPermissionTest;
-import static server.MockUserTable.retrieveUserPermissionsFromMockDbTest;
 import static server.Server.Permission.*;
 import static server.Server.ServerAcknowledge;
 import static server.Server.ServerAcknowledge.*;
@@ -16,7 +15,7 @@ import static server.Server.ServerAcknowledge.*;
  * UNIT TESTS USE THIS MOCK BILLBOARD TABLE CLASS TO REMOVE SQL/SERVER DEPENDENCY
  ================================================================================================*/
 class MockBillboardTable {
-    private static HashMap<String, ArrayList<Object>> internal = new HashMap<>();
+    private static HashMap<String, ArrayList<Object>> Internal = new HashMap<>(); // Table is modelled on a HashMap
 
     /**
      * Mock create billboard for unit testing
@@ -50,12 +49,12 @@ class MockBillboardTable {
      */
     protected static ServerAcknowledge addBillboardTest(String billboard, ArrayList<Object> values) {
         ServerAcknowledge dbResponse = PrimaryKeyClash;
-        if (!internal.containsKey(billboard)) { // If did not contain the billboard already, there would not be a clash
+        if (!Internal.containsKey(billboard)) { // If did not contain the billboard already, there would not be a clash
             System.out.println("MockBillboardTable did not contain " + billboard + " ...adding the billboard!");
-            internal.put(billboard, new ArrayList<>());
+            Internal.put(billboard, new ArrayList<>());
             dbResponse = Success;
         }
-        internal.get(billboard).add(values); // Add values to the MockBillboardTable
+        Internal.get(billboard).add(values); // Add values to the MockBillboardTable
         System.out.println("values of the billboard stored: " + values);
         return dbResponse;
     }
@@ -72,14 +71,14 @@ class MockBillboardTable {
         System.out.println("OGCreator is: " + OGCreator);
         String requestor = getUsernameFromTokenTest(sessionToken);
         System.out.println("Requestor is: " + requestor);
-        boolean currentlyScheduled = MockScheduleTable.BillboardScheduleExistsTest(billboard);
+        boolean currentlyScheduled = MockScheduleTable.billboardScheduleExistsTest(billboard);
         System.out.println("Is the billboard scheduled? " + currentlyScheduled);
         // If own billboard that is not currently scheduled require CreateBillboard Permission
         if (requestor.equals(OGCreator) && !currentlyScheduled) {
             if (hasPermissionTest(requestor, CreateBillboard)) {
                 // Delete billboard
                 if (billboardExistsTest(billboard)) {
-                    internal.remove(billboard);
+                    Internal.remove(billboard);
                     System.out.println("Billboard was deleted: " + billboard);
                     return Success; // 1. Billboard Deleted - Valid user, token and sufficient permission
                 } else {
@@ -87,7 +86,7 @@ class MockBillboardTable {
                     return BillboardNotExists; // 2. Requested billboard to be deleted does not exist in DB
                 }
             } else {
-                System.out.println("This requested action requires the user to have the CreateBillboard permission");
+                System.out.println("The requested action requires the user to have the CreateBillboard permission");
                 return InsufficientPermission; // 3. Calling User has Insufficient Permissions
             }
         // Else require EditBillboard Permission to delete any other billboard
@@ -95,7 +94,7 @@ class MockBillboardTable {
             if (hasPermissionTest(requestor, EditBillboard)) {
                 // Delete billboard
                 if (billboardExistsTest(billboard)) {
-                    internal.remove(billboard);
+                    Internal.remove(billboard);
                     System.out.println("Billboard was deleted: " + billboard);
                     return Success; // 1. Billboard Deleted - Valid user, token and sufficient permission
                 } else {
@@ -116,7 +115,7 @@ class MockBillboardTable {
      * @return boolean value to indicate whether the billboard exists (true), false otherwise
      */
     protected static boolean billboardExistsTest(String billboard) {
-        if (internal.containsKey(billboard)) {
+        if (Internal.containsKey(billboard)) {
             return true;
         } return false;
     }
@@ -129,8 +128,8 @@ class MockBillboardTable {
      */
     protected static DbBillboard getBillboardInformationTest(String billboard){
         // Retrieve values from MockBillboardTable
-        if (internal.containsKey(billboard)) {
-            ArrayList<Object> values = (ArrayList<Object>) internal.get(billboard).get(0);
+        if (Internal.containsKey(billboard)) {
+            ArrayList<Object> values = (ArrayList<Object>) Internal.get(billboard).get(0);
             DbBillboard dbBillboard = new DbBillboard((String) values.get(0), (String) values.get(1), (byte[]) values.get(3), (String) values.get(2), Success);
             return dbBillboard;
         } else {
@@ -146,10 +145,10 @@ class MockBillboardTable {
      */
     public static Object listBillboardTest() {
         // Getting Set of keys from MockBillboardTable
-        Set<String> keySet = internal.keySet();
+        Set<String> keySet = Internal.keySet();
         // Creating an ArrayList of keys by passing the keySet
         ArrayList<String> listOfbBillboards = new ArrayList<>(keySet);
-        return listOfbBillboards; // 2. Success, list of users returned
+        return listOfbBillboards; // 2. Success, list of billboards returned
     }
 
 }
