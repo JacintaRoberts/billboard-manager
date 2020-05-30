@@ -317,8 +317,6 @@ public class Controller
     {
         // get old view
         AbstractView oldView = views.get(oldViewType);
-        // detach old view to stop listening to model
-        model.detachObserver(oldView);
         // clean up gui (remove information)
         oldView.cleanUp();
         // set view as hidden
@@ -339,8 +337,6 @@ public class Controller
     {
         // get new view
         AbstractView view = views.get(newViewType);
-        // attach observer (this listens for model updates)
-        model.attachObserver(view);
         // set current view in model
         model.setCurrentView(view.getEnum());
         // set view as visible
@@ -1395,12 +1391,12 @@ public class Controller
                                     updateView(SCHEDULE_UPDATE);
                                 }
                                 // User Selected NO to skip scheduling the BB
-                                else if (optionSelected == 1)
+                                else
                                 {
                                     // you have just created a bb message
                                     bbCreateView.showBBCreatedSuccessMessage();
                                     // navigate to schedule menu view
-                                    updateView(SCHEDULE_MENU);
+                                    updateView(BB_MENU);
                                 }
                             }
                             else if (createBillboardAction.equals(BillboardNameExists))

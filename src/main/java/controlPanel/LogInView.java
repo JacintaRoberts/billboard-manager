@@ -1,9 +1,6 @@
 package controlPanel;
 
-
 import controlPanel.Main.VIEW_TYPE;
-import observer.Subject;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
@@ -75,12 +72,6 @@ public class LogInView extends AbstractView
     public static String getPassword()
     {
         return new String(passwordField.getPassword());
-    }
-
-
-    @Override
-    public void update(Subject s)
-    {
     }
 
     /**

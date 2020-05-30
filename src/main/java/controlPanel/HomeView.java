@@ -1,7 +1,5 @@
 package controlPanel;
 
-import observer.Subject;
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseListener;
@@ -66,15 +64,6 @@ public class HomeView extends AbstractGenericView
     VIEW_TYPE getEnum()
     {
         return view_type;
-    }
-
-    /**
-     * Update is used when model is updated and view needs to change accordingly
-     * @param s The subject that has been updated.
-     */
-    @Override
-    public void update(Subject s)
-    {
     }
 
     /**

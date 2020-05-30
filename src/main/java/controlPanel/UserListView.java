@@ -1,7 +1,5 @@
 package controlPanel;
 
-import observer.Subject;
-
 /**
  * User list view which displays list of all users in the database
  */
@@ -21,11 +19,5 @@ public class UserListView extends AbstractListView
     @Override
     Main.VIEW_TYPE getEnum() {
         return view_type;
-    }
-
-    @Override
-    public void update(Subject s)
-    {
-
     }
 }
