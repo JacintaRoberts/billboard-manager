@@ -17,9 +17,10 @@ class MockScheduleTable {
     private static HashMap<String, ArrayList<Object>> Internal = new HashMap<>(); // Table is modelled on a HashMap
 
     /**
-     * updateSchedule edits/creates schedules in the MockScheduleTable.
+     * Mocks the edits/creation of schedules in the MockScheduleTable.
      * Returns a serverAcknowledge to signal whether the schedule edit/creation was successful,
      * or if an exception occurred.
+     * <p>
      * @param sessionToken A String which provides request username to search in MockUserTable for permissions
      * @param billboard A String which provides Billboard Name to create the schedule for in the MockBillboardTable
      * @param startTime A String in format of Java Time to store into MockScheduleTable
@@ -34,7 +35,7 @@ class MockScheduleTable {
      * @param friday A String that's either 1 or 0  to see if the schedule is to be run during Friday
      * @param saturday A String that's either 1 or 0  to see if the schedule is to be run during Saturday
      * @return Returns a ServerAcknowledge to indicate whether or not the Schedule was created/edited successfully,
-     * or failed due to some other reason.
+     * or failed due to some other reason (BillboardNotExists OR InsufficientPermission).
      */
     protected static ServerAcknowledge updateScheduleTest(String sessionToken, String billboard, String startTime,
                                                           String duration, String creationDateTime, String repeat,
@@ -62,7 +63,8 @@ class MockScheduleTable {
 
 
     /**
-     * Create/edit billboard schedule in the MockScheduleTable
+     * Mocks the create/edit billboard schedule in the MockScheduleTable
+     * <p>
      * @param billboard A String which provides Billboard Name to create the schedule for in the MockBillboardTable
      * @param startTime A String in format of Java Time to store into MockScheduleTable
      * @param duration A String representing an integer which provides Duration which to store into MockScheduleTable
@@ -104,12 +106,13 @@ class MockScheduleTable {
 
 
     /**
-     * deleteSchedules removes the schedules associated with the billboard name from the MockScheduleTable.
+     * Mocks the deletion of the corresponding schedules associated with the billboard name from the MockScheduleTable.
      * Returns a serverAcknowledge to signal whether the schedule deletion was successful, or if an exception occurred.
+     * <p>
      * @param sessionToken A String which provides request username to search in MockUserTable for permissions
      * @param billboard A String which provides Billboard Name of the schedule to be deleted in the MockBillboardTable
      * @return Returns a ServerAcknowledge whether or not the Schedule was deleted successfully,
-     * or failed due to some other reason.
+     * or failed due to some other reason (BillboardNotExists, ScheduleNotExists OR InsufficientPermission).
      */
     public static ServerAcknowledge deleteScheduleTest(String sessionToken, String billboard) {
         // User requires the ScheduleBillboard permission to perform this method
@@ -140,8 +143,9 @@ class MockScheduleTable {
 
 
     /**
-     * BillboardScheduleExistsTest returns true if the billboard is already scheduled in the MockScheduleTable,
-     * and false otherwise.
+     * Mocks the logic to test if a schedule exists for a particular billboard. It returns true if the billboard is
+     * already scheduled in the MockScheduleTable, and false otherwise.
+     * <p>
      * @param billboard A String which provides the Billboard Name to search in the MockScheduleTable.
      * @return Boolean true or false to indicate whether the billboard has been scheduled (true), or not (false).
      */
@@ -151,8 +155,9 @@ class MockScheduleTable {
 
 
     /**
-     * getSched create a schedule information for a particular billboard which contains the relevant details
+     * Mocks the retrieval of schedule information for a particular billboard which contains the relevant details
      * from the MockScheduleTable for that particular billboard.
+     * <p>
      * @param billboard A String of the billboard name to fetch the schedule information of from the MockScheduleTable
      * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can
      * be read via getters.

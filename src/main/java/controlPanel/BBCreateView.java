@@ -387,6 +387,8 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Set Photo in the Drawing Panel
      * @param icon BB image in icon format
+     * @param imgType Phototype of the image type provided
+     * @param imgPath Object the image path
      */
     protected void setPhoto(ImageIcon icon, PhotoType imgType, Object imgPath)
     {
@@ -398,6 +400,7 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Set BB Name button enabled so user can set a BB Name when creating new BB.
      * Disable BB Name button when updating existing BB.
+     * @param enabled Boolean to indicate whether the button is enabled.
      */
     protected void setBBNameEnabled(boolean enabled)
     {
@@ -434,7 +437,7 @@ public class BBCreateView extends AbstractGenericView
      * Get BB XML document and picture data
      * @param separatePictureData indicating whether picture data should be returned separately as byte[]
      * @return array list containing xml and picture data
-     * @throws ParserConfigurationException
+     * @throws ParserConfigurationException Thrown if there is a configuration error in the DocumentBuilder parser
      */
     protected ArrayList<Object> getBBXMLDocument(boolean separatePictureData) throws ParserConfigurationException {
 
@@ -528,11 +531,12 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
-     * Get BB xml doc as string
-     * @return xml string
+     * Get BB xml document as string
+     * @param xmlDocument Document that contains the xml to be retrieved
+     * @return String representation of the xml
+     * @throws TransformerException Exception is thrown when an error occurs in the transformation proccess
      */
-    protected String getBBXMLString(Document xmlDocument) throws TransformerException
-    {
+    protected String getBBXMLString(Document xmlDocument) throws TransformerException {
         Transformer t;
         TransformerFactory tf = TransformerFactory.newInstance();
         t = tf.newTransformer();
@@ -651,7 +655,7 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Show Dialog to allow user to set Schedule
-     * @return
+     * @return An integer to determine whether the user wants to schedule now or later
      */
     protected int showSchedulingOption()
     {
@@ -662,7 +666,7 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Ask User for confirmation of BB creation
-     * @return
+     * @return An integer to indicate whether the user confirms the creation of the billboard
      */
     protected int showConfirmationCreateBB()
     {
@@ -672,7 +676,6 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Show Successful BB Created Message to user
-     * @return
      */
     protected void showBBCreatedSuccessMessage()
     {
@@ -720,6 +723,7 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Browse Photos to add to BB
      * @return BB Image (icon format)
+     * @throws IOException if an error occurs during reading or when not able to create required ImageInputStream
      */
     protected ArrayList<Object> browsePhotos() throws Exception {
         int value = photoChooser.showSaveDialog(null);
@@ -744,6 +748,8 @@ public class BBCreateView extends AbstractGenericView
         }
         else
         {
+            //TODO: CHECK IF THIS IS NEEDED
+
             // throw exception if occurs
             throw new Exception("Nothing selected.");
         }
