@@ -472,7 +472,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      * Set values from the server on the GUI. These values include: the selected days, start hour, start min,
      * duration, button selected, minute repetition
      */
-    protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat)
+    protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat, String AMPMtag)
     {
         System.out.println("SET SCHEDULE ");
         // ------------- SELECTED DAYS -------------
@@ -495,9 +495,25 @@ public class ScheduleUpdateView extends AbstractGenericView
         int endHour = startHour + BBduration/60;
         int endMin = startMin +  BBduration%60;
 
+        // EDGE CASE ARRANGEMENTS
+        if (endHour > 12){
+            endHour -= 12;
+            endAMPMSelector.setSelectedItem("PM");
+        }
+        if (endMin >= 60){
+            endMin -= 60;
+            endHour += 1;
+        }
+
         // set end time
         endHourSelector.getModel().setSelectedItem(endHour);
         endMinSelector.getModel().setSelectedItem(String.valueOf(endMin));
+
+        // set AM PM tags
+        if (AMPMtag.equals("PM")){
+            startAMPMSelector.setSelectedItem("PM");
+            endAMPMSelector.setSelectedItem("PM");
+        }
 
         // ------------- RECURRENCE -------------
         // set radio button selection for recurrence
@@ -706,6 +722,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // get times selected
         Integer startHour = (Integer)startHourSelector.getSelectedItem();
         String startMin = (String)startMinSelector.getSelectedItem();
+        String startAM_PM = (String) startAMPMSelector.getSelectedItem();
 
         // selected days
         ArrayList<Boolean> daysOfWeek = new ArrayList<>();
@@ -744,6 +761,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         scheduleInfo.add(duration);
         scheduleInfo.add(recurrenceButton);
         scheduleInfo.add(min_repeat);
+        scheduleInfo.add(startAM_PM);
 
         // return schedule information
         return scheduleInfo;
