@@ -614,9 +614,7 @@ public class Controller
         } catch (IOException | ClassNotFoundException ex)
         {
             userView.showFatalError();
-            views.put(viewType, userView);
-            // TODO: JACINTA - FIX ME terminate Control Panel and restart
-            ex.printStackTrace();
+            System.exit(0);
             // If the return is not an array list of booleans, an exception occurred
         } catch ( ClassCastException ex )
         {
@@ -630,7 +628,7 @@ public class Controller
             } else if (serverResponse.equals(NoSuchUser))
             {
                 userView.showNoSuchUserException();
-                updateView(LOGIN);
+                updateView(USERS_MENU);
             }
             views.put(viewType, userView);
         }
@@ -653,9 +651,7 @@ public class Controller
                 System.out.println("Received from server: " + serverResponse);
             } catch (IOException | ClassNotFoundException ex) {
                 logInView.showFatalError();
-                // FIXME: JACINTA - FIX ME - terminate Control Panel and restart
-                // FIXME: need to ensure, if exception raised - code below  (checking serverResponse value )cannot be reached
-                ex.printStackTrace();
+                System.exit(0);
             }
             // If successful, let the user know, navigate to login screen
             if (serverResponse.equals(Success)) {
@@ -716,8 +712,7 @@ public class Controller
                 }
             } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                 logInView.showFatalError();
-                // TODO: JACINTA - FIX ME - terminate Control Panel and restart
-                ex.printStackTrace();
+                System.exit(0);
             }
         }
     }
@@ -827,8 +822,7 @@ public class Controller
                     }
                 } catch (IOException | ClassNotFoundException ex) {
                     userEditView.showFatalError();
-                    // TODO: JACINTA _ FIX ME - terminate Control Panel and restart
-                    ex.printStackTrace();
+                    System.exit(0);
                 }
             }
             // do nothing if user does not confirm user permission update
@@ -874,10 +868,8 @@ public class Controller
                     }
                     catch (IOException | NoSuchAlgorithmException | ClassNotFoundException ex)
                     {
-                        ex.printStackTrace();
                         userCreateView.showFatalError();
-                        // TODO: JACINTA  - terminate Control Panel and restart
-                        // TODO - ensure that code cannot reach the below code, if an exception is raised
+                        System.exit(0);
                     }
 
                     // Filter response and display appropriate action
@@ -953,8 +945,7 @@ public class Controller
                         }
                     } catch (IOException | ClassNotFoundException | NoSuchAlgorithmException ex) {
                         userEditView.showFatalError();
-                        // TODO: JACINTA - FIX ME terminate Control Panel and restart
-                        ex.printStackTrace();
+                        System.exit(0);
                     }
                 }
                 views.put(USER_EDIT, userEditView);
@@ -1001,8 +992,7 @@ public class Controller
                     serverResponse = UserControl.deleteUserRequest(sessionToken, username); // CP Backend method call
                 } catch (IOException | ClassNotFoundException ex) {
                     userListView.showFatalError();
-                    // TODO: JACINTA - terminate Control Panel and restart - ensure that code below cannot be reached
-                    ex.printStackTrace();
+                    System.exit(0);
                 }
 
                 // If successful, let the user know
@@ -1081,8 +1071,7 @@ public class Controller
         } catch (IOException | ClassNotFoundException ex)
         {
             userListView.showFatalError();
-            // TODO: JACINTA - TO FIX - terminate Control Panel and restart - ensure below code cannot be reached
-            ex.printStackTrace();
+            System.exit(0);
         } catch (ClassCastException ex) {
             // Otherwise, some other error message was returned from the server
             errorMessage = (ServerAcknowledge) serverResponse;
@@ -1239,6 +1228,7 @@ public class Controller
                 } catch (IOException | ClassNotFoundException ex)
                 {
                     bbListView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                    System.exit(0);
                 }
             }
             // nothing happens if user did not confirm deletion
@@ -1327,10 +1317,11 @@ public class Controller
             // get BB name provided by user
             String BBName = bbCreateView.showBBNameChooser();
             String validCharacters = "([A-Za-z0-9-_ ]+)";
-            boolean validName = BBName.matches(validCharacters);
+
             // if valid BB name, then check that
             if (BBName != null)
             {
+                boolean validName = BBName.matches(validCharacters);
                 if (validName)
                 {
                     bbCreateView.setBBName(BBName);
@@ -1889,18 +1880,6 @@ public class Controller
                             recurrenceButton = "minute";
                         }
 
-                        System.out.println("========================");
-                        System.out.println(sunday);
-                        System.out.println("========================");
-                        System.out.println(monday);
-                        System.out.println(tuesday);
-                        System.out.println(wednesday);
-                        System.out.println(thursday);
-                        System.out.println(friday);
-                        System.out.println(saturday);
-                        System.out.println(daysOfWeek);
-                        System.out.println("========================");
-
                         Integer startHour = Integer.parseInt(startTime.substring(0, Math.min(startTime.length(), 1)).trim());
                         Integer startMin = Integer.parseInt(startTime.substring(3, Math.min(startTime.length(), 4)).trim());
 
@@ -1976,6 +1955,7 @@ public class Controller
 
                     } catch (IOException | ClassNotFoundException ioException) {
                         scheduleUpdateView.showMessageToUser("A Fatal Error has occurred. Please Restart Application");
+                        System.exit(0);
                     }
                 }
             }
