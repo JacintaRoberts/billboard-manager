@@ -1,14 +1,12 @@
 package controlPanel;
 
-import observer.Subject;
 import controlPanel.Main.VIEW_TYPE;
 
-import java.awt.*;
 
 /**
  * Model class contains all data that is persistent during a session.
  */
-public class Model extends Subject
+public class Model
 {
     // *** VARIABLES**
     private String username;

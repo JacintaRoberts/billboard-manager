@@ -36,14 +36,14 @@ public class UserEditView extends AbstractUserView
     }
 
     /**
-     * Add submit button to nav panel
+     * Add submit new permissions button to user panel
      */
     protected void addSubmitButton()
     {
+        JPanel userPanel = getUserPanel();
+        GridBagConstraints gbc = getUserPanelGBC();
         submitButton = new JButton("Submit New Permissions");
-        JPanel navPanel = getNavPanel();
-        GridBagConstraints gbc = getNavGBCPanel();
-        navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
+        userPanel.add(submitButton, setGBC(gbc,3,4,1,1));
     }
 
     /**
@@ -54,7 +54,7 @@ public class UserEditView extends AbstractUserView
         JPanel userPanel = getUserPanel();
         GridBagConstraints gbc = getUserPanelGBC();
         setPasswordButton = new JButton("Update Password");
-        userPanel.add(setPasswordButton, setGBC(gbc,2,5,1,1));
+        userPanel.add(setPasswordButton, setGBC(gbc,3,5,1,1));
     }
 
     /**

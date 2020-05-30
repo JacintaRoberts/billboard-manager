@@ -172,7 +172,7 @@ public class BBCreateView extends AbstractGenericView
         billboardMenuPanel.add(previewButton);
         getContentPane().add(billboardMenuPanel, BorderLayout.EAST);
 
-        createButton = new JButton("Create");
+        createButton = new JButton("Submit");
         disclaimerText = new JLabel("Display is not to scale. Select 'Preview Billboard' to view.");
         disclaimerText.setForeground(Color.WHITE);
         JPanel navPanel = getNavPanel();
@@ -591,7 +591,9 @@ public class BBCreateView extends AbstractGenericView
      */
     protected int showSchedulingOption()
     {
-        return JOptionPane.showConfirmDialog(null, "Would you like to create a Schedule for the Billboard now?");
+        String message = "Would you like to update Schedule for the Billboard now?";
+        String[] options = {"Schedule Now", "Schedule Later"};
+        return JOptionPane.showOptionDialog(null, message, "Schedule", DEFAULT_OPTION, INFORMATION_MESSAGE, null, options, null);
     }
 
     /**
@@ -600,7 +602,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected int showConfirmationCreateBB()
     {
-        String message = "Are you sure you want to create Billboard "+ BBNameLabel.getText() + "?";
+        String message = "Are you sure you want to update Billboard "+ BBNameLabel.getText() + "?";
         return JOptionPane.showConfirmDialog(null, message);
     }
 
@@ -610,7 +612,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showBBCreatedSuccessMessage()
     {
-        String message = "You have successfully created the Billboard " + BBNameLabel.getText() + ". You are able to schedule the Billboard at a later time.";
+        String message = "You have successfully published Billboard " + BBNameLabel.getText() + ". You are able to update schedule at a later time.";
         JOptionPane.showMessageDialog(null, message);
     }
 
@@ -646,7 +648,7 @@ public class BBCreateView extends AbstractGenericView
      */
     protected void showBBInvalidErrorMessageTokenError()
     {
-        String message = "Cannot Retreive Billboard. SessionToken Expired. Please relogin";
+        String message = "Cannot Retreive Billboard. SessionToken Expired. Please Re-login";
         JOptionPane.showMessageDialog(null, message);
     }
 
