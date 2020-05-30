@@ -100,7 +100,8 @@ public class BillboardAdmin {
      * will update and also create billboards if it dosent exist in the billboard already.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app.
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboard A String which provides Billboard Name to store into database
      * @param  creator A string which notes the user who created the billbaord
      * @param  xmlCode A String which provides xmlCode to store into database
@@ -180,7 +181,8 @@ public class BillboardAdmin {
      * Stores Database Queries: Billboard. This is a generic method which deletes a billboard stored in database.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app.
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboard A String which provides Billboard Name to delete from database
      * @param  requestor A string which provides the username whom wants to delete data from the database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
@@ -231,7 +233,8 @@ public class BillboardAdmin {
      * Stores Database Queries: Billboard. This is a generic method which edits billboard xmlCode in the database.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app.
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @param  billboard A String which provides Billboard Name to store into database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
@@ -262,7 +265,8 @@ public class BillboardAdmin {
      * List all billboard names that are stored in the database as an Array String
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app.
+     * @param  sessionToken A String which is used to check if the user are allowed to be interacting with the app. Generated
+     *                      when the user first logins
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      * @return Returns an BillboardList object which contains an ArrayString Field that contains all the Billboard that
