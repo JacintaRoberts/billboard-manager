@@ -20,7 +20,7 @@ public class ScheduleInfo implements Serializable {
     private String Saturday;
 
     // Constructor for DbSchedule
-    public ScheduleInfo(String serverResponse,
+    public ScheduleInfo(Server.ServerAcknowledge serverResponse,
                         String BillboardName,
                         String StartTime,
                         String Duration,

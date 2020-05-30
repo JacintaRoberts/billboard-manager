@@ -445,6 +445,8 @@ class UnitTests {
      */
     @Test
     public void mockCreateBillboardTest() {
+        // Test setup - ensure that the billboard to be created does not exist in the MockBillboardTable
+        mockBillboardTable.deleteBillboardTest(mockToken, newBillboardName);
         ServerAcknowledge mockResponse = mockBillboardTable.createBillboardTest(mockToken, newBillboardName, callingUser, billboardXML, pictureData);
         assertEquals(Success, mockResponse);
         // Check that the billboard is actually added to the MockBillboardTable
@@ -565,7 +567,7 @@ class UnitTests {
      * 4. SCHEDULE-BASED UNIT TESTS
      * ================================================================================================
      */
-//TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
+
     /* Test 34: Create Schedule (Pass)
      * Description: Create the corresponding schedule in the MockScheduleTable with the billboard name, start time,
      * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
@@ -583,7 +585,44 @@ class UnitTests {
     }
 
 
-    /* Test 35: Edit Schedule (Pass)
+    /* Test 35: Create Schedule (Exception Handling)
+     * Description: Attempt to create the corresponding schedule in the MockScheduleTable with the (non-existent)
+     * billboard name, start time, duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday,
+     * friday, saturday - returns server acknowledgement.
+     * Expected Output: Schedule is not created in the MockScheduleTable as the requested billboard does not exist
+     * and returns BillboardNotExists server acknowledge.
+     */
+    @Test
+    public void mockCreateScheduleBillboardNotExistsTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.updateScheduleTest(mockToken, "non-existent",
+                                                                startTime, duration, creationDateTime, repeat, sunday,
+                                                                monday, tuesday, wednesday, thursday, friday, saturday);
+        assertEquals(BillboardNotExists, mockResponse);
+        // Check that the schedule is not added to the MockScheduleTable
+        assertFalse(mockScheduleTable.BillboardScheduleExistsTest("non-existent"));
+    }
+
+
+    /* Test 36: Create Schedule (Exception Handling)
+     * Description: Basic User attempts to create the corresponding schedule in the MockScheduleTable with the
+     * billboard name, start time, duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday,
+     * friday, saturday - returns server acknowledgement.
+     * Expected Output: Schedule is not created in the MockScheduleTable as the basic user did not have the required
+     * CreateBillboards permission and returns InsufficientPermissions server acknowledge.
+     */
+    @Test
+    public void mockCreateScheduleBillboardInsufficientPermissionTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.updateScheduleTest(mockToken, newBillboardName,
+                startTime, duration, creationDateTime, repeat, sunday,
+                monday, tuesday, wednesday, thursday, friday, saturday);
+        assertEquals(BillboardNotExists, mockResponse);
+        // Check that the schedule is not added to the MockScheduleTable
+        assertFalse(mockScheduleTable.BillboardScheduleExistsTest(newBillboardName));
+    }
+
+
+
+    /* Test 37: Edit Schedule (Pass)
      * Description: Edit the corresponding schedule in the MockScheduleTable with the billboard name, start time,
      * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
      * - returns server acknowledgement.
@@ -601,7 +640,7 @@ class UnitTests {
     }
 
 
-    /* Test 36: Delete Schedule (Pass)
+    /* Test 38: Delete Schedule (Pass)
      * Description: Delete the corresponding schedule in the MockScheduleTable with the billboard name,
      * returns server acknowledgement.
      * Expected Output: Schedule is deleted from the MockScheduleTable and returns Success server acknowledge.
@@ -614,6 +653,45 @@ class UnitTests {
         assertFalse(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
     }
 
+
+    /* Test 39: Delete Schedule (Exception Handling)
+     * Description: Delete the corresponding schedule in the MockScheduleTable with the (non-existent) billboard name,
+     * returns server acknowledgement.
+     * Expected Output: Schedule is not deleted from the MockScheduleTable as the billboard does not exist and
+     * returns BillboardNotExists server acknowledge.
+     */
+    @Test
+    public void mockDeleteScheduleBillboardNotExistsTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.deleteScheduleTest(mockToken, "non-existent");
+        assertEquals(BillboardNotExists, mockResponse);
+    }
+
+    /* Test 40: Delete Schedule (Exception Handling)
+     * Description: Delete the corresponding (non-existent) schedule in the MockScheduleTable with the billboard name,
+     * returns server acknowledgement.
+     * Expected Output: Schedule is not deleted from the MockScheduleTable as the schedule does not exist and
+     * returns ScheduledNotExists server acknowledge.
+     */
+    @Test
+    public void mockDeleteScheduleNotExistsTest() {
+        // Test setup - ensure that the new billboard exists
+        mockBillboardTable.createBillboardTest(mockToken, newBillboardName, callingUser, billboardXML, pictureData);
+        ServerAcknowledge mockResponse = mockScheduleTable.deleteScheduleTest(mockToken, newBillboardName);
+        assertEquals(ScheduleNotExists, mockResponse);
+    }
+
+
+    /* Test 41: Delete Schedule (Exception Handling)
+     * Description: Basic User attempts to delete the corresponding schedule in the MockScheduleTable with the
+     * billboard name, returns server acknowledgement.
+     * Expected Output: Schedule is not deleted from the MockScheduleTable as the user does not have the required
+     * permissions and returns InvalidPermission Exception server acknowledge.
+     */
+    @Test
+    public void mockDeleteScheduleInvalidPermissionsTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.deleteScheduleTest(basicToken, billboardName);
+        assertEquals(InsufficientPermission, mockResponse);
+    }
 
 
     // updateSchedule (create, edit after)
