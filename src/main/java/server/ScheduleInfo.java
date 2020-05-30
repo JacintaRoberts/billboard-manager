@@ -3,9 +3,11 @@ package server;
 
 import java.io.Serializable;
 
+import static server.Server.*;
+
 public class ScheduleInfo implements Serializable {
     // Set Fields for DbSchedule
-    private String serverResponse;
+    private ServerAcknowledge serverResponse;
     private String BillboardName;
     private String StartTime;
     private String Duration;
@@ -20,7 +22,7 @@ public class ScheduleInfo implements Serializable {
     private String Saturday;
 
     // Constructor for DbSchedule
-    public ScheduleInfo(Server.ServerAcknowledge serverResponse,
+    public ScheduleInfo(ServerAcknowledge serverResponse,
                         String BillboardName,
                         String StartTime,
                         String Duration,
@@ -49,7 +51,7 @@ public class ScheduleInfo implements Serializable {
     }
 
     // Set Getters for DbSchedule
-    public String getScheduleServerResponse() {
+    public ServerAcknowledge getScheduleServerResponse() {
         return serverResponse;
     }
     public String getScheduleBillboardName() {

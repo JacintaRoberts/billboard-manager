@@ -1,13 +1,12 @@
 package server;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
-import java.sql.Array;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
-import static controlPanel.UserControl.deleteUserRequest;
 import static controlPanel.UserControl.hash;
 import static server.MockSessionTokens.*;
 import static server.Server.*;

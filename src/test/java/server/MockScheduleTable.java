@@ -1,9 +1,5 @@
 package server;
 
-import java.io.IOException;
-import java.lang.reflect.Array;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -153,62 +149,53 @@ class MockScheduleTable extends MockDatabase {
     }
 
 
-
     /**
-     * This function will list Schedules for billboards for a specific day. The day parameter is parsed into as a string
-     * and filters results to display raw schedules for the day.
-     * <p>
-     * This method always returns immediately. It will either return a success message or fail message if there is nothing
-     * to return for billboard schedules
+     * This function will create a schedule information for a particular billboard which contains the relevant details
+     * from the MockScheduleTable for that particular billboard.
      * @param billboard A String of the billboard name to fetch the schedule information of from the MockScheduleTable
-     * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can be read via getters.
+     * @return Returns a scheduleInfo object which contains information on all fields. Each field is an array and can
+     * be read via getters.
      */
-    protected static ScheduleInfo getScheduleInformation(String sessionToken, String billboard) {
+    protected static ScheduleInfo getScheduleInformationTest(String sessionToken, String billboard) {
         // Initialise variable array
-        String retrievedBillboard;
-        String retrievedStartTime;
-        String retrievedDuration;
-        String retrievedCreationDateTime;
-        String retrievedRepeat;
-        String retrievedSunday;
-        String retrievedMonday;
-        String retrievedTuesday;
-        String retrievedWednesday;
-        String retrievedThursday;
-        String retrievedFriday;
-        String retrievedSaturday;
-        ServerAcknowledge serverResponse = null;
-        // If the Schedule does not exist for the requested billboard
-        if (!BillboardScheduleExistsTest(billboard)) {
-            serverResponse = ScheduleNotExists;
-            retrievedBillboard = null;
-            retrievedStartTime = null;
-            retrievedDuration = null;
-            retrievedCreationDateTime = null;
-            retrievedRepeat = null;
-            retrievedSunday = null;
-            retrievedMonday = null;
-            retrievedTuesday = null;
-            retrievedWednesday = null;
-            retrievedThursday = null;
-            retrievedFriday = null;
-            retrievedSaturday = null;
+        String retrievedBillboard = null;
+        String retrievedStartTime = null;
+        String retrievedDuration = null;
+        String retrievedCreationDateTime = null;
+        String retrievedRepeat = null;
+        String retrievedSunday = null;
+        String retrievedMonday = null;
+        String retrievedTuesday = null;
+        String retrievedWednesday = null;
+        String retrievedThursday = null;
+        String retrievedFriday = null;
+        String retrievedSaturday = null;
+        ServerAcknowledge serverResponse;
+        // User requires the ScheduleBillboard permission to perform this method
+        String callingUsername = getUsernameFromTokenTest(sessionToken);
+        if (!hasPermissionTest(callingUsername, ScheduleBillboard)) {
+            System.out.println("Insufficient user permissions");
+            serverResponse = InsufficientPermission; // 1. User has insufficient permissions to get the schedule.
+            // If the Schedule does not exist for the requested billboard
+        } else if (!BillboardScheduleExistsTest(billboard)) {
+            System.out.println("A schedule does not exist for the requested billboard");
+            serverResponse = ScheduleNotExists; // 2. The requested billboard does not have a schedule to fetch
         } else {
             ArrayList<String> retrievedSchedule = (ArrayList) internal.get(billboard).get(0);
             // Store return from sql into respective data fields.
-            retrievedBillboard = retrievedSchedule.get(0);
-            retrievedStartTime = retrievedSchedule.get(1);
-            retrievedDuration = retrievedSchedule.get(2);
-            retrievedCreationDateTime = retrievedSchedule.get(3);
-            retrievedRepeat = retrievedSchedule.get(4);
-            retrievedSunday = retrievedSchedule.get(5);
-            retrievedMonday = retrievedSchedule.get(6);
-            retrievedTuesday = retrievedSchedule.get(7);
-            retrievedWednesday = retrievedSchedule.get(8);
-            retrievedThursday = retrievedSchedule.get(9);
-            retrievedFriday = retrievedSchedule.get(10);
-            retrievedSaturday = retrievedSchedule.get(11);
-            serverResponse = Success;
+            retrievedBillboard = billboard;
+            retrievedStartTime = retrievedSchedule.get(0);
+            retrievedDuration = retrievedSchedule.get(1);
+            retrievedCreationDateTime = retrievedSchedule.get(2);
+            retrievedRepeat = retrievedSchedule.get(3);
+            retrievedSunday = retrievedSchedule.get(4);
+            retrievedMonday = retrievedSchedule.get(5);
+            retrievedTuesday = retrievedSchedule.get(6);
+            retrievedWednesday = retrievedSchedule.get(7);
+            retrievedThursday = retrievedSchedule.get(8);
+            retrievedFriday = retrievedSchedule.get(9);
+            retrievedSaturday = retrievedSchedule.get(10);
+            serverResponse = Success; // 3. Successfully retrieved schedule information for the requested billboard
         }
         // Create scheduleInfo return object
         ScheduleInfo scheduleInfo = new ScheduleInfo(serverResponse,
@@ -228,6 +215,5 @@ class MockScheduleTable extends MockDatabase {
         // Return scheduleInfo Object
         return scheduleInfo;
     }
-
 
 }

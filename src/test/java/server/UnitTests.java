@@ -555,6 +555,8 @@ class UnitTests {
      */
     @Test
     public void mockListBillboardTest() {
+        // Test setup - Ensure the new billboard does not exist in the mockBillboardTable
+        mockBillboardTable.deleteBillboardTest(mockToken, newBillboardName);
         ArrayList<String> actualBillboards = (ArrayList<String>) mockBillboardTable.listBillboardTest();
         ArrayList<String> expectedBillboards = new ArrayList<>();
         expectedBillboards.add(billboardName);
@@ -694,8 +696,43 @@ class UnitTests {
     }
 
 
-    // updateSchedule (create, edit after)
-    // getScheduleInformation (THIS IS ONE)
-    // getCurrentBillboard (NAME ONLY) *FAKE
+    /* Test 42: Get Schedule Information (Pass)
+     * Description: Retrieve the corresponding schedule information for the billboard from the MockScheduleTable with
+     * the billboard name, returns server acknowledgement.
+     * Expected Output: ScheduleInfo object is returned from the MockScheduleTable which contains Success server acknowledge.
+     */
+    @Test
+    public void mockGetScheduleInformationTest() {
+        ScheduleInfo scheduleInfo = mockScheduleTable.getScheduleInformationTest(mockToken, billboardName);
+        assertEquals(Success, scheduleInfo.getScheduleServerResponse());
+    }
+
+
+    /* Test 43: Get Schedule Information (Exception Handling)
+     * Description: Retrieve the corresponding (non-existent) schedule information for the billboard from the
+     * MockScheduleTable with the billboard name, returns server acknowledgement.
+     * Expected Output: ScheduleInfo object is returned from the MockScheduleTable which contains ScheduleNotExists
+     * Exception server acknowledge.
+     */
+    @Test
+    public void mockGetScheduleInformationNotExistsTest() {
+        // Test setup - ensure that the new billboard exists
+        mockBillboardTable.createBillboardTest(mockToken, newBillboardName, callingUser, billboardXML, pictureData);
+        ScheduleInfo scheduleInfo = mockScheduleTable.getScheduleInformationTest(mockToken, newBillboardName);
+        assertEquals(ScheduleNotExists, scheduleInfo.getScheduleServerResponse());
+    }
+
+
+    /* Test 44: Get Schedule Information (Exception Handling)
+     * Description: Basic user attempts to retrieve the corresponding schedule information for the billboard from the
+     * MockScheduleTable with the billboard name, returns server acknowledgement.
+     * Expected Output: ScheduleInfo object is returned from the MockScheduleTable which contains InsufficientPermission
+     * Exception server acknowledge.
+     */
+    @Test
+    public void mockGetScheduleInformationInsufficientPermissionTest() {
+        ScheduleInfo scheduleInfo = mockScheduleTable.getScheduleInformationTest(basicToken, billboardName);
+        assertEquals(InsufficientPermission, scheduleInfo.getScheduleServerResponse());
+    }
 
 }
