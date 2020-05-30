@@ -337,7 +337,10 @@ public class UserAdmin {
         }
     }
 
-    /* Method to generate a salt string for storing/updating password */
+    /**
+     * This function generates a salt string for storing/updating the user password.
+     * @return Returns a String which is the salt.
+     */
     protected static String generateSaltString() {
         Random rng = new Random();
         byte[] saltBytes = new byte[32];
