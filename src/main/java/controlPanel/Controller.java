@@ -488,7 +488,6 @@ public class Controller
             case USER_EDIT:
                 UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
                 userEditView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_EDIT, userEditView);
                 break;
 
@@ -503,7 +502,6 @@ public class Controller
             case USER_PROFILE:
                 UserProfileView userProfileView = (UserProfileView) views.get(USER_PROFILE);
                 userProfileView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_PROFILE, userProfileView);
                 break;
 
@@ -511,7 +509,6 @@ public class Controller
             case USER_VIEW:
                 UserPreviewView userPreviewView = (UserPreviewView) views.get(USER_VIEW);
                 userPreviewView.setWelcomeText(model.getUsername());
-                // FIXME: move logic here?
                 views.put(USER_VIEW, userPreviewView);
                 break;
 
@@ -547,7 +544,6 @@ public class Controller
             case BB_CREATE:
                 BBCreateView bbCreateView = (BBCreateView) views.get(BB_CREATE);
                 bbCreateView.setWelcomeText(model.getUsername());
-                // FIXME: move logic in here?
                 views.put(BB_CREATE, bbCreateView);
                 break;
 
@@ -923,21 +919,17 @@ public class Controller
 
             UserEditView userEditView = (UserEditView) views.get(USER_EDIT);
 
-            // get password from user
-            // FIXME - check if valid??? PATRICE
-            String password = userEditView.showNewPasswordInput();
+            try
+            {
+                // get password from user
+                String password = userEditView.showNewPasswordInput();
 
-            // ask user for confirmation of editing password
-            int response = userEditView.showUserConfirmation();
+                // ask user for confirmation of editing password
+                int response = userEditView.showUserConfirmation();
 
-            // Confirm response of updated password
-            if  (response == 0) {
-                if (password == null)
-                { // Ensure the user enters a valid password (not empty)
-                    userEditView.showEnterValidPasswordException();
-                }
-                else
-                    {
+                // Confirm response of updated password
+                if  (response == 0)
+                {
                     try {
                         ServerAcknowledge serverResponse = UserControl.setPasswordRequest(model.getSessionToken(), model.getUsername(), password);
                         if ( serverResponse.equals(Success) ) {
@@ -955,8 +947,12 @@ public class Controller
                         System.exit(0);
                     }
                 }
-                views.put(USER_EDIT, userEditView);
             }
+            catch (Exception ex)
+            {
+                userEditView.showMessageToUser("Unable to Set Password. Reason: " + ex.getMessage());
+            }
+            views.put(USER_EDIT, userEditView);
         }
     }
 
@@ -1043,10 +1039,8 @@ public class Controller
             String usernameSelected = button.getName();
             // set username, password and permissions in User Edit View
             userPreviewView.setUsername(usernameSelected);
-
             // Get user permissions from server
             getUserPermissionsFromServer(userPreviewView, USER_VIEW, usernameSelected);
-
             updateView(USER_VIEW);
         }
     }
@@ -1088,11 +1082,11 @@ public class Controller
         if (errorMessage.equals(InsufficientPermission)) {
             System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
             userListView.showInsufficientPermissionsException();
-            updateView(USERS_MENU); // FIXME - TEST PATRICE
+            updateView(USERS_MENU);
         } else if (serverResponse.equals(InvalidToken)) {
             System.out.println("CONTROLLER LEVEL - Invalid Token");
             userListView.showInvalidTokenException();
-            updateView(LOGIN); // FIXME - TEST PATRICE
+            updateView(LOGIN);
         } else { // Successful, let the user know and populate with list of users
             userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
         }
@@ -1184,20 +1178,24 @@ public class Controller
                 Document document = bbCreateView.getXMLDocument(xmlFile);
                 bbCreateView.setXMLBB(document, pictureData);
 
-                if (billboardObject.getServerResponse().equals("Success"))
+                if (billboardObject.getServerResponse()== Success)
                 {
                     // set BB Name based on selected button, ensure user cannot update BB name
                     bbCreateView.setBBName(button.getName());
                     bbCreateView.setBBNameEnabled(false);
                     updateView(BB_CREATE);
-                } else if (billboardObject.getServerResponse().equals("Fail: Billboard Does not Exist"))
+                } else if (billboardObject.getServerResponse() == BillboardNotExists)
                 {
                     bbCreateView.showBBInvalidErrorMessageNonExistBillboard();
                 }
-                else if (billboardObject.getServerResponse().equals("Fail: Session was not valid"))
+                else if (billboardObject.getServerResponse()== InvalidToken)
                 {
                     bbCreateView.showBBInvalidErrorMessageTokenError();
                     updateView(LOGIN);
+                }
+                else
+                {
+                    bbCreateView.showMessageToUser("Error occurred. Reason: " + billboardObject.getServerResponse());
                 }
             }
             catch (Exception ex)
@@ -1753,30 +1751,35 @@ public class Controller
             // get button name
             String buttonName = button.getName();
 
-            // switch case to handle radio button selected
-            switch (buttonName) {
-                case "hourly":
-                    // show message
-                    scheduleUpdateView.showHourlyMessage();
-                    scheduleUpdateView.enableMinuteSelector(false);
-                    break;
-                case "no repeats":
-                    // show message
-                    scheduleUpdateView.showNoRepeatMessage();
-                    scheduleUpdateView.enableMinuteSelector(false);
-                    break;
-                case "minute":
-                    // show message
-                    scheduleUpdateView.showMinuteMessage();
-                    scheduleUpdateView.enableMinuteSelector(true);
-                    int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                    // set minute label
-                    if (minuteRepeat > 0)
-                    {
-                        scheduleUpdateView.setMinuteLabel(minuteRepeat);
-                    }
-                    break;
+            try {
+                // switch case to handle radio button selected
+                switch (buttonName) {
+                    case "hourly":
+                        // show message
+                        scheduleUpdateView.showHourlyMessage();
+                        scheduleUpdateView.enableMinuteSelector(false);
+                        break;
+                    case "no repeats":
+                        // show message
+                        scheduleUpdateView.showNoRepeatMessage();
+                        scheduleUpdateView.enableMinuteSelector(false);
+                        break;
+                    case "minute":
+                        // show message
+                        scheduleUpdateView.showMinuteMessage();
+                        scheduleUpdateView.enableMinuteSelector(true);
+                        int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
+                        // set minute label
+                        if (minuteRepeat > 0) {
+                            scheduleUpdateView.setMinuteLabel(minuteRepeat);
+                        }
+                        break;
+                }
             }
+            catch (Exception ex)
+                {
+                    scheduleUpdateView.showMessageToUser("Error Encountered. Reason: " + ex.getMessage());
+                }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
         }
     }

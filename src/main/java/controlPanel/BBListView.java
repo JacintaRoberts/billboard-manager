@@ -10,7 +10,8 @@ import java.awt.event.MouseListener;
 import static server.Server.ServerAcknowledge.*;
 
 /**
- * List of Billboards View
+ * List of Billboards for user to Edit, Delete or View the Billboard. This extends the AbstractListView and is
+ * customised to display Billboard data.
  */
 public class BBListView extends AbstractListView
 {
