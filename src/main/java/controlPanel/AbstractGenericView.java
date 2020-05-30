@@ -26,10 +26,8 @@ public abstract class AbstractGenericView extends AbstractView
     private GridBagConstraints gbc_nav;
 
     /**
-     * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
-     * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
-     * createComponents() method. The Profile and Nav Panel are added to allow users
-     * to navigate Home, Back or to their Profile.
+     * Constructor for creating Views of the application. The constructor calls the createComponents() method. The
+     * Profile and Nav Panel are added to allow user to navigate Home, Log out or view their Profile.
      * @param frame_name name of JFrame
      */
     public AbstractGenericView(String frame_name)
@@ -56,8 +54,9 @@ public abstract class AbstractGenericView extends AbstractView
      *  Add Profile panel
      *  1. Create Profile Panel
      *  2. Add 'Profile' Button
-     *  3. Add Placeholder for Welcome <Name> Text
-     *  3. Add Panel to Frame
+     *  3. Add 'Log Out' Button
+     *  4. Add Placeholder for Welcome <Name> Text
+     *  5. Add Panel to Frame
      */
     protected void addProfilePanel()
     {
@@ -92,6 +91,8 @@ public abstract class AbstractGenericView extends AbstractView
         navPanel.add(homeButton, setGBC(gbc_nav,1,1,1,1));
         getContentPane().add(navPanel, BorderLayout.SOUTH);
     }
+
+    // --------- LISTENERS ---------
 
     /**
      * Add listener to Home button. This listener will navigate user back to Home frame.

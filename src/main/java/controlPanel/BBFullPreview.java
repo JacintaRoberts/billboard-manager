@@ -28,7 +28,6 @@ public class BBFullPreview extends Viewer
         addKeyListener(escListener);
     }
 
-
     /**
      * Hides the viewer if the user clicks anywhere on the window.
      */

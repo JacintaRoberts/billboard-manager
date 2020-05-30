@@ -25,7 +25,8 @@ public class ScheduleMenuView extends AbstractGenericView
     private JLabel title;
 
     /**
-     * Constructor to create schedule view, use parent constructor.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public ScheduleMenuView()
     {
@@ -33,16 +34,26 @@ public class ScheduleMenuView extends AbstractGenericView
         view_type = VIEW_TYPE.SCHEDULE_MENU;
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp() {
-
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -65,7 +76,7 @@ public class ScheduleMenuView extends AbstractGenericView
     }
 
     /**
-     * Add calendar schedule view listener
+     * Add calendar schedule view listener to move to calendar view
      * @param listener listener
      */
     protected void addScheduleViewListener(MouseListener listener)
@@ -74,7 +85,7 @@ public class ScheduleMenuView extends AbstractGenericView
     }
 
     /**
-     * Add schedule create listener
+     * Add schedule create listener to move to create BB view
      * @param listener listener
      */
     protected void addScheduleCreateListener(MouseListener listener)

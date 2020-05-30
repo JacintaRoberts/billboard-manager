@@ -23,12 +23,15 @@ public class UserEditView extends AbstractUserView
     // --- String ---
     private String passwordText;
 
+    /**
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
+     */
     public UserEditView()
     {
         super("Edit User");
         view_type = VIEW_TYPE.USER_EDIT;
         setEditable(true);
-
         usernameText.setEditable(false);
         passwordText = null;
         addSubmitButton();
@@ -74,34 +77,6 @@ public class UserEditView extends AbstractUserView
     }
 
     /**
-     * Add submit button listener
-     * @param listener listener
-     */
-    public void addSubmitButtonListener(MouseListener listener)
-    {
-        submitButton.addMouseListener(listener);
-    }
-
-    /**
-     * Add password button listener
-     * @param listener listener
-     */
-    public void addPasswordButtonListener(MouseListener listener)
-    {
-        setPasswordButton.addMouseListener(listener);
-    }
-
-    /**
-     * Show Ask User for confirmation of user creation
-     * @return response of user (int)
-     */
-    protected int showUserConfirmation()
-    {
-        String message = "Are you sure you want to proceed?";
-        return JOptionPane.showConfirmDialog(null, message);
-    }
-
-    /**
      * Ask user for new password
      * @return response of user (int)
      */
@@ -130,12 +105,46 @@ public class UserEditView extends AbstractUserView
 
     }
 
+    /**
+     * Add submit button listener
+     * @param listener listener
+     */
+    public void addSubmitButtonListener(MouseListener listener)
+    {
+        submitButton.addMouseListener(listener);
+    }
 
+    /**
+     * Add password button listener
+     * @param listener listener
+     */
+    public void addPasswordButtonListener(MouseListener listener)
+    {
+        setPasswordButton.addMouseListener(listener);
+    }
+
+    /**
+     * Show Ask User for confirmation of user creation
+     * @return response of user (int)
+     */
+    protected int showUserConfirmation()
+    {
+        String message = "Are you sure you want to proceed?";
+        return JOptionPane.showConfirmDialog(null, message);
+    }
+
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {

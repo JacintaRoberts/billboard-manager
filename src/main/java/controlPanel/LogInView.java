@@ -28,7 +28,8 @@ public class LogInView extends AbstractView
     private GridBagConstraints gbc = new GridBagConstraints();
 
     /**
-     * Constructor for LogIn View - set frame name and create components
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public LogInView()
     {
@@ -37,7 +38,11 @@ public class LogInView extends AbstractView
         this.logInType = VIEW_TYPE.LOGIN;
     }
 
-    void createComponents()
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
+    private void createComponents()
     {
         loginPanel = new JPanel();
         loginPanel.setLayout(new GridBagLayout());
@@ -87,17 +92,22 @@ public class LogInView extends AbstractView
         submitButton.addMouseListener(listener);
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     public VIEW_TYPE getEnum()
     {
         return logInType;
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {
         usernameField.setText(null);
         passwordField.setText(null);
     }
-
-
 }

@@ -24,7 +24,8 @@ public class UsersMenuView extends AbstractGenericView
     private JLabel title;
 
     /**
-     * Constructor to create home view, use parent constructor.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public UsersMenuView()
     {
@@ -32,6 +33,10 @@ public class UsersMenuView extends AbstractGenericView
         view_type = VIEW_TYPE.USERS_MENU;
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -52,11 +57,18 @@ public class UsersMenuView extends AbstractGenericView
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp() {
 
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum()
     {

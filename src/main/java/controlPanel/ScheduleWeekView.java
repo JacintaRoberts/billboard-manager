@@ -29,7 +29,8 @@ public class ScheduleWeekView extends AbstractGenericView
     private JButton scheduleMenuButton;
 
     /**
-     * Constructor to create schedule view, use parent constructor.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public ScheduleWeekView()
     {
@@ -38,6 +39,10 @@ public class ScheduleWeekView extends AbstractGenericView
         addScheduleMenuButton();
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -90,6 +95,9 @@ public class ScheduleWeekView extends AbstractGenericView
         getContentPane().add(calendarPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Add Schedule Menu Button to allow user to navigate back to schedule menu view
+     */
     private void addScheduleMenuButton()
     {
         scheduleMenuButton = new JButton("Schedule Menu");
@@ -111,6 +119,10 @@ public class ScheduleWeekView extends AbstractGenericView
         }
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     Main.VIEW_TYPE getEnum() {
         return view_type;

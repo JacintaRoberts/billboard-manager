@@ -26,17 +26,17 @@ public abstract class AbstractListView extends AbstractGenericView
     private GridBagConstraints gbc_main;
 
     /**
-     * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
-     * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
-     * createComponents() method. The Profile and Nav Panel are added to allow users
-     * to navigate Home, Back or to their Profile.
-     *
+     * Constructor to set up JFrame with provided name and create GUI componentes
      * @param frame_name name of JFrame
      */
     public AbstractListView(String frame_name) {
         super(frame_name);
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -135,6 +135,7 @@ public abstract class AbstractListView extends AbstractGenericView
     @Override
     void cleanUp()
     {
+        // for all jpanels in the view, remove and clear
         for (JPanel jPanel : jPanels)
         {
             mainPanel.remove(jPanel);

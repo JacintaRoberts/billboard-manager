@@ -24,14 +24,18 @@ public class BBMenuView extends AbstractGenericView
     private JLabel title;
 
     /**
-     * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
-     * View by defining Width and Height, default close operation and the Layout.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public BBMenuView() {
         super("Billboard View");
         this.view_type = VIEW_TYPE.BB_MENU;
     }
 
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
@@ -54,6 +58,9 @@ public class BBMenuView extends AbstractGenericView
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp() {
 
@@ -77,6 +84,10 @@ public class BBMenuView extends AbstractGenericView
         billboardsButton.addMouseListener(listener);
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum()
     {
