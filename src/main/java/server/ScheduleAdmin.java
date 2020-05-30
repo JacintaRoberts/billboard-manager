@@ -1061,11 +1061,14 @@ public class ScheduleAdmin {
     public static String getCurrentBillboardXML() throws IOException, SQLException {
         // Get the name of the current billboard to display
         String billboardName = getCurrentBillboardName();
+        String billboardXML = "";
 
         // Get the chosen billboard's schedule and extract the xml string
-        //TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
-        DbBillboard dbBillboard = BillboardAdmin.getBillboardInformation("",billboardName);
-        String billboardXML = dbBillboard.getXMLCode();
+        if (!billboardName.isEmpty()) {
+            //TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
+            DbBillboard dbBillboard = BillboardAdmin.getBillboardInformation("",billboardName);
+            billboardXML = dbBillboard.getXMLCode();
+        }
 
         return billboardXML;
     }
@@ -1082,11 +1085,14 @@ public class ScheduleAdmin {
     public static byte[] getCurrentBillboardPictureData() throws IOException, SQLException {
         // Get the name of the current billboard to display
         String billboardName = getCurrentBillboardName();
+        byte[] billboardPictureData = new byte[0];
 
         // Get the chosen billboard's schedule and extract the xml string
-        // TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
-        DbBillboard dbBillboard = BillboardAdmin.getBillboardInformation("", billboardName);
-        byte[] billboardPictureData = dbBillboard.getPictureData();
+        if (!billboardName.isEmpty()) {
+            // TODO: EDIT SO SCHEDULE HAS SESSION TOKEN
+            DbBillboard dbBillboard = BillboardAdmin.getBillboardInformation("", billboardName);
+            billboardPictureData = dbBillboard.getPictureData();
+        }
 
         return billboardPictureData;
     }
