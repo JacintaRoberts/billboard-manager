@@ -5,8 +5,8 @@ import java.awt.*;
 import java.awt.Font;
 
 /**
- * Abstract View designed with all key features for all views in the application.
- * This includes the general design themes, pop up windows and common methods.
+ * Abstract View defines the generic style of the application, abstract methods in which child classes are required to
+ * extend and frame set up common to all views. Every view is a child class of AbstractView.
  */
 public abstract class AbstractView extends JFrame
 {
@@ -22,22 +22,27 @@ public abstract class AbstractView extends JFrame
         Font font = new Font("Garamond",  Font.BOLD, 30);
         Color pinkColour = new Color(255,87,87);
         Color navyColour = new Color(31,29, 41);
+
         // label colour
         UIManager.put("Label.font", font);
         UIManager.put("Label.foreground", pinkColour);
+
         // check box colour
         UIManager.put("CheckBox.font", font);
         UIManager.put("CheckBox.foreground", Color.WHITE);
+
         // option pane
         UIManager.put("OptionPane.font", font);
         UIManager.put("OptionPane.messageFont", font);
         UIManager.put("OptionPane.foreground", Color.WHITE);
         UIManager.put("OptionPane.messageForeground", Color.WHITE);
         UIManager.put("OptionPane.background", navyColour);
+
         // text field pane
         UIManager.put("TextField.font", font);
         UIManager.put("TextField.background", Color.DARK_GRAY);
         UIManager.put("TextField.foreground", Color.WHITE);
+
         // password field pane
         UIManager.put("PasswordField.font", font);
         UIManager.put("PasswordField.background", Color.DARK_GRAY);
@@ -232,14 +237,6 @@ public abstract class AbstractView extends JFrame
      */
     protected void showCannotRemoveOwnAdminPermissionException() {
         String message = "You cannot remove your own edit user permissions (admin)!";
-        JOptionPane.showMessageDialog(null, message);
-    }
-
-    /**
-     * Pop-up window to let the user know that they cannot remove their own edit user permissions
-     */
-    protected void showEnterValidPasswordException() {
-        String message = "Please enter a valid password";
         JOptionPane.showMessageDialog(null, message);
     }
 }

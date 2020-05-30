@@ -9,7 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 /**
- * View designed for creating users.
+ * User Create View is designed to allow users to create new User accounts. A unique username, password and permissions
+ * are required to create a new account. This extends the AbstractUserView to acquire key elements.
  */
 public class UserCreateView extends AbstractUserView
 {
@@ -22,6 +23,10 @@ public class UserCreateView extends AbstractUserView
     // --- String ---
     private String passwordText;
 
+    /**
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
+     */
     public UserCreateView()
     {
         super("Create User");
@@ -102,8 +107,7 @@ public class UserCreateView extends AbstractUserView
     }
 
     /**
-     * Ask user for new password
-     * @return response of user (int)
+     * Ask user for new password and set if not null
      */
     protected void showNewPasswordInput()
     {
@@ -111,12 +115,9 @@ public class UserCreateView extends AbstractUserView
         String password = JOptionPane.showInputDialog(null, message);
 
         // null catches when user has canceled set, "" when user has not provided a string but has clicked OK
-        if (password != null)
+        if (password != null && !password.equals(""))
         {
-            if (!password.equals(""))
-            {
-                passwordText = password;
-            }
+            passwordText = password;
         }
         else
         {
@@ -142,11 +143,18 @@ public class UserCreateView extends AbstractUserView
         return !usernameText.getText().equals("") && passwordText!= null;
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
     }
 
+    /**
+     * Clean Up all data that should not persist in the GUI. The view will be cleaned up after leaving the view.
+     */
     @Override
     void cleanUp()
     {

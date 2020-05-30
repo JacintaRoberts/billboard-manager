@@ -6,8 +6,9 @@ import java.awt.event.MouseListener;
 import java.util.ArrayList;
 
 /**
- * Abstract User View is designed with the key features for dealing with User Data - this includes the Profile,
- * Edit User, Create User and View User views.
+ * Abstract User View is designed with the key features for displaying with User data including username, permissions and
+ * password. Child classes, including Profile, Edit User, Create User and View User inherit this common structure.
+ * Abstract Generic View is extended to gain generic functionality.
  */
 public abstract class AbstractUserView extends AbstractGenericView
 {
@@ -32,20 +33,20 @@ public abstract class AbstractUserView extends AbstractGenericView
     private JButton userMenuButton;
 
     /**
-     * Constructor for creating Views of the application. The constructor sets the frame's name and set's up the
-     * View by defining Width and Height, default close operation and the Layout. The constructor also calls the
-     * createComponents() method. The Profile and Nav Panel are added to allow users
-     * to navigate Home, Back or to their Profile.
-     *
+     * Constructor to set up JFrame with provided name and create GUI componentes
      * @param frame_name name of JFrame
      */
     public AbstractUserView(String frame_name)
     {
         super(frame_name);
+        // add user menu button
         addUserMenuButton();
     }
 
-
+    /**
+     * Create View Components which include panels, buttons, text etc. These components make up the view/JFrame seen
+     * by the user.
+     */
     @Override
     void createComponents()
     {
