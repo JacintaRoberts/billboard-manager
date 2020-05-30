@@ -10,8 +10,8 @@ import java.awt.event.MouseListener;
 import static server.Server.ServerAcknowledge.*;
 
 /**
- * List of Billboards for user to Edit, Delete or View the Billboard. This extends the AbstractListView and is
- * customised to display Billboard data.
+ *  List of Billboards allowing user with valid permissions to Edit, Delete or View billboards. This extends the
+ *  AbstractListView and is customised to display Billboard data.
  */
 public class BBListView extends AbstractListView
 {
@@ -22,8 +22,8 @@ public class BBListView extends AbstractListView
     private JButton BBMenuButton;
 
     /**
-     * Constructor for creating the Views of the application. The constructor sets the frame's name and set's up the
-     * View by defining Width and Height, default close operation and the Layout.
+     * Constructor to set up JFrame with provided name and create GUI components
+     * Set ENUM value allowing use in Controller Class
      */
     public BBListView()
     {
@@ -41,6 +41,10 @@ public class BBListView extends AbstractListView
         navPanel.add(BBMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
+    /**
+     * Get Enum associated to this View. This is defined in the Constructor and is used in the Controller Class.
+     * @return view type enum assigned to view
+     */
     @Override
     Main.VIEW_TYPE getEnum()
     {

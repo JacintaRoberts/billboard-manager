@@ -2,9 +2,9 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 
-
 /**
- * Model class contains all data that is persistent during a session.
+ * Model class contains all data that persists during a session. This includes the current username,
+ * session token and the current view seen by the user.
  */
 public class Model
 {
