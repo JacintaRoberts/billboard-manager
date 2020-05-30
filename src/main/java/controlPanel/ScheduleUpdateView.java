@@ -496,13 +496,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         endHourSelector.getModel().setSelectedItem(endHour);
         endMinSelector.getModel().setSelectedItem(String.valueOf(endMin));
 
-        System.out.println((int)startHourSelector.getSelectedItem());
-        System.out.println((String)startMinSelector.getSelectedItem());
-        System.out.println((int)endHourSelector.getSelectedItem());
-        System.out.println((String)endMinSelector.getSelectedItem());
-
-
-
         // ------------- RECURRENCE -------------
         // set radio button selection for recurrence
         switch (buttonSelected)

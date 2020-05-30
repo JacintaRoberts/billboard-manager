@@ -613,7 +613,7 @@ public class Controller
             views.put(viewType, userView);
         } catch (IOException | ClassNotFoundException ex)
         {
-            userView.showFatalError();;
+            userView.showFatalError();
             System.exit(0);
             // If the return is not an array list of booleans, an exception occurred
         } catch ( ClassCastException ex )
