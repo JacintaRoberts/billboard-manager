@@ -47,10 +47,10 @@ class UnitTests {
     String duration = "30";
     String creationDateTime = "2020-05-18 12:55";
     String repeat = "120";
-    String sunday = "0";
-    String monday = "0";
-    String tuesday = "1";
-    String wednesday = "1";
+    String sunday = "1";
+    String monday = "1";
+    String tuesday = "0";
+    String wednesday = "0";
     String thursday = "0";
     String friday = "0";
     String saturday = "0";
@@ -275,6 +275,23 @@ class UnitTests {
                                                             wednesday, thursday, friday, saturday);
         assertEquals(Success, mockResponse);
         // Check that the schedule is actually added to the MockScheduleTable
+        assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+    }
+
+    /* Test 14: Edit Schedule (Pass)
+     * Description: Edit the corresponding schedule in the MockScheduleTable with the billboard name, start time,
+     * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
+     * - returns server acknowledgement.
+     * Expected Output: Schedule for billboardName is edited in the MockScheduleTable to display on Saturday and
+     * returns Success server acknowledge.
+     */
+    @Test
+    public void mockEditScheduleTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.updateScheduleTest(mockToken, billboardName, startTime,
+                duration, creationDateTime, repeat, sunday, monday, tuesday,
+                wednesday, thursday, friday, "1");
+        assertEquals(Success, mockResponse);
+        // Check that the schedule still exists in the MockScheduleTable // todo: change to get info
         assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
     }
 
