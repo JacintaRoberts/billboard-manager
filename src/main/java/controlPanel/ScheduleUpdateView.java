@@ -39,9 +39,9 @@ public class ScheduleUpdateView extends AbstractGenericView
     private JComboBox<Integer> repeatMinutesComboBox;
     private JComboBox<String> bbNameComboBox;
     private JComboBox<Integer> startHourSelector;
-    private JComboBox<Integer> startMinSelector;
+    private JComboBox<String> startMinSelector;
     private JComboBox<Integer> endHourSelector;
-    private JComboBox<Integer> endMinSelector;
+    private JComboBox<String> endMinSelector;
     private JComboBox<String> startAMPMSelector;
     private JComboBox<String> endAMPMSelector;
 
@@ -300,8 +300,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         hourlyButton.setSelected(false);
         minuteButton.setSelected(false);
         noRepeatButton.setSelected(true);
-        System.out.println("REPEATS " + noRepeatButton.isSelected());
-        System.out.println("REPEATS " + hourlyButton.isSelected());
 
         // remove all minute values from combobox
         repeatMinutesComboBox.removeAllItems();
@@ -314,6 +312,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // reset time selectors
         endHourSelector.setSelectedItem(1);
+        System.out.println("end hour " + endHourSelector.getSelectedItem());
         endMinSelector.setSelectedItem("00");
         startHourSelector.setSelectedItem(1);
         startMinSelector.setSelectedItem("00");
@@ -472,11 +471,11 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat)
     {
+        System.out.println("SET SCHEDULE ");
         // ------------- SELECTED DAYS -------------
         // set selected days on the GUI
         for (int dayIndex = 0; dayIndex < selectedDays.size() ;dayIndex++)
         {
-            System.out.println(selectedDays.get(dayIndex));
             weekdayArray.get(dayIndex).setSelected(selectedDays.get(dayIndex));
         }
 
@@ -496,6 +495,13 @@ public class ScheduleUpdateView extends AbstractGenericView
         // set end time
         endHourSelector.getModel().setSelectedItem(endHour);
         endMinSelector.getModel().setSelectedItem(String.valueOf(endMin));
+
+        System.out.println((int)startHourSelector.getSelectedItem());
+        System.out.println((String)startMinSelector.getSelectedItem());
+        System.out.println((int)endHourSelector.getSelectedItem());
+        System.out.println((String)endMinSelector.getSelectedItem());
+
+
 
         // ------------- RECURRENCE -------------
         // set radio button selection for recurrence
