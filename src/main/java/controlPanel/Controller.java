@@ -2,7 +2,6 @@ package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
 import org.w3c.dom.Document;
-import org.xml.sax.SAXException;
 import server.BillboardList;
 import server.DbBillboard;
 import server.ScheduleInfo;
@@ -18,7 +17,6 @@ import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Base64;
 import java.util.HashMap;
 
 import static controlPanel.Main.VIEW_TYPE.*;
@@ -33,7 +31,7 @@ import static server.Server.ServerAcknowledge.*;
  */
 public class Controller
 {
-    // store model and view
+    // store model, view, server response and the billboard viewer
     private Model model;
     private HashMap<VIEW_TYPE, AbstractView> views;
     private Object serverResponse;
@@ -44,8 +42,8 @@ public class Controller
      */
 
     /**
-     * Controller Constructor stores instances of Views, adds listeners to Views and sets up Log In View allowing users
-     * to log in to the application on startup.
+     * Controller Constructor stores instances of Views, adds listeners to Views, sets up Log In View allowing users
+     * to log in to the application on startup and instantiates the billboard viewer.
      * @param model application's model
      * @param views hashmap of views
      */
@@ -110,13 +108,13 @@ public class Controller
     {
         // get GUI view and add listeners
         LogInView logInView = (LogInView) views.get(LOGIN);
-        logInView.addSubmitButtonListener(new SubmitButtonListener());
+        logInView.addSubmitButtonListener(new LogInSubmitButtonListener());
         views.put(LOGIN, logInView);
     }
 
     /**
      * HOME LISTENERS: designed to add listeners to the HOME VIEW.
-     * Listeners include: User Menu, BB Menu, Schedule Menu, Profile and Back Button.
+     * Listeners include: generic listeners, User Menu, BB Menu, Schedule Menu, Profile and Log out Button.
      */
     private void addHomeListener()
     {
@@ -131,11 +129,11 @@ public class Controller
         views.put(HOME, homeView);
     }
 
-    //------------------------------------ USER LISTENER ------------------------------
+    //------------------------------------ USER LISTENERS ------------------------------
 
     /**
      * USER MENU LISTENERS: designed to add listeners to the USER MENU VIEW.
-     * Listeners include: List Users, Create User Button.
+     * Listeners include: generic listeners, List Users, Create User Button.
      */
     private void addUserMenuListener()
     {
@@ -149,7 +147,7 @@ public class Controller
 
     /**
      * USER VIEW (PROFILE) LISTENERS: designed to add listeners to the USER VIEW.
-     * Listeners include: Home, Back and Edit button.
+     * Listeners include: generic listeners, edit profile and user menu button
      */
     private void addUserProfileListener()
     {
@@ -162,9 +160,10 @@ public class Controller
     }
 
     /**
-     * USER CREATE LISTENERS: designed to add listeners to
-     * Listeners include: Home, Back and Profile Button. Please Note: additional listeners are added dynamically upon
-     * navigating to this VIEW (i.e. User Edit, Delete, View).
+     * USER CREATE LISTENERS: designed to add listeners to the USER LIST view.
+     * Listeners include: Home, Back, Profile and User Menu Button.
+     * Please Note: additional listeners are added dynamically upon navigating to this VIEW
+     * (i.e. User Edit, Delete, View)
      */
     private void addUserListListener()
     {
@@ -176,7 +175,8 @@ public class Controller
 
     /**
      * USER EDIT LISTENERS: designed to add listeners to the USER EDIT VIEW.
-     * Listeners include: Home, Back and Profile Button, including User Permission Update and Password Update Buttons.
+     * Listeners include: Home, Back and Profile Button, including User Permission Update and Password Update Buttons,
+     * and User Menu button.
      */
     private void addUserEditListener()
     {
@@ -190,7 +190,7 @@ public class Controller
 
     /**
      * USER PREVIEW LISTENERS: designed to add listeners to the USER VIEW VIEW.
-     * Listeners include: Home, Back and Profile Button.
+     * Listeners include: Home, Back, Profile and User Menu button.
      */
     private void addUserPreviewListener()
     {
@@ -267,7 +267,7 @@ public class Controller
 
     /**
      * SCHEDULE MENU LISTENERS: designed to add listeners to the SCHEDULE MENU VIEW.
-     * Listeners include: Home, Back and Profile. Including Schedule View and Schedule Create buttons.
+     * Listeners include: Home, Back and Profile. Including Schedule Calendar View and Schedule Create/Update buttons.
      */
     private void addScheduleMenuListener()
     {
@@ -280,7 +280,7 @@ public class Controller
 
     /**
      * SCHEDULE WEEK LISTENERS: designed to add listeners to the SCHEDULE WEEK VIEW.
-     * Listeners include: Home, Back and Profile
+     * Listeners include: Home, Back, Profile and Schedule Menu buttons
      */
     private void addScheduleWeekListener()
     {
@@ -293,7 +293,7 @@ public class Controller
 
     /**
      * SCHEDULE UPDATE LISTENERS: designed to add listeners to the SCHEDULE UPDATE VIEW.
-     * Listeners include: Home, Back and Profile, including a range of buttons for the schedule design.
+     * Listeners include: Home, Back and Profile, including a range of buttons for the schedule creation.
      */
     private void addScheduleListener()
     {
@@ -315,8 +315,7 @@ public class Controller
 
     /**
      * Change user's view by hiding the old view and showing the new.
-     * Detach observer from old view and attach observer to new.
-     * @param newView the user's new view
+     * @param newView the user's new view type
      */
     private void updateView(VIEW_TYPE newView)
     {
@@ -328,7 +327,6 @@ public class Controller
 
     /**
      * hideView is designed to hide old view by:
-     * - detaching observer to stop listening to model updates
      * - clean up gui
      * - setting old view as invisible
      * - storing old view in hash map
@@ -347,7 +345,6 @@ public class Controller
 
     /**
      * ShowView is designed to set up new view by:
-     * - attaching observer to new to listen to model updates
      * - setting new view as current view in model
      * - setting new view as visible
      * - update components if required
@@ -361,7 +358,7 @@ public class Controller
         model.setCurrentView(view.getEnum());
         // set view as visible
         view.setVisible(true);
-        // update components based on permissions
+        // update components if required
         updateComponents(newViewType);
         // update hashmap with updated view
         views.put(newViewType, view);
@@ -369,7 +366,7 @@ public class Controller
 
     /**
      * Designed to update components before navigating to the view.
-     * @param newViewType
+     * @param newViewType view type of new view
      */
     private void updateComponents(VIEW_TYPE newViewType){
         switch(newViewType)
@@ -386,7 +383,7 @@ public class Controller
                 ScheduleWeekView scheduleWeekView = (ScheduleWeekView) views.get(SCHEDULE_WEEK);
                 scheduleWeekView.setWelcomeText(model.getUsername());
 
-                // Initilaise
+                // initialise
                 ArrayList<ArrayList<String>> scheduleMonday = new ArrayList<>();
                 ArrayList<ArrayList<String>> scheduleTuesday = new ArrayList<>();
                 ArrayList<ArrayList<String>> scheduleWednesday = new ArrayList<>();
@@ -582,6 +579,11 @@ public class Controller
      */
     private class ProfileButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Profile View when mouse clicked.
+         * Profile view is updated with information.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -601,8 +603,6 @@ public class Controller
 
             views.put(USER_PROFILE, userProfileView);
 
-            // navigate to home screen
-            updateView(USER_PROFILE);
         }
     }
 
@@ -614,6 +614,7 @@ public class Controller
             serverResponse = UserControl.getPermissionsRequest(model.getSessionToken(), username);
             ArrayList<Boolean> userPermissions = (ArrayList<Boolean>) serverResponse;
             userView.setPermissions(userPermissions);
+            updateView(viewType);
             views.put(viewType, userView);
         } catch (IOException | ClassNotFoundException ex)
         {
@@ -644,6 +645,10 @@ public class Controller
      */
     private class LogOutButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Log Out view when mouse clicked.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Log Out button clicked");
@@ -678,8 +683,13 @@ public class Controller
      * request is sent to server to check validity of user. If response is true, username is stored in model and user
      * is navigated to home screen. If invalid credentials, error is displayed.
      */
-    private class SubmitButtonListener extends MouseAdapter
+    private class LogInSubmitButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to handle User Log In attempt when mouse clicked.
+         * Show pop up error message for various error, or nav to Home Screen if successful.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -729,6 +739,10 @@ public class Controller
      */
     private class UserMenuButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to USER MENU when mouse clicked User Menu button.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -743,6 +757,11 @@ public class Controller
      */
     private class EditUserButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Edit User View when mouse clicked on User Edit button.
+         * If user permissions valid, proceed to User Edit View and populate user information from database.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -760,9 +779,6 @@ public class Controller
             getUserPermissionsFromServer(userEditView, USER_EDIT, usernameSelected);
 
             views.put(USER_EDIT, userEditView);
-
-            // navigate to user edit screen
-            updateView(USER_EDIT);
         }
     }
 
@@ -772,6 +788,10 @@ public class Controller
      */
     private class CreateUserButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Create User View when mouse clicked on User Create button.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -782,10 +802,15 @@ public class Controller
     }
 
     /**
-     * Listener to handle Submit New User Button mouse clicks.
+     * Listener to handle Permission Update Button mouse clicks.
      */
     private class UserPermissionUpdateListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Submit New User Permissions when mouse clicked on Submit new Permissions button
+         * if Edit User view. Error pop ups are displayed for any errors occurred.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: Submit new user permission button clicked");
@@ -834,10 +859,14 @@ public class Controller
     }
 
     /**
-     * Listener to handle Create User Button mouse clicks.
+     * Listener to handle Create New User Button mouse clicks.
      */
     private class UserCreateButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Submit New User View when mouse clicked on Submit button in UserCreateView.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -913,6 +942,11 @@ public class Controller
      */
     private class UserPasswordUpdateButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Update User Password when mouse clicked on Set Password in Edit User view.
+         * Update password in db if user has correct permissions, else show error.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -958,10 +992,14 @@ public class Controller
     }
 
     /**
-     * Listener to handle User Password Create Button.
+     * Listener to handle User Password Create Button allowing user to input password
      */
     private class UserPasswordCreateButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to input user password when mouse clicked on Set Password in User Create View.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -977,6 +1015,12 @@ public class Controller
      */
     private class DeleteUserButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to handle User Delete event when mouse clicked on User Delete button in User List view.
+         * Delete user from DB if user has the correct permissions or is not trying to delete own user.
+         * Error message pops up when required.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1025,10 +1069,16 @@ public class Controller
     }
 
     /**
-     * Listener to handle View User Button mouse clicks.
+     * Listener to handle View User Button mouse clicks, allowing users to navigate to USER VIEW view to
+     * view the details of the user selected.
      */
     private class ViewUserButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to View User when mouse clicked on User View button in User List view.
+         * Errors displayed when relevant (i.e. user permissions, token invalid)
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1042,7 +1092,6 @@ public class Controller
             userPreviewView.setUsername(usernameSelected);
             // Get user permissions from server
             getUserPermissionsFromServer(userPreviewView, USER_VIEW, usernameSelected);
-            updateView(USER_VIEW);
         }
     }
 
@@ -1051,6 +1100,10 @@ public class Controller
      */
     private class ListUsersListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to List User View when mouse clicked on User List button in User Menu.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
@@ -1059,6 +1112,10 @@ public class Controller
         }
     }
 
+    /**
+     * List User Handling is defined to add User Data to the List User view.
+     * Welcome text is set and error messages are displayed when relevant.
+     */
     private void listUserHandling()
     {
         // get LIST USER view
@@ -1099,6 +1156,10 @@ public class Controller
      */
     private class EditProfileButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Edit Profile View when mouse clicked on Edit Profile button in Profile View.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1112,9 +1173,6 @@ public class Controller
 
             // Get user permissions from server
             getUserPermissionsFromServer(userEditView, USER_EDIT, username);
-
-            // navigate to edit users
-            updateView(USER_EDIT);
         }
     }
 
@@ -1122,10 +1180,14 @@ public class Controller
 
     /**
      * Listener to handle BBMenu Button mouse clicks.
-     *      * If user clicks the BBMenu button, user is navigated to BB Menu view.
+     * If user clicks the BBMenu button, user is navigated to BB Menu view.
      */
     private class BBMenuButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to BB Menu View when mouse clicked on BB Menu button in Home View.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1140,6 +1202,10 @@ public class Controller
      */
     private class BBCreateButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to BB Create View when mouse clicked on BB Create button.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1159,6 +1225,12 @@ public class Controller
      */
     private class EditBBButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to Edit BB View when mouse clicked on BB Edit button in the BB List View.
+         * BB will be populated with data from the db.
+         * Errors are handled by showing pop up view.
+         * @param e mouse click event
+         */
         @Override
         public void mousePressed(MouseEvent e)
         {
@@ -1212,6 +1284,12 @@ public class Controller
      */
     private class DeleteBBButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to Delete User when mouse clicked on Delete button in the User List View.
+         * Errors are handled by showing pop up view if user is trying to delete own account or does not have
+         * permissions.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1250,6 +1328,10 @@ public class Controller
      */
     private class ViewBBButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to View BB in full view when mouse clicked on View BB button in the BB List View
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1279,6 +1361,10 @@ public class Controller
      */
     private class ListBBListener extends MouseAdapter
     {
+        /**
+         * Define logic to navigate to List billboards when mouse clicked on BB List button in the Home View
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1293,6 +1379,10 @@ public class Controller
      */
     private class ColourListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to select background colour and set colour in the panel & xml
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1316,6 +1406,11 @@ public class Controller
      */
     private class NameListener implements ActionListener
     {
+        /**
+         * Define logic to allow user to set billboard name
+         * Error pop up message if billboard name is not correct.
+         * @param e mouse click event
+         */
         @Override
         public void actionPerformed(ActionEvent e)
         {
@@ -1347,8 +1442,13 @@ public class Controller
     /**
      * Listener to handle BB create button mouse clicks.
      */
-    private class BBCreateListener extends MouseAdapter {
-
+    private class BBCreateListener extends MouseAdapter
+    {
+        /**
+         * Define logic to create BB. Ask user to confirm creation of BB. If confirmed, ask user to schedule BB.
+         * Error pop up message if billboard content is not valid.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1426,6 +1526,11 @@ public class Controller
      */
     private class BBPreviewListener extends MouseAdapter
     {
+        /**
+         * Define logic to preview Billboards in full view
+         * Error pop up message if billboard xml is invalid
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1457,10 +1562,15 @@ public class Controller
     }
 
     /**
-     * Listener to handle title BB mouse clicks.
+     * Listener to handle title setting in BB create view.
      */
     private class TitleListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to set title of BB and colour of title
+         * Error pop up message if billboard title is not correct.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1487,10 +1597,14 @@ public class Controller
     }
 
     /**
-     * Listener to handle text BB mouse clicks.
+     * Listener to set text in BB
      */
     private class BBTextListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to set billboard text and text colour
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1520,10 +1634,15 @@ public class Controller
     }
 
     /**
-     * Listener to handle photo BB mouse clicks.
+     * Listener to add photos to BB either URL or upload photo.
      */
     private class BBPhotoListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to add photo URL or upload an image
+         * Error pop up message if errors occurred.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1578,10 +1697,15 @@ public class Controller
     }
 
     /**
-     * Listener to handle xml import BB mouse clicks.
+     * Listener to handle xml import
      */
     private class BBXMLImportListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to import xml
+         * Error pop up message if xml is invalid
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1609,6 +1733,12 @@ public class Controller
      */
     private class BBXMLExportListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to export XML
+         * Select filename and folder path and if successful store the xml file to user's selected folder
+         * Error pop up message if billboard xml is not correct.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1678,6 +1808,10 @@ public class Controller
      */
     private class ScheduleButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to navigate to schedule menu
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1692,6 +1826,10 @@ public class Controller
      */
     private class ScheduleViewButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to view schedule week view
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1702,10 +1840,15 @@ public class Controller
     }
 
     /**
-     * Listener to handle Create Schedule Button mouse clicks.
+     * Listener to handle Create/Update Schedule Button mouse clicks. This is to allow user to navigate to the
+     * Schedule Create/Update view.
      */
     private class ScheduleCreateButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to allow user to navigate to the Schedule Update/Create View
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1716,10 +1859,14 @@ public class Controller
     }
 
     /**
-     * Listener to handle show duration in Schedule Create
+     * Listener to handle show duration label in Schedule Create
      */
     private class ScheduleDurationListener implements ItemListener
     {
+        /**
+         * Define logic to set Duration label and variable upon selecting a start or end time.
+         * @param e mouse click event
+         */
         @Override
         public void itemStateChanged(ItemEvent e)
         {
@@ -1738,14 +1885,19 @@ public class Controller
     }
 
     /**
-     * Listener to handle Schedule Radio Button mouse clicks.
+     * Listener to handle Schedule Radio Button mouse clicks - these define the recurrence pattern of the schedule
      */
     private class ScheduleRadioButtonListener implements ActionListener
     {
+        /**
+         * Define logic to handle clicks made to the radio buttons for recurrence
+         * Error pop up message if error occurred.
+         * @param e mouse click event
+         */
         @Override
         public void actionPerformed(ActionEvent e)
         {
-            System.out.println("CONTROLLER LEVEL: Daily Recurrence button clicked");
+            System.out.println("CONTROLLER LEVEL: Recurrence button clicked");
             // get button source
             JRadioButton button = (JRadioButton) e.getSource();
             ScheduleUpdateView scheduleUpdateView = (ScheduleUpdateView) views.get(SCHEDULE_UPDATE);
@@ -1786,10 +1938,14 @@ public class Controller
     }
 
     /**
-     * Listener to handle Minute Repeat mouse clicks.
+     * Listener to handle Minute Repeat item clicks.
      */
-    private class ScheduleMinuteRepeatListener implements ItemListener {
-
+    private class ScheduleMinuteRepeatListener implements ItemListener
+    {
+        /**
+         * Define logic to handle clicks made to minutes selected
+         * @param e item click event
+         */
         @Override
         public void itemStateChanged(ItemEvent e)
         {
@@ -1815,6 +1971,11 @@ public class Controller
      */
     private class ScheduleClearButtonListener extends MouseAdapter {
 
+        /**
+         * Define logic to allow user to clear the schedule logic
+         * Error pop up message if error/exception occurred
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
@@ -1853,8 +2014,13 @@ public class Controller
     /**
      * Listener to handle BB Schedules to populate information
      */
-    private class SchedulePopulateListener implements ItemListener {
-
+    private class SchedulePopulateListener implements ItemListener
+    {
+        /**
+         * Define logic to populate schedule data upon selecting a new billboard name
+         * Error pop up message if schedule is invalid
+         * @param e mouse click event
+         */
         @Override
         public void itemStateChanged(ItemEvent e)
         {
@@ -1938,6 +2104,11 @@ public class Controller
      */
     private class ScheduleSubmitButtonListener extends MouseAdapter
     {
+        /**
+         * Define logic to create schedule and save to DB
+         * Error pop up message if error occurred. Error shown when schedule created by user is invalid.
+         * @param e mouse click event
+         */
         @Override
         public void mouseClicked(MouseEvent e)
         {
