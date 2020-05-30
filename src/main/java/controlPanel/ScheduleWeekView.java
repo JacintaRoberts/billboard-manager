@@ -1,13 +1,10 @@
 package controlPanel;
 
-import observer.Subject;
-
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
 import controlPanel.Main.VIEW_TYPE;
 import java.awt.*;
-import java.time.DayOfWeek;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -105,11 +102,6 @@ public class ScheduleWeekView extends AbstractGenericView
     @Override
     Main.VIEW_TYPE getEnum() {
         return view_type;
-    }
-
-    @Override
-    public void update(Subject s) {
-
     }
 
     /**

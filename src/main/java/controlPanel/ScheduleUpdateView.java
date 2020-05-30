@@ -1,12 +1,10 @@
 package controlPanel;
 
 import controlPanel.Main.VIEW_TYPE;
-import observer.Subject;
 
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import java.sql.Time;
 import java.util.ArrayList;
 
 import static java.lang.Integer.parseInt;
@@ -326,12 +324,6 @@ public class ScheduleUpdateView extends AbstractGenericView
     @Override
     VIEW_TYPE getEnum() {
         return view_type;
-    }
-
-    @Override
-    public void update(Subject s)
-    {
-
     }
 
     // ####################### VALIDATE INPUT #######################

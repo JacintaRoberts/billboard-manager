@@ -39,9 +39,22 @@ class UnitTests {
     private ArrayList<Boolean> basicPermissions = new ArrayList<>(Arrays.asList(false, false, false, false));
     // Billboard Dummy Data
     private String billboardName="testBillboard";
+    private String newBillboardName="newBillboard";
     private String billboardXML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><billboard></billboard>";
     private byte[] pictureData = "f9lMAwAghdLKCgWHgMqOtwXHA2+YIDNzrhIG1JLk/stdh4I4IgYFTgoFv7yn+P7zBWVK5SO9cAAAAAElFTkSuQmCC".getBytes();
-    // Schedule Dummy Data //TODO: ALAN CAN YOU HAVE A LOOK INTO SCHEDULES FOR SOMETHING SIMILAR
+    // Schedule Dummy Data
+    String startTime = "05:00";
+    String duration = "30";
+    String creationDateTime = "2020-05-18 12:55";
+    String repeat = "120";
+    String sunday = "1";
+    String monday = "1";
+    String tuesday = "0";
+    String wednesday = "0";
+    String thursday = "0";
+    String friday = "0";
+    String saturday = "0";
+
 
     /* Test 1: Constructing a MockUserTable and MockSessionTokens object
      * Description: MockUserTable and MockSessionTokens created and some initial testing data populated.
@@ -58,6 +71,9 @@ class UnitTests {
         mockToken = mockSessionTokens.generateTokenTest(callingUser);
         basicToken = mockSessionTokens.generateTokenTest(basicUser);
         mockUserTable.createUserTest(mockToken, callingUser, dummyHashedPassword, createBillboard, editBillboard, scheduleBillboard, editUser);
+        mockBillboardTable.createBillboardTest(mockToken, billboardName, callingUser, billboardXML, pictureData);
+        mockScheduleTable.updateScheduleTest(mockToken, billboardName, startTime, duration, creationDateTime, repeat,
+                                                sunday, monday, tuesday, wednesday, thursday, friday, saturday);
     }
 
     /**
@@ -199,31 +215,104 @@ class UnitTests {
      * BILLBOARD UNIT TESTS
      * ================================================================================================
      */
-
-    /* Test 3: Create Billboard (Pass)
+//TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
+    /* Test 11: Create Billboard (Pass)
      * Description: Create the corresponding billboard in the MockBillboardTable with the billboard name, creator, xml
      * and picture data - return server acknowledgement.
      * Expected Output: Billboard is created in the MockBillboardTable and returns Success server acknowledge.
      */
     @Test
-    public void mockCreateBillboard() {
-        ServerAcknowledge mockResponse = mockBillboardTable.createBillboardTest(mockToken, billboardName, callingUser, billboardXML, pictureData);
+    public void mockCreateBillboardTest() {
+        ServerAcknowledge mockResponse = mockBillboardTable.createBillboardTest(mockToken, newBillboardName, callingUser, billboardXML, pictureData);
         assertEquals(Success, mockResponse);
-        // Check that the user is actually added to the MockUserTable
-        assertTrue(mockBillboardTable.billboardExistsTest(billboardName));
+        // Check that the billboard is actually added to the MockBillboardTable
+        assertTrue(mockBillboardTable.billboardExistsTest(newBillboardName));
     }
 
-    //TODO: JACINTA DELETEBILLBOARD
 
-    //TODO: JACINTA GETBILLBOARDINFORMATION
+    /* Test 12: Delete Billboard (Pass)
+     * Description: Delete the corresponding billboard in the MockBillboardTable with the billboard name, returns
+     * server acknowledgement.
+     * Expected Output: Billboard is delete from the MockBillboardTable and returns Success server acknowledge.
+     */
+    @Test
+    public void mockDeleteBillboardTest() {
+        ServerAcknowledge mockResponse = mockBillboardTable.deleteBillboardTest(mockToken, billboardName);
+        assertEquals(Success, mockResponse);
+        // Check that the billboard is deleted from the MockBillboardTable
+        assertFalse(mockBillboardTable.billboardExistsTest(billboardName));
+    }
+
+    /* Test 13: Get Billboard (Pass)
+     * Description: Retrieve the corresponding billboard in the MockBillboardTable with the billboard name, returns
+     * DbBillboard object.
+     * Expected Output: DbBillboard corresponding to the billboard name provided is returned.
+     */
+    @Test
+    public void mockGetBillboardInformationTest() {
+        DbBillboard mockResponse = mockBillboardTable.getBillboardInformationTest(billboardName);
+        assertEquals(Success, mockResponse.getServerResponse());
+        // Check that the correct billboard is returned
+        assertEquals(billboardName, mockResponse.getBillboardName());
+    }
 
     /**
      * ================================================================================================
      * SCHEDULE UNIT TESTS
      * ================================================================================================
      */
+//TODO: COULD ADD MORE LOGIC HERE FOR THE OTHER SERVER ACKNOWLEDGE RETURN TYPES
+    /* Test 14: Create Schedule (Pass)
+     * Description: Create the corresponding schedule in the MockScheduleTable with the billboard name, start time,
+     * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
+     * - returns server acknowledgement.
+     * Expected Output: Schedule is created in the MockScheduleTable and returns Success server acknowledge.
+     */
+    @Test
+    public void mockCreateScheduleTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.updateScheduleTest(mockToken, newBillboardName, startTime,
+                                                            duration, creationDateTime, repeat, sunday, monday, tuesday,
+                                                            wednesday, thursday, friday, saturday);
+        assertEquals(Success, mockResponse);
+        // Check that the schedule is actually added to the MockScheduleTable
+        assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+    }
 
-    //TODO: ALAN CAN YOU HAVE A LOOK AT ADDING SOME SCHEDULE UNIT TESTS?
+    /* Test 14: Edit Schedule (Pass)
+     * Description: Edit the corresponding schedule in the MockScheduleTable with the billboard name, start time,
+     * duration, creation date time, repeat, sunday, monday, tuesday, wednesday, thursday, friday, saturday
+     * - returns server acknowledgement.
+     * Expected Output: Schedule for billboardName is edited in the MockScheduleTable to display on Saturday and
+     * returns Success server acknowledge.
+     */
+    @Test
+    public void mockEditScheduleTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.updateScheduleTest(mockToken, billboardName, startTime,
+                duration, creationDateTime, repeat, sunday, monday, tuesday,
+                wednesday, thursday, friday, "1");
+        assertEquals(Success, mockResponse);
+        // Check that the schedule still exists in the MockScheduleTable // todo: change to get info
+        assertTrue(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+    }
 
+
+    /* Test 15: Delete Schedule (Pass)
+     * Description: Delete the corresponding schedule in the MockScheduleTable with the billboard name,
+     * returns server acknowledgement.
+     * Expected Output: Schedule is deleted from the MockScheduleTable and returns Success server acknowledge.
+     */
+    @Test
+    public void mockDeleteScheduleTest() {
+        ServerAcknowledge mockResponse = mockScheduleTable.deleteScheduleTest(mockToken, billboardName);
+        assertEquals(Success, mockResponse);
+        // Check that the schedule no longer exists in the MockScheduleTable
+        assertFalse(mockScheduleTable.BillboardScheduleExistsTest(billboardName));
+    }
+
+
+
+    // updateSchedule (create, edit after)
+    // getScheduleInformation (THIS IS ONE)
+    // getCurrentBillboard (NAME ONLY) *FAKE
 
 }

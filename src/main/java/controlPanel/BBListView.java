@@ -1,15 +1,10 @@
 package controlPanel;
 
-import observer.Subject;
-
 import controlPanel.Main.VIEW_TYPE;
 import server.Server;
 
 import javax.swing.*;
-import java.awt.event.MouseListener;
-
 import static server.Server.ServerAcknowledge.*;
-import static server.Server.ServerAcknowledge.NoSuchUser;
 
 /**
  * List of Billboards View
@@ -29,13 +24,6 @@ public class BBListView extends AbstractListView
         super("Billboards List");
         view_type = VIEW_TYPE.BB_LIST;
         setListTitle("BILLBOARD LIST");
-    }
-
-
-    @Override
-    public void update(Subject s)
-    {
-
     }
 
     @Override

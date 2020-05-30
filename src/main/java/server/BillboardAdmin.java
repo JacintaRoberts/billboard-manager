@@ -226,7 +226,7 @@ public class BillboardAdmin {
                         ScheduleAdmin.deleteScheduleSql(billboard);
                         return Success;
                     } else {
-                        System.out.println("Permissions were not sufficient, no Billboard was Edited");
+                        System.out.println("Permissions were not sufficient, no Billboard was Deleted");
                         return InsufficientPermission; // 3. Valid token but insufficient permission
                     }
                 } else {
@@ -235,7 +235,7 @@ public class BillboardAdmin {
                         ScheduleAdmin.deleteScheduleSql(billboard);
                         return Success;
                     } else {
-                        System.out.println("Permissions were not sufficient, no Billboard was Edited");
+                        System.out.println("Permissions were not sufficient, no Billboard was Deleted");
                         return InsufficientPermission; // 3. Valid token but insufficient permission
                     }
                 }
@@ -264,12 +264,12 @@ public class BillboardAdmin {
                 return dbBillboard;
             }else {
                 System.out.println("Fail: Billboard Does not Exist");
-                DbBillboard dbBillboard = new DbBillboard("0","0",null,"","Fail: Billboard Does not Exist");
+                DbBillboard dbBillboard = new DbBillboard("0","0",null,"",BillboardNotExists);
                 return dbBillboard;
             }
         } else {
             System.out.println("Fail: Session was not valid");
-            DbBillboard dbBillboard = new DbBillboard("0","0",null,"","Fail: Session was not valid");
+            DbBillboard dbBillboard = new DbBillboard("0","0",null,"",InvalidToken);
             return dbBillboard;
         }
     }
@@ -405,11 +405,14 @@ public class BillboardAdmin {
         listaBillboard.setString(1,billboardName);
         ResultSet billboardinfo = listaBillboard.executeQuery();
         DbBillboard dbBillboard = null;
-        billboardinfo.next();
+        while(billboardinfo.next()){
             dbBillboard = new DbBillboard(billboardinfo.getString("BillboardName"),
                     billboardinfo.getString("Creator"),
                     billboardinfo.getBytes("Image"),
-                    billboardinfo.getString("XMLCode"), "SQL PASS");
+                    billboardinfo.getString("XMLCode"),
+                    Success
+            );
+        }
         billboardinfo.close();
         return dbBillboard;
     }

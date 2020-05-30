@@ -1,6 +1,5 @@
 package controlPanel;
 
-import observer.Subject;
 import controlPanel.Main.VIEW_TYPE;
 import javax.swing.*;
 import java.awt.*;
@@ -57,16 +56,6 @@ public class BBMenuView extends AbstractGenericView
 
     @Override
     void cleanUp() {
-
-    }
-
-    /**
-     * Update is used when model is updated and view needs to change accordingly!
-     * @param s The subject that has been updated.
-     */
-    @Override
-    public void update(Subject s)
-    {
 
     }
 
