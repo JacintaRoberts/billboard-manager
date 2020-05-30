@@ -54,6 +54,12 @@ public class Viewer extends JFrame {
         pictureLabel = new JLabel();
         informationLabel = new JLabel();
 
+        // Set a consistent font
+        Font font = new Font("Garamond",  Font.BOLD, 12);
+        messageLabel.setFont(font);
+        pictureLabel.setFont(font);
+        informationLabel.setFont(font);
+
         // Remove the borders of the JFrame
         setUndecorated(true);
 
