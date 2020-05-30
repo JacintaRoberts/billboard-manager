@@ -43,7 +43,8 @@ public class Viewer extends JFrame {
 
     /**
      * Constructor method for Viewer class.
-     * @throws HeadlessException
+     * @throws HeadlessException Thrown when code that is dependent on a keyboard, display, or mouse is called in an
+     * environment that does not support a keyboard, display, or mouse.
      */
     public Viewer() throws HeadlessException {
         // Set up the panels, labels, image icons etc. to display the different parts of the billboard
@@ -67,10 +68,11 @@ public class Viewer extends JFrame {
      * Parses in the xml file from a mock "database", that we want to display from the given test xml files. These xml
      * files are stored in resources. The mock database simply stores the file names.
      * @param fileNum An int which is the file name (number), of the example xml files from the mock "database".
-     * @return Document Returns the xml file as a Document object so that the xml tags can be extracted.
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
+     * @return Returns a Document object which is the xml file, so that the xml tags can be extracted.
+     * @throws ParserConfigurationException Throws an exception if there is an error from either the XML parser or the application.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SAXException Throws an exception if there is a serious configuration error.
+     *
      */
     public static Document extractXMLFile(int fileNum) throws ParserConfigurationException, IOException, SAXException {
         ArrayList<File> xmlFiles = MockBillboardDatabase.setupDatabase();
@@ -87,14 +89,15 @@ public class Viewer extends JFrame {
 
     /**
      * Extracts data from an xml file for creating the billboard. It gets the content from the message, picture and
-     * information tags as well as the custom colours for specified the billboard. Note if the byte array is non-empty
-     * then picture will be 'present' and picture type will be 'byte'.
+     * information tags as well as the custom colours for specified the billboard.
+     * <p>
+     * Note if the byte array is non-empty then picture will be 'present' and picture type will be 'byte'.
      * @param xmlDoc An xml file as a Document, from which to extract information from.
      * @param pictureData A byte[] array which stores the picture data attribute, instead of in the xml (only occurs
-     *      when xml file is incoming from server).
-     * @return billboardTags Returns a HashMap<String, String> which stores the background colour, message, message
-     *      colour, picture, picture type (url, data or byte), information, and information colour of the billboard,
-     *      if there is no content for one or more of these tags, the string is null.
+     * when xml file is incoming from server).
+     * @return Returns a HashMap<String, String> which stores the background colour, message, message colour, picture,
+     * picture type (url, data or byte), information, and information colour of the billboard, if there is no content
+     * for one or more of these tags, the string is null.
      */
     public static HashMap<String, String> extractDataFromXML(Document xmlDoc, byte[] pictureData) {
         // Initiate an ArrayList to return
@@ -188,7 +191,7 @@ public class Viewer extends JFrame {
      * This function reads in a byte array which represents an image as a BufferedImage and returns this.
      * @param pictureData A byte[] array which stores the picture data attribute, instead of in the xml (only occurs,
      *      when xml file is incoming from server).
-     * @return pictureImage Returns a BufferedImage which is the picture stored in the byte array.
+     * @return Returns a BufferedImage which is the picture stored in the byte array.
      */
     public static BufferedImage readByteArrayToPicture(byte[] pictureData) {
         BufferedImage pictureImage = null;
@@ -211,8 +214,8 @@ public class Viewer extends JFrame {
      * displayed properly on the billboard.
      * @param picture A String which is the picture to read in, this could be in the form of a url or data attribute
      * @param pictureType A String which is either url or data, so that we can decode the image
-     * @return pictureImage Returns the picture as a BufferedImage so it can be displayed on the billboard. Returns
-     *      null if the picture cannot be read in.
+     * @return Returns the picture as a BufferedImage so it can be displayed on the billboard. Returns null if the
+     * picture cannot be read in.
      */
     public static BufferedImage readPictureFromFile(String picture, String pictureType) {
         BufferedImage pictureImage = null;
@@ -250,7 +253,7 @@ public class Viewer extends JFrame {
      * @param image A BufferedImage which is the image that needs to be scaled.
      * @param maxImageWidth A double which represents the largest width the image can be displayed as on the screen.
      * @param maxImageHeight A double which represents the largest height the image can be displayed as on the screen.
-     * @return scaledImage Returns an Image which is the scaled version of the input image.
+     * @return Returns an Image which is the scaled version of the input image.
      */
     public static Image getScaledImage(BufferedImage image, double maxImageWidth, double maxImageHeight) {
         // Find the current dimensions of the picture
@@ -316,7 +319,7 @@ public class Viewer extends JFrame {
      * Calculates the largest font size for the message string, which must fit on one line on the screen.
      * @param message A String which is the message display on the screen.
      * @param maxStringHeight A double which is the maximum height the message can be displayed as
-     * @return fontSize Returns an int which is the largest font size that the message can be displayed at
+     * @return Returns an int which is the largest font size that the message can be displayed at
      */
     public int getMessageFontSize(String message, double maxStringHeight) {
         // Get the current font size and initialise the variable to return
@@ -397,7 +400,7 @@ public class Viewer extends JFrame {
      * the maximum string width. This can then be used when setting the information label text.
      * @param information A String of the information to format for displaying.
      * @param maxStringWidth An int which is the maximum string width for information string.
-     * @return informationHTML Returns the formatted HTML version of information string.
+     * @return Returns the formatted HTML version of information string.
      */
     public static String getInformationHTMLString(String information, int maxStringWidth) {
         String informationHTML = "<html><div style='width: " + maxStringWidth + "; text-align: center;'>"
@@ -411,7 +414,7 @@ public class Viewer extends JFrame {
      * formatting and spacing purposes.
      * @param message A String which stores the message to display.
      * @param maxStringHeight A double which is the maximum height the message can be dispayed at.
-     * @return messageHeight Returns a double which represents the height of the message.
+     * @return Returns a double which represents the height of the message.
      */
     public double setUpMessage(String message, double maxStringHeight) {
         // Set the text of the message label
@@ -438,7 +441,7 @@ public class Viewer extends JFrame {
      * @param pictureData A byte[] array which stores the picture data attribute if present.
      * @param maxImageWidth A double which represents the maximum width of the image.
      * @param maxImageHeight A double which represents the maximum height of the image.
-     * @return pictureHeight Returns a double which represents the height of the picture.
+     * @return Returns a double which represents the height of the picture.
      */
      public double setUpPicture(String picture, String pictureType, byte[] pictureData, double maxImageWidth, double maxImageHeight) {
          BufferedImage pictureImage = null;
@@ -483,7 +486,7 @@ public class Viewer extends JFrame {
      * @param maxStringWidth A double which represents the maximum width of the information label.
      * @param maxStringHeight A double which represents the maximum height of the information label.
      * @param message A boolean which is true if there is a message also being displayed and false if there isn't.
-     * @return informationHeight Returns a double which represents the height of the information.
+     * @return Returns a double which represents the height of the information.
      */
      public double setUpInformation(String information, double maxStringWidth, double maxStringHeight, boolean message) {
          // Use html styling
@@ -510,7 +513,7 @@ public class Viewer extends JFrame {
      * @param gridHeight An int which is the grid height of the element.
      * @param topPadding An int which is the padding to add on the top of the element.
      * @param bottomPadding An int which is the padding to add on the bottom of the element.
-     * @return constraints Returns a GridBagConstraints which has all of the parameters as constraints.
+     * @return Returns a GridBagConstraints which has all of the parameters as constraints.
      */
      public static GridBagConstraints setGridBagConstraints(int gridx, int gridy, int gridHeight, int topPadding, int bottomPadding) {
          // Initialise a grid bag constraints
@@ -812,8 +815,8 @@ public class Viewer extends JFrame {
      * Formats the display window using depending on whether there is a message, picture, information or any combination
      * of the three.
      * @param billboardData A HashMap<String, String> which stores the background colour, message, message colour,
-     *      picture, picture type (data or url), information, and information colour of the billboard, if there is no
-     *      content for one or more of these tags, the string is null.
+     * picture, picture type (data or url), information, and information colour of the billboard, if there is no
+     * content for one or more of these tags, the string is null.
      * @param pictureData A byte[] array which stores the picture data attribute if present.
      */
     public void formatBillboard(HashMap<String, String> billboardData, byte[] pictureData) {
@@ -964,6 +967,7 @@ public class Viewer extends JFrame {
     /**
      * Displays the billboard on the viewer.
      * @param billboardXML A String which stores the xml file to be displayed.
+     * @param pictureData A byte[] array which stores the picture data attribute.
      */
     public void displayBillboard(String billboardXML, byte[] pictureData) {
         setupBillboard();
@@ -975,6 +979,7 @@ public class Viewer extends JFrame {
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document xmlDocServer = dBuilder.parse(new InputSource(new StringReader(billboardXML)));
             HashMap<String, String> billboardDataServer = extractDataFromXML(xmlDocServer, pictureData);
+
             // Display the billboard
             formatBillboard(billboardDataServer, pictureData);
 
@@ -994,8 +999,6 @@ public class Viewer extends JFrame {
         listenMouseClick();
         showViewer();
     }
-
-
 
 
 

@@ -11,8 +11,8 @@ import java.util.concurrent.TimeUnit;
 
 public class Main implements Runnable {
 
-    // Contains the server's response (Billboard XML) as a string
-    private static Viewer viewer; // Single instance of the viewer class to prevent multiple windows
+    // Single instance of the viewer class to prevent multiple windows
+    private static Viewer viewer;
 
     @Override
     public void run() {
@@ -35,11 +35,13 @@ public class Main implements Runnable {
         }
     }
 
+
     /**
-     *
-     * @return Returns an Object which is the DbBillboard object
-     * @throws IOException
-     * @throws ClassNotFoundException
+     * This function communicates with the server to get the DbBillboard object of the current billboard to be
+     * displayed.
+     * @return Returns an Object which is a DbBillboard object of the current billboard to be displayed.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
     public static Object activeBillboardRequest() throws IOException, ClassNotFoundException {
         String message = String.format("Viewer");

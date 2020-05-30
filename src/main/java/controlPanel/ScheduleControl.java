@@ -4,7 +4,6 @@ import helpers.Helpers;
 import server.Server;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -18,19 +17,22 @@ public class ScheduleControl {
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  startTime A String in format of Java Time to store into database
-     * @param  Duration An Integer representing an integer which provides Duration which to store into database
-     * @param  CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database
-     * @param  Repeat An Integer representing an integer how often the schedule is repeated (in minutes)
-     * @param  Sunday An Integer that's either 1 or 0 to see if the schedule is to be run during Sunday
-     * @param  Monday An Integer that's either 1 or 0  to see if the schedule is to be run during Monday
-     * @param  Tuesday An Integer that's either 1 or 0  to see if the schedule is to be run during Tuesday
-     * @param  Wednesday An Integer that's either 1 or 0  to see if the schedule is to be run during Wednesday
-     * @param  Thursday An Integer that's either 1 or 0  to see if the schedule is to be run during Thursday
-     * @param  Friday An Integer that's either 1 or 0  to see if the schedule is to be run during Friday
-     * @param  Saturday An Integer that's either 1 or 0  to see if the schedule is to be run during Saturday
-     * @return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @param billboardName A String which represents the billboard name to schedule.
+     * @param startTime A String in format of Java Time to store into database.
+     * @param Duration An Integer representing an integer which provides Duration which to store into database.
+     * @param CreationDateTime A String in format of DateTime which provides CreationDateTime to store into database.
+     * @param Repeat An Integer representing an integer how often the schedule is repeated (in minutes).
+     * @param Sunday An Integer that's either 1 or 0 to see if the schedule is to be run during Sunday.
+     * @param Monday An Integer that's either 1 or 0  to see if the schedule is to be run during Monday.
+     * @param Tuesday An Integer that's either 1 or 0  to see if the schedule is to be run during Tuesday.
+     * @param Wednesday An Integer that's either 1 or 0  to see if the schedule is to be run during Wednesday.
+     * @param Thursday An Integer that's either 1 or 0  to see if the schedule is to be run during Thursday.
+     * @param Friday An Integer that's either 1 or 0  to see if the schedule is to be run during Friday.
+     * @param Saturday An Integer that's either 1 or 0  to see if the schedule is to be run during Saturday.
+     * @return A String which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
     public static String scheduleBillboardRequest(String sessionToken, String billboardName, String startTime, Integer Duration,
                                            String CreationDateTime, Integer Repeat, Integer Sunday, Integer Monday,
@@ -77,8 +79,11 @@ public class ScheduleControl {
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     *
-     * @param scheduleInfo@return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @param scheduleInfo An ArrayList<Object> which is the current schedule information.
+     * @return A Server.ServerAcknowledge which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
     public static Server.ServerAcknowledge updateScheduleBillboardRequest(String sessionToken, ArrayList<Object> scheduleInfo) throws IOException, ClassNotFoundException {
         // Define Variables
@@ -143,9 +148,11 @@ public class ScheduleControl {
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  billboardName A String which provides Billboard Name to store into database
-     * @return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @param billboardName A String which provides Billboard Name to store into database.
+     * @return A Server.ServerAcknowledge which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
     public static Server.ServerAcknowledge deleteScheduleRequest(String sessionToken,
                                                                  String billboardName) throws IOException, ClassNotFoundException {
@@ -160,10 +167,12 @@ public class ScheduleControl {
      * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @return A String which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
-    public static  String deleteAllScheduleRequest(String sessionToken) throws IOException, ClassNotFoundException {
+    public static String deleteAllScheduleRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Schedule,DeleteAllSchedule,%s",
                 sessionToken);
         return (String) Helpers.initClient(message); // Send constructed method request and parameters to the server
@@ -175,11 +184,13 @@ public class ScheduleControl {
      * from control panel to server for a specific  day.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  Day A String which provides Billboard Name to store into database
-     * @return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @param Day A String which provides the day of the schedule to get.
+     * @return An Object which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
-    public static  Object listDayScheduleRequest(String sessionToken,
+    public static Object listDayScheduleRequest(String sessionToken,
                                         String Day) throws IOException, ClassNotFoundException {
         String message = String.format("Schedule,ListAllDaySchedule,%s,%s",
                 sessionToken,
@@ -190,14 +201,16 @@ public class ScheduleControl {
 
     /**
      * Send Queries: Schedule. This is a generic method which sends a request to get a specific billboard schedule
-     * from control panel to server/
+     * from control panel to server.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  BillboardName A String which provides Billboard Name to filter schedules from database
-     * @return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @param BillboardName A String which provides Billboard Name to store into database.
+     * @return An Object which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
-    public static  Object listABillboardSchedule(String sessionToken,
+    public static Object listABillboardSchedule(String sessionToken,
                                                  String BillboardName) throws IOException, ClassNotFoundException {
         String message = String.format("Schedule,ListABillboardSchedule,%s,%s",
                 sessionToken,
@@ -211,19 +224,16 @@ public class ScheduleControl {
      * from control panel to server for a specific  day.
      * <p>
      * This method always returns immediately.
-     * @param  sessionToken A sessionToken generated when logged in
-     * @param  Day A String which provides Billboard Name to store into database
-     * @return
+     * @param sessionToken A String which represents the sessionToken generated when logged in.
+     * @param Day A String which provides the day of the schedule to get.
+     * @param currentTime A String which provides the current time.
+     * @return An Object which is an acknowledgement message from the server.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */
     public static Object listActiveSchedule(String sessionToken,
                                             String Day, String currentTime) throws IOException, ClassNotFoundException {
 
-        // Parses the date
-//        LocalDate dt = LocalDate.parse("2018-11-27");
-        // Prints the day
-//        System.out.println(dt.getDayOfWeek());
-//        LocalTime now = LocalTime.now();
-        
         String message = String.format("Schedule,ListActiveSchedule,%s,%s,%s",
                 sessionToken,
                 Day,
