@@ -20,7 +20,7 @@ public class Main implements Runnable {
     public void run() {
         // Get current billboard from schedule and display
         try {
-            // FIXME: Update when method has been written
+            // FIXME: Not working
             billboardXML = ScheduleAdmin.getCurrentBillboardXML();
             pictureData = ScheduleAdmin.getCurrentBillboardPictureData();
             System.out.println("XML received from server: " + billboardXML);

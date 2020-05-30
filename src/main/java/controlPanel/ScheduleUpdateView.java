@@ -622,7 +622,6 @@ public class ScheduleUpdateView extends AbstractGenericView
             }
             else if (endHour != 12 && startHour == 12)
             {
-                System.out.println("Hour Difference = " + hourDifference);
                 hourDifference = (hourDifference + 12) + 12;
                 duration = hourDifference*60 + minDifference;
             }

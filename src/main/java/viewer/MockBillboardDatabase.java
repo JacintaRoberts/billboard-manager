@@ -15,7 +15,9 @@ public class MockBillboardDatabase {
     private static int numFiles = 17;
 
     /**
-     * Import xml billboard files and store it an ArrayList - this will act as the mock database.
+     * This function imports the example xml billboard files in the resources folder and returns it as an ArrayList of
+     * Files. This will act as the mock database.
+     * @return Returns an ArrayList<File> of the example xml files in resources folder.
      */
     public static ArrayList<File> setupDatabase() {
 
