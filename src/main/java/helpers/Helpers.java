@@ -10,8 +10,13 @@ import java.util.Properties;
  */
 
 public class Helpers {
-    // Network props file configuration
+
+    /**
+     * Network props file configuration.
+     */
     public final static String networkPropsFilePath = "src\\main\\resources\\network.props";
+
+
     /**
      * Reads the properties from the specified file (.props)
      * @param filePath The string file path to be read from
