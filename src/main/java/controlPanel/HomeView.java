@@ -31,6 +31,7 @@ public class HomeView extends AbstractGenericView
     public HomeView()
     {
         super("Home View");
+        // define Home view enum
         this.view_type = VIEW_TYPE.HOME;
     }
 
@@ -41,22 +42,27 @@ public class HomeView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        // define gbc
         gbc = new GridBagConstraints();
+        // create options panel
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new GridBagLayout());
+        // define title, colour and font
         title = new JLabel("HOME");
         title.setForeground(Color.WHITE);
         title.setFont(title.getFont().deriveFont(60f));
-
+        // create user, schedule and bb buttons
         usersButton = new JButton("Users");
         scheduleButton = new JButton("Schedule");
         billboardButton = new JButton("Billboard");
+        // add to panel with gbc layout
         gbc.insets = new Insets(5,20,5,20);
         optionsPanel.add(usersButton, setGBC(gbc, 1,1,1,1));
         optionsPanel.add(scheduleButton, setGBC(gbc, 2,1,1,1));
         optionsPanel.add(billboardButton, setGBC(gbc, 3,1,1,1));
         gbc.insets = new Insets(250,1,1,1);
         optionsPanel.add(title, setGBC(gbc, 2,2,1,1));
+        // add options panel to frame
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 

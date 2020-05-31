@@ -34,7 +34,9 @@ public class LogInView extends AbstractView
     public LogInView()
     {
         super("LogInView Panel");
+        // create components
         createComponents();
+        // set login enum to frame
         this.logInType = VIEW_TYPE.LOGIN;
     }
 
@@ -44,11 +46,14 @@ public class LogInView extends AbstractView
      */
     private void createComponents()
     {
+        // create login panel
         loginPanel = new JPanel();
         loginPanel.setLayout(new GridBagLayout());
+        // set user name text and field
         usernameText = new JLabel("USERNAME");
         usernameField = new JTextField();
         usernameField.setPreferredSize(new Dimension(300,60));
+        // set password text and field
         passwordText = new JLabel("PASSWORD");
         passwordField = new JPasswordField();
         passwordField.setPreferredSize(new Dimension(300,60));
