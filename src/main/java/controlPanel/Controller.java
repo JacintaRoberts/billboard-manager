@@ -1010,8 +1010,6 @@ public class Controller
         public void mouseClicked(MouseEvent e) {
             System.out.println("CONTROLLER LEVEL: List Users button clicked");
             listUserHandling();
-            // navigate to users list screen
-            updateView(USER_LIST);
         }
     }
 
@@ -1043,13 +1041,13 @@ public class Controller
         if (errorMessage.equals(InsufficientPermission)) {
             System.out.println("CONTROLLER LEVEL - Insufficient Permissions");
             userListView.showInsufficientPermissionsException();
-            updateView(USERS_MENU);
         } else if (serverResponse.equals(InvalidToken)) {
             System.out.println("CONTROLLER LEVEL - Invalid Token");
             userListView.showInvalidTokenException();
             updateView(LOGIN);
         } else { // Successful, let the user know and populate with list of users
             userListView.addContent(usernames, new EditUserButtonListener(), new DeleteUserButtonListener(), new ViewUserButtonListener());
+            updateView(USER_LIST);
         }
         views.put(USER_LIST, userListView);
     }
@@ -1908,6 +1906,8 @@ public class Controller
                 } else if (result.equals(InvalidToken)) {
                     scheduleUpdateView.showMessageToUser("Invalid Token! Please re-login to reauthenticate!");
                     updateView(LOGIN);
+                } else if (result.equals(InsufficientPermission)) {
+                scheduleUpdateView.showMessageToUser("Invalid Permissions!");
                 }
             }
             views.put(SCHEDULE_UPDATE, scheduleUpdateView);
