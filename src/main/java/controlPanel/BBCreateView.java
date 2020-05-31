@@ -329,13 +329,16 @@ public class BBCreateView extends AbstractGenericView
         {
             try
             {
+                // try decoding colour string
                 newColour = Color.decode(colour);
             }
             catch (NumberFormatException e)
             {
+                // if invalid, show message to user
                 showInvalidInformationColourMessage();
             }
         }
+        // set foreground colour and info colour variable
         BBTextField.setForeground(newColour);
         infoColour = toHexString(newColour);
     }
@@ -352,13 +355,16 @@ public class BBCreateView extends AbstractGenericView
         {
             try
             {
+                // try decoding colour string
                 newColour = Color.decode(colour);
             }
             catch (NumberFormatException e)
             {
+                // if invalid string, show invalid message
                 showInvalidTitleColourMessage();
             }
         }
+        // set title label and colour
         titleLabel.setForeground(newColour);
         titleColour = toHexString(newColour);
     }
@@ -393,13 +399,16 @@ public class BBCreateView extends AbstractGenericView
         {
             try
             {
+                // try decoding colour
                 newColour = Color.decode(colour);
             }
             catch(NumberFormatException e)
             {
+                // if invalid string, show error message
                 showInvalidBackgroundColourMessage();
             }
         }
+        // set background colour
         drawingPadPanel.setBackground(newColour);
         backgroundColour = toHexString(newColour);
     }
@@ -408,10 +417,11 @@ public class BBCreateView extends AbstractGenericView
      * Set Photo in the Drawing Panel
      * @param icon BB image in icon format
      * @param imgType Phototype of the image type provided
-     * @param imgPath Object the image path
+     * @param imgPath String which is URL to image or encoded string
      */
-    protected void setPhoto(ImageIcon icon, PhotoType imgType, Object imgPath)
+    protected void setPhoto(ImageIcon icon, PhotoType imgType, String imgPath)
     {
+        // set photo label with icon, photo type and path to image (URL or encoded string)
         photoLabel.setIcon(icon);
         photoType = imgType;
         photoPath = imgPath;
