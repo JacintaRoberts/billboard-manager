@@ -125,8 +125,8 @@ public class UserEditView extends AbstractUserView
     }
 
     /**
-     * Show Ask User for confirmation of user creation
-     * @return response of user (int)
+     * Ask User for confirmation of user creation
+     * @return response of user (i.e. 1 = confirm, else not confirmed)
      */
     protected int showUserConfirmation()
     {
