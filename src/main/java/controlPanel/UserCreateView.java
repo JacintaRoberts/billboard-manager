@@ -30,12 +30,18 @@ public class UserCreateView extends AbstractUserView
     public UserCreateView()
     {
         super("Create User");
+        // assign enum to frame
         view_type = VIEW_TYPE.USER_CREATE;
-        setEditable(true);
+        // set user fields to be editable
+        setUserFieldsEditable(true);
+        // set password to null
         passwordText = null;
+        // allow username text to be edited
         usernameText.setEditable(true);
+        // add submit and password button
         addSubmitButton();
         addSetPasswordButton();
+        // set title of screen
         title.setText("CREATE USER");
     }
 
@@ -44,11 +50,13 @@ public class UserCreateView extends AbstractUserView
      */
     protected void addSubmitButton()
     {
+        // create submit button
         submitButton = new JButton("Create User");
+        // get nav panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add submit button to nav panel
         navPanel.add(submitButton, setGBC(gbc,3,1,1,1));
-
     }
 
     /**
@@ -56,8 +64,10 @@ public class UserCreateView extends AbstractUserView
      */
     private void addSetPasswordButton()
     {
+        // get user panel
         JPanel userPanel = getUserPanel();
         GridBagConstraints gbc = getUserPanelGBC();
+        // create password button and add to user panel
         setPasswordButton = new JButton("Create Password");
         userPanel.add(setPasswordButton, setGBC(gbc,2,5,1,1));
     }
@@ -68,6 +78,7 @@ public class UserCreateView extends AbstractUserView
      */
     protected ArrayList<Object> getUserInfo()
     {
+        // add all user info to the user array
         ArrayList<Object> userInfoArray = new ArrayList<>();
         userInfoArray.add(usernameText.getText());
         userInfoArray.add(passwordText);
@@ -75,6 +86,7 @@ public class UserCreateView extends AbstractUserView
         userInfoArray.add(editBBPermission.isSelected());
         userInfoArray.add(scheduleBBPermission.isSelected());
         userInfoArray.add(editUsersPermission.isSelected());
+        // return user array info
         return userInfoArray;
     }
 
@@ -142,12 +154,13 @@ public class UserCreateView extends AbstractUserView
     {
         String validCharacters = "([A-Za-z0-9-_ ]+)";
         boolean validlength = false;
-
+        // if username is less than or equal to 20 chars, return valid length true
         if(usernameText.getText().length() <= 20){
             validlength = true;
         }
-
+        // determine if name is valid and doe not contain any invalid chars
         boolean validName = usernameText.getText().matches(validCharacters);
+        // return validity of username selected
         return !usernameText.getText().equals("") && passwordText!= null && validName && validlength;
     }
 
@@ -166,6 +179,7 @@ public class UserCreateView extends AbstractUserView
     @Override
     void cleanUp()
     {
+        // reset username, permissions and password text
         setUsername("");
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
         passwordText = null;
