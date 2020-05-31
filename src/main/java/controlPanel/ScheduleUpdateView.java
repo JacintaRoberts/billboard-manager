@@ -8,6 +8,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
 
+import static java.lang.Integer.min;
 import static java.lang.Integer.parseInt;
 
 /**
@@ -712,19 +713,21 @@ public class ScheduleUpdateView extends AbstractGenericView
         // case where AM -> AM or PM -> PM
         else
         {
-            if ((startHour != 12 && endHour == 12) || (startHour == 12 && endHour != 12))
+            // if startHour = 12PM -> XPM, we need to add + 12
+            if (startHour == 12 && endHour != 12)
             {
                 // add 12 to deal with -ve difference
                 duration = (hourDifference+12)*60 + minDifference;
             }
-            else if (startHour == 12 && endHour == 12)
+            // if end hour = 12 PM and start hour is any other PM value, set to invalid
+            else if (endHour == 12)
             {
                 // invalid duration
                 duration = -1;
             }
+            // multiply by 60 to calculate the hour difference in minutes
             else
             {
-                // multiply by 60 to calculate the hour difference in minutes
                 duration = hourDifference*60 + minDifference;
             }
         }
@@ -778,6 +781,8 @@ public class ScheduleUpdateView extends AbstractGenericView
             for (int minute = (duration + 1); minute <= minutesLeftInDay; minute++)
             {
                 repeatMinutesComboBox.addItem(minute);
+                System.out.println("MINUTES " + minute);
+                System.out.println(" LEFT IN DAY " + minutesLeftInDay);
             }
         }
     }
@@ -792,7 +797,6 @@ public class ScheduleUpdateView extends AbstractGenericView
         {
             enableMinuteSelector(false);
             hourlyButton.setEnabled(false);
-            System.out.println("SET NO REPEATS");
             noRepeatButton.setSelected(true);
         }
         // if valid and duration > 60 - disable hourly button if duration is longer than 1 hour, set no repeat as default

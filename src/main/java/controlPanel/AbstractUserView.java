@@ -50,29 +50,36 @@ public abstract class AbstractUserView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        // create empty title label, set colour and font
         title = new JLabel("");
         title.setForeground(Color.WHITE);
         title.setFont(title.getFont().deriveFont(90f));
+        // define gbc
         gbc = new GridBagConstraints();
         gbc.insets = new Insets(50,10,50,10);
+        // create user details pane and set layout
         userDetailsPane = new JPanel();
         userDetailsPane.setLayout(new GridBagLayout());
+        // create username label and text
         usernameLabel = new JLabel("Username");
         usernameText = new JTextField("");
         usernameText.setPreferredSize(new Dimension(100,100));
+        // define user permission label
         userPermissionsLabel = new JLabel("User Permissions");
-
+        // create user permissions check boxes
         editBBPermission = new JCheckBox("Edit All Billboards");
         scheduleBBPermission = new JCheckBox("Edit Schedules");
         editUsersPermission = new JCheckBox("Edit Users");
         createBBPermission = new JCheckBox("Create Billboards");
+        // create user permission panel and layout
         userPermissionsPanel = new JPanel();
         userPermissionsPanel.setLayout(new GridLayout(4,1));
+        // add permissions to panel
         userPermissionsPanel.add(editBBPermission);
         userPermissionsPanel.add(scheduleBBPermission);
         userPermissionsPanel.add(createBBPermission);
         userPermissionsPanel.add(editUsersPermission);
-
+        // add all items to user details panel
         userDetailsPane.add(title, setGBC(gbc, 2,1,1,1));
         userDetailsPane.add(usernameLabel, setGBC(gbc, 1,2,1,1));
         gbc.fill = GridBagConstraints.HORIZONTAL;
@@ -80,17 +87,23 @@ public abstract class AbstractUserView extends AbstractGenericView
         gbc.fill = GridBagConstraints.NONE;
         userDetailsPane.add(userPermissionsLabel, setGBC(gbc, 1,4,1,1));
         userDetailsPane.add(userPermissionsPanel, setGBC(gbc, 2,4,1,1));
-
+        // add user details panel to scroll pane
         scrollPane = new JScrollPane(userDetailsPane);
-
+        // add scroll pane to frame
         getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
 
+    /**
+     * Add user menu button to nav panel
+     */
     private void addUserMenuButton()
     {
+        // create user menu button
         userMenuButton = new JButton("User Menu");
+        // get panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add button to nav panel
         navPanel.add(userMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
@@ -109,6 +122,7 @@ public abstract class AbstractUserView extends AbstractGenericView
      */
     protected void setPermissions(ArrayList<Boolean> permissions)
     {
+        // set check boxes based on boolean array list provided
         editUsersPermission.setSelected(permissions.get(3));
         scheduleBBPermission.setSelected(permissions.get(2));
         editBBPermission.setSelected(permissions.get(1));
@@ -121,6 +135,7 @@ public abstract class AbstractUserView extends AbstractGenericView
      */
     protected void setEditable(boolean editable)
     {
+        // set fields to editable based on boolean provided
         usernameText.setEditable(editable);
         editBBPermission.setEnabled(editable);
         scheduleBBPermission.setEnabled(editable);

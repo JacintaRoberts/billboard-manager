@@ -28,16 +28,22 @@ public class BBListView extends AbstractListView
     public BBListView()
     {
         super("Billboards List");
+        // define enum value for view
         view_type = VIEW_TYPE.BB_LIST;
+        // set list title
         setListTitle("BILLBOARD LIST");
+        // add menu button
         addBBMenuButton();
     }
 
     private void addBBMenuButton()
     {
+        // instantiate button
         BBMenuButton = new JButton("Billboard Menu");
+        // get nav panel and gbc of nav panel
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add button to nav panel
         navPanel.add(BBMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
@@ -58,6 +64,7 @@ public class BBListView extends AbstractListView
     protected void showBBDeletedMessage(Server.ServerAcknowledge serverResponse)
     {
         String message = "";
+        // set message string based on the server response
         if ( serverResponse.equals(Success) ) {
             message = "Billboard Successfully deleted";
         }  else if ( serverResponse.equals(InvalidToken) ) {
@@ -77,5 +84,14 @@ public class BBListView extends AbstractListView
     protected void addBBMenuListener(MouseListener listener)
     {
         BBMenuButton.addMouseListener(listener);
+    }
+
+    /**
+     * Show message to user if the BB XML is invalid
+     */
+    protected void showBBInvalid()
+    {
+        String message = "Invalid Billboard XML File - cannot read.";
+        JOptionPane.showMessageDialog(null, message);
     }
 }

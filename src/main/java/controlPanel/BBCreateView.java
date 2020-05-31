@@ -103,7 +103,7 @@ public class BBCreateView extends AbstractGenericView
     {
         // -------- DRAWING PANEL -----------
         drawingPadPanel = new JPanel();
-        // create title/message label
+        // create title/message label - set line wrap, font, colours
         titleLabel = new JTextArea();
         titleLabel.setPreferredSize(new Dimension(1000,100));
         titleLabel.setLineWrap(true);
@@ -111,7 +111,7 @@ public class BBCreateView extends AbstractGenericView
         titleLabel.setFont(titleLabel.getFont().deriveFont(40f));
         titleLabel.setForeground(Color.white);
         titleLabel.setOpaque(false);
-        // create bb text field for BB text/info
+        // create bb text field for BB text/info - set line wrap, font, colours
         BBTextField = new JTextArea();
         BBTextField.setPreferredSize(new Dimension(1000,180));
         BBTextField.setLineWrap(true);
@@ -119,7 +119,7 @@ public class BBCreateView extends AbstractGenericView
         BBTextField.setFont(BBTextField.getFont().deriveFont(40f));
         BBTextField.setForeground(Color.white);
         BBTextField.setOpaque(false);
-        // create photo label
+        // create photo label and size
         photoLabel = new JLabel();
         photoLabel.setPreferredSize(new Dimension(380,380));
         // add all items to panel
@@ -136,10 +136,14 @@ public class BBCreateView extends AbstractGenericView
     private void createDrawingToolbar()
     {
         // -------- DRAWING TOOLBAR PANEL -----------
+        // create drawing tools panel and layout
         drawingToolsPanel = new JPanel();
         drawingToolsPanel.setLayout(new GridLayout(6,1));
+        // create bb name button
         billboardNameButton = new JButton("Billboard Name");
+        // initialise bb name
         BBNameLabel = new JLabel("");
+        // create background colour button
         backgroundColourButton = new JButton("Background Colour");
 
         // set default background colour
@@ -181,6 +185,7 @@ public class BBCreateView extends AbstractGenericView
     private void createBBOptionsMenu()
     {
         // -------- BB OPTIONS MENU -----------
+        // create bb menu panel and set layout
         billboardMenuPanel = new JPanel();
         billboardMenuPanel.setLayout(new GridLayout(3,1));
 
@@ -203,9 +208,12 @@ public class BBCreateView extends AbstractGenericView
      */
     private void addBBMenuButton()
     {
+        // create bb menu button
         BBMenuButton = new JButton("Billboard Menu");
+        // get nav panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add bb menu button to nav panel
         navPanel.add(BBMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
@@ -218,6 +226,7 @@ public class BBCreateView extends AbstractGenericView
         createButton = new JButton("Submit");
         disclaimerText = new JLabel("Display is not to scale. Select 'Preview Billboard' to view.");
         disclaimerText.setForeground(Color.WHITE);
+        // get nav panel and gbc of nav panel
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc_nav = getNavGBCPanel();
         // add to nav panel
@@ -230,9 +239,12 @@ public class BBCreateView extends AbstractGenericView
      */
     private void addPhotoImport()
     {
+        // create new JFile chooser for selecting photos
         photoChooser = new JFileChooser();
+        // set current directory and dialog text
         photoChooser.setCurrentDirectory(new java.io.File("."));
         photoChooser.setDialogTitle("Select Photo to upload");
+        // photo filter to ensure only valid photos can be uploaded
         FileNameExtensionFilter photoFilter = new FileNameExtensionFilter("image files (*.bmp, *jpg, *png)", "jpg","png", "bmp");
         photoChooser.setFileFilter(photoFilter);
     }
@@ -242,9 +254,12 @@ public class BBCreateView extends AbstractGenericView
      */
     private void addXMLImport()
     {
+        // create new JFile chooser for selecting xml to import
         xmlChooser = new JFileChooser();
+        // set current directory and dialog text
         xmlChooser.setCurrentDirectory(new java.io.File("."));
         xmlChooser.setDialogTitle("Select XML File to upload");
+        // xml filter to ensure only xml files can be uploaded
         FileNameExtensionFilter xmlFilter = new FileNameExtensionFilter("xml files (*.xml)", "xml");
         xmlChooser.setFileFilter(xmlFilter);
     }
@@ -254,9 +269,12 @@ public class BBCreateView extends AbstractGenericView
      */
     private void addXMLExport()
     {
+        // xml folder chooser for selecting folder to export xml into
         xmlFolderChooser = new JFileChooser();
+        // set current directory and dialog title
         xmlFolderChooser.setCurrentDirectory(new java.io.File("."));
         xmlFolderChooser.setDialogTitle("Select Folder to Save XML");
+        // set selection mode to ensure only file directories are selected
         xmlFolderChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
     }
 
@@ -268,7 +286,9 @@ public class BBCreateView extends AbstractGenericView
     @Override
     void cleanUp()
     {
+        // remove bb name
         setBBName("");
+        // bb name is selected
         setBBNameEnabled(true);
         setBackgroundColour(toHexString(Color.WHITE));
         setBBTitle("");
