@@ -9,6 +9,10 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * Main starts up the application by instantiating the Viewer and connecting to the Server. The main and AWT event
+ * thread are joined to run the application safely.
+ */
 public class Main implements Runnable {
 
     // Single instance of the viewer class to prevent multiple windows

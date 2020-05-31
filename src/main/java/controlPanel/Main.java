@@ -12,7 +12,9 @@ public class Main {
     // HashMap to store Enums associated to Views
     private static HashMap<VIEW_TYPE, AbstractView> app_views = new HashMap<>();
 
-    // create enum for all application views
+    /**
+     * Enums representing GUI views in the application.
+     */
     protected enum VIEW_TYPE {
         LOGIN, HOME,
         BB_MENU, BB_LIST, BB_CREATE,

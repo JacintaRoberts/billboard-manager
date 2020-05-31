@@ -3,11 +3,10 @@ package viewer;
 import java.io.File;
 import java.util.ArrayList;
 
-/*
-This class will act as a mock billboards database so that the Viewer class can be implemented without the
-actual database.
+/**
+ * This class will act as a mock billboards database using the example xml files in resources, so that the Viewer class
+ * can be implemented without the actual database.
  */
-
 public class MockBillboardDatabase {
 
     // Initialise ArrayList to store the XML files in
