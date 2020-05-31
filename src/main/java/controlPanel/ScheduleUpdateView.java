@@ -304,7 +304,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         //create submit, clear and schedule menu view
         submitButton = new JButton("Submit");
-        clearScheduleButton = new JButton("Clear Schedule");
+        clearScheduleButton = new JButton("Delete Schedule");
         scheduleMenuButton = new JButton("Schedule Menu");
         // get nav panel and gbc
         JPanel navPanel = getNavPanel();
