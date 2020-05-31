@@ -18,6 +18,10 @@ import static helpers.Helpers.networkPropsFilePath;
 import static java.lang.Boolean.parseBoolean;
 import static server.ScheduleAdmin.activeBillboardDisplay;
 import static server.Server.ServerAcknowledge.*;
+/**
+ * The server class consists of the main logic of running the server. It is used to communicate with the Control Panel,
+ * and sends and receives request from it. The viewer also communicates with the server to query for active billboards.
+ */
 
 public class Server {
     // Session tokens are stored in memory on server as per the specification

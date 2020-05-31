@@ -2,6 +2,9 @@ package server;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+/**
+ * The ScheduleList is a class which is used as an serializable object to send Schedule list to the control panel from the database result.
+ */
 
 public class ScheduleList  implements Serializable {
     // Set Fields for ScheduleList

@@ -4,16 +4,14 @@ import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class DbUser {
+/**
+ * The DbUser class contains methods when querying the User Table.
+ * Methods querying, creation, editing and deletion of user from the user table. This class file only consists of the
+ * raw sql queries with no checks.
+ */
 
-    // Set Fields for DbUser
-    private String Username;
-    private String Password;
-    private String Salt;
-    private String CreateBillboard;
-    private String EditBillboard;
-    private String ScheduleBillboard;
-    private String EditUser;
+
+public class DbUser {
 
     public static final String SELECT_USER_SQL = "SELECT * FROM users WHERE Username = ?";
     public static final String COUNT_USER_SQL = "SELECT COUNT(*) FROM Users";
@@ -40,18 +38,6 @@ public class DbUser {
     private static PreparedStatement listUsers;
     private static PreparedStatement updatePermissions;
     private static PreparedStatement updatePassword;
-
-    public DbUser(String Username, String Password, String Salt, String CreateBillboard,
-                  String EditBillboard, String ScheduleBillboard, String EditUser) {
-        this.Username = Username;
-        this.Password = Password;
-        this.Salt = Salt;
-        this.CreateBillboard = CreateBillboard;
-        this.EditBillboard = EditBillboard;
-        this.ScheduleBillboard = ScheduleBillboard;
-        this.EditUser = EditUser;
-    }
-
 
 
     /**
@@ -112,39 +98,6 @@ public class DbUser {
         ResultSet rs = dropUserTable.executeQuery(DROP_USER_TABLE);
         resultMessage = "User Table Dropped";
         return resultMessage;
-    }
-
-
-    /**
-     * Stores Database Queries: Users. This is a generic method which stores any query sent to the database.
-     * <p>
-     * This method always returns immediately.
-     * @param st A Statement object which is the connection.createStatement().
-     * @param query A String which has the query fed into executeQuery.
-     * @return Returns an ArrayList(DbUser) of the user information.
-     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
-     * @throws SQLException Throws an exception if there is a database access error or other errors.
-     */
-    public static ArrayList<DbUser> storeUserContents(Statement st, String query) throws IOException, SQLException {
-        // Set List to store contents in
-        ArrayList<DbUser> queryList = new ArrayList<>();
-
-        // get all current entries
-        ResultSet rs = st.executeQuery(query);
-
-        // Loop through cursor
-        while (rs.next()) {
-            DbUser dbUser = new DbUser(rs.getString("Username"),
-                    rs.getString("Password"),
-                    rs.getString("Salt"),
-                    rs.getString("CreateBillboard"),
-                    rs.getString("EditBillboard"),
-                    rs.getString("ScheduleBillboard"),
-                    rs.getString("EditUser"));
-            queryList.add(dbUser);
-        }
-
-        return queryList;
     }
 
 

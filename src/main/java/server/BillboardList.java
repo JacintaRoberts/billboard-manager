@@ -3,7 +3,7 @@ package server;
 import java.io.Serializable;
 import java.util.ArrayList;
 /**
- * The BillboardList is a class which is used as an serializable object to send billboard list in the database.
+ * The BillboardList is a class which is used as an serializable object to send billboard list to the control panel from the database result
  */
 
 
