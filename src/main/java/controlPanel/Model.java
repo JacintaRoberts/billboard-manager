@@ -42,7 +42,7 @@ public class Model
 
     /**
      * Set user's current View
-     * @param newView
+     * @param newView enum view type of the current view
      */
     public void setCurrentView(VIEW_TYPE newView)
     {
