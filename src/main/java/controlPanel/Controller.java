@@ -931,7 +931,7 @@ public class Controller
             String username = button.getName();
             UserListView userListView = (UserListView) views.get(USER_LIST);
             // ask user to confirm deletion of user
-            int response = userListView.showDeleteConfirmation();
+            int response = userListView.showDeleteContentConfirmation();
 
             // if confirmed response, delete from DB
             if (response == 0)
@@ -1203,7 +1203,7 @@ public class Controller
             BBListView bbListView = (BBListView) views.get(BB_LIST);
 
             // ask user to confirm deletion of BB
-            int response = bbListView.showDeleteConfirmation();
+            int response = bbListView.showDeleteContentConfirmation();
 
             // if confirmed response, delete from DB
             if (response == 0)

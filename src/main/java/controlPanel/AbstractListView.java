@@ -40,19 +40,20 @@ public abstract class AbstractListView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        // create main and scroll pane
         mainPanel = new JPanel();
         scrollPane = new JScrollPane(mainPanel);
-
+        // define main panel layout
         mainPanel.setLayout(new GridBagLayout());
-
+        // instantiate gbc for main panel
         gbc_main = new GridBagConstraints();
-
+        // create title screen label
         titleScreen = new JLabel("LIST BILLBOARDS");
         titleScreen.setForeground(Color.WHITE);
         titleScreen.setFont(titleScreen.getFont().deriveFont(60f));
-
+        // add title screen title to main panel
         mainPanel.add(titleScreen, setGBC(gbc_main,1,1,1,1));
-
+        // add scroll pane to frame
         getContentPane().add(scrollPane, BorderLayout.CENTER);
     }
 
@@ -76,9 +77,13 @@ public abstract class AbstractListView extends AbstractGenericView
     protected void addContent(ArrayList<String> contentArray, MouseListener editMouseListener, MouseListener deleteMouseListener, MouseListener viewMouseListener)
     {
         int index = 1;
+        // looping through all content names (i.e. bbname or username)
         for (String contentName : contentArray)
         {
+            // increase index
             index ++;
+
+            // instantiate new gbc
             gbc = new GridBagConstraints();
 
             // create one panel per piece of information (i.e. User or BB)
@@ -95,7 +100,7 @@ public abstract class AbstractListView extends AbstractGenericView
             deleteButton.setName(contentName);
             viewButton.setName(contentName);
 
-            // add listener
+            // add listeners for edit delete and view buttons
             editButton.addMouseListener(editMouseListener);
             deleteButton.addMouseListener(deleteMouseListener);
             viewButton.addMouseListener(viewMouseListener);
@@ -104,7 +109,7 @@ public abstract class AbstractListView extends AbstractGenericView
             text = new JLabel(contentName);
             text.setPreferredSize(new Dimension(500, 60));
 
-            // add to content panel
+            // add to content panel defining location in gbc
             gbc.insets = new Insets(5,50,5,50);
             contentPanel.add(text, setGBC(gbc, 2,1,10,1));
             gbc.insets = new Insets(5,10,5,10);
@@ -112,6 +117,7 @@ public abstract class AbstractListView extends AbstractGenericView
             contentPanel.add(deleteButton, setGBC(gbc, 14,1,2,1));
             contentPanel.add(viewButton, setGBC(gbc, 16,1,2,1));
 
+            // add content pane to array list
             jPanels.add(contentPanel);
 
             // add content panel to list panel
@@ -123,7 +129,7 @@ public abstract class AbstractListView extends AbstractGenericView
      * Show Dialog to ask user to confirm deleting object
      * @return integer to confirm whether they press the Confirm button (0= confirm, otherwise not confirmed)
      */
-    protected int showDeleteConfirmation()
+    protected int showDeleteContentConfirmation()
     {
         return JOptionPane.showConfirmDialog(null, "Are you sure you want to Delete?");
     }
@@ -140,16 +146,8 @@ public abstract class AbstractListView extends AbstractGenericView
         {
             mainPanel.remove(jPanel);
         }
+        // clear jpanels array
         jPanels.clear();
-    }
-
-    /**
-     * Show message to user if the BB XML is invalid
-     */
-    protected void showBBInvalid()
-    {
-        String message = "Invalid Billboard XML File - cannot read.";
-        JOptionPane.showMessageDialog(null, message);
     }
 
 }

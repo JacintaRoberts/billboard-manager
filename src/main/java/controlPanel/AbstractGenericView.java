@@ -60,18 +60,25 @@ public abstract class AbstractGenericView extends AbstractView
      */
     protected void addProfilePanel()
     {
+        // create profile pane, set layout and background
         profilePanel = new JPanel();
         profilePanel.setLayout(new GridBagLayout());
         profilePanel.setBackground(Color.GRAY);
+        // create welcome text on panel
         welcomeText = new JLabel("Welcome");
         welcomeText.setForeground(Color.WHITE);
+        // create profile and log out button
         profileButton = new JButton("Profile");
         logOutButton = new JButton("Log Out");
+        // define gbc insets for location of components
         gbc_profile.insets = new Insets(5,5,5,5);
+        // add button and text to profile panel
         profilePanel.add(profileButton, setGBC(gbc_profile, 1,1,1,1));
         profilePanel.add(welcomeText, setGBC(gbc_profile, 6,1,1,1));
         gbc_profile.insets = new Insets(5,500,5,5);
+        // add log out button to profile panel
         profilePanel.add(logOutButton, setGBC(gbc_profile, 10,1,2,1));
+        // add profile panel to frame
         getContentPane().add(profilePanel, BorderLayout.NORTH);
     }
 
@@ -84,11 +91,15 @@ public abstract class AbstractGenericView extends AbstractView
      */
     protected void addNavPanel()
     {
+        // create nav panel and set background colour
         navPanel = new JPanel(new GridBagLayout());
         navPanel.setBackground( new Color(255,87,87));
+        // create home button
         homeButton = new JButton("Home");
         gbc_nav.insets = new Insets(5,20,5,20);
+        // add home button to nav panel
         navPanel.add(homeButton, setGBC(gbc_nav,1,1,1,1));
+        // add nav panel to frame
         getContentPane().add(navPanel, BorderLayout.SOUTH);
     }
 

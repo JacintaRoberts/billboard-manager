@@ -19,6 +19,18 @@ public abstract class AbstractView extends JFrame
     {
         // assign frame name
         super(frame_name);
+        // set up application style
+        setUpApplicationStyle();
+        // set up frame operations
+        setupFrameOperations();
+    }
+
+    /**
+     * Set up application style including font, colours and size of items
+     */
+    private void setUpApplicationStyle()
+    {
+        // create font user by entire application
         Font font = new Font("Garamond",  Font.BOLD, 30);
         Color pinkColour = new Color(255,87,87);
         Color navyColour = new Color(31,29, 41);
@@ -84,13 +96,12 @@ public abstract class AbstractView extends JFrame
         UIManager.put("TableHeader.background", Color.WHITE);
         UIManager.put("TableHeader.foreground",pinkColour);
 
+        // title border
         UIManager.put("TitledBorder.font",font);
         UIManager.put("TitledBorder.titleColor",Color.WHITE);
 
         // panel colour
         UIManager.put("Panel.background", navyColour);
-
-        setupFrame();
     }
 
     /**
@@ -104,23 +115,29 @@ public abstract class AbstractView extends JFrame
      */
     protected static GridBagConstraints setGBC(GridBagConstraints gbc, int x, int y, int w, int h)
     {
+        // set gbc values including x, y, width and height
         gbc.gridx = x;
         gbc.gridy = y;
         gbc.gridheight = h;
         gbc.gridwidth = w;
+        // return new gbc
         return gbc;
     }
 
     /**
      * Set up Frame by setting size, close operation and layout.
      */
-    private void setupFrame()
+    private void setupFrameOperations()
     {
-        // Purpose: size, close operation and layout
+        // set extended state
         setExtendedState(JFrame.MAXIMIZED_BOTH);
+        // set default close operation
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        // set layout as border layout
         setLayout(new BorderLayout());
+        // set state of frame
         setState(Frame.NORMAL);
+        // set location relative
         setLocationRelativeTo(null);
     }
 
