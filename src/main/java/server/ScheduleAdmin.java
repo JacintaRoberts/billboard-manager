@@ -766,22 +766,15 @@ public class ScheduleAdmin {
         String Saturday;
         if (scheduleList.getScheduleServerResponse().equals("Pass: Schedule Detail List Returned")){
             for (int i = 0; i < numBillboards; i++) {
-                System.out.println("============================");
                 billboardName = scheduleList.getScheduleBillboardName().get(i);
                 creator = BillboardAdmin.getBillboardSQL(billboardName).getCreator();
-                System.out.println("Start Time before parse = " + scheduleList.getStartTime().get(i));
                 startTime = LocalTime.parse(scheduleList.getStartTime().get(i));
-                System.out.println("Start Time = " + startTime);
                 repeatMinutes = Integer.parseInt(scheduleList.getRepeat().get(i));
-                System.out.println("Repeat Minutes = " + repeatMinutes);
                 duration = Integer.parseInt(scheduleList.getDuration().get(i));
-                System.out.println("Duration = " + duration);
                 creationDateTime = String.valueOf(scheduleList.getCreationDateTime().get(i));
                 minTillEnd = Integer.parseInt(String.valueOf(startTime.until(endTime, ChronoUnit.MINUTES)));
-                System.out.println("Minutes Until End = " + minTillEnd);
                 if (repeatMinutes != 0){
                     extraSched = (minTillEnd - duration) / repeatMinutes;
-                    System.out.println("Number of Extra Schedules = " + extraSched);
                 } else{
                     extraSched = 0;
                 }

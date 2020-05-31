@@ -375,6 +375,7 @@ public class Viewer extends JFrame {
     public void setInformationFontSize(double maxStringHeight, boolean message) {
         // Get the current font size and initialise the variable to return
         int fontSize = 12;
+        informationLabel.setFont(new Font(informationLabel.getFont().getName(), Font.BOLD, fontSize));
 //        int fontSize = informationLabel.getFont().getSize();
 
         // Define the maximum font size to be a very large number
@@ -900,6 +901,9 @@ public class Viewer extends JFrame {
             }
         }
 
+        // Repaint the billboard to show the correct layout
+        mainPanel.revalidate();
+        mainPanel.repaint();
     }
 
 
@@ -969,6 +973,8 @@ public class Viewer extends JFrame {
      * @param message A String which represents the message to display on the screen.
      */
     public void displaySpecialMessage(String message) {
+        // Remove all previous elements and set up billboard again
+        mainPanel.removeAll();
         setupBillboard();
 
         // Set up the message to display and add it to the main panel
@@ -976,6 +982,10 @@ public class Viewer extends JFrame {
         mainPanel.add(messageLabel);
         messageLabel.setForeground(Color.BLACK);
         messageLabel.setBackground(Color.BLACK);
+
+        // Repaint the billboard to show the correct layout
+        mainPanel.revalidate();
+        mainPanel.repaint();
 
         listenEscapeKey();
         listenMouseClick();
@@ -989,19 +999,9 @@ public class Viewer extends JFrame {
      * @param pictureData A byte[] array which stores the picture data attribute.
      */
     public void displayBillboard(String billboardXML, byte[] pictureData) {
-//        mainPanel.removeAll();
-
-        messageLabel.setText("");
-        pictureLabel.setIcon(null);
-        informationLabel.setText("");
-
+        // Remove all previous elements and set up billboard again
+        mainPanel.removeAll();
         setupBillboard();
-
-//        private JPanel mainPanel;
-//        private JLabel messageLabel;
-//        private ImageIcon pictureIcon;
-//        private JLabel pictureLabel;
-//        private JLabel informationLabel;
 
         // Extract the billboard data using the server's response
         try {
@@ -1013,6 +1013,7 @@ public class Viewer extends JFrame {
 
             // Display the billboard
             formatBillboard(billboardDataServer, pictureData);
+
 
             // Testing from the provided xml files
             // TODO: Remove (or comment out) the testing of provided xml files.
