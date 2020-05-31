@@ -88,6 +88,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     public ScheduleUpdateView()
     {
         super("Schedule Update");
+        // set frame enum
         view_type = VIEW_TYPE.SCHEDULE_UPDATE;
     }
 
@@ -130,6 +131,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // define hours and minute selection
         Integer[] hour = new Integer[]{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12};
         String[] min = new String[60];
+        // loop through adding minutes to string array
         for (int minute = 0; minute < 60; minute++)
         {
             // add minutes to array, pad single digits with a 0
@@ -300,11 +302,14 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     private void createAdditionalButtons()
     {
+        //create submit, clear and schedule menu view
         submitButton = new JButton("Submit");
         clearScheduleButton = new JButton("Clear Schedule");
         scheduleMenuButton = new JButton("Schedule Menu");
+        // get nav panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc_nav = getNavGBCPanel();
+        // add buttons to nav panel
         navPanel.add(submitButton, setGBC(gbc_nav, 3,1,1,1));
         navPanel.add(clearScheduleButton, setGBC(gbc_nav, 4,1,1,1));
         navPanel.add(scheduleMenuButton, setGBC(gbc_nav, 2,1,1,1));
@@ -320,7 +325,9 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // remove all names as these will be re-populated upon entering screen
         bbNameComboBox.removeAllItems();
+        // reset schedule selections
         removeScheduleSelection();
+        // set minute selector to disabled
         enableMinuteSelector(false);
     }
 
@@ -335,7 +342,7 @@ public class ScheduleUpdateView extends AbstractGenericView
             day.setSelected(false);
         }
 
-        // deselect all recurrence radio buttons
+        // deselect all recurrence radio buttons and select no repeat button
         hourlyButton.setSelected(false);
         minuteButton.setSelected(false);
         noRepeatButton.setSelected(true);
@@ -528,6 +535,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // set selected days on the GUI
         for (int dayIndex = 0; dayIndex < selectedDays.size() ;dayIndex++)
         {
+            // set checkbox selected
             weekdayArray.get(dayIndex).setSelected(selectedDays.get(dayIndex));
         }
 
@@ -620,6 +628,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // add each billboard name to the combobox selector
         for (String name: BBNames)
         {
+            // add name to combo box
             bbNameComboBox.addItem(name);
         }
     }
@@ -681,31 +690,37 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     private void setDuration(String startAM_PM, String endAM_PM, int hourDifference, int minDifference, int startHour, int endHour)
     {
-        // ################## CALCULATE DURATION IN MINUTES ##################
         // if end time is before start time - set duration to -1 to indicate invalid
+        // also set as invalid if end time is 12 am
         if ((startAM_PM.equals("PM") && endAM_PM.equals("AM")) || (endHour == 12 && endAM_PM.equals("AM")))
         {
             // invalid duration
             duration = -1;
+            // show message to user
             showMessageToUser("Invalid Duration. Rules: cannot select PM -> AM, end time cannot be 12am, duration must be bigger than 0 minutes.");
         }
         // calculate duration in minutes by adding +12 hours if AM -> PM and transforming to minutes (multiply by 60)
         else if (startAM_PM.equals("AM") && endAM_PM.equals("PM"))
         {
-            // if start is not 12am and end is 12pm
+            // if start is not 12am (midnight) and end is 12pm (noon), calculate duration in minutes
             if (startHour != 12 && endHour == 12)
             {
+                // calculate the hour difference by multiplying by 60 and adding the minute difference
                 duration = hourDifference*60 + minDifference;
             }
             // if start is 12am (midnight) and end is not 12pm (noon)
+            // then negate the -ve value (add 12 i.e. end 4pm - start 12am = - 8 =>  + 12 = 4 hours)
+            // add another 12 to account for 12 hrs difference between AM -> PM
             else if (startHour == 12 && endHour != 12)
             {
                 hourDifference = (hourDifference + 12) + 12;
                 duration = hourDifference*60 + minDifference;
             }
+            // add 12 hours to account for 12 hour difference between AM -> PM
             else
             {
                 hourDifference = hourDifference + 12;
+                // calculate by multiplying by 60 to get minute equivalent of hour difference
                 duration = hourDifference*60 + minDifference;
             }
         }
@@ -713,13 +728,15 @@ public class ScheduleUpdateView extends AbstractGenericView
         // case where AM -> AM or PM -> PM
         else
         {
-            // if startHour = 12PM -> XPM, we need to add + 12
+            // if startHour = 12PM -> X PM, we need to add + 12 to deal with -ve
+            // i.e. end 4pm - start 12pm = -8 => + 12 = 4hrs
             if (startHour == 12 && endHour != 12)
             {
                 // add 12 to deal with -ve difference
                 duration = (hourDifference+12)*60 + minDifference;
             }
             // if end hour = 12 PM and start hour is any other PM value, set to invalid
+            // noting that end hour cannot be AM as defined in first if statement
             else if (endHour == 12)
             {
                 // invalid duration
@@ -742,6 +759,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // create error if duration is equal to or less than 0, disable minute selector
         if (duration <= 0)
         {
+            // create invalid text and set minute label to disabled
             durationTimeLabel.setText("Invalid");
             minutesLabel.setText("Invalid Time selected.");
             enableMinuteSelector(false);
@@ -764,7 +782,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     {
         // remove all items
         repeatMinutesComboBox.removeAllItems();
-
+        // if not invalid, populate minute selection
         if (!durationTimeLabel.getText().equals("Invalid"))
         {
             int minutesLeftInDay;
@@ -773,6 +791,7 @@ public class ScheduleUpdateView extends AbstractGenericView
             {
                 minutesLeftInDay = (24-endHour)*60 + (0-endMinute);
             }
+            // if PM, calculate minutes left in the day
             else
             {
                 minutesLeftInDay = (12-endHour)*60 + (0-endMinute);
@@ -803,6 +822,7 @@ public class ScheduleUpdateView extends AbstractGenericView
             noRepeatButton.setSelected(true);
             hourlyButton.setEnabled(false);
         }
+        // if duration is less than 60, set to enabled
         else if (duration < 60 )
         {
             hourlyButton.setEnabled(true);
@@ -824,6 +844,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected ArrayList<Object> getScheduleInfo()
     {
+        // create new array list to store schedule info
         ArrayList<Object> scheduleInfo = new ArrayList();
 
         // --- GET USER INPUT ---
@@ -844,20 +865,24 @@ public class ScheduleUpdateView extends AbstractGenericView
         daysOfWeek.add(satCheckBox.isSelected());
         daysOfWeek.add(sunCheckBox.isSelected());
 
-        String recurrenceButton = "";
+        String recurrenceButton;
         Integer min_repeat = null;
+
         // get recurrence selection
+        // set hourly text
         if(hourlyButton.isSelected())
         {
             recurrenceButton = "hourly";
         }
-        if (minuteButton.isSelected())
+        // set minute text
+        else if (minuteButton.isSelected())
         {
             recurrenceButton = "minute";
             // get minute repeat (this may be empty)
             min_repeat = (Integer) repeatMinutesComboBox.getSelectedItem();
         }
-        if (noRepeatButton.isSelected())
+        // set no repeats text
+        else
         {
             recurrenceButton = "no repeats";
         }
@@ -911,6 +936,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void addScheduleTimeListener(ItemListener listener)
     {
+        // add same item listener to all time selectors
         startAMPMSelector.addItemListener(listener);
         endAMPMSelector.addItemListener(listener);
         startMinSelector.addItemListener(listener);
@@ -925,6 +951,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected void addRadioButtonListener(ActionListener listener)
     {
+        // add same action listener to all radio buttons
         hourlyButton.addActionListener(listener);
         minuteButton.addActionListener(listener);
         noRepeatButton.addActionListener(listener);

@@ -57,16 +57,17 @@ public class LogInView extends AbstractView
         passwordText = new JLabel("PASSWORD");
         passwordField = new JPasswordField();
         passwordField.setPreferredSize(new Dimension(300,60));
+        // create submit button
         submitButton = new JButton("SUBMIT");
 
         gbc.insets = new Insets(5,5,5,5);
-
+        // add items to log in panel with gbc layout
         loginPanel.add(usernameText, setGBC(gbc, 1,1,1,1));
         loginPanel.add(usernameField, setGBC(gbc,5,1,1,1));
         loginPanel.add(passwordText, setGBC(gbc,1,2,1,1));
         loginPanel.add(passwordField, setGBC(gbc,5,2,1,1));
         loginPanel.add(submitButton, setGBC(gbc,3,3,5,2));
-
+        // add login panel to frame
         getContentPane().add(loginPanel, BorderLayout.CENTER);
     }
 
@@ -112,6 +113,7 @@ public class LogInView extends AbstractView
     @Override
     void cleanUp()
     {
+        // clean up by setting username and password to null
         usernameField.setText(null);
         passwordField.setText(null);
     }
