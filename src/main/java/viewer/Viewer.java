@@ -1014,9 +1014,7 @@ public class Viewer extends JFrame {
             // Display the billboard
             formatBillboard(billboardDataServer, pictureData);
 
-
             // Testing from the provided xml files
-            // TODO: Remove (or comment out) the testing of provided xml files.
 //            Document xmlDoc = extractXMLFile(17);
 //            HashMap<String, String> billboardData = extractDataFromXML(xmlDoc, new byte[0]);
 //            formatBillboard(billboardData, new byte[0]);
