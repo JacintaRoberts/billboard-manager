@@ -121,7 +121,7 @@ public class Helpers {
      * Converts inputted bytes to a string (required for password validation)
      * @param hash an array of bytes to be converted to a string type
      * @return String representation of the provided bytes
-     * Reference - From CAB302 Week 9 Assignment Q&A Lecture
+     * Reference - From CAB302 Week 9 Assignment Lecture
      */
     public static String bytesToString(byte[] hash) {
         StringBuffer sb = new StringBuffer();

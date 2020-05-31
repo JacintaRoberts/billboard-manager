@@ -101,7 +101,7 @@ public class Viewer extends JFrame {
      * @param xmlDoc An xml file as a Document, from which to extract information from.
      * @param pictureData A byte[] array which stores the picture data attribute, instead of in the xml (only occurs
      * when xml file is incoming from server).
-     * @return Returns a HashMap<String, String> which stores the background colour, message, message colour, picture,
+     * @return Returns a HashMap(String, String) which stores the background colour, message, message colour, picture,
      * picture type (url, data or byte), information, and information colour of the billboard, if there is no content
      * for one or more of these tags, the string is null.
      */
@@ -827,7 +827,7 @@ public class Viewer extends JFrame {
     /**
      * Formats the display window using depending on whether there is a message, picture, information or any combination
      * of the three.
-     * @param billboardData A HashMap<String, String> which stores the background colour, message, message colour,
+     * @param billboardData A HashMap(String, String) which stores the background colour, message, message colour,
      * picture, picture type (data or url), information, and information colour of the billboard, if there is no
      * content for one or more of these tags, the string is null.
      * @param pictureData A byte[] array which stores the picture data attribute if present.

@@ -23,7 +23,7 @@ public class BillboardControl
      * @param  pictureData A Byte array which is base64 encoded represenation of the actual picture
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
-     * @return ServerAcknowledge
+     * @return ServerAcknowledge A enum which indicates pass/fail status which is used to assist in the GUI actions.
      */
     public static ServerAcknowledge createBillboardRequest(String sessionToken, String billboardName, String creator,
                                                            String XMLCode, byte[] pictureData) throws IOException, ClassNotFoundException {
@@ -43,7 +43,7 @@ public class BillboardControl
      * @param  requestor A string which provides the username whom wants to delete data from the database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
-     * @return
+     * @return ServerAcknowledge A enum which indicates pass/fail status which is used to assist in the GUI actions.
      */
     public static ServerAcknowledge deleteBillboardRequest(String sessionToken,
                                        String billboardName, String requestor) throws IOException, ClassNotFoundException {
@@ -63,7 +63,7 @@ public class BillboardControl
      *                      when the user first logins
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
-     * @return
+     * @return ServerAcknowledge A enum which indicates pass/fail status which is used to assist in the GUI actions.
      */
     public static ServerAcknowledge deleteAllBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,DeleteAllBillboard,%s",
@@ -82,7 +82,7 @@ public class BillboardControl
      *                      when the user first logins
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
-     * @return
+     * @return Returns an Object file via serialised from server which can be casted into BillboardList for a list of billboards
      */
     public static Object listBillboardRequest(String sessionToken) throws IOException, ClassNotFoundException {
         String message = String.format("Billboard,ListBillboard,%s",
@@ -101,7 +101,8 @@ public class BillboardControl
      * @param  billboardName A String which provides Billboard Name to store into database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
-     * @return
+     * @return Returns an object file from server via serialisation which can be cast into DbBillboard which contains all information
+     *         about the quiried billboard.
      */
     public static Object getBillboardRequest(String sessionToken,
                                            String billboardName) throws IOException, ClassNotFoundException {

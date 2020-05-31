@@ -121,7 +121,7 @@ public class DbUser {
      * This method always returns immediately.
      * @param st A Statement object which is the connection.createStatement().
      * @param query A String which has the query fed into executeQuery.
-     * @return Returns an ArrayList<DbUser> of the user information.
+     * @return Returns an ArrayList(DbUser) of the user information.
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
@@ -221,7 +221,7 @@ public class DbUser {
 
     /**
      * Method to fetch a list of users from the database.
-     * @return An ArrayList<String> of all the usernames in the database.
+     * @return An ArrayList(String) of all the usernames in the database.
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
