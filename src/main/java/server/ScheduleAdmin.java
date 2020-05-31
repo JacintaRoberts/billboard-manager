@@ -24,6 +24,12 @@ import static server.Server.Permission.ScheduleBillboard;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.validateToken;
 
+/**
+ * The ScheduleAdmin contains methods which interacts with the server and database when working with the Schedule Table.
+ * Methods querying, creation, editing and deletion of schedules from the Schedule table. This class file contains both method
+ * that interacts with the server and database, and the SQL queries.
+ */
+
 public class ScheduleAdmin {
 
     // Custom SQL Strings for Specific Queries

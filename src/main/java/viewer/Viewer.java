@@ -27,6 +27,9 @@ import java.util.Base64;
 import java.util.HashMap;
 
 
+/**
+ * Viewer sets up and creates the GUI for displaying the billboards.
+ */
 public class Viewer extends JFrame {
 
     // Set up the panels, labels, image icons etc. to display the different parts of the billboard

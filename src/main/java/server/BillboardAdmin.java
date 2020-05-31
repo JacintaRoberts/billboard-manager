@@ -12,6 +12,12 @@ import static server.Server.ServerAcknowledge.*;
 import static server.Server.ServerAcknowledge.InvalidToken;
 import static server.Server.validateToken;
 
+/**
+ * The BillboardAdmin contains methods which interacts with the server and database when working with the Billboard Table.
+ * Methods querying, creation, editing and deletion of billboards from the Billboard table. This class file contains both method
+ * that interacts with the server and database, and the SQL queries.
+ */
+
 public class BillboardAdmin {
 
     // Custom SQL Strings for Specific Queries

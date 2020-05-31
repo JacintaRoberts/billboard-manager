@@ -5,6 +5,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.sql.*;
 import java.util.Properties;
+/**
+ * The DbConnection class consists of basic connection methods to communicate with the database.
+ */
 
 public class DbConnection {
 

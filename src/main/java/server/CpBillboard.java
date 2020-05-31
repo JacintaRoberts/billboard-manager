@@ -2,6 +2,11 @@ package server;
 import java.io.File;
 import java.io.Serializable;
 
+/**
+ * The CpBillboard is a serializable class which allows Control Panel objects to be sent into the server for storage
+ */
+
+
 public class CpBillboard implements Serializable {
 
     // Set Fields for CpBillboard

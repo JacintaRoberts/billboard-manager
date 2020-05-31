@@ -3,6 +3,12 @@ package server;
 import java.io.Serializable;
 import java.util.ArrayList;
 
+/**
+ * The CurrentSchedule is a Serializable object which stores billboard information that is currently active to be sent to
+ * control panel and viewer.
+ */
+
+
 public class CurrentSchedule implements Serializable {
     // Set Fields for DbSchedule
     private String serverResponse;

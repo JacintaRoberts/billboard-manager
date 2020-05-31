@@ -15,6 +15,12 @@ import static server.Server.Permission.EditUser;
 import static server.Server.ServerAcknowledge.*;
 import static server.Server.validateToken;
 
+/**
+ * The UserAdmin class contains methods which interacts with the server and database when working with the User Table.
+ * Methods querying, creation, editing and deletion of user from the user table. This class file only consists of the
+ * encapsulation of methods, while the raw queries are found in DbUser.
+ */
+
 // SERVER SIDE USER ADMIN CONTROLS
 public class UserAdmin {
 

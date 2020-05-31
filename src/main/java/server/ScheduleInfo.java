@@ -5,6 +5,10 @@ import java.io.Serializable;
 
 import static server.Server.*;
 
+/**
+ * The ScheduleInfo is a class which is used as an serializable object to send particular schedule information to the control panel from the database result.
+ */
+
 public class ScheduleInfo implements Serializable {
     // Set Fields for DbSchedule
     private ServerAcknowledge serverResponse;
