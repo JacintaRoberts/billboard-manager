@@ -27,7 +27,7 @@ class UserAdminTest {
      * Expected Output: UserAdmin object is declared
      */
     UserAdmin userAdmin;
-    // Declaration and initialisation of testing variables
+    // Declaration and initialisation of dummy data
     private String sessionToken;
     private String mockToken;
     private String callingUser = "callingUser";
@@ -56,9 +56,9 @@ class UserAdminTest {
     private ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
     private ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
 
-    /* Test 1: Constructing a UserAdmin and Mock User Table object
+    /* Test 1: Constructing a UserAdmin object
      * Description: UserAdmin and MockUserTable Objects should be able to be created
-     * Expected Output: UserAdmin and MockUserTable objects able to be instantiated from their respective classes.
+     * Expected Output: UserAdmin objects able to be instantiated from their respective classes.
      */
     @BeforeEach @Test
     public void setUpUserAdmin() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -169,7 +169,7 @@ class UserAdminTest {
 
     /* Test 5: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent calling username in DB
-     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Invalid Session Token"
+     * Expected Output: User's Permissions unable to be retrieved from DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void getOtherPermissionsCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -215,7 +215,7 @@ class UserAdminTest {
 
     /* Test 7: Get Other User's Permissions (Exception Handling)
      * Description: Get other User's Permissions from db - throw exception due to non-existent username in DB
-     * Expected Output: User's Permissions unable to be retrieved from DB and returns "Fail: Username Does Not Exist"
+     * Expected Output: User's Permissions unable to be retrieved from DB and returns NoSuchUser ServerAcknowledge
      */
     @Test
     public void getOtherPermissionsNoUsernameInDb() throws IOException, SQLException {
@@ -246,7 +246,7 @@ class UserAdminTest {
     /* Test 9: List Users (Exception Handling)
      * Description: List all of the users in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Invalid Session Token"
+     * Expected Output: List of Users unable to be retrieved from DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void listUsersCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -270,7 +270,7 @@ class UserAdminTest {
      * Description: List all of the users in the database - throw exception due to insufficient permissions
      * Require "EditUsers" permission which is the 4th element in UserPermissions object
      * e.g. [1,1,1,0] can't call the method.
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Fail: Insufficient User Permission"
+     * Expected Output: List of Users unable to be retrieved from DB and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void listUsersInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -306,16 +306,16 @@ class UserAdminTest {
     /* Test 12: Set Own User Permissions (Exception Handling)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
-     * Expected Output: User permissions not updated in DB and returns "Fail: Cannot Remove Own Edit Users Permission"
+     * Expected Output: User permissions not updated in DB and returns CannotRemoveOwnAdminPermission ServerAcknowledge
      */
     @Test
-    public void removeOwnUserEditUsersPermission() throws IOException, SQLException, NoSuchAlgorithmException {
+    public void removeOwnUserEditUsersPermission() throws IOException, SQLException {
         // Attempt to remove own EditUsersPermission (last element)
         ServerAcknowledge dbResponse = userAdmin.setPermissions(sessionToken, callingUser, true,true,true,false);
         // Check return value
         assertEquals(CannotRemoveOwnAdminPermission, dbResponse);
         // Check that the user permissions are not updated in the DB
-        assertEquals(fullPermissions, userAdmin.getPermissions(sessionToken,callingUser));
+        assertEquals(fullPermissions, userAdmin.getPermissions(sessionToken, callingUser));
     }
 
 
@@ -323,7 +323,7 @@ class UserAdminTest {
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
      * This test will check for appropriate handling of: if someone else deleted you before you click the submit button
-     * Expected Output: User permissions not updated in DB and returns "Fail: Invalid Session Token"
+     * Expected Output: User permissions not updated in DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void setOwnUserPermissionsCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -348,7 +348,7 @@ class UserAdminTest {
 
     /* Test 14: Set Own User Permissions (Exception Handling)
      * Description: Attempt to set user permissions however calling user does not have "EditUser" Permission
-     * Expected Output: User permissions not updated in DB and returns "Fail: Insufficient User Permission"
+     * Expected Output: User permissions not updated in DB and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void setOwnUserPermissionsInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -429,7 +429,7 @@ class UserAdminTest {
     /* Test 22: Set Own Password (Exception Handling)
      * Description: Set own user password in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
+     * Expected Output: Hashed password not updated in the DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void setOwnPasswordCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -476,7 +476,7 @@ class UserAdminTest {
 
     /* Test 24: Set Other User Password (Exception Handling)
      * Description: Check that the calling user still exists in the DB before setting user password.
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Invalid Session Token"
+     * Expected Output: Hashed password not updated in the DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void setOtherPasswordCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -503,7 +503,7 @@ class UserAdminTest {
     /* Test 25: Set Other User Password (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * modify password of other users.
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Insufficient User Permission"
+     * Expected Output: Hashed password not updated in the DB and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void setOtherPasswordInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -530,7 +530,7 @@ class UserAdminTest {
     /* Test 26: Set Other User Password (Exception Handling)
      * Description: Check that if the username associated with the hashed password does not exist in database then
      * the password should not be updated and an exception should be thrown.
-     * Expected Output: Hashed password not updated in the DB and returns string "Fail: Username Does Not Exist"
+     * Expected Output: Hashed password not updated in the DB and returns NoSuchUser ServerAcknowledge
      */
     @Test
     public void setOtherPasswordNoUsernameInDb() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -569,7 +569,7 @@ class UserAdminTest {
 
     /* Test 28: Delete User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not deleted in DB and returns string "Fail: Invalid Session Token"
+     * Expected Output: Username is not deleted in DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void deleteUserCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -601,7 +601,7 @@ class UserAdminTest {
     /* Test 29: Delete User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * delete other users.
-     * Expected Output: Username is not deleted in DB and returns string "Fail: Insufficient User Permission"
+     * Expected Output: Username is not deleted in DB and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void deleteUserInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -626,7 +626,7 @@ class UserAdminTest {
     /* Test 30: Delete User (Exception Handling)
      * Description: Check that if the username specified does not exist in database then, they should not be deleted
      * and instead an exception should be thrown.
-     * Expected Output: Username is not deleted in DB and returns string "Fail: Username Does Not Exist"
+     * Expected Output: Username is not deleted in DB and returns NoSuchUser ServerAcknowledge
      */
     @Test
     public void deleteUserNoUsernameInDb() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -647,7 +647,7 @@ class UserAdminTest {
     /* Test 31: Delete User (Exception Handling)
      * Description: Check that if the username specified does not exist in database then, they should not be deleted
      * and instead an exception should be thrown.
-     * Expected Output: Username is not deleted in DB and returns string "Fail: Cannot Delete Yourself"
+     * Expected Output: Username is not deleted in DB and returns CannotDeleteSelf ServerAcknowledge
      */
     @Test
     public void deleteUserCannotDeleteYourself() throws IOException, SQLException {
@@ -680,7 +680,7 @@ class UserAdminTest {
 
     /* Test 33: Create User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
-     * Expected Output: Username is not created in DB and returns string "Fail: Invalid Session Token"
+     * Expected Output: Username is not created in DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void createUserCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -707,7 +707,7 @@ class UserAdminTest {
     /* Test 34: Create User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * create other users.
-     * Expected Output: Username is not created in DB and returns string "Fail: Insufficient User Permission"
+     * Expected Output: Username is not created in DB and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void createUserInsufficientPermissions() throws NoSuchAlgorithmException, IOException, SQLException {
@@ -732,7 +732,7 @@ class UserAdminTest {
 
     /* Test 35: Create User (Exception Handling)
      * Description: Check that if the desired username does not already exist in the DB (must be unique).
-     * Expected Output: Username already exists in DB and returns string "Fail: Username Already Taken"
+     * Expected Output: Username already exists in DB and returns PrimaryKeyClash ServerAcknowledge
      */
     @Test
     public void createUserDuplicateUsername() throws IOException, SQLException, NoSuchAlgorithmException {

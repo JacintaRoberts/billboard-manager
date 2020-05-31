@@ -14,10 +14,14 @@ import java.util.concurrent.TimeUnit;
  * thread are joined to run the application safely.
  */
 public class Main implements Runnable {
-
-    // Single instance of the viewer class to prevent multiple windows
+    /**
+     * Viewer declaration (singleton) to prevent multiple windows from popping up after starting application
+     */
     private static Viewer viewer;
 
+    /**
+     * Attempt to display billboard for the Viewer application or show appropriate error screen.
+     */
     @Override
     public void run() {
         try {
@@ -54,6 +58,11 @@ public class Main implements Runnable {
     }
 
 
+    /**
+     * Main entry point for the Viewer program
+     * Schedules threads for a period of 15 seconds to continue probing server for latest billboard.
+     * @param args Command line arguments (not required)
+     */
     public static void main(String[] args) {
         Main viewerMain = new Main();
         viewer = new Viewer();

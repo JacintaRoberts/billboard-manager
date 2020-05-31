@@ -144,7 +144,7 @@ public abstract class AbstractListView extends AbstractGenericView
     }
 
     /**
-     * Show message to user if the BB XMl is invalid
+     * Show message to user if the BB XML is invalid
      */
     protected void showBBInvalid()
     {

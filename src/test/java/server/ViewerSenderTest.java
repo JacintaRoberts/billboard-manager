@@ -6,50 +6,50 @@ import org.junit.jupiter.api.Test;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-public class ViewerSenderTest {
+//public class ViewerSenderTest {
 
     /* Test 0: Declaring viewerSender object
      * Description: ViewerSender object should send currently scheduled billboard every 15s
      * Expected Output: ViewerSender object is declared
      */
-    ViewerSenderTest viewerSender;
+//    ViewerSenderTest viewerSender;
 
 
 /* Test 1: Constructing a ViewerSender object
      * Description: ViewerSender Object should be able to be created to send billboard to viewer
      * Expected Output: ViewerSender object is instantiated from ViewerSender class
      */
-    @BeforeEach
-    @Test
-    public void setUpViewerSender() {
-      viewerSender = new ViewerSenderTest();
-}
+//    @BeforeEach
+//    @Test
+//    public void setUpViewerSender() {
+//      viewerSender = new ViewerSenderTest();
+//}
 
 
     /* Test 2: Declaring Database Mock objects
      * Description: Database Mock simulates Maria DB for testing purposes.
      * Expected Output: DatabaseMock object for Schedule and Billboard Table is declared
      */
-    MockScheduleTable scheduleTableMock;
-    MockBillboardTable billboardTableMock;
+//    MockScheduleTable scheduleTableMock;
+//    MockBillboardTable billboardTableMock;
 
 
     /* Test 3: Constructing a DatabaseMock object for Schedule and Billboard Table
      * Description: DatabaseMock should be used to verify unit tests and setup of the DB
      * Expected Output: DatabaseMock object is instantiated to mimic Schedule and Billboard Table
      */
-    @BeforeEach
-    @Test
-    public void setUpScheduleAndBillboardTableMocks() {
-        scheduleTableMock = new MockScheduleTable();
-        billboardTableMock = new MockBillboardTable();
-        // Default value for testing
-        billboardTableMock.addBillboardTest("Billboard1", new ArrayList<>( Arrays.asList("Creator", "xml1")));
-        billboardTableMock.addBillboardTest("Billboard2", new ArrayList<>( Arrays.asList("Creator", "xml2")));
-        scheduleTableMock.addScheduleTest("Billboard1","01:00:00", "02:00:00",
-                                    "2020-04-14 18:00:00", "0", "0", "0",
-                                              "0", "1", "0", "0", "0");
-    }
+//    @BeforeEach
+//    @Test
+//    public void setUpScheduleAndBillboardTableMocks() {
+//        scheduleTableMock = new MockScheduleTable();
+//        billboardTableMock = new MockBillboardTable();
+//        // Default value for testing
+//        billboardTableMock.addBillboardTest("Billboard1", new ArrayList<>( Arrays.asList("Creator", "xml1")));
+//        billboardTableMock.addBillboardTest("Billboard2", new ArrayList<>( Arrays.asList("Creator", "xml2")));
+//        scheduleTableMock.addScheduleTest("Billboard1","01:00:00", "02:00:00",
+//                                    "2020-04-14 18:00:00", "0", "0", "0",
+//                                              "0", "1", "0", "0", "0");
+//    }
 
 
     /* Test 4: Get Current Billboard From Schedule (Success)
@@ -92,4 +92,4 @@ public class ViewerSenderTest {
 //   }
 
 
-}
+//}
