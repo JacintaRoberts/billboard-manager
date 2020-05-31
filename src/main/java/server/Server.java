@@ -40,34 +40,88 @@ public class Server {
      * The four different permissions that are available for the user to have
      */
     public enum Permission {
+        /**
+         * Users with the “Create Billboards” permission can create new billboards. They will also be able to
+         * edit or delete any billboards they created, as long as those billboards are not presently scheduled.
+         */
         CreateBillboard,
+        /**
+         * Users with the “Edit All Billboards” permission will be able to edit or delete
+         * any billboard on the system, including billboards that are currently
+         * scheduled.
+         */
         EditBillboard,
+        /**
+         * Users with the “Schedule Billboards” permission will be able to schedule
+         * billboards to be displayed on the Viewers.
+         */
         ScheduleBillboard,
+        /**
+         * Users with the “Edit Users” permission (administrators) will be able to
+         * access a list of all users and can both edit any user listed in the system as
+         * well as create new users.
+         */
         EditUser
     }
+
 
     /**
      * Server acknowledgments that are available and are sent to the Controller from the Server to indicate
      * success or exception occurred.
      */
     public enum ServerAcknowledge {
-        // General Enums
+        /**
+         * Successful completion of create/edit/delete event.
+         */
         Success,
-        BadPassword, // Login
-        NoSuchUser, // Login
+        /**
+         * Login - The username was correct but the user entered the wrong password.
+         */
+        BadPassword,
+        /**
+         * The requested username does not exist in the database.
+         */
+        NoSuchUser,
+        /**
+         * Invalid session token sent - have the user re-login to confirm that they have not been deleted or have
+         * had their session expire after 24 hours.
+         */
         InvalidToken,
-        PrimaryKeyClash, // DB issue
-        // User Based Enums
+        /**
+         * Database exception - there was a duplicate primary key attempted to be created (e.g. create user with same
+         * username or billboard with same billboard name).
+         */
+        PrimaryKeyClash,
+        /**
+         * The username associated with the provided session token does not have the required permission to call
+         * the requested method.
+         */
         InsufficientPermission,
-        CannotDeleteSelf, // Delete user handling
-        CannotRemoveOwnAdminPermission, // Set user permissions handling
-        // Schedule Based Enums
+        /**
+         * If the user tries to delete their own user from the database.
+         */
+        CannotDeleteSelf,
+        /**
+         * If the user tries to update their permissions to remove their own "Edit Users" permission.
+         */
+        CannotRemoveOwnAdminPermission,
+        /**
+         * When the duration and repeat does not sync up. The duration must be smaller than the repeat.
+         */
         BadTimeRepeatDuration,
+        /**
+         * The schedule requested to be deleted, or retrieved does not exist.
+         */
         ScheduleNotExists,
-        // Billboard Based Enums
-        BillboardNameExists,
+        /**
+         * The billboard requested to be deleted, scheduled or retrieved does not exist.
+         */
         BillboardNotExists,
-        InvalidCharacters;
+        /**
+         * The user tried to enter characters that were not allowed for the SQL database.
+         * Only alphanumerical characters, dashes, underscores and spaces are allowed. Anything else not allowed.
+         */
+        InvalidCharacters
     }
 
 
@@ -408,9 +462,9 @@ public class Server {
     public static ServerAcknowledge logout(String sessionToken) {
         if (validSessionTokens.containsKey(sessionToken)) {
             validSessionTokens.remove(sessionToken);
-            return Success;  // Session token existed and was successfully expired
+            return Success;  // 1. Session token existed and was successfully expired
         }
-        return InvalidToken; // Session token was already expired/did not exist
+        return InvalidToken; // 2. Session token was already expired/did not exist
     }
 
 
