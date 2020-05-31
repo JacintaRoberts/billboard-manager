@@ -20,7 +20,7 @@ public class Main implements Runnable {
             DbBillboard billboardObject = null;
             billboardObject = (DbBillboard) activeBillboardRequest();
             if (billboardObject == null) {
-                System.out.println("No billboard...");
+                System.out.println("No billboard to display...");
                 viewer.displaySpecialMessage("There are no billboards to display right now."); // Show no billboard screen
             } else {
                 System.out.println("Attempting to display billboard...");
@@ -29,6 +29,7 @@ public class Main implements Runnable {
                 viewer.displayBillboard(billboardXML, pictureData);
             }
         } catch (IOException e) {
+            System.out.println("Can't connect to server...");
             viewer.displaySpecialMessage("Error: Cannot connect to server. Trying again now..."); // Error in receiving content
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
