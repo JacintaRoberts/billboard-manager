@@ -120,8 +120,8 @@ public abstract class AbstractListView extends AbstractGenericView
     }
 
     /**
-     * Show Dialog to ask user to confirm deleting object (either user or bb)
-     * @return integer to confirm whether they press the Confirm button
+     * Show Dialog to ask user to confirm deleting object
+     * @return integer to confirm whether they press the Confirm button (0= confirm, otherwise not confirmed)
      */
     protected int showDeleteConfirmation()
     {

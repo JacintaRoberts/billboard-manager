@@ -655,7 +655,7 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Show Dialog to allow user to set Schedule
-     * @return An integer to determine whether the user wants to schedule now or later
+     * @return An in to determine whether the user wants to schedule now or later (0 = now, 1 = later)
      */
     protected int showSchedulingOption()
     {
@@ -666,7 +666,7 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Ask User for confirmation of BB creation
-     * @return An integer to indicate whether the user confirms the creation of the billboard
+     * @return An int to indicate whether the user confirms the creation of the billboard (0 = confirm, 1 = cancel)
      */
     protected int showConfirmationCreateBB()
     {
@@ -847,8 +847,8 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
-     * Show folder chooser
-     * @return value selected
+     * Show folder chooser to save XML file
+     * @return int to show if folder has been selected (0 = folder selected, 1 = cancel)
      */
     protected int showFolderChooserSelector()
     {
@@ -856,8 +856,8 @@ public class BBCreateView extends AbstractGenericView
     }
 
     /**
-     * Show photo type selection
-     * @return selection
+     * Show photo type selection for adding a photo to the BB
+     * @return selection (0 = URL, 1 = Personal photos, 2 = clear, 3 = cancel)
      */
     protected int photoTypeSelection()
     {
