@@ -61,7 +61,7 @@ public class Model
 
     /**
      * Store session token string
-     * @param sessionToken tocken string to store
+     * @param sessionToken token string to store
      */
     public void storeSessionToken(String sessionToken)
     {
