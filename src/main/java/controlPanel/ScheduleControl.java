@@ -107,7 +107,7 @@ public class ScheduleControl {
         Integer Duration = (Integer) scheduleInfo.get(4);
         Integer Repeat = (Integer) scheduleInfo.get(6);
         Boolean PM = scheduleInfo.get(7).equals("PM");
-        if(PM){
+        if(PM && startHourCalcs != 12){
             startHourCalcs  += 12;
         } else {
             // dont do anything in AM

@@ -375,7 +375,7 @@ class DbConnectionTest {
 //        BillboardAdmin.createBillboardTable();
 //        ScheduleAdmin.createScheduleTable();
 //        DbUser.createUserTable();
-        System.out.println(getBillboardSQL("er").getBillboardName());
+
         // Set SQL Query
         final String SHOW_BILLBOARD_CONTENT = "SELECT * FROM Schedules ";
 
