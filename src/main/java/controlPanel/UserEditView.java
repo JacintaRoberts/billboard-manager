@@ -30,12 +30,18 @@ public class UserEditView extends AbstractUserView
     public UserEditView()
     {
         super("Edit User");
+        // set frame's enum
         view_type = VIEW_TYPE.USER_EDIT;
-        setEditable(true);
+        // set user fields to be editable
+        setUserFieldsEditable(true);
+        // username should not be editable
         usernameText.setEditable(false);
+        // reset password text
         passwordText = null;
+        // add submit button and password button
         addSubmitButton();
         addSetPasswordButton();
+        // set frame text
         title.setText("EDIT USER");
     }
 
@@ -44,8 +50,10 @@ public class UserEditView extends AbstractUserView
      */
     protected void addSubmitButton()
     {
+        // get user panel and gbc
         JPanel userPanel = getUserPanel();
         GridBagConstraints gbc = getUserPanelGBC();
+        // create new submit button and add to user panel
         submitButton = new JButton("Submit New Permissions");
         userPanel.add(submitButton, setGBC(gbc,3,4,1,1));
     }
@@ -55,8 +63,10 @@ public class UserEditView extends AbstractUserView
      */
     private void addSetPasswordButton()
     {
+        // get user panel and gbc
         JPanel userPanel = getUserPanel();
         GridBagConstraints gbc = getUserPanelGBC();
+        // create set password button and add to user panel
         setPasswordButton = new JButton("Update Password");
         userPanel.add(setPasswordButton, setGBC(gbc,3,5,1,1));
     }
@@ -67,12 +77,14 @@ public class UserEditView extends AbstractUserView
      */
     protected ArrayList<Object> getUserInfo()
     {
+        // add all user info to array
         ArrayList<Object> userInfoArray = new ArrayList<>();
         userInfoArray.add(usernameText.getText());
         userInfoArray.add(createBBPermission.isSelected());
         userInfoArray.add(editBBPermission.isSelected());
         userInfoArray.add(scheduleBBPermission.isSelected());
         userInfoArray.add(editUsersPermission.isSelected());
+        // return user info array
         return userInfoArray;
     }
 
@@ -89,21 +101,23 @@ public class UserEditView extends AbstractUserView
         // null catches when user has canceled set, "" when user has not provided a string but has clicked OK
         if (password != null)
         {
+            // if password is not empty, set password and return
             if (!password.equals(""))
             {
                 passwordText = password;
                 return passwordText;
             }
+            // else throw an exception that password is not provided
             else
             {
                 throw new Exception("Invalid Password Provided");
             }
         }
+        // throw exception when user password is not set
         else
         {
             throw new Exception("No Password Provided. Password not set.");
         }
-
     }
 
     /**
@@ -149,9 +163,9 @@ public class UserEditView extends AbstractUserView
     @Override
     void cleanUp()
     {
+        // clear username, permissions and password text
         setUsername("");
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
         passwordText = null;
     }
-
 }

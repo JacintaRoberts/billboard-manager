@@ -35,8 +35,9 @@ public class ScheduleWeekView extends AbstractGenericView
     public ScheduleWeekView()
     {
         super("Billboard Schedule");
-        // set schedue
+        // set schedule week enum
         view_type = VIEW_TYPE.SCHEDULE_WEEK;
+        // add schedule menu button
         addScheduleMenuButton();
     }
 
@@ -93,6 +94,7 @@ public class ScheduleWeekView extends AbstractGenericView
             // add table to calendar panel
             calendarPanel.add(scrollPane);
         }
+        // add calendar panel to frame
         getContentPane().add(calendarPanel, BorderLayout.CENTER);
     }
 
@@ -101,9 +103,12 @@ public class ScheduleWeekView extends AbstractGenericView
      */
     private void addScheduleMenuButton()
     {
+        // create schedule menu button
         scheduleMenuButton = new JButton("Schedule Menu");
+        // get nav panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add menu button to nav panel
         navPanel.add(scheduleMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
@@ -116,6 +121,7 @@ public class ScheduleWeekView extends AbstractGenericView
         // loop thru each day's model and set row count to 0 to remove
         for(DefaultTableModel model : dayScheduleMap.values())
         {
+            // remove row
             model.setRowCount(0);
         }
     }
@@ -136,13 +142,16 @@ public class ScheduleWeekView extends AbstractGenericView
     protected void populateSchedule(ArrayList<ArrayList<ArrayList<String>>> schedule)
     {
         int index = 0;
+        // loop through day schedule and populate the models in the table
         for (ArrayList<ArrayList<String>> daySchedule : schedule)
         {
+            // get the correct model based on index
             DefaultTableModel model = dayScheduleMap.get(dayLabels.get(index));
+            // if not null add schedule to model
             if (daySchedule != null){
                 for(ArrayList<String> row : daySchedule)
                 {
-                    // add info
+                    // add schedule info
                     model.addRow(row.toArray());
                 }
             }

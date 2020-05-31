@@ -27,10 +27,15 @@ public class UserProfileView extends AbstractUserView
     public UserProfileView()
     {
         super("Profile View");
+        // set enum of frame
         view_type = VIEW_TYPE.USER_PROFILE;
-        setEditable(false);
+        // set user fields to uneditable
+        setUserFieldsEditable(false);
+        // ensure username text is not editable
         usernameText.setEditable(false);
+        // add edit button
         addEditButton();
+        // set frame title to profile
         title.setText("PROFILE");
     }
 
@@ -39,9 +44,12 @@ public class UserProfileView extends AbstractUserView
      */
     protected void addEditButton()
     {
+        // create edit button
         editButton = new JButton("Edit Profile");
+        // get nav panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add edit button to nav panel
         navPanel.add(editButton, setGBC(gbc,3,1,1,1));
     }
 
@@ -69,6 +77,7 @@ public class UserProfileView extends AbstractUserView
     @Override
     void cleanUp()
     {
+        // reset username and permissions
         setUsername("");
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
     }
