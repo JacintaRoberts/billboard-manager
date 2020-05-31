@@ -19,8 +19,6 @@ import static server.UserAdmin.*;
  * INTEGRATED TESTS - REQUIRE SERVER AND DATABASE TO BE RUNNING IN THE BACKGROUND
  ================================================================================================*/
 
-// TODO: FIX COMMENTS
-
 class UserAdminTest {
     /* Test 0: Declaring UserAdmin object
      * Description: UserAdmin object should be running in background on application start.
@@ -290,7 +288,7 @@ class UserAdminTest {
     /* Test 11: Set Own User Permissions (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
-     * Expected Output: User permissions updated in the DB and returns string "Pass: Own Permissions Updated"
+     * Expected Output: User permissions updated in the DB and returns Success ServerAcknowledge
      */
     @Test
     public void setOwnUserPermissions() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -379,7 +377,7 @@ class UserAdminTest {
     /* Test 15: Set Other User Permissions (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the specified permissions and return string acknowledgement to Control Panel.
-     * Expected Output: User permissions updated in the DB and returns string "Pass: Other User Permissions Updated"
+     * Expected Output: User permissions updated in the DB and returns Success ServerAcknowledge
      * Same behaviour is to be expected for setting other users as your own.
      */
     @Test
@@ -404,7 +402,7 @@ class UserAdminTest {
     /* Test 16: Set Own Password (Pass)
      * Description: Find corresponding username in db (if it exists) and then modify to the hashed password and
      *              return acknowledgement string to Control Panel.
-     * Expected Output: Hashed password updated in the DB and returns string "Pass: Own Password Updated"
+     * Expected Output: Hashed password updated in the DB and returns Success ServerAcknowledge
      */
     @Test
     public void setOwnPassword() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -454,7 +452,7 @@ class UserAdminTest {
     /* Test 18: Set Other User Password (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the hashed password and return acknowledgement (String) to Control Panel.
-     * Expected Output: Hashed password updated in the DB and returns string "Pass: Other User Password Updated"
+     * Expected Output: Hashed password updated in the DB and returns Success ServerAcknowledge
      */
     @Test
     public void setOtherPassword() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -551,7 +549,7 @@ class UserAdminTest {
      * Description:
      * Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then remove and return acknowledgement to Control Panel.
-     * Expected Output: Username is deleted in DB and returns string "Pass: User Deleted"
+     * Expected Output: Username is deleted in DB and returns Success ServerAcknowledge
      */
     @Test
     public void deleteUser() throws IOException, SQLException {
@@ -664,7 +662,7 @@ class UserAdminTest {
     /* Test 27: Create User (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then create the corresponding username in
      * the DB with the hashed password and permissions and return acknowledgement to Control Panel.
-     * Expected Output: User is created in the DB and returns string "Pass: User Created"
+     * Expected Output: User is created in the DB and returns Success ServerAcknowledge
      */
     @Test
     public void createUser() throws IOException, SQLException, NoSuchAlgorithmException {

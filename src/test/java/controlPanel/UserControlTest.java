@@ -5,14 +5,15 @@ import org.junit.jupiter.api.Test;
 import server.DbUser;
 import server.Server.ServerAcknowledge;
 import server.UserAdmin;
+
 import java.io.IOException;
 import java.security.NoSuchAlgorithmException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static server.Server.ServerAcknowledge.*;
-import static server.UserAdmin.getPermissions;
 
 class UserControlTest {
     /* Test 0: Declaring UserControl object
@@ -58,9 +59,10 @@ class UserControlTest {
         sessionToken = (String) userControl.loginRequest(callingUser, dummyPasswordFromCp);
     }
 
-    /* Test 2: Log out Request (Success)
+
+    /* Test 2: Log out Request (Pass)
      * Description: User's request to log out is sent to the server and an acknowledgement is received
-     * Expected Output: Successful log out of the user, acknowledgement received and the session token is expired.
+     * Expected Output: Successful log out of the user, Success ServerAcknowledge and the session token is expired.
      */
     @Test
     public void logOutRequest() throws IOException, ClassNotFoundException {
@@ -69,7 +71,7 @@ class UserControlTest {
     }
 
 
-    /* Test 3: Request to server to list Current Users (Success)
+    /* Test 3: Request to server to list Current Users (Pass)
      * Description: Method to request to server to send a list of active users in the database. Requires a valid
      *              sessionToken.
      * Expected Output: A list of users
@@ -85,7 +87,7 @@ class UserControlTest {
      * Description: Method to request to server to send a list of active users in the database. Requires a valid
      *              sessionToken. Throw exception due to non-existent calling username
      *              (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: List of Users unable to be retrieved from DB and returns "Exception Handling: Invalid Session Token"
+     * Expected Output: List of Users unable to be retrieved from DB and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void listUsersRequestCallingUserDeleted() throws IOException, ClassNotFoundException {
@@ -97,7 +99,7 @@ class UserControlTest {
     /* Test 5: Request to server to list Current Users (Exception Handling)
      * Description: Method to request to server to send a list of active users in the database. Requires a valid
      *              sessionToken. Throw exception due to insufficient permission. Assume current user logged in is called "CAB302"
-     * Expected Output: List of Users unable to be retrieved from DB and returnsreturns string "Exception Handling: Insufficient User Permissions"
+     * Expected Output: List of Users unable to be retrieved from DB and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void listUsersRequestInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
@@ -110,10 +112,10 @@ class UserControlTest {
     }
 
 
-    /* Test 6: Request to server to change password (Success)
+    /* Test 6: Request to server to change password (Pass)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
-     *              running, and that user has permission. This test tests for themself. 
-     * Expected Output: Success response from the server saying "Success: Own Password Updated"
+     *              running, and that user has permission. This test tests for own password setting.
+     * Expected Output: Password is updated and receives Success ServerAcknowledge
      */
     @Test
     public void setOwnPasswordRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
@@ -125,9 +127,8 @@ class UserControlTest {
     /* Test 7: Request to server to change password (Exception Handling)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
      *              running, and that user has permission. This test tests for themself. This test will test when
-     *              the method is called but user is deleted halfway during a session. This will raise an exception
-     *              saying that "Exception Handling: Invalid Session Token".  Assume current user logged in is called "CAB302"
-     * Expected Output: Exception raised with message of "Exception Handling: Invalid Session Token"
+     *              the method is called but user is deleted halfway during a session.
+     * Expected Output: The password is not updated in the database and returns an InvalidToken ServerAcknowledge
      */
     @Test
     public void setOwnPasswordRequestCallingUserDeleted() throws NoSuchAlgorithmException, IOException, ClassNotFoundException {
@@ -136,10 +137,10 @@ class UserControlTest {
     }
 
 
-    /* Test 8: Request to server to change password (Success)
+    /* Test 8: Request to server to change password (Pass)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
      *              running, and that user has permission. This test tests for otherUsers.
-     * Expected Output: Success response from the server saying "Success: Password Change Successfully"
+     * Expected Output: Password of other user updated in the database and returns Success ServerAcknowledge
      */
     @Test
     public void setOtherPasswordRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
@@ -154,8 +155,8 @@ class UserControlTest {
 
     /* Test 9: Request to server to change password (Exception Handling)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
-     *              running, and that user has permission. This test test for when the useradmin gets deleted.
-     * Expected Output: Throws InsufficientPermissionsException
+     *              running, and that user has permission. This tests the calling user gets deleted (bad token).
+     * Expected Output: The password of the other user is not updated in the database and returns InvalidToken ServerAcknowledge
      */
     @Test
     public void setOtherPasswordRequestCallingUserDeleted() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
@@ -170,8 +171,8 @@ class UserControlTest {
 
     /* Test 10: Request to server to change password (Exception Handling)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
-     *              running, and that user has permission. This test tests for insufficent permission
-     * Expected Output: Throws InsufficientPermissionsException
+     *              running, and that user has permission. This tests for insufficient permissions.
+     * Expected Output: Password of other user not updated in database and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void setOtherPasswordRequestInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
@@ -187,8 +188,8 @@ class UserControlTest {
 
     /* Test 11: Request to server to change password (Exception Handling)
      * Description: Method to request to server to change a specific users password. Assumes a valid sessionToken is
-     *              running, and that user has permission. This test tests for nonexistent Users.
-     * Expected Output: Throws UsernameNotFoundException
+     *              running, and that user has permission. This tests for non-existent user.
+     * Expected Output: Password of other user not updated in database and returns NoSuchUser ServerAcknowledge
      */
     @Test
     public void setOtherPasswordRequestNoUsernameInDb() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
@@ -201,9 +202,9 @@ class UserControlTest {
     }
 
 
-    /* Test 12: Request to server to set user permissions of Own User (Success)
+    /* Test 12: Request to server to set user permissions of Own User (Pass)
      * Description: Method to set a user permission for your own user account. Assume valid session and valid user permissions to do so
-     * Expected Output: Success Message of "Success: Own Permissions Updated"
+     * Expected Output: Own permissions are updated in database and returns Success ServerAcknowledge
      */
     @Test
     public void setOwnUserPermissionRequest() throws IOException, ClassNotFoundException {
@@ -216,11 +217,11 @@ class UserControlTest {
 
 
     /* Test 13: Request to server to set user permissions of a user (Exception Handling)
-     * Description: Method to set a user permission for another person. No permission to do so.
-     * Expected Output: Exception Exception Handling with insuffice permission Exception Handling "Exception Handling: Cannot Remove Own Edit Users Permission"
+     * Description: Method to set remove own EditUser permission.
+     * Expected Output: Own permissions are not updated in database and returns CannotRemoveOwnAdminPermission ServerAcknowledge
      */
     @Test
-    public void removeOwnUserEditUsersPermissionRequest() throws IOException, SQLException, ClassNotFoundException {
+    public void removeOwnUserEditUsersPermissionRequest() throws IOException, ClassNotFoundException {
         // Attempt to remove EditUsers permission
         ServerAcknowledge serverResponse = userControl.setPermissionsRequest(sessionToken, callingUser, true, true, true, false);
         assertEquals(CannotRemoveOwnAdminPermission, serverResponse);
@@ -230,8 +231,8 @@ class UserControlTest {
 
 
     /* Test 14: Request to server to set user permissions of a user (Exception Handling)
-     * Description: Method to set a user permission for another person. User being delted mid session
-     * Expected Output: Exception Exception Handling with user deleted halfway "Exception Handling: Invalid Session Token"
+     * Description: Method to set a user permission for another person. User being deleted mid session or expired token.
+     * Expected Output: Own permissions are not updated in database and InvalidToken ServerAcknowledge
      */
     @Test
     public void setOwnPermissionRequestCallingUserDeleted() throws IOException, ClassNotFoundException {
@@ -246,7 +247,7 @@ class UserControlTest {
 
     /* Test 15: Request to server to set user permissions of a user (Exception Handling)
      * Description: Method to set a user permission for another person. User does not have enough permission
-     * Expected Output: Exception Exception Handling with user not having suffice permission "Exception Handling: Insufficient User Permission"
+     * Expected Output:  Own permissions are not updated in database and returns InsufficientPermission ServerAcknowledge
      */
     @Test
     public void setOwnPermissionRequestInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
@@ -263,9 +264,9 @@ class UserControlTest {
     }
 
 
-    /* Test 16: Request to server to set user permissions of a user (Success)
+    /* Test 16: Request to server to set user permissions of a user (Pass)
      * Description: Method to set a user permission for another person. Assume SessionToken is valid
-     * Expected Output:  Pass with Response: "Pass: Other User Permissions Updated"
+     * Expected Output: Pass with Response: Success ServerAcknowledge
      */
     @Test
     public void setOtherUserPermissionRequest() throws IOException, ClassNotFoundException, SQLException {
@@ -282,9 +283,9 @@ class UserControlTest {
     }
 
 
-    /* Test 19: Request to server to get User Permission from a user (Success)
-     * Description: Method to request userpermissions.
-     * Expected Output: Return of UserPermission in an array
+    /* Test 17: Request to server to get own user permissions (Pass)
+     * Description: Method to request own user permissions from database.
+     * Expected Output: Return of UserPermission in a Boolean array list.
      */
     @Test
     public void getOwnPermissionRequest() throws IOException, ClassNotFoundException, SQLException {
@@ -306,9 +307,9 @@ class UserControlTest {
     }
 
 
-    /* Test 20: Request to server to get User Permission from a user (Exception Handling)
-     * Description: Get other User's Permissions from db - throw exception due to User being deleted halfway
-     * Expected Output: The permissions of requested user cannot be retrieved, throw UsernameDeleted
+    /* Test 18: Request to server to get other user's permission (Exception Handling)
+     * Description: Requests other user permissions from database, however the calling user is deleted (or session token expired).
+     * Expected Output: User permissions unable to be retrieved due to bad token and returns InvalidToken Server Acknowledge
      */
     @Test
     public void getOtherPermissionsCallingUsernameDeleted() throws IOException, ClassNotFoundException, SQLException {
@@ -321,10 +322,10 @@ class UserControlTest {
     }
 
 
-
-    /* Test 22: Request to server to get user permissions of a user (Exception Handling)
-     * Description: Method to set a user permission for another person. User called does not exist
-     * Expected Output: Exception Exception Handling with username not existing "Exception Handling: Username Does Not Exist"
+    /* Test 19: Request to server to get user permissions of a user (Exception Handling)
+     * Description: Method to set a user permission for another person. Calling user does not have sufficient permissions.
+     * Require "EditUsers" permission which is the 4th element in UserPermissions object.
+     * Expected Output: User permissions unable to be retrieved and returns InsufficientPermissions Server Acknowledge
      */
     @Test
     public void getOtherUserPermissionRequestInsufficientPermissions() throws IOException, ClassNotFoundException, SQLException, NoSuchAlgorithmException {
@@ -337,11 +338,10 @@ class UserControlTest {
         assertEquals(InsufficientPermission, serverResponse);
     }
 
-    /* Test 21: Request to server to get User Permission from a user (Exception Handling)
-     * Description: Get other User's Permissions from db - throw exception due to insufficient calling permissions
-     * Require "EditUsers" permission which is the 4th element in UserPermissions object
-     * e.g. [1,1,1,0] can't call the method.
-     * Expected Output: The permissions of requested user cannot be retrieved, throw InsufficientPermissionsException
+
+    /* Test 20: Request to server to get User Permission from a user (Exception Handling)
+     * Description: Get other User's Permissions from db, however the user requested does not exist.
+     * Expected Output: The permissions of requested user cannot be retrieved and returns NoSuchUser Server Acknowledge.
      */
     @Test
     public void getOtherUserPermissionsExceptionUserNotExist() throws IOException, SQLException, ClassNotFoundException {
@@ -356,10 +356,10 @@ class UserControlTest {
     }
 
 
-    /* Test 23: Request to server to Delete Users (Success)
+    /* Test 21: Request to server to Delete Users (Pass)
      * Description: Method to request to server to delete a specified user in the database. Requires a valid
      *              sessionToken.
-     * Expected Output: A list of users with success message from server saying "Success: User Deleted"
+     * Expected Output: The user is deleted and returns Success Server Acknowledge.
      */
     @Test
     public void deleteUserRequest() throws IOException, SQLException, ClassNotFoundException {
@@ -375,9 +375,9 @@ class UserControlTest {
     }
 
  
-    /* Test 24: Request to server to Delete a user (Exception Handling)
-     * Description: Delete a user from from db - throw exception due to User being deleted halfway
-     * Expected Output: User cannot be deleted as account deleted halfway, throw UsernameDeleted
+    /* Test 22: Request to server to Delete a user (Exception Handling)
+     * Description: Delete a user from from db - a bad session token is received due to the calling user being deleted.
+     * Expected Output: The user is not deleted and returns InvalidToken Server Acknowledge.
      */
     @Test
     public void deleteUserRequestCallingUsernameDeleted() throws IOException, SQLException, ClassNotFoundException {
@@ -393,11 +393,10 @@ class UserControlTest {
     }
 
 
-    /* Test 25: Request to server to Delete Current Users (Exception Handling)
+    /* Test 23: Request to server to Delete Current Users (Exception Handling)
      * Description: Method to request to server to delete a specified user in the database. Requires a valid
-     *              sessionToken. Throw exception due to insuffice permission.
-     *              (e.g. if someone else deleted you whilst logged in).
-     * Expected Output: Cannot delete user from DB and returns "Exception Handling: Insufficient User Permissions"
+     *              sessionToken. User attempts to call method with insufficient permissions.
+     * Expected Output: The user is not deleted and returns InsufficientPermission Server Acknowledge.
      */
     @Test
     public void deleteUserRequestInsufficientPermissions() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
@@ -411,10 +410,10 @@ class UserControlTest {
     }
 
 
-    /* Test 26: Request to server to Delete Current Users (Exception Handling)
+    /* Test 24: Request to server to Delete Current Users (Exception Handling)
      * Description: Method to request to server to delete a specified user in the database. Requires a valid
-     *              sessionToken. Throw exception due to User does not exists
-     * Expected Output: Cannot delete user from DB and returns "Exception Handling: User does not exist"
+     *              sessionToken. An exception occurs due to user not existing.
+     * Expected Output: The user is not deleted and returns NoSuchUser Server Acknowledge.
      */
     @Test
     public void deleteUserNoSuchUserTest() throws IOException, SQLException, ClassNotFoundException {
@@ -429,10 +428,10 @@ class UserControlTest {
     }
 
 
-    /* Test 27: Request to server to Delete Current Users (Exception Handling)
+    /* Test 25: Request to server to Delete Current Users (Exception Handling)
      * Description: Method to request to server to delete a specified user in the database. Requires a valid
-     *              sessionToken. Throw exception due to User does not exists
-     * Expected Output: Cannot delete user from DB and returns "Exception Handling: Cannot delete self".
+     *              sessionToken. An exception occurs as it is required that a user cannot delete themselves.
+     * Expected Output: The user is not deleted and returns CannotDeleteSelf Server Acknowledge.
      */
     @Test
     public void deleteUserNoUserTest() throws IOException, ClassNotFoundException, SQLException {
@@ -447,10 +446,10 @@ class UserControlTest {
     }
 
 
-    /* Test 28: Request to server to Create New Users (Success)
+    /* Test 26: Request to server to Create New Users (Pass)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user.
-     * Expected Output: Server will return "Success: User Created"
+     * Expected Output: The user is created and returns Success Server Acknowledge.
      */
     @Test
     public void createUserRequest() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
@@ -463,12 +462,10 @@ class UserControlTest {
     }
 
 
-    /* Test 29: Request to server to Create New Users (Exception Handling)
+    /* Test 27: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
-     *              a password string and a valid sessionToken to create a new user. This test checks for sufficient
-     *              permissions on the calling user.
-     * Expected Output: Server will return "Exception Handling: Invalid Session Token"
-     *                  will be thrown
+     *              a password string and a valid sessionToken to create a new user. This test checks for valid token.
+     * Expected Output: The user is not created and returns InvalidToken Server Acknowledge.
      */
     @Test
     public void createUserRequestCallingUsernameDeleted() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
@@ -482,11 +479,11 @@ class UserControlTest {
     }
 
 
-    /* Test 30: Request to server to Create New Users (Exception Handling)
+    /* Test 28: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user. This test checks for sufficient
      * permissions on the calling user.
-     * Expected Output: An InsufficientPermissionsException will be thrown
+     * Expected Output: The user is not created and returns InsufficientPermission Server Acknowledge.
      */
     @Test
     public void createUserRequestInsufficientPermissions() throws NoSuchAlgorithmException, IOException, ClassNotFoundException, SQLException {
@@ -505,12 +502,11 @@ class UserControlTest {
     }
 
 
-    /* Test 31: Request to server to Create New Users (Exception Handling)
+    /* Test 29: Request to server to Create New Users (Exception Handling)
      * Description: New method to create new users to the system. This will take a unique username, user permissions,
      *              a password string and a valid sessionToken to create a new user. This will test if the username
      *              provided is not unique.
-     * Expected Output: Server will return "Exception Handling: Username Already Taken" and an InsufficientPermissionsException
-     *                  will be thrown
+     * Expected Output: The user is not created and returns PrimaryKeyClash Server Acknowledge.
      */
     @Test
     public void createUserRequestDuplicateUsername() throws IOException, SQLException, NoSuchAlgorithmException, ClassNotFoundException {
