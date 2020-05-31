@@ -685,6 +685,7 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Show Editing BB message
+     * @param BBName A String which contains the Billboard name to be displayed in the popup
      */
     protected void showBBEditingMessage(String BBName)
     {
@@ -798,9 +799,10 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Browse File Chooser to select BB XML file
-     * @throws IOException
-     * @throws SAXException
-     * @throws ParserConfigurationException
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SAXException Throws an exception if there is a basic error or warning information from either the XML parser or the application
+     * @throws ParserConfigurationException Throws an exception when there is a serious configuration error.
+     * @return Returns a string containing the XMLcode or returns a message saying "No XML Selected"
      */
     protected String browseXMLImport() throws Exception {
         int value = xmlChooser.showSaveDialog(null);
@@ -826,10 +828,12 @@ public class BBCreateView extends AbstractGenericView
         return JOptionPane.showInputDialog(null, "Provide XML name:");
     }
 
+
     /**
      * Allow users to browse folders in order to select one to save the XML BB file
-     * @throws TransformerException
-     * @throws ParserConfigurationException
+     * @throws ParserConfigurationException Throws an exception when there is a serious configuration error.
+     * @throws TransformerException Throws an exception when there is an exceptional condition that occurred during the transformation process
+     * @return Returns a string which consists of the xmlExportPath the user chooses
      */
     protected String browseExportFolder()
     {
@@ -884,8 +888,9 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Set XML bb based on input doc and byte[]
-     * @param doc xml document
-     * @param pictureData  byte [] of picture
+     * @param doc xml document encapsulated into a document file
+     * @param pictureData  Byte Array of picture in 64base encoding
+     * @throws Exception Exception will be thrown when Invalid XML provided - provide at least a Message, Info or Picture
      */
     protected void setXMLBB(Document doc, byte[] pictureData) throws Exception
     {

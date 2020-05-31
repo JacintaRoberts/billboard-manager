@@ -151,7 +151,7 @@ public class DbUser {
     /**
      * Method to fetch a specific user's details from the database.
      * @param username A String which specifies the username.
-     * @return Returns an ArrayList<String> of the user details (username, hashedSaltedPassword, randomSalt, permissions).
+     * @return Returns an ArrayList of Strings of the user details (username, hashedSaltedPassword, randomSalt, permissions).
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */

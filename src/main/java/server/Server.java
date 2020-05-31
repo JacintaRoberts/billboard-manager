@@ -409,6 +409,8 @@ public class Server {
     /**
      * Expires all session tokens with an associated user.
      * @param username A String which is the username which will have all of its related tokens expired.
+     * @return Server acknowledgment enum to indicate whether the expiration of tokens was successful, or if an
+     * exception occurred (NoSuchUser means that the user requested could not be found).
      */
     public static ServerAcknowledge expireTokens(String username) {
         // Collect Session Tokens to be expired
