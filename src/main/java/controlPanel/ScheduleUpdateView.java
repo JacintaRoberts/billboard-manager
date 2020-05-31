@@ -659,26 +659,17 @@ public class ScheduleUpdateView extends AbstractGenericView
         // if end time is before start time - set duration to -1 to indicate invalid
         if (startAM_PM.equals("PM") && endAM_PM.equals("AM"))
         {
-            if (endHour == 12 && startHour != 12)
-            {
-                duration = hourDifference*60 + minDifference;
-            }
-            else if (endHour == 12 && startHour == 12) {
-                hourDifference = hourDifference + 12;
-                duration = hourDifference*60 + minDifference;
-            }
-            else
-            {
-                duration = -1;
-            }
+            duration = -1;
         }
         // calculate duration in minutes by adding +12 hours if AM -> PM and transforming to minutes (multiply by 60)
         else if (startAM_PM.equals("AM") && endAM_PM.equals("PM"))
         {
-            if (endHour == 12 && startHour != 12)
+            // if
+            if (startHour != 12 && endHour == 12)
             {
                 duration = hourDifference*60 + minDifference;
             }
+            //
             else if (endHour != 12 && startHour == 12)
             {
                 hourDifference = (hourDifference + 12) + 12;

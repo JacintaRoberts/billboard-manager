@@ -1404,7 +1404,7 @@ public class Controller
                             bbCreateView.showMessageToUser(message);
                         } else
                         {
-                            String message = "Billboard Creation Unsuccessful. Try again.";
+                            String message = "Billboard Creation Unsuccessful. Reason: " + createBillboardAction ;
                             bbCreateView.showMessageToUser(message);
                         }
                     }catch (ParserConfigurationException | TransformerException | ClassNotFoundException | IOException ex)
