@@ -47,6 +47,7 @@ public class UserProfileView extends AbstractUserView
 
     /**
      * Add edit button listener
+     * @param listener listener
      */
     public void addEditButtonListener(MouseListener listener)
     {

@@ -79,6 +79,7 @@ public class UserEditView extends AbstractUserView
     /**
      * Ask user for new password
      * @return response of user (int)
+     * @throws Exception exception raised when invalid password or no password provided
      */
     protected String showNewPasswordInput() throws Exception
     {
