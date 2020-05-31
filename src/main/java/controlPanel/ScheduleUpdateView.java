@@ -781,8 +781,6 @@ public class ScheduleUpdateView extends AbstractGenericView
             for (int minute = (duration + 1); minute <= minutesLeftInDay; minute++)
             {
                 repeatMinutesComboBox.addItem(minute);
-                System.out.println("MINUTES " + minute);
-                System.out.println(" LEFT IN DAY " + minutesLeftInDay);
             }
         }
     }
@@ -804,6 +802,10 @@ public class ScheduleUpdateView extends AbstractGenericView
         {
             noRepeatButton.setSelected(true);
             hourlyButton.setEnabled(false);
+        }
+        else if (duration < 60 )
+        {
+            hourlyButton.setEnabled(true);
         }
 
         // if minute button is not selected, ensure to disable minute button text

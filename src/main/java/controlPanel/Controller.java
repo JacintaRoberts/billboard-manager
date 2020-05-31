@@ -1568,7 +1568,7 @@ public class Controller
                     {
                         ArrayList<Object> imageData = null;
                         imageData = bbCreateView.getImageData(photoURL);
-                        bbCreateView.setPhoto((ImageIcon)imageData.get(0), BBCreateView.PhotoType.URL, imageData.get(1));
+                        bbCreateView.setPhoto((ImageIcon)imageData.get(0), BBCreateView.PhotoType.URL, (String)imageData.get(1));
                     }
                     // else show error
                     else

@@ -39,22 +39,30 @@ public class BBMenuView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        // instantiate gbc
         gbc = new GridBagConstraints();
 
+        // create options panel
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new GridBagLayout());
 
+        // create title and define color
         title = new JLabel("BILLBOARD MENU");
         title.setForeground(Color.WHITE);
         title.setFont(title.getFont().deriveFont(60f));
 
+        // create list bb and create bb button
         billboardsButton = new JButton("List Billboards");
         createBillboardButton = new JButton("Create Billboard");
+
+        // add items to options panel with gbc layout
         gbc.insets = new Insets(1,10,1,10);
         optionsPanel.add(billboardsButton, setGBC(gbc, 1,1,1,1));
         optionsPanel.add(createBillboardButton, setGBC(gbc, 3,1,1,1));
         gbc.insets = new Insets(250,1,1,1);
         optionsPanel.add(title, setGBC(gbc, 1,2,3,1));
+
+        // add options panel to frame
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
