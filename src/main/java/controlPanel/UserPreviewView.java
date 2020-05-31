@@ -21,9 +21,13 @@ public class UserPreviewView extends AbstractUserView
     public UserPreviewView()
     {
         super("Preview User");
+        // set enum to frame
         view_type = VIEW_TYPE.USER_VIEW;
-        setEditable(false);
+        // set user fields as uneditable
+        setUserFieldsEditable(false);
+        // set username as uneditable
         usernameText.setEditable(false);
+        // set frame text
         title.setText("VIEW USER");
     }
 
@@ -42,6 +46,7 @@ public class UserPreviewView extends AbstractUserView
     @Override
     void cleanUp()
     {
+        // clean up the username and reset permissions
         setUsername("");
         setPermissions(new ArrayList<>(Arrays.asList(false,false,false,false)));
     }

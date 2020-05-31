@@ -133,7 +133,7 @@ public abstract class AbstractUserView extends AbstractGenericView
      * Set editable user data fields dependent on child class
      * @param editable boolean value
      */
-    protected void setEditable(boolean editable)
+    protected void setUserFieldsEditable(boolean editable)
     {
         // set fields to editable based on boolean provided
         usernameText.setEditable(editable);

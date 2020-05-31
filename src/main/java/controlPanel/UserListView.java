@@ -23,16 +23,25 @@ public class UserListView extends AbstractListView
     public UserListView()
     {
         super("User List");
+        // set enum value
         view_type = Main.VIEW_TYPE.USER_LIST;
+        // set list title
         setListTitle("USER LIST");
+        // add user menu button
         addUserMenuButton();
     }
 
+    /**
+     * Add user menu button to nav panel
+     */
     private void addUserMenuButton()
     {
+        // create user menu button
         userMenuButton = new JButton("User Menu");
+        // get nav panel and gbc
         JPanel navPanel = getNavPanel();
         GridBagConstraints gbc = getNavGBCPanel();
+        // add button to nav panel
         navPanel.add(userMenuButton, setGBC(gbc, 2,1,1,1));
     }
 
