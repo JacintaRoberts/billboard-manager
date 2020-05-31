@@ -10,18 +10,16 @@ import java.util.Properties;
  */
 
 public class Helpers {
-
     /**
-     * Network props file configuration.
+     * Network props file configuration path
      */
     public final static String networkPropsFilePath = "src\\main\\resources\\network.props";
-
 
     /**
      * Reads the properties from the specified file (.props)
      * @param filePath The string file path to be read from
      * @return Properties object that can have values retrieved from it
-     * @throws IOException - If the file cannot be found
+     * @throws IOException - If the file cannot be found or read.
      */
     public static Properties readProps(String filePath) throws IOException {
         FileReader reader = new FileReader(filePath);
@@ -35,12 +33,12 @@ public class Helpers {
      * of 0 to 65535.
      * @param port The string port number to be parsed and validated
      * @return Integer representation of the port number
-     * @throws BadPortNumberException - For port numbers less than 0 or greater than 65535
+     * @throws BadPortNumberException - Occurs when port number is less than or equal to 0, or greater than 65535
      */
     public static int validatePort(String port) throws BadPortNumberException {
         int portNum = Integer.parseInt(port);
-        if ( portNum < 0 ) {
-            throw new BadPortNumberException("Port number in network.props must not be less than 0.");
+        if ( portNum <= 0 ) {
+            throw new BadPortNumberException("Port number in network.props must not be less than or equal to 0.");
         }
         else if (portNum > 65535) {
             throw new BadPortNumberException("Port number in network.props must not be greater than 65535.");
@@ -81,7 +79,7 @@ public class Helpers {
     public static String getIp(String filePath) {
         String ip = null;
         try {
-            ip = Helpers.readProps(filePath).getProperty("ip");
+            ip = readProps(filePath).getProperty("ip");
         } catch (IOException e) {
             System.err.println("Exception caught: "+e);
         }
@@ -93,7 +91,6 @@ public class Helpers {
     /**
      * initClient initialises a client to send a message to the server via a Socket with a port number and IP
      * from the network.props file. Communication is handled through input/output streams.
-     * //TODO: Methods can be requested if the message sent follows the pattern...
      * General usage notes: always flush streams at the correct time + interleave the operations so that they
      * are in the same order. Write, read on client = Read, write on server (flush in between).
      * Ensure that every object sent across implements "Serializable" to convert to bytes.
