@@ -43,7 +43,7 @@ class ServerTest {
     }
 
 
-    /* Test 2: Listen for Connection with Default IP (Success)
+    /* Test 2: Listen for Connection with Default IP (Pass)
      * Description: Server listens for connections on specified port number and defaulted local host
      * listenForConnections(portNumber, *optional* ip); -> default ip is localhost if not specified.
      * Expected Output: Server successfully listens for connections on localhost at port 4444
@@ -57,7 +57,8 @@ class ServerTest {
         }
     }
 
-    /* Test 3: Login Response (Success)
+
+    /* Test 3: Login Response (Pass)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return a valid session token.
@@ -70,7 +71,8 @@ class ServerTest {
         assertTrue(validateToken(serverResponse)); // Validation of session token
     }
 
-    /* Test 4: Login Response (error handling)
+
+    /* Test 4: Login Response (Exception Handling)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
      *              an error or a valid session token. (Permissions required: none.)
      * Expected Output: Return an invalid session token and throw IncorrectPasswordException
@@ -81,6 +83,7 @@ class ServerTest {
         // Ensure this test user exists with a diff password in the fake DB where this method is implemented
         assertEquals(BadPassword, Server.login(callingUser, hash("wrongPass")));
     }
+
 
     /* Test 5: Login Response (error handling)
      * Description: Control Panel will send the Server a username and hashed password. The Server will either send back
@@ -94,7 +97,8 @@ class ServerTest {
       assertEquals(NoSuchUser, Server.login("wrongUser", dummyHashedPassword));
     }
 
-    /* Test 6: Log out Response (Success)
+
+    /* Test 6: Log out Response (Pass)
      * Description: The Control Panel will send the Server a valid session token and the Server will expire that
      *              session token and send back a boolean acknowledgement for success/failure.
      * Expected Output: Successful log out of the user, session token is expired and acknowledgement returned.
@@ -109,11 +113,10 @@ class ServerTest {
     }
 
 
-    /* Test 7: Validate SessionToken (Success)
+    /* Test 7: Validate SessionToken (Pass)
      * Description: Check that the Session token is still valid - validation needs to happen on the server-side
      *              according to the specification.
      * Expected Output: Returns true as the given session should be active
-     * TODO: implement validSessionTokens is an array of strings (include "sessionToken" and exclude "failToken")
      */
     @Test
     public void verifySession() throws IOException, SQLException, NoSuchAlgorithmException {
@@ -122,15 +125,15 @@ class ServerTest {
     }
 
 
-    /* Test 8: Validate SessionToken (Exception Handling)
+    /* Test 8: Validate SessionToken (Pass)
      * Description: Check that the Session token is still valid.
-     * Expected Output: Returns false as the given session should be inactive, throws invalidSessionTokenException
+     * Expected Output: Returns false as the given session should be inactive
      */
     @Test
     public void verifySessionExpiration() throws IOException, SQLException, NoSuchAlgorithmException {
       String sessionToken = (String) Server.login(callingUser, dummyHashedPassword);
       Server.logout(sessionToken); // Should expire token
-      // Check Expired Token
+      // Check Expired Token is no longer valid
       assertFalse(validateToken(sessionToken));
       // Also Check Empty
       assertFalse(validateToken(""));
