@@ -9,6 +9,12 @@ import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 
+/**
+ * The ScheduleControl contains on the communication methods between the Control Panel to the server for Schedule Methods. It includes methods
+ * which will use functions from helpers that initialises communication and returns relevant object from server or server acknowledgements,
+ * such as creating, editing, removing Schedules.
+ */
+
 public class ScheduleControl {
 
 

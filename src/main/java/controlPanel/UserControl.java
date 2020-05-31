@@ -11,6 +11,12 @@ import java.sql.SQLException;
 import static helpers.Helpers.bytesToString;
 import static server.Server.*;
 
+/**
+ * The UserControl contains on the communication methods between the Control Panel to the server for User Methods. It includes methods
+ * which will use functions from helpers that initialises communication and returns relevant object from server or server acknowledgements,
+ * such as creating, editing, removing users.
+ */
+
 public class UserControl {
 
     /**
