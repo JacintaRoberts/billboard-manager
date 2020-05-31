@@ -34,9 +34,10 @@ public class Server {
     private static String sessionToken = null;
     private static String[] additionalArgs = new String[0];
     private static String[] concatString = new String[0];
-    private static final int TOKEN_SIZE = 32; // Constant for the number of bytes in a session token
 
-    // Different permissions that are available
+    /**
+     * The four different permissions that are available for the user to have
+     */
     public enum Permission {
         CreateBillboard,
         EditBillboard,
@@ -44,7 +45,10 @@ public class Server {
         EditUser
     }
 
-    // Different server acknowledgments that are available
+    /**
+     * Server acknowledgments that are available and are sent to the Controller from the Server to indicate
+     * success or exception occurred.
+     */
     public enum ServerAcknowledge {
         // General Enums
         Success,
@@ -56,7 +60,6 @@ public class Server {
         InsufficientPermission,
         CannotDeleteSelf, // Delete user handling
         CannotRemoveOwnAdminPermission, // Set user permissions handling
-
         // Schedule Based Enums
         BadTimeRepeatDuration,
         ScheduleNotExists,
@@ -460,7 +463,10 @@ public class Server {
         return NoSuchUser; // 3. No such user
     }
 
-
+    /**
+     * Main entry point for the Server program
+     * @param args Command line arguments (not required)
+     */
     public static void main(String[] args) {
         try {
             db = DbConnection.getInstance();
