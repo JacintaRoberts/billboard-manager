@@ -35,6 +35,7 @@ public class ScheduleWeekView extends AbstractGenericView
     public ScheduleWeekView()
     {
         super("Billboard Schedule");
+        // set schedue
         view_type = VIEW_TYPE.SCHEDULE_WEEK;
         addScheduleMenuButton();
     }
