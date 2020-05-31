@@ -47,6 +47,8 @@ public class BillboardAdmin {
      * Delete Table: Billboard. This is a generic method which drops the table. This is a method used for testing only.
      * <p>
      * This method always returns immediately.
+     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
+     * @throws SQLException Throws an exception if there is a database access error or other errors.
      * @return Returns a String with the message of Billboard Table Dropped
      */
     public static String dropBillboardTable() throws IOException, SQLException{
@@ -187,7 +189,7 @@ public class BillboardAdmin {
      * @param  requestor A string which provides the username whom wants to delete data from the database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
-     * @return ServerAcknowledge A enum which is used to assist in the GUI actions.
+     * @return ServerAcknowledge A enum which indicates pass/fail status which is used to assist in the GUI actions.
      */
     public static ServerAcknowledge deleteBillboard(String sessionToken, String billboard, String requestor) throws IOException, SQLException {
         if (validateToken(sessionToken)) {
@@ -349,7 +351,6 @@ public class BillboardAdmin {
 
     /**
      * Method to put a billboard from the database
-     * @return The billboard will be created into the Database
      * @param  billboardName A String which provides Billboard Name to store into database
      * @param  creator A string which notes the user who created the billbaord
      * @param  XMLCode A String which provides xmlCode to store into database
@@ -379,7 +380,6 @@ public class BillboardAdmin {
      * @param  creator A string which notes the user who created the billbaord
      * @param  XMLCode A String which provides xmlCode to store into database
      * @param  pictureData A Byte array which is base64 encoded represenation of the actual picture
-     * @return The billboard will be edited from the database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
@@ -430,7 +430,6 @@ public class BillboardAdmin {
     /**
      * Method to delete a billboard from the database
      * @param billboardName The name of the billboard to be deleted from the database
-     * @return The billboard will be deleted from the database
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
