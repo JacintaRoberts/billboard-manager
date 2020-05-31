@@ -41,23 +41,23 @@ public class Server {
      */
     public enum Permission {
         /**
-         * Users with the “Create Billboards” permission can create new billboards. They will also be able to
+         * Users with the 'Create Billboards' permission can create new billboards. They will also be able to
          * edit or delete any billboards they created, as long as those billboards are not presently scheduled.
          */
         CreateBillboard,
         /**
-         * Users with the “Edit All Billboards” permission will be able to edit or delete
+         * Users with the 'Edit All Billboards' permission will be able to edit or delete
          * any billboard on the system, including billboards that are currently
          * scheduled.
          */
         EditBillboard,
         /**
-         * Users with the “Schedule Billboards” permission will be able to schedule
+         * Users with the 'Schedule Billboards' permission will be able to schedule
          * billboards to be displayed on the Viewers.
          */
         ScheduleBillboard,
         /**
-         * Users with the “Edit Users” permission (administrators) will be able to
+         * Users with the 'Edit Users' permission (administrators) will be able to
          * access a list of all users and can both edit any user listed in the system as
          * well as create new users.
          */
@@ -102,7 +102,7 @@ public class Server {
          */
         CannotDeleteSelf,
         /**
-         * If the user tries to update their permissions to remove their own "Edit Users" permission.
+         * If the user tries to update their permissions to remove their own 'Edit Users' permission.
          */
         CannotRemoveOwnAdminPermission,
         /**
