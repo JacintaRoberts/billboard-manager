@@ -10,6 +10,7 @@ import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
 import java.sql.Connection;
 import java.sql.SQLException;
+import java.sql.SQLNonTransientConnectionException;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
@@ -463,6 +464,7 @@ public class Server {
         return NoSuchUser; // 3. No such user
     }
 
+
     /**
      * Main entry point for the Server program
      * @param args Command line arguments (not required)
@@ -472,13 +474,15 @@ public class Server {
             db = DbConnection.getInstance();
             initServer();
         } catch (IOException e) {
-            System.err.println("Server IO Exception caught: " + e);
-            e.printStackTrace();
+            System.err.println("Server IO Exception caught!");
+            System.out.println("More information on this error: \n" + e);
         } catch (SQLException e) {
-            System.err.println("Database Connection Exception caught: " + e);
-            e.printStackTrace();
+            System.err.println("Database/SQL Connection Exception caught!");
+            System.out.println("Please check the connection to the database and re-run server application.");
+            System.out.println("More information on this error: \n" + e);
         } catch (NoSuchAlgorithmException | ClassNotFoundException e) {
-            e.printStackTrace();
+            System.err.println("Server code Exception caught!");
+            System.out.println("More information on this error: \n" + e);
         }
     }
 
