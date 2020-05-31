@@ -495,7 +495,7 @@ public class ScheduleUpdateView extends AbstractGenericView
      */
     protected int showScheduleClearConfirmation()
     {
-        int result =  JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the Schedule? Please note, an existing Schedule for this Billboard will be removed from the database.");
+        int result =  JOptionPane.showConfirmDialog(null, "Are you sure you want to clear the Schedule?");
         return result;
     }
 
