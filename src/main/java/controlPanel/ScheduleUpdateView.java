@@ -499,6 +499,9 @@ public class ScheduleUpdateView extends AbstractGenericView
         return result;
     }
 
+    /**
+     * Show schedule error message to the user
+     */
     protected void showScheduleErrorMessage()
     {
         JOptionPane.showMessageDialog(null, "Error occurred");
@@ -632,6 +635,8 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Calculate the Billboard duration based on the start and end time selected. Inform user when invalid time is selected.
+     * Set Duration Time Label and disable specific radio buttons depending on the duration (i.e. duration > 1 hour,
+     * disable hourly radio button). Set List of valid minutes in minute combobox.
      */
     protected void calcDuration()
     {

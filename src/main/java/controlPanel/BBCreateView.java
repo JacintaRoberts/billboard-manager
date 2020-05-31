@@ -765,6 +765,12 @@ public class BBCreateView extends AbstractGenericView
         return JOptionPane.showInputDialog(null, "Provide URL to Image:");
     }
 
+    /**
+     * Get Image Data based on the URL provided
+     * @param urlPath string path to URL
+     * @return Array list containing Icon and Url Path of image
+     * @throws IOException Signals that an I/O exception of some sort has occurred.
+     */
     protected ArrayList<Object> getImageData(String urlPath) throws IOException {
         ArrayList<Object> imageDetails = new ArrayList<>();
         // convert path to url

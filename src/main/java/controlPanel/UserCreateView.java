@@ -97,7 +97,7 @@ public class UserCreateView extends AbstractUserView
     }
 
     /**
-     * Show Ask User for confirmation of user creation
+     * Ask User for confirmation of user creation
      * @return response of user (int)
      */
     protected int showCreateUserConfirmation()
