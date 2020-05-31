@@ -1404,7 +1404,7 @@ public class Controller
                             bbCreateView.showMessageToUser(message);
                         } else
                         {
-                            String message = "Billboard Creation Unsuccessful. Try again.";
+                            String message = "Billboard Creation Unsuccessful. Reason: " + createBillboardAction ;
                             bbCreateView.showMessageToUser(message);
                         }
                     }catch (ParserConfigurationException | TransformerException | ClassNotFoundException | IOException ex)
@@ -1823,7 +1823,7 @@ public class Controller
                         scheduleUpdateView.showMinuteMessage();
                         scheduleUpdateView.enableMinuteSelector(true);
                         int minuteRepeat = scheduleUpdateView.getMinuteRepeat();
-                        // set minute label
+                        // set minute label if greater than 0
                         if (minuteRepeat > 0) {
                             scheduleUpdateView.setMinuteLabel(minuteRepeat);
                         }
@@ -1871,7 +1871,6 @@ public class Controller
      * Listener to handle Schedule Clear mouse clicks.
      */
     private class ScheduleClearButtonListener extends MouseAdapter {
-
         /**
          * Define logic to allow user to clear the schedule logic
          * Error pop up message if error/exception occurred

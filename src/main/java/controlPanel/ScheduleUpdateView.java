@@ -3,6 +3,7 @@ package controlPanel;
 import controlPanel.Main.VIEW_TYPE;
 
 import javax.swing.*;
+import javax.swing.plaf.synth.SynthTextAreaUI;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.ArrayList;
@@ -319,6 +320,7 @@ public class ScheduleUpdateView extends AbstractGenericView
         // remove all names as these will be re-populated upon entering screen
         bbNameComboBox.removeAllItems();
         removeScheduleSelection();
+        enableMinuteSelector(false);
     }
 
     /**
@@ -348,7 +350,6 @@ public class ScheduleUpdateView extends AbstractGenericView
 
         // reset time selectors
         endHourSelector.setSelectedItem(1);
-        System.out.println("end hour " + endHourSelector.getSelectedItem());
         endMinSelector.setSelectedItem("00");
         startHourSelector.setSelectedItem(1);
         startMinSelector.setSelectedItem("00");
@@ -655,31 +656,48 @@ public class ScheduleUpdateView extends AbstractGenericView
         int minDifference = endMinute - startMinute;
         int hourDifference = endHour - startHour;
 
+        // set duration value
+        setDuration(startAM_PM, endAM_PM, hourDifference, minDifference, startHour, endHour);
+
+        // set duration label
+        manageDurationLabel();
+
+        // manage minute selection
+        manageMinutesSelection(endAM_PM, endHour, endMinute);
+
+        // enable/ disable recurrence buttons
+        enableRecurrenceButtons();
+    }
+
+    /**
+     * Set duration of the billboard based on the input time selected
+     * @param startAM_PM start time AM or PM string
+     * @param endAM_PM end time AM or PM string
+     * @param hourDifference hour difference in schedule
+     * @param minDifference min difference in schedule
+     * @param startHour start hour in schedule
+     * @param endHour end hour of schedule
+     */
+    private void setDuration(String startAM_PM, String endAM_PM, int hourDifference, int minDifference, int startHour, int endHour)
+    {
         // ################## CALCULATE DURATION IN MINUTES ##################
         // if end time is before start time - set duration to -1 to indicate invalid
-        if (startAM_PM.equals("PM") && endAM_PM.equals("AM"))
+        if ((startAM_PM.equals("PM") && endAM_PM.equals("AM")) || (endHour == 12 && endAM_PM.equals("AM")))
         {
-            if (endHour == 12 && startHour != 12)
-            {
-                duration = hourDifference*60 + minDifference;
-            }
-            else if (endHour == 12 && startHour == 12) {
-                hourDifference = hourDifference + 12;
-                duration = hourDifference*60 + minDifference;
-            }
-            else
-            {
-                duration = -1;
-            }
+            // invalid duration
+            duration = -1;
+            showMessageToUser("Invalid Duration. Rules: cannot select PM -> AM, end time cannot be 12am, duration must be bigger than 0 minutes.");
         }
         // calculate duration in minutes by adding +12 hours if AM -> PM and transforming to minutes (multiply by 60)
         else if (startAM_PM.equals("AM") && endAM_PM.equals("PM"))
         {
-            if (endHour == 12 && startHour != 12)
+            // if start is not 12am and end is 12pm
+            if (startHour != 12 && endHour == 12)
             {
                 duration = hourDifference*60 + minDifference;
             }
-            else if (endHour != 12 && startHour == 12)
+            // if start is 12am (midnight) and end is not 12pm (noon)
+            else if (startHour == 12 && endHour != 12)
             {
                 hourDifference = (hourDifference + 12) + 12;
                 duration = hourDifference*60 + minDifference;
@@ -691,26 +709,39 @@ public class ScheduleUpdateView extends AbstractGenericView
             }
         }
         // calculate duration in minutes by transforming hourDifference to minutes (multiply by 60)
+        // case where AM -> AM or PM -> PM
         else
         {
-            if (startHour == 12 && endHour != 12)
+            if ((startHour != 12 && endHour == 12) || (startHour == 12 && endHour != 12))
             {
-                hourDifference = hourDifference + 12;
-                duration = hourDifference*60 + minDifference;
+                // add 12 to deal with -ve difference
+                duration = (hourDifference+12)*60 + minDifference;
+            }
+            else if (startHour == 12 && endHour == 12)
+            {
+                // invalid duration
+                duration = -1;
             }
             else
             {
+                // multiply by 60 to calculate the hour difference in minutes
                 duration = hourDifference*60 + minDifference;
             }
         }
+    }
 
+    /**
+     * Manage Duration Label by setting to relevant value depending on value of duration
+     */
+    private void manageDurationLabel()
+    {
         // ################## MANAGE VALID/INVALID DURATION ##################
         // create error if duration is equal to or less than 0, disable minute selector
         if (duration <= 0)
         {
             durationTimeLabel.setText("Invalid");
-            enableMinuteSelector(false);
             minutesLabel.setText("Invalid Time selected.");
+            enableMinuteSelector(false);
         }
         // set duration label if valid time, enable minute selector
         else
@@ -718,13 +749,19 @@ public class ScheduleUpdateView extends AbstractGenericView
             durationTimeLabel.setText(duration/60 + " hrs " + duration%60 + " mins. Total Minutes: " + duration);
             enableMinuteSelector(true);
         }
+    }
 
-        // ################## MANAGE HOURLY SELECTION ##################
-        // disable hourly button if duration is longer than 1 hour
-        hourlyButton.setEnabled(duration < 60);
-
-        // ################ ## MANAGE MINUTES SELECTION ##################
+    /**
+     * Manage minutes selection by removing all current items and adding list of valid minutes that user can select
+     * @param endAM_PM end time selection either AM or PM
+     * @param endHour end hour in schedule
+     * @param endMinute end minute in schedule
+     */
+    private void manageMinutesSelection(String endAM_PM, int endHour, int endMinute)
+    {
+        // remove all items
         repeatMinutesComboBox.removeAllItems();
+
         if (!durationTimeLabel.getText().equals("Invalid"))
         {
             int minutesLeftInDay;
@@ -742,6 +779,33 @@ public class ScheduleUpdateView extends AbstractGenericView
             {
                 repeatMinutesComboBox.addItem(minute);
             }
+        }
+    }
+
+    /**
+     * Enable or Disable Recurrence buttons dependent on duration of schedule
+     */
+    private void enableRecurrenceButtons()
+    {
+        // if duration is invalid - disable minute and hourly buttons, select no repeats as default
+        if (durationTimeLabel.getText().equals("Invalid"))
+        {
+            enableMinuteSelector(false);
+            hourlyButton.setEnabled(false);
+            System.out.println("SET NO REPEATS");
+            noRepeatButton.setSelected(true);
+        }
+        // if valid and duration > 60 - disable hourly button if duration is longer than 1 hour, set no repeat as default
+        else if (duration > 60)
+        {
+            noRepeatButton.setSelected(true);
+            hourlyButton.setEnabled(false);
+        }
+
+        // if minute button is not selected, ensure to disable minute button text
+        if (!minuteButton.isSelected())
+        {
+            enableMinuteSelector(false);
         }
     }
 
@@ -818,14 +882,13 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Get the number of minutes the bb will be repeatedly scheduled.
-     * @throws Exception minutes not set exception
-     * @return return minute value selected
+     * @return return minute value selected (if invalid return -1)
      */
-    protected int getMinuteRepeat() throws Exception {
+    protected int getMinuteRepeat() {
         // if nothing has been selected, return an invalid minute number -1
         if (repeatMinutesComboBox.getSelectedItem() == null)
         {
-            throw new Exception("Minutes not selected.");
+            return -1;
         }
         // return selected minutes if valid
         else
