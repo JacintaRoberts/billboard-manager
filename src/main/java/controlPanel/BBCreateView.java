@@ -961,6 +961,7 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Import BB XML file from personal files and set title, text and photo on Drawing Panel
      * @param xmlImportPath String path to xml file
+     * @return xml Document
      * @throws ParserConfigurationException Indicates a serious configuration error
      * @throws IOException Signals that an I/O exception of some sort has occurred.
      * @throws SAXException basic error or warning information from the XML parser

@@ -369,6 +369,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Upon Submitting Schedule, ensure that at least one day has been selected
+     * @return boolean valid indicating valid day selection
      */
     protected boolean checkValidDaySelected()
     {
@@ -507,7 +508,14 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Set values from the server on the GUI. These values include: the selected days, start hour, start min,
-     * duration, button selected, minute repetition
+     *  duration, button selected, minute repetition
+     * @param selectedDays boolean array of selected days - if selected = true, not selected = false
+     * @param startHour starting hour as an int
+     * @param startMin starting minute as an int
+     * @param BBduration duration of schedule as an int
+     * @param buttonSelected button selected as a string (i.e. "hourly", "minute", "no repeats")
+     * @param minRepeat number of minutes for minute repeat
+     * @param AMPMtag am pm tag as a string (i.e. "AM", "PM")
      */
     protected void setScheduleValues(ArrayList<Boolean> selectedDays, int startHour, int startMin, int BBduration, String buttonSelected, int minRepeat, String AMPMtag)
     {
@@ -796,7 +804,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Get selected BB name
-     * @return
+     * @return selected bb name as a string
      */
     protected String getSelectedBBName()
     {
