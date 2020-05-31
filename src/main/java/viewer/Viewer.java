@@ -989,7 +989,19 @@ public class Viewer extends JFrame {
      * @param pictureData A byte[] array which stores the picture data attribute.
      */
     public void displayBillboard(String billboardXML, byte[] pictureData) {
+//        mainPanel.removeAll();
+
+        messageLabel.setText("");
+        pictureLabel.setIcon(null);
+        informationLabel.setText("");
+
         setupBillboard();
+
+//        private JPanel mainPanel;
+//        private JLabel messageLabel;
+//        private ImageIcon pictureIcon;
+//        private JLabel pictureLabel;
+//        private JLabel informationLabel;
 
         // Extract the billboard data using the server's response
         try {
