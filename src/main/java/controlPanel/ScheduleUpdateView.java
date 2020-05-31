@@ -491,7 +491,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Upon attempting to clear schedule, ask user to confirm schedule removal
-     * @return return result of user selection, 1 = confirm, other values are for cancel or exit
+     * @return return result of user selection, 0 = confirm, other values are for cancel or exit
      */
     protected int showScheduleClearConfirmation()
     {
