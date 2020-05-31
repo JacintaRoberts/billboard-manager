@@ -1664,7 +1664,7 @@ public class Controller
                         String filename = bbCreateView.enterXMLFileName();
 
                         // if filename is valid, proceed to export xml
-                        if (!filename.equals(""))
+                        if (filename != null || !filename.equals(""))
                         {
                             // get selected folder path
                             String path = bbCreateView.browseExportFolder();
