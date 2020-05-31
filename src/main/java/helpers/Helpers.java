@@ -4,6 +4,11 @@ import java.io.*;
 import java.net.Socket;
 import java.util.Properties;
 
+/**
+ * The Helpers class consists of functions that are useful for all three application. These includes reading the network
+ * property pathway, to communication through TCP/IP protocols.
+ */
+
 public class Helpers {
     // Network props file configuration
     public final static String networkPropsFilePath = "src\\main\\resources\\network.props";

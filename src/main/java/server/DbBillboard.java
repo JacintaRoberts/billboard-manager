@@ -2,6 +2,11 @@ package server;
 
 import java.io.Serializable;
 
+/**
+ * The DbBillboard is a serializable object hat stores billboard data to be sent to the Control Panel when requested.
+ */
+
+
 public class DbBillboard implements Serializable {
 
     // Set Fields for DbBillboard
