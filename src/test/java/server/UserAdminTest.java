@@ -56,6 +56,7 @@ class UserAdminTest {
     private ArrayList<Boolean> editSchedulePermission = new ArrayList<>(Arrays.asList(false, false, true, false));
     private ArrayList<Boolean> editUserPermission = new ArrayList<>(Arrays.asList(false, false, false, true));
 
+
     /* Test 1: Constructing a UserAdmin object
      * Description: UserAdmin and MockUserTable Objects should be able to be created
      * Expected Output: UserAdmin objects able to be instantiated from their respective classes.
@@ -71,7 +72,8 @@ class UserAdminTest {
         sessionToken = (String) login(callingUser, dummyHashedPassword); // generate a test token to be used by other functions
     }
 
-    /* Test 2: Check User Exists (Helper for other methods in this class)
+
+    /* Test 2: Check User Exists (Pass)
      * Description: Check that a user exists in the database - helper method
      * Expected Output: A boolean where true is returned if the user is found in the DB and false otherwise
      */
@@ -91,7 +93,8 @@ class UserAdminTest {
       );
     }
 
-    /* Test 4: Get Own User Permissions
+
+    /* Test 3: Get Own User Permissions (Pass)
      * Description: Check that any user can see their own user permissions (int[4])
      * Order - Create Billboards, Edit All Billboards, Schedule Billboards, Edit Users
      * Expected Output: Given the user's own username, the method should return associated permissions
@@ -131,8 +134,7 @@ class UserAdminTest {
     }
 
 
-
-    /* Test 3: View Other User's Permissions
+    /* Test 4: View Other User's Permissions (Pass)
      * Description: Check that only users with "Edit Permissions" can see any user's permissions
      * Order - Create Billboards, Edit All Billboards, Schedule Billboards, Edit Users
      * Expected Output: Given the requested username, the method should return associated permissions.
@@ -163,8 +165,6 @@ class UserAdminTest {
             ()-> assertEquals(editUserPermission, getPermissions(sessionToken, editUserUser))
         );
     }
-
-
 
 
     /* Test 5: Get Other User's Permissions (Exception Handling)
@@ -401,7 +401,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 21: Set Own Password (Pass)
+    /* Test 16: Set Own Password (Pass)
      * Description: Find corresponding username in db (if it exists) and then modify to the hashed password and
      *              return acknowledgement string to Control Panel.
      * Expected Output: Hashed password updated in the DB and returns string "Pass: Own Password Updated"
@@ -426,7 +426,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 22: Set Own Password (Exception Handling)
+    /* Test 17: Set Own Password (Exception Handling)
      * Description: Set own user password in the database - throw exception due to non-existent calling username
      * (e.g. if someone else deleted you whilst logged in).
      * Expected Output: Hashed password not updated in the DB and returns InvalidToken ServerAcknowledge
@@ -451,7 +451,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 23: Set Other User Password (Pass)
+    /* Test 18: Set Other User Password (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then modify to the hashed password and return acknowledgement (String) to Control Panel.
      * Expected Output: Hashed password updated in the DB and returns string "Pass: Other User Password Updated"
@@ -474,7 +474,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 24: Set Other User Password (Exception Handling)
+    /* Test 19: Set Other User Password (Exception Handling)
      * Description: Check that the calling user still exists in the DB before setting user password.
      * Expected Output: Hashed password not updated in the DB and returns InvalidToken ServerAcknowledge
      */
@@ -500,7 +500,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 25: Set Other User Password (Exception Handling)
+    /* Test 20: Set Other User Password (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * modify password of other users.
      * Expected Output: Hashed password not updated in the DB and returns InsufficientPermission ServerAcknowledge
@@ -527,7 +527,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 26: Set Other User Password (Exception Handling)
+    /* Test 21: Set Other User Password (Exception Handling)
      * Description: Check that if the username associated with the hashed password does not exist in database then
      * the password should not be updated and an exception should be thrown.
      * Expected Output: Hashed password not updated in the DB and returns NoSuchUser ServerAcknowledge
@@ -547,7 +547,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 27: Delete User (Pass)
+    /* Test 22: Delete User (Pass)
      * Description:
      * Check that the calling user has "EditUsers" permission, then find corresponding username in db
      * (if it exists) and then remove and return acknowledgement to Control Panel.
@@ -567,7 +567,8 @@ class UserAdminTest {
         assertFalse(UserAdmin.userExists(testUser));
     }
 
-    /* Test 28: Delete User (Exception Handling)
+
+    /* Test 23: Delete User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
      * Expected Output: Username is not deleted in DB and returns InvalidToken ServerAcknowledge
      */
@@ -598,7 +599,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 29: Delete User (Exception Handling)
+    /* Test 24: Delete User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * delete other users.
      * Expected Output: Username is not deleted in DB and returns InsufficientPermission ServerAcknowledge
@@ -623,7 +624,8 @@ class UserAdminTest {
         assertTrue(UserAdmin.userExists(testUser));
     }
 
-    /* Test 30: Delete User (Exception Handling)
+
+    /* Test 25: Delete User (Exception Handling)
      * Description: Check that if the username specified does not exist in database then, they should not be deleted
      * and instead an exception should be thrown.
      * Expected Output: Username is not deleted in DB and returns NoSuchUser ServerAcknowledge
@@ -644,7 +646,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 31: Delete User (Exception Handling)
+    /* Test 26: Delete User (Exception Handling)
      * Description: Check that if the username specified does not exist in database then, they should not be deleted
      * and instead an exception should be thrown.
      * Expected Output: Username is not deleted in DB and returns CannotDeleteSelf ServerAcknowledge
@@ -659,7 +661,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 32: Create User (Pass)
+    /* Test 27: Create User (Pass)
      * Description: Check that the calling user has "EditUsers" permission, then create the corresponding username in
      * the DB with the hashed password and permissions and return acknowledgement to Control Panel.
      * Expected Output: User is created in the DB and returns string "Pass: User Created"
@@ -678,7 +680,8 @@ class UserAdminTest {
         assertTrue(UserAdmin.userExists(testUser));
     }
 
-    /* Test 33: Create User (Exception Handling)
+
+    /* Test 28: Create User (Exception Handling)
      * Description: Check that the calling user exists and has not been deleted since attempt to call (check on submit)
      * Expected Output: Username is not created in DB and returns InvalidToken ServerAcknowledge
      */
@@ -704,7 +707,8 @@ class UserAdminTest {
         assertFalse(UserAdmin.userExists(basicUser));
     }
 
-    /* Test 34: Create User (Exception Handling)
+
+    /* Test 29: Create User (Exception Handling)
      * Description: Check that if the calling user does not have "EditUsers" permission that they are unable to
      * create other users.
      * Expected Output: Username is not created in DB and returns InsufficientPermission ServerAcknowledge
@@ -730,7 +734,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 35: Create User (Exception Handling)
+    /* Test 30: Create User (Exception Handling)
      * Description: Check that if the desired username does not already exist in the DB (must be unique).
      * Expected Output: Username already exists in DB and returns PrimaryKeyClash ServerAcknowledge
      */
@@ -747,7 +751,7 @@ class UserAdminTest {
     }
 
 
-    /* Test 36: Clean-Up
+    /* Test 31: Clean-Up
      * Description: Check that all test user data is removed from database.
      * Expected Output: Database is now fresh and does not contain any fake username from this integrated testing.
      */
