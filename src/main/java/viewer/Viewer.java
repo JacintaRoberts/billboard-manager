@@ -54,6 +54,12 @@ public class Viewer extends JFrame {
         pictureLabel = new JLabel();
         informationLabel = new JLabel();
 
+        // Set a consistent font
+        Font font = new Font("Garamond",  Font.BOLD, 12);
+        messageLabel.setFont(font);
+        pictureLabel.setFont(font);
+        informationLabel.setFont(font);
+
         // Remove the borders of the JFrame
         setUndecorated(true);
 
@@ -323,7 +329,8 @@ public class Viewer extends JFrame {
      */
     public int getMessageFontSize(String message, double maxStringHeight) {
         // Get the current font size and initialise the variable to return
-        int currentFontSize = messageLabel.getFont().getSize();
+        int currentFontSize = 12;
+//        int currentFontSize = messageLabel.getFont().getSize();
         int fontSize = currentFontSize;
 
         // Horizontal spacing on borders of message
@@ -345,6 +352,11 @@ public class Viewer extends JFrame {
             stringWidth = fontMetrics.stringWidth(message);
             stringHeight = fontMetrics.getLeading() + fontMetrics.getMaxAscent() + fontMetrics.getMaxDescent();
 
+            // Break if the string width is too large
+            if (stringWidth >= (SCREEN_WIDTH - screenWidthBorder*2)) {
+                break;
+            }
+
         }
 
         return fontSize;
@@ -359,7 +371,8 @@ public class Viewer extends JFrame {
      */
     public void setInformationFontSize(double maxStringHeight, boolean message) {
         // Get the current font size and initialise the variable to return
-        int fontSize = informationLabel.getFont().getSize();
+        int fontSize = 12;
+//        int fontSize = informationLabel.getFont().getSize();
 
         // Define the maximum font size to be a very large number
         int maxFontSize = 500;
@@ -910,9 +923,10 @@ public class Viewer extends JFrame {
         KeyListener escListener = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    System.exit(0);
-                }
+            if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                System.out.println("Exited Viewer by pressing the escape key.");
+                System.exit(0);
+            }
             }
         };
 
@@ -927,9 +941,11 @@ public class Viewer extends JFrame {
         MouseListener clickListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent event) {
+                System.out.println("Exited Viewer by clicking the mouse.");
                 System.exit(0);
             }
         };
+
 
         addMouseListener(clickListener);
     }
