@@ -30,6 +30,7 @@ public class UsersMenuView extends AbstractGenericView
     public UsersMenuView()
     {
         super("Users View");
+        // set frame's enum
         view_type = VIEW_TYPE.USERS_MENU;
     }
 
@@ -40,20 +41,25 @@ public class UsersMenuView extends AbstractGenericView
     @Override
     void createComponents()
     {
+        // instantiate gbc
         gbc = new GridBagConstraints();
+        // create options panel
         optionsPanel = new JPanel();
         optionsPanel.setLayout(new GridBagLayout());
+        // create view user and create user button
         viewUsersButton = new JButton("View Users");
         createUsersButton = new JButton("Create User");
+        // create title of screen
         title = new JLabel("USER MENU");
         title.setForeground(Color.WHITE);
         title.setFont(title.getFont().deriveFont(60f));
-
+        // add all items to options panel
         gbc.insets = new Insets(1,10,1,10);
         optionsPanel.add(viewUsersButton, setGBC(gbc, 1,1,1,1));
         optionsPanel.add(createUsersButton, setGBC(gbc, 3,1,1,1));
         gbc.insets = new Insets(250,1,1,1);
         optionsPanel.add(title, setGBC(gbc, 1,2,3,1));
+        // add options panel to frame
         getContentPane().add(optionsPanel, BorderLayout.CENTER);
     }
 
