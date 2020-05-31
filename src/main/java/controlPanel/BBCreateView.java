@@ -831,8 +831,6 @@ public class BBCreateView extends AbstractGenericView
 
     /**
      * Allow users to browse folders in order to select one to save the XML BB file
-     * @throws ParserConfigurationException Throws an exception when there is a serious configuration error.
-     * @throws TransformerException Throws an exception when there is an exceptional condition that occurred during the transformation process
      * @return Returns a string which consists of the xmlExportPath the user chooses
      */
     protected String browseExportFolder()
@@ -963,9 +961,9 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Import BB XML file from personal files and set title, text and photo on Drawing Panel
      * @param xmlImportPath String path to xml file
-     * @throws ParserConfigurationException
-     * @throws IOException
-     * @throws SAXException
+     * @throws ParserConfigurationException Indicates a serious configuration error
+     * @throws IOException Signals that an I/O exception of some sort has occurred.
+     * @throws SAXException basic error or warning information from the XML parser
      */
     protected Document createXMLDoc(String xmlImportPath) throws ParserConfigurationException, IOException, SAXException {
         //creating a constructor of file class and parsing an XML file
@@ -1047,8 +1045,8 @@ public class BBCreateView extends AbstractGenericView
      * Create XML and export to user's personal file explorer based on specified file path
      * @param path path to xml folder
      * @param xmlDocument xml document
-     * @throws ParserConfigurationException
-     * @throws TransformerException
+     * @throws TransformerException This class specifies an exceptional condition that occurred
+     *  during the transformation process.
      */
     protected void xmlExport(String path, Document xmlDocument) throws TransformerException {
 
@@ -1077,6 +1075,10 @@ public class BBCreateView extends AbstractGenericView
     /**
      * Get XML Document from String
      * @param xmlString xml document as string
+     * @return xml converted to Document
+     * @throws ParserConfigurationException  Indicates a serious configuration error.
+     * @throws IOException Signals that an I/O exception of some sort has occurred.
+     * @throws SAXException basic error or warning information from the XML parser
      */
     protected Document getXMLDocument(String xmlString) throws ParserConfigurationException, IOException, SAXException {
         DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
