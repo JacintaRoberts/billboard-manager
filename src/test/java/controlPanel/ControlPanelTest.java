@@ -5,7 +5,7 @@ class ControlPanelTest {
      * Description: ControlPanel Object is created upon application start.
      * Output: ControlPanel Object is declared
      */
-    ControlPanel controlPanel;
+//    ControlPanel controlPanel;
 
     /* Test 1: Constructing a ControlPanel object
      * Description: ControlPanel Object is created upon application start.

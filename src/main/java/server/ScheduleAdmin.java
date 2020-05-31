@@ -1,5 +1,7 @@
 package server;
 
+import server.Server.ServerAcknowledge;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.Array;
@@ -178,11 +180,14 @@ public class ScheduleAdmin {
      * <p>
      * This method always returns immediately. It will either return a success message or fail message if no deletion can
      * be done.
-     * @return Returns a String noting if the billboard passes (Pass: Billboard Schedule Deleted) or fails due to reasons.
+     * @param sessionToken A String which is the session token from the calling user.
+     * @param billboard A String which is the name of the billboard to have its schedule deleted.
+     * @return Server acknowledgment for success or to indicate whether some other exception occurred (BillboardNotExists,
+     * ScheduleExists, InsufficientPermission).
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
-    public static Server.ServerAcknowledge deleteSchedule(String sessionToken, String billboard) throws IOException, SQLException {
+    public static ServerAcknowledge deleteSchedule(String sessionToken, String billboard) throws IOException, SQLException {
         // Set Variables
         if (validateToken(sessionToken)) {
             System.out.println("Session is valid");
@@ -191,22 +196,22 @@ public class ScheduleAdmin {
                 String count = countFilterBillboardSql(billboard);
                 if (count.equals("0")){
                     System.out.println("Billboard does not exist");
-                    return BillboardNotExists;
+                    return BillboardNotExists; // 1. Billboard does not exist
                 } else {
                     String count2 = countScheduleSql();
                     ResultSet rs;
                     String serverResponse = null;
                     if (count2.equals("0")) {
                         System.out.println("Schedule does not exist");
-                        return ScheduleNotExists;
+                        return ScheduleNotExists; // 2. Schedule does not exist
                     }else {
                         deleteScheduleSql(billboard);
-                        return Success;
+                        return Success; // 3. Success
                     }
                 }
             } else {
                 System.out.println("Insufficient User Permission");
-                return InsufficientPermission;
+                return InsufficientPermission; // 4. Insufficient user permissions
             }
 
         } else {
@@ -317,6 +322,7 @@ public class ScheduleAdmin {
      * <p>
      * This method always returns immediately, and will return a relevant string noting if there is any errors or if the schedule
      * gets edited successfully.
+     * @param sessionToken A String which is the session token from the calling user.
      * @param  billboard A String which provides Billboard Name to search in the data table for updating
      * @param  StartTime A String in format of Java Time to store into database
      * @param  Duration A String representing an integer which provides Duration which to store into database
@@ -333,7 +339,7 @@ public class ScheduleAdmin {
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
-    public static Server.ServerAcknowledge updateSchedule(String sessionToken,
+    public static ServerAcknowledge updateSchedule(String sessionToken,
                                                           String billboard,
                                                           String StartTime,
                                                           String Duration,
@@ -408,7 +414,7 @@ public class ScheduleAdmin {
         String retrievedFriday;
         String retrievedSaturday;
         // Set storage parameters for single
-        Server.ServerAcknowledge serverResponse = null;
+        ServerAcknowledge serverResponse = null;
         //Check if Schedule Exists and updates as required
         ResultSet rs = null;
         String count = countFilterScheduleSql(BillboardName);
@@ -905,8 +911,6 @@ public class ScheduleAdmin {
      * This function returns the index of the latest date from an array of LocalDateTime values.
      * @param dateTimes An ArrayList of LocalDateTime values.
      * @return index Returns an int which is the index of the latest date in the dateTimes ArrayList.
-     * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
-     * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
     public static int latestDateTimeInArray(ArrayList<LocalDateTime> dateTimes) {
 
@@ -1087,6 +1091,7 @@ public class ScheduleAdmin {
     /**
      * This function counts a Schedule for a specific billboard from the database.
      * @return A String which specifies the number of times a billboard is displayed.
+     * @param billboard A string billboard name to be searched for in the Schedule table.
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws SQLException Throws an exception if there is a database access error or other errors.
      */
