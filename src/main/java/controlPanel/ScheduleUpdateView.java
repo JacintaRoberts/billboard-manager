@@ -491,7 +491,7 @@ public class ScheduleUpdateView extends AbstractGenericView
 
     /**
      * Upon attempting to clear schedule, ask user to confirm schedule removal
-     * @return
+     * @return return result of user selection, 1 = confirm, other values are for cancel or exit
      */
     protected int showScheduleClearConfirmation()
     {
@@ -814,6 +814,7 @@ public class ScheduleUpdateView extends AbstractGenericView
     /**
      * Get the number of minutes the bb will be repeatedly scheduled.
      * @throws Exception minutes not set exception
+     * @return return minute value selected
      */
     protected int getMinuteRepeat() throws Exception {
         // if nothing has been selected, return an invalid minute number -1
