@@ -12,6 +12,10 @@ import static server.Server.ServerAcknowledge.*;
 import static server.Server.ServerAcknowledge.InvalidToken;
 import static server.Server.validateToken;
 
+/**
+ * The BillboardAdmin contains methods which interacts with the server and database when working with the Billboard Table.
+ */
+
 public class BillboardAdmin {
 
     // Custom SQL Strings for Specific Queries
