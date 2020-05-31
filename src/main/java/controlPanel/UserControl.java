@@ -117,7 +117,7 @@ public class UserControl {
      * corresponding permission (order is createBillboard, editBillboard, editSchedule, editUser).
      * @param sessionToken A String which is a session token for the current log in (contains calling user).
      * @param username A String which is the username of the user's permissions to be retrieved.
-     * @return Returns an Object which is an ArrayList<Boolean> for the user's permissions, or ServerAcknowledge for error message occurred.
+     * @return Returns an Object which is an ArrayList(Boolean) for the user's permissions, or ServerAcknowledge for error message occurred.
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.
      */

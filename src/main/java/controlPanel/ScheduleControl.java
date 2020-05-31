@@ -80,7 +80,7 @@ public class ScheduleControl {
      * <p>
      * This method always returns immediately.
      * @param sessionToken A String which represents the sessionToken generated when logged in.
-     * @param scheduleInfo An ArrayList<Object> which is the current schedule information.
+     * @param scheduleInfo An ArrayList(Object) which is the current schedule information.
      * @return A Server.ServerAcknowledge which is an acknowledgement message from the server.
      * @throws IOException Throws an exception if an I/O exception of some sort has occurred.
      * @throws ClassNotFoundException Throws an exception when a specified class cannot be found in the classpath.

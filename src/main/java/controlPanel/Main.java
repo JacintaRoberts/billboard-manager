@@ -23,7 +23,7 @@ public class Main {
     /**
      * Main starts up the MVC application by instantiating the Model, Viewers and Controller.
      * Schedules threads to run application.
-     * @param args
+     * @param args Input arguments for Main
      */
     public static void main(String[] args) {
         //Schedule a job for the event-dispatching thread:
