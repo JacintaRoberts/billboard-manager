@@ -8,9 +8,9 @@ import static server.Server.*;
 import java.io.IOException;
 
 /**
- * The BillboardControl contains on the communication methods between the Control Panel to the server. It includes methods
- * which will use functions from helpers that initialises communication and returns relevant object from server or server acknowledgements.
- *
+ * The BillboardControl contains on the communication methods between the Control Panel to the server for Billboard Methods. It includes methods
+ * which will use functions from helpers that initialises communication and returns relevant object from server or server acknowledgements,
+ * such as creating, editing, removing Billboards.
  */
 
 public class BillboardControl
