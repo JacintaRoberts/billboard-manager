@@ -1324,15 +1324,16 @@ public class Controller
             String validCharacters = "([A-Za-z0-9-_ ]+)";
 
             // if valid BB name, then check that
-            if (BBName != null)
-            {
+            if (BBName != null) {
                 boolean validName = BBName.matches(validCharacters);
-                if (validName)
-                {
-                    bbCreateView.setBBName(BBName);
-                }
-                else
-                {
+                if (validName) {
+
+                    if(BBName.length() <= 20){
+                        bbCreateView.setBBName(BBName);
+                    } else {
+                        bbCreateView.showMessageToUser("Billboard Name Exceeds 20 Characters");
+                    }
+                } else {
                     bbCreateView.showMessageToUser("Invalid Billboard Name");
                 }
             }
@@ -1399,7 +1400,7 @@ public class Controller
                                 // navigate to schedule menu view
                                 updateView(BB_MENU);
                             }
-                        } else if (createBillboardAction.equals(BillboardNameExists)) {
+                        } else if (createBillboardAction.equals(PrimaryKeyClash)) {
                             String message = "Billboard Name already exists";
                             bbCreateView.showMessageToUser(message);
                         } else

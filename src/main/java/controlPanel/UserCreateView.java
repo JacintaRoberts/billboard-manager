@@ -130,7 +130,7 @@ public class UserCreateView extends AbstractUserView
      */
     protected void showErrorMessage()
     {
-        String message = "Please fill out all fields.";
+        String message = "Please fill out all fields correctly. Ensure 20 Alphanumerical characters for username only.";
         JOptionPane.showMessageDialog(null, message);
     }
 
@@ -140,7 +140,15 @@ public class UserCreateView extends AbstractUserView
      */
     protected boolean checkValidUser()
     {
-        return !usernameText.getText().equals("") && passwordText!= null;
+        String validCharacters = "([A-Za-z0-9-_ ]+)";
+        boolean validlength = false;
+
+        if(usernameText.getText().length() <= 20){
+            validlength = true;
+        }
+
+        boolean validName = usernameText.getText().matches(validCharacters);
+        return !usernameText.getText().equals("") && passwordText!= null && validName && validlength;
     }
 
     /**
