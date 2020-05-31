@@ -438,6 +438,9 @@ public class Viewer extends JFrame {
 
         // Choose the font size so the message fits in one line
         int fontSize = getMessageFontSize(message, maxStringHeight);
+        System.out.println("=========================");
+        System.out.println(fontSize);
+        System.out.println("=========================");
         Font messageFont = new Font(messageLabel.getFont().getName(), Font.BOLD, fontSize);
         messageLabel.setFont(messageFont);
 
@@ -900,6 +903,9 @@ public class Viewer extends JFrame {
             }
         }
 
+        repaint();
+        revalidate();
+
     }
 
 
@@ -989,7 +995,7 @@ public class Viewer extends JFrame {
      * @param pictureData A byte[] array which stores the picture data attribute.
      */
     public void displayBillboard(String billboardXML, byte[] pictureData) {
-//        mainPanel.removeAll();
+        mainPanel.removeAll();
 
         messageLabel.setText("");
         pictureLabel.setIcon(null);
