@@ -923,9 +923,10 @@ public class Viewer extends JFrame {
         KeyListener escListener = new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent event) {
-                if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
-                    System.exit(0);
-                }
+            if (event.getKeyCode() == KeyEvent.VK_ESCAPE) {
+                System.out.println("Exited Viewer by pressing the escape key.");
+                System.exit(0);
+            }
             }
         };
 
@@ -940,9 +941,11 @@ public class Viewer extends JFrame {
         MouseListener clickListener = new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent event) {
+                System.out.println("Exited Viewer by clicking the mouse.");
                 System.exit(0);
             }
         };
+
 
         addMouseListener(clickListener);
     }
